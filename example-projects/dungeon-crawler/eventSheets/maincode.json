@@ -1,0 +1,1409 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How many times the player can walk before dying."
+		},
+		{
+			"eventType": "variable",
+			"name": "PlayerHeath",
+			"type": "number",
+			"initialValue": "31",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 236484944204378
+		},
+		{
+			"eventType": "comment",
+			"text": "How large and tall each tile is."
+		},
+		{
+			"eventType": "variable",
+			"name": "TILESIZE",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 593332184426178
+		},
+		{
+			"eventType": "comment",
+			"text": "How long it takes for a character to move between tiles."
+		},
+		{
+			"eventType": "variable",
+			"name": "ANIMATIONTIME",
+			"type": "number",
+			"initialValue": "0.1",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 678136453097223
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the game by updating the HUD, so the player heath is properly displayed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 231636906352682
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "UpdateHUD",
+							"sid": 939464942170593
+						}
+					],
+					"sid": 632145132395848
+				}
+			],
+			"sid": 351414932405439
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Only allow the player to move if there's no cooldown running in the background."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-timer-running",
+							"objectClass": "GameManager",
+							"sid": 858582048207187,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Cooldown\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 528274932299300,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move the player left."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 125489548738278,
+									"parameters": {
+										"key": 37
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MovePlayerAtAngle",
+									"sid": 564830748205605,
+									"parameters": [
+										"180"
+									]
+								}
+							],
+							"sid": 162214767688538
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player right."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 887676053439369,
+									"parameters": {
+										"key": 39
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MovePlayerAtAngle",
+									"sid": 667090050875593,
+									"parameters": [
+										"0"
+									]
+								}
+							],
+							"sid": 492770317644073
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 829055653184512,
+									"parameters": {
+										"key": 38
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MovePlayerAtAngle",
+									"sid": 520416304737567,
+									"parameters": [
+										"270"
+									]
+								}
+							],
+							"sid": 660004801539384
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player down."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 903097440081386,
+									"parameters": {
+										"key": 40
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MovePlayerAtAngle",
+									"sid": 958506504903371,
+									"parameters": [
+										"90"
+									]
+								}
+							],
+							"sid": 585160843925484
+						}
+					]
+				}
+			],
+			"sid": 149213794168862
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Move the player to a nearby tile, towards the passed angle of motion parameter."
+				},
+				{
+					"functionName": "MovePlayerAtAngle",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "AngleOfMotion",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 636639529521400
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 115297028676563,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "However, a new move can only be performed if the player isn't moving already and has a ground tile in front of it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "Player",
+									"sid": 675495582450939,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 703322646980597,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-at-offset",
+											"objectClass": "Player",
+											"sid": 577992601682717,
+											"parameters": {
+												"object": "Ground",
+												"offset-x": "round(cos(AngleOfMotion) * TILESIZE)",
+												"offset-y": "round(sin(AngleOfMotion) * TILESIZE)"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 140678739873506,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the angle of motion is a horizontal one (0 = right or 180 = left), adjust the player width so it can be mirrored accordingly."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 261400732821926,
+													"parameters": {
+														"first-value": "round(cos(AngleOfMotion))",
+														"comparison": 1,
+														"second-value": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-width",
+													"objectClass": "Player",
+													"sid": 315381646117474,
+													"parameters": {
+														"width": "Self.ImageWidth * round(cos(AngleOfMotion))"
+													}
+												}
+											],
+											"sid": 553144876283199
+										},
+										{
+											"eventType": "comment",
+											"text": "If the player doesn't have a skeleton enemy in front of it, finish the move."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-overlapping-at-offset",
+													"objectClass": "Player",
+													"sid": 113752325845667,
+													"parameters": {
+														"object": "Solid",
+														"offset-x": "round(cos(AngleOfMotion) * TILESIZE)",
+														"offset-y": "round(sin(AngleOfMotion) * TILESIZE)"
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-two-properties",
+													"objectClass": "Player",
+													"sid": 504308776570037,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Move\"",
+														"property": "position",
+														"end-x": "Self.X + round(cos(AngleOfMotion) * TILESIZE)",
+														"end-y": "Self.Y + round(sin(AngleOfMotion) * TILESIZE)",
+														"time": "ANIMATIONTIME",
+														"ease": "default",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no"
+													}
+												},
+												{
+													"callFunction": "StartMovementCooldown",
+													"sid": 656236025929837
+												}
+											],
+											"sid": 121231462269145
+										},
+										{
+											"eventType": "comment",
+											"text": "However, if the player does have a skeleton enemy in front of it, don't move and instead deal damage to the skeleton by attacking it with a sword."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 986177411881046
+												},
+												{
+													"id": "is-overlapping-at-offset",
+													"objectClass": "Player",
+													"sid": 288609700590511,
+													"parameters": {
+														"object": "Solid",
+														"offset-x": "round(cos(AngleOfMotion) * TILESIZE)",
+														"offset-y": "round(sin(AngleOfMotion) * TILESIZE)"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "DealDamageToPlayer",
+													"sid": 615609531408670,
+													"parameters": [
+														"1"
+													]
+												},
+												{
+													"callFunction": "DealDamageToSolid",
+													"sid": 513450686201596,
+													"parameters": [
+														"Solid.UID",
+														"1",
+														true,
+														"AngleOfMotion"
+													]
+												},
+												{
+													"id": "set-animation",
+													"objectClass": "Player",
+													"sid": 853452204646716,
+													"parameters": {
+														"animation": "\"Attack\"",
+														"from": "beginning"
+													}
+												}
+											],
+											"sid": 457253085588407
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Leave a trail of glowing clone behind the player while it's moving."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Player",
+							"sid": 319413406632467,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 663072453357995,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 466065538731950,
+									"parameters": {
+										"interval-seconds": "0.05"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 519031749030847,
+									"parameters": {
+										"object-to-create": "DrawingCanvas",
+										"layer": "\"World\"",
+										"x": "0",
+										"y": "0",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "paste-object",
+									"objectClass": "DrawingCanvas",
+									"sid": 781741409992729,
+									"parameters": {
+										"object": "Player",
+										"effects": "with-effects"
+									}
+								}
+							],
+							"sid": 519657614902562
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player is done attacking, return to its default idle animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Player",
+							"sid": 629521253659809,
+							"parameters": {
+								"animation": "\"Attack\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Player",
+							"sid": 346038702823499,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 589975025836840
+				}
+			],
+			"sid": 201472789650916
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Solids",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Deal damage to a specific solid object while also pushing it backwards."
+				},
+				{
+					"functionName": "DealDamageToSolid",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "SolidUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 407632601561204
+						},
+						{
+							"name": "Damage",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 330156405458668
+						},
+						{
+							"name": "TryToPush",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 123187562525865
+						},
+						{
+							"name": "AngleOfMotion",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 716887636606795
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Solid",
+							"sid": 591165334776441,
+							"parameters": {
+								"unique-id": "SolidUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Also create a sword slash effect and flash the solid for a more impactful effect."
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Solid",
+							"sid": 368398846796419,
+							"parameters": {
+								"object": "SwordSlash",
+								"layer": "\"World\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "SwordSlash",
+							"sid": 414722215388754,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "offsetHeight",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "default",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "SwordSlash",
+							"sid": 606289461632760,
+							"parameters": {
+								"angle": "random(-30, 30)"
+							}
+						},
+						{
+							"callFunction": "FlashSolid",
+							"sid": 735649338689376,
+							"parameters": [
+								"Solid.UID"
+							]
+						}
+					],
+					"sid": 470306044288101,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the solid is able to take damage, then reduce its heath points."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Solid",
+									"sid": 324952040328224,
+									"parameters": {
+										"instance-variable": "CanTakeDamage"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Solid",
+									"sid": 472946303783002,
+									"parameters": {
+										"instance-variable": "HeathPoints",
+										"value": "clamp(Self.HeathPoints - Damage, 0, Infinity)"
+									}
+								}
+							],
+							"sid": 226741316490348,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the solid has no more heath points, destroy it while also spawning a few particles on top of it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Solid",
+											"sid": 560932052632393,
+											"parameters": {
+												"instance-variable": "HeathPoints",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Solid",
+											"sid": 168965818004142,
+											"parameters": {
+												"object": "Explosion",
+												"layer": "\"World\"",
+												"image-point": "0",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Solid",
+											"sid": 399305140080042,
+											"parameters": {
+												"object": "Sparkles",
+												"layer": "\"World\"",
+												"image-point": "0",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Solid",
+											"sid": 356875716306333
+										}
+									],
+									"sid": 796675611392588
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the solid is able to be pushed, then move it backwards, but only if there's a ground tile in front of it and no other solid covering the ground tile."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 122335186019424,
+									"parameters": {
+										"variable": "TryToPush"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 174321684657550,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Solid",
+											"sid": 706181894925767,
+											"parameters": {
+												"instance-variable": "CanBePushed"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 644604091575298,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Also, if the solid is a skeleton, adjust its width based on its angle of motion, so it can mirrored accordingly."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-animation-playing",
+													"objectClass": "Solid",
+													"sid": 843914345808126,
+													"parameters": {
+														"animation": "\"Skeleton\""
+													}
+												}
+											],
+											"actions": [],
+											"sid": 640731016112206,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-two-values",
+															"objectClass": "System",
+															"sid": 946635111983199,
+															"parameters": {
+																"first-value": "round(cos(AngleOfMotion))",
+																"comparison": 1,
+																"second-value": "0"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-width",
+															"objectClass": "Solid",
+															"sid": 604646418205478,
+															"parameters": {
+																"width": "Self.ImageWidth * round(cos(AngleOfMotion + 180))"
+															}
+														}
+													],
+													"sid": 352697514999765
+												}
+											]
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-overlapping-at-offset",
+													"objectClass": "Solid",
+													"sid": 625393329327174,
+													"parameters": {
+														"object": "Ground",
+														"offset-x": "round(cos(AngleOfMotion) * TILESIZE)",
+														"offset-y": "round(sin(AngleOfMotion) * TILESIZE)"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 488158893121520,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "is-overlapping-at-offset",
+															"objectClass": "Solid",
+															"sid": 874194297581332,
+															"parameters": {
+																"object": "OtherSolids",
+																"offset-x": "round(cos(AngleOfMotion) * TILESIZE)",
+																"offset-y": "round(sin(AngleOfMotion) * TILESIZE)"
+															},
+															"isInverted": true
+														}
+													],
+													"actions": [
+														{
+															"id": "tween-two-properties",
+															"objectClass": "Solid",
+															"sid": 134757668654698,
+															"behaviorType": "Tween",
+															"parameters": {
+																"tags": "\"Move\"",
+																"property": "position",
+																"end-x": "Self.X + round(cos(AngleOfMotion) * TILESIZE)",
+																"end-y": "Self.Y + round(sin(AngleOfMotion) * TILESIZE)",
+																"time": "ANIMATIONTIME",
+																"ease": "default",
+																"destroy-on-complete": "no",
+																"loop": "no",
+																"ping-pong": "no"
+															}
+														},
+														{
+															"callFunction": "StartMovementCooldown",
+															"sid": 256168079263055
+														},
+														{
+															"callFunction": "FlashSolid",
+															"sid": 693006464091613,
+															"parameters": [
+																"Solid.UID"
+															]
+														}
+													],
+													"sid": 369100777419265
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 282798687252205
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Heath",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Once the player or a solid is done moving, reduce their heath points even more if they land on a set of spikes."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Player",
+							"sid": 821367293703680,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 528073719021789,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Player",
+									"sid": 219717699987676,
+									"parameters": {
+										"object": "Spikes"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "DealDamageToPlayer",
+									"sid": 916211899979321,
+									"parameters": [
+										"2"
+									]
+								}
+							],
+							"sid": 237727415750666
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 732077475923401
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Player",
+									"sid": 261854502792338,
+									"parameters": {
+										"object": "Spikes"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "DealDamageToPlayer",
+									"sid": 334528472563994,
+									"parameters": [
+										"1"
+									]
+								}
+							],
+							"sid": 693418866607500
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Solid",
+							"sid": 505445026479991,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 575659052385170,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Solid",
+									"sid": 562919538062428,
+									"parameters": {
+										"object": "Spikes"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "DealDamageToSolid",
+									"sid": 204241432221026,
+									"parameters": [
+										"Solid.UID",
+										"2",
+										false,
+										"0"
+									]
+								}
+							],
+							"sid": 622742682823603
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Reduce the amount of heath points left for the player and update the HUD to display such value."
+				},
+				{
+					"functionName": "DealDamageToPlayer",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Damage",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 927949837472248
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 807438870551052,
+							"parameters": {
+								"variable": "PlayerHeath",
+								"value": "clamp(PlayerHeath - Damage, 0, Infinity)"
+							}
+						},
+						{
+							"callFunction": "UpdateHUD",
+							"sid": 627270184026208
+						}
+					],
+					"sid": 590426168216695,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the player is standing on a ground tile that's not the end of the game and doesn't have more heath points, then restart the game completely."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Player",
+									"sid": 161450687150779,
+									"parameters": {
+										"object": "Ground"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 771267520875579,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-animation-playing",
+											"objectClass": "Ground",
+											"sid": 417746643115740,
+											"parameters": {
+												"animation": "\"End\""
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [],
+									"sid": 470856994795795,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-eventvar",
+													"objectClass": "System",
+													"sid": 961839752559735,
+													"parameters": {
+														"variable": "PlayerHeath",
+														"comparison": 0,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "GameOver",
+													"sid": 808800083952359
+												}
+											],
+											"sid": 684468136601554
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the player is standing on the end ground tile, destroy the player and spawn a big thunder effect."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 907271675450260
+										},
+										{
+											"id": "is-animation-playing",
+											"objectClass": "Ground",
+											"sid": 770428705127731,
+											"parameters": {
+												"animation": "\"End\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Player",
+											"sid": 352418643451683,
+											"parameters": {
+												"object": "Thunder",
+												"layer": "\"World\"",
+												"image-point": "0",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-height",
+											"objectClass": "Thunder",
+											"sid": 374460553854922,
+											"parameters": {
+												"height": "512"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Thunder",
+											"sid": 254187843423760,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"FadeOut\"",
+												"property": "offsetWidth",
+												"end-value": "0",
+												"time": "0.25",
+												"ease": "easeinsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Player",
+											"sid": 977750573113373
+										}
+									],
+									"sid": 150394836709493
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 808256936704822
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Effects",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Flash a specific solid object by increasing its luminosity for a moment."
+				},
+				{
+					"functionName": "FlashSolid",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "SolidUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 618826508165571
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Solid",
+							"sid": 474940412451027,
+							"parameters": {
+								"unique-id": "SolidUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "stop-tweens",
+							"objectClass": "Solid",
+							"sid": 836687443100276,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Flash\""
+							}
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "Solid",
+							"sid": 966436438405806,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Flash\"",
+								"start-value": "200",
+								"end-value": "100",
+								"time": "0.25",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 268444601925627
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Solid",
+							"sid": 613156422245858,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Flash\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "Solid",
+							"sid": 502909082622264,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Self.Tween.Value(\"Flash\")"
+							}
+						}
+					],
+					"sid": 995996042187005
+				}
+			],
+			"sid": 345133302855545
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "HUD",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update the HUD text to display the current amount of heath left for the player."
+				},
+				{
+					"functionName": "UpdateHUD",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "HeathPoints",
+							"sid": 510705946991699,
+							"parameters": {
+								"text": "\"HP: \"&PlayerHeath"
+							}
+						}
+					],
+					"sid": 789076861764704
+				}
+			],
+			"sid": 889493267032404
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GameOver",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Restart the game and reset all global variables to prevent any information from being carried over to the next session."
+				},
+				{
+					"functionName": "GameOver",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 749130042589162
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 893507254842770
+						}
+					],
+					"sid": 296234456890122
+				}
+			],
+			"sid": 765972210100257
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Cooldown",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Start a cooldown timer that will prevent the player from interacting with the game while it's running."
+				},
+				{
+					"functionName": "StartMovementCooldown",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 238189266017439,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "ANIMATIONTIME",
+								"type": "once",
+								"tag": "\"Cooldown\""
+							}
+						}
+					],
+					"sid": 426472227349530
+				}
+			],
+			"sid": 443117774100573
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ZOrder",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly update the Z order of most objects in the scene, so they're correctly displayed vertically."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 519054064099593
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "ZOrder",
+							"sid": 225703361030659,
+							"parameters": {
+								"instance-variable": "ZOrder",
+								"value": "Self.Y"
+							}
+						},
+						{
+							"id": "sort-z-order",
+							"objectClass": "System",
+							"sid": 569433854046398,
+							"parameters": {
+								"object": "ZOrder",
+								"instance-variable": {
+									"name": "ZOrder",
+									"objectClass": "ZOrder"
+								}
+							}
+						}
+					],
+					"sid": 779533219466560
+				}
+			],
+			"sid": 845249348852965
+		}
+	],
+	"sid": 965585597503168
+}

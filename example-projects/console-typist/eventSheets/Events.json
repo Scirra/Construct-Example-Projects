@@ -1,0 +1,1521 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings"
+		},
+		{
+			"eventType": "variable",
+			"name": "DELAY_REDUCTION",
+			"type": "number",
+			"initialValue": "0.05",
+			"comment": "Value to be substracted from delay every turn",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 856301921367227
+		},
+		{
+			"eventType": "variable",
+			"name": "MIN_DELAY",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "Minimum delay necessary to show a new word",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 708811394822124
+		},
+		{
+			"eventType": "comment",
+			"text": "Global variables"
+		},
+		{
+			"eventType": "variable",
+			"name": "currentDelay",
+			"type": "number",
+			"initialValue": "2.5",
+			"comment": "Current delay to show a new word",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 698025523886124
+		},
+		{
+			"eventType": "variable",
+			"name": "permutationIdx",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Current permutation index",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 503474033901922
+		},
+		{
+			"eventType": "variable",
+			"name": "gameTime",
+			"type": "number",
+			"initialValue": "120",
+			"comment": "Time left until the end of the match",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 599707124630029
+		},
+		{
+			"eventType": "variable",
+			"name": "score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Amount of correct words",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 962661730405246
+		},
+		{
+			"eventType": "variable",
+			"name": "tutorial",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "Is the tutorial being displayed?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 978583323401376
+		},
+		{
+			"eventType": "variable",
+			"name": "gameOver",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the game over?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 762974691072727
+		},
+		{
+			"eventType": "variable",
+			"name": "correctTextUID",
+			"type": "number",
+			"initialValue": "-1",
+			"comment": "UID of the last correctly typed text",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 909019504610357
+		},
+		{
+			"eventType": "comment",
+			"text": "Return a sequence of random symbols."
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Auxiliary Functions",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Generate N random symbols."
+				},
+				{
+					"functionName": "GenRandomSymbols",
+					"functionDescription": "Generate N random symbols",
+					"functionCategory": "",
+					"functionReturnType": "string",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "n",
+							"type": "number",
+							"initialValue": "1",
+							"comment": "Number of symbols",
+							"sid": 587417086275426
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 255871627540649,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "symbols",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Symbols to be returned",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 207677374486252
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 988169594791677,
+									"parameters": {
+										"name": "\"j\"",
+										"start-index": "1",
+										"end-index": "n"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 171297329083663,
+									"parameters": {
+										"variable": "symbols",
+										"value": "symbols & Browser.ExecJS(\"String.fromCharCode(\" & (random(10) < 5 ? int(random(14)) + 33 : int(random(6)) + 58) & \")\")"
+									}
+								}
+							],
+							"sid": 823159840322283
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 212531337748555,
+									"parameters": {
+										"value": "symbols"
+									}
+								}
+							],
+							"sid": 822235690049126
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Reset the progress of all text, except for the one that was correctly typed."
+				},
+				{
+					"functionName": "ResetIncompleteTextsProgress",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 519066933968689,
+							"parameters": {
+								"object": "Text"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 871069194356974,
+							"parameters": {
+								"value": "Text.UID <> correctTextUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 111282876789322,
+							"parameters": {
+								"seconds": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Text",
+							"sid": 159235438769681,
+							"parameters": {
+								"instance-variable": "numPressed",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "Text",
+							"sid": 747159660826852,
+							"parameters": {
+								"text": "Self.fullText"
+							}
+						}
+					],
+					"sid": 530005103095389,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Reset correctTextUID to -1."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 988998510083697,
+									"parameters": {
+										"variable": "correctTextUID",
+										"value": "-1"
+									}
+								}
+							],
+							"sid": 757913676166434
+						}
+					]
+				}
+			],
+			"sid": 351064491868907
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "hexStartPoint",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Starting point for decorative hex numbers",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 126352031531624
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 995748659316152
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set starting point for decorative hex numbers."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 482745951931845,
+							"parameters": {
+								"variable": "hexStartPoint",
+								"value": "int(random(4076))"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Request array of words."
+						},
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 655154952320719,
+							"parameters": {
+								"tag": "\"Words\"",
+								"file": "Words.json"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 357250944917414
+						},
+						{
+							"id": "load",
+							"objectClass": "WordsArr",
+							"sid": 396232127704067,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create permutation table to show Texts in a non-repeating order."
+						},
+						{
+							"id": "createPermutationTable",
+							"objectClass": "AdvancedRandom",
+							"sid": 458706028537659,
+							"parameters": {
+								"length": "20",
+								"offset": "0"
+							}
+						}
+					],
+					"sid": 257730363238962,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Create texts."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 119031939538383,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "19"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create LED."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 552584497202378,
+									"parameters": {
+										"object-to-create": "LED",
+										"layer": "\"Background\"",
+										"x": "ScreenBody.ImagePointX(\"LED\" & loopindex(\"i\"))",
+										"y": "ScreenBody.ImagePointY(\"LED\" & loopindex(\"i\"))",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Text - Set text and sine cycle position to generate a more realistic scanline effect."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 834795767533161,
+									"parameters": {
+										"object-to-create": "Text",
+										"layer": "\"ScreenElements\"",
+										"x": "564 + int(loopindex(\"i\")/10) * 667",
+										"y": "132 + 80 * (loopindex(\"i\") % 10)",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-cycle-position",
+									"objectClass": "Text",
+									"sid": 421618296265875,
+									"behaviorType": "Sine",
+									"parameters": {
+										"cycle-position": "loopindex(\"i\")/10"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Text",
+									"sid": 682038621001742,
+									"parameters": {
+										"instance-variable": "fullText",
+										"value": "Functions.GenRandomSymbols(10)"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "Text",
+									"sid": 895150295081909,
+									"parameters": {
+										"text": "Self.fullText"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "TextHex - Set text and sine cycle position to generate a more realistic scanline effect. Write hex numbers sequentially from the starting point."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 870992154266200,
+									"parameters": {
+										"object-to-create": "TextHex",
+										"layer": "\"ScreenElements\"",
+										"x": "325 + int(loopindex(\"i\")/10) * 667",
+										"y": "132 + 80 * (loopindex(\"i\") % 10)",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-cycle-position",
+									"objectClass": "TextHex",
+									"sid": 532238843099729,
+									"behaviorType": "Sine",
+									"parameters": {
+										"cycle-position": "loopindex(\"i\")/10"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextHex",
+									"sid": 231986785627764,
+									"parameters": {
+										"text": "uppercase(\"0x\" & Browser.ExecJS(\"(\" & hexStartPoint + loopindex(\"i\") + 61440 & \").toString(16)\"))"
+									}
+								}
+							],
+							"sid": 503255215861615
+						}
+					]
+				}
+			],
+			"sid": 209622654006114
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Effects",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Text color obey sine values to generate a better scanline effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each-ordered",
+							"objectClass": "System",
+							"sid": 938363861761410,
+							"parameters": {
+								"object": "Text",
+								"expression": "0",
+								"order": "ascending"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-font-color",
+							"objectClass": "Text",
+							"sid": 634700161784430,
+							"parameters": {
+								"color": "rgba255(26 + Self.Sine.Value, 219 + Self.Sine.Value, 138 + Self.Sine.Value, 255)"
+							}
+						}
+					],
+					"sid": 985732337905155
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each-ordered",
+							"objectClass": "System",
+							"sid": 370312514770997,
+							"parameters": {
+								"object": "TextHex",
+								"expression": "0",
+								"order": "ascending"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-font-color",
+							"objectClass": "TextHex",
+							"sid": 543504385617686,
+							"parameters": {
+								"color": "rgba255(26 + Self.Sine.Value, 219 + Self.Sine.Value, 138 + Self.Sine.Value, 255)"
+							}
+						}
+					],
+					"sid": 114756569068866
+				}
+			],
+			"sid": 106045863495294
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Check Keypress",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Check if the key pressed is a letter (upper or lowercase)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 834320436014764
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 468105662167504,
+							"parameters": {
+								"value": "(Keyboard.LastKeyCode >= 65 & Keyboard.LastKeyCode <= 90) | (Keyboard.LastKeyCode >= 97 & Keyboard.LastKeyCode <= 122) "
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 288729774537837,
+							"parameters": {
+								"variable": "gameOver"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 917961710456427,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Check for every text that is not just showing up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 296275249358683,
+									"parameters": {
+										"object": "Text"
+									}
+								},
+								{
+									"id": "is-playing",
+									"objectClass": "Text",
+									"sid": 943411235169952,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"TextOpacityShow\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 762771456665894,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Increment the count of sequential letters in the word already pressed if the key pressed matches the next letter in the uncompleted portion of the word."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 741497433395234,
+											"parameters": {
+												"value": "right(left(Text.fullText, Text.numPressed + 1), 1) = uppercase(Keyboard.TypedKey)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-instvar",
+											"objectClass": "Text",
+											"sid": 777371070086769,
+											"parameters": {
+												"instance-variable": "numPressed",
+												"value": "1"
+											}
+										}
+									],
+									"sid": 763446821836042,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the player has pressed, sequentially, every letter from the word correctly, it turns into random symbols again. Also, increase player's score by 1."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Text",
+													"sid": 652699354855001,
+													"parameters": {
+														"instance-variable": "numPressed",
+														"comparison": 0,
+														"value": "len(Self.word)"
+													}
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Set correctTextUID variable to current text UID."
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 106964792155372,
+													"parameters": {
+														"variable": "correctTextUID",
+														"value": "Text.UID"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Reset all incomplete texts progress, to guarantee that they won't be half done when the player finishes a text."
+												},
+												{
+													"callFunction": "ResetIncompleteTextsProgress",
+													"sid": 348962727696057
+												},
+												{
+													"type": "comment",
+													"text": "Reset correctly typed text."
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Text",
+													"sid": 135458269806499,
+													"parameters": {
+														"instance-variable": "fullText",
+														"value": "Functions.GenRandomSymbols(10)"
+													}
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "Text",
+													"sid": 288572596476776,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"TextOpacityHideSymbols\"",
+														"property": "offsetOpacity",
+														"end-value": "0",
+														"time": "0.25",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "add-to-eventvar",
+													"objectClass": "System",
+													"sid": 757941899178161,
+													"parameters": {
+														"variable": "score",
+														"value": "1"
+													}
+												},
+												{
+													"id": "set-text",
+													"objectClass": "TextScore",
+													"sid": 997303011398461,
+													"parameters": {
+														"text": "zeropad(score, 3)"
+													}
+												}
+											],
+											"sid": 508809883415377,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Disable corresponding LED."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-evaluate",
+															"objectClass": "System",
+															"sid": 560678707842345,
+															"parameters": {
+																"object": "LED",
+																"expression": "LED.IID = Text.IID"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-visible",
+															"objectClass": "LED",
+															"sid": 332021779312108,
+															"parameters": {
+																"visibility": "invisible"
+															}
+														}
+													],
+													"sid": 366687669251422
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Otherwise, mark the next letter as correct."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 540378836391029
+												}
+											],
+											"actions": [
+												{
+													"id": "set-text",
+													"objectClass": "Text",
+													"sid": 740042891507447,
+													"parameters": {
+														"text": "\"[u]\" & left(Self.fullText, Self.numPressed) & \"[/u]\" & right(Self.fullText, len(Self.fullText) - Self.numPressed)"
+													}
+												}
+											],
+											"sid": 427853557379899
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player has pressed a wrong key, reset the word."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 124850838048811
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "Text",
+											"sid": 160811716617765,
+											"parameters": {
+												"text": "Self.fullText"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Text",
+											"sid": 299369318254746,
+											"parameters": {
+												"instance-variable": "numPressed",
+												"value": "0"
+											}
+										}
+									],
+									"sid": 553373696923245
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 545589220426463
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Display Word / LED",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Choose a random Text from the permutation table to display a word. Turn the corresponding LED on."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Timer",
+							"sid": 379382489186402,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"ShowWord\""
+							}
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 205714828941306,
+							"parameters": {
+								"object": "Text",
+								"expression": "Text.IID = AdvancedRandom.Permutation(permutationIdx)"
+							}
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 671368485199313,
+							"parameters": {
+								"object": "LED",
+								"expression": "LED.IID = AdvancedRandom.Permutation(permutationIdx)"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Text",
+							"sid": 394092167097855,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TextOpacityHide\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 218515722705246,
+							"parameters": {
+								"variable": "currentDelay",
+								"value": "max(MIN_DELAY, currentDelay - DELAY_REDUCTION)"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Timer",
+							"sid": 625599236245206,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "currentDelay",
+								"type": "once",
+								"tag": "\"ShowWord\""
+							}
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 892920543260214,
+							"parameters": {
+								"variable": "permutationIdx",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "LED",
+							"sid": 924645176623985,
+							"parameters": {
+								"visibility": "visible"
+							}
+						}
+					],
+					"sid": 249246395755181,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Reshuffle permutation table and reset permutation index."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 671380725698200,
+									"parameters": {
+										"value": "permutationIdx = 20"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "shufflePermutationTable",
+									"objectClass": "AdvancedRandom",
+									"sid": 182099727476189
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 427931477090019,
+									"parameters": {
+										"variable": "permutationIdx",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 566690907941347
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Change Text properties, including a word."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Text",
+							"sid": 390842609694345,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TextOpacityHide\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Text",
+							"sid": 549674316831824,
+							"parameters": {
+								"instance-variable": "word",
+								"value": "WordsArr.At(0,round(random(WordsArr.Height - 1)))"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Text",
+							"sid": 522449356326213,
+							"parameters": {
+								"instance-variable": "fullText",
+								"value": "Self.word & Functions.GenRandomSymbols(10-len(Self.word))"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "Text",
+							"sid": 977258971102198,
+							"parameters": {
+								"text": "Self.fullText"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Text",
+							"sid": 653975662974755,
+							"parameters": {
+								"instance-variable": "numPressed",
+								"value": "0"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Text",
+							"sid": 609120657617774,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TextOpacityShow\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 623505892126208
+				},
+				{
+					"eventType": "comment",
+					"text": "Change Text properties, including only symbols."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Text",
+							"sid": 484768343865017,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TextOpacityHideSymbols\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Text",
+							"sid": 315557283984643,
+							"parameters": {
+								"instance-variable": "fullText",
+								"value": "Functions.GenRandomSymbols(10)"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "Text",
+							"sid": 707373530160259,
+							"parameters": {
+								"text": "Self.fullText"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Text",
+							"sid": 256865029483464,
+							"parameters": {
+								"instance-variable": "numPressed",
+								"value": "0"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Text",
+							"sid": 337429861659258,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TextOpacityShow\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 901748735562819
+				}
+			],
+			"sid": 203176310287120
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game Timer",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Ran evey second."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Timer",
+							"sid": 220290009811780,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"TimeTick\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 923384846410068,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "While GameTime is bigger than 0, it is reduced by 1."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 504168088677255,
+									"parameters": {
+										"value": "GameTime > 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 982015922305572,
+									"parameters": {
+										"variable": "gameTime",
+										"value": "1"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextTimer",
+									"sid": 741321355458625,
+									"parameters": {
+										"text": "zeropad(GameTime, 3)"
+									}
+								}
+							],
+							"sid": 913481176964322
+						},
+						{
+							"eventType": "comment",
+							"text": "If GameTime is 0, then it is game over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 324682308982761
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "GameOver",
+									"sid": 884956797546207
+								}
+							],
+							"sid": 711284958582329
+						}
+					]
+				}
+			],
+			"sid": 334695544858599
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tutorial",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup tutorial."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 423132276804836
+						}
+					],
+					"actions": [
+						{
+							"id": "add-layer",
+							"objectClass": "System",
+							"sid": 343569831955421,
+							"parameters": {
+								"name": "\"Tutorial\"",
+								"insert-by": "\"ScreenElements\"",
+								"where": "above"
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 307864729895888,
+							"parameters": {
+								"object-to-create": "Fader",
+								"layer": "\"Tutorial\"",
+								"x": "0",
+								"y": "0",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 441304994692575,
+							"parameters": {
+								"object-to-create": "TextTutorial",
+								"layer": "\"Tutorial\"",
+								"x": "LayoutWidth/2",
+								"y": "LayoutHeight/2",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						}
+					],
+					"sid": 268879283470749
+				},
+				{
+					"eventType": "comment",
+					"text": "Hide tutorial and start the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 967898728001536,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 780078522854369,
+							"parameters": {
+								"variable": "tutorial"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Deactivate tutorial game state"
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 696918693299533,
+							"parameters": {
+								"variable": "tutorial",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide tutorial."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 595345356781131,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FaderOut\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTutorial",
+							"sid": 815308940213277,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TutorialOut\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start timer that shows valid words."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Timer",
+							"sid": 322217215791905,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "currentDelay",
+								"type": "once",
+								"tag": "\"ShowWord\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start game timer."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Timer",
+							"sid": 516286326122635,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1",
+								"type": "regular",
+								"tag": "\"TimeTick\""
+							}
+						}
+					],
+					"sid": 661390074106173
+				}
+			],
+			"sid": 947282704940846
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GameOver",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Change state to game over"
+				},
+				{
+					"functionName": "GameOver",
+					"functionDescription": "Change state to game over",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set game state to over."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 118462056443693,
+							"parameters": {
+								"variable": "gameOver",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Stop all game timers."
+						},
+						{
+							"id": "stop-all-timers",
+							"objectClass": "Timer",
+							"sid": 698320224317941,
+							"behaviorType": "Timer"
+						},
+						{
+							"type": "comment",
+							"text": "Show player's score."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 904745706072407,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FaderIn\"",
+								"property": "offsetOpacity",
+								"end-value": "90",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 802099602932619,
+							"parameters": {
+								"object-to-create": "TextFinalScore",
+								"layer": "\"Tutorial\"",
+								"x": "LayoutWidth/2",
+								"y": "LayoutHeight/2",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextFinalScore",
+							"sid": 750749532036479,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TutorialOut\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextFinalScore",
+							"sid": 384937811526692,
+							"parameters": {
+								"text": "replace(Self.Text, \"(num)\", str(score))"
+							}
+						}
+					],
+					"sid": 521544160216037
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 497324731013757,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 193629909323907,
+							"parameters": {
+								"variable": "gameOver"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 350236088780718
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 894611688204221
+						}
+					],
+					"sid": 115724846573089
+				}
+			],
+			"sid": 870337063080790
+		}
+	],
+	"sid": 992447278881720
+}

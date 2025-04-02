@@ -1,0 +1,390 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Trail",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the trail by adding it as child of the ball."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Trail",
+							"sid": 301627687490410
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "Trail",
+							"sid": 861346667606306,
+							"parameters": {
+								"object": "Ball",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Ball",
+							"sid": 352017833320033,
+							"parameters": {
+								"child": "Trail",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 792562567996581
+				}
+			],
+			"sid": 323846414812593
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Physics",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Increase the particles rate of the trail only when the ball is moving at least 32 pixels per second, otherwise set it to zero."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-velocity",
+							"objectClass": "Ball",
+							"sid": 740019153756394,
+							"behaviorType": "Physics",
+							"parameters": {
+								"which": "overall-velocity",
+								"comparison": 4,
+								"value": "32"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-rate",
+							"objectClass": "Trail",
+							"sid": 947300299223841,
+							"parameters": {
+								"rate": "32"
+							}
+						}
+					],
+					"sid": 242478397019052
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 658568632104537
+						}
+					],
+					"actions": [
+						{
+							"id": "set-rate",
+							"objectClass": "Trail",
+							"sid": 695696683721412,
+							"parameters": {
+								"rate": "0"
+							}
+						}
+					],
+					"sid": 248142812934989
+				},
+				{
+					"eventType": "comment",
+					"text": "Create a cursor when a touch is started."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-nth-touch-start",
+							"objectClass": "Touch",
+							"sid": 323369783676773,
+							"parameters": {
+								"touch-number": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 377934875570350,
+							"parameters": {
+								"object-to-create": "Cursor",
+								"layer": "\"HUD\"",
+								"x": "Touch.X",
+								"y": "Touch.Y"
+							}
+						}
+					],
+					"sid": 569448102819250
+				},
+				{
+					"eventType": "comment",
+					"text": "While the touch is active, update the angle and width of the ruler to follow the touch position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "has-nth-touch",
+							"objectClass": "Touch",
+							"sid": 481652787733772,
+							"parameters": {
+								"touch-number": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "DistanceRuler",
+							"sid": 575842710204897,
+							"parameters": {
+								"x": "Touch.X",
+								"y": "Touch.Y"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "DistanceRuler",
+							"sid": 599541458810431,
+							"parameters": {
+								"width": "distance(Self.X, Self.Y, Touch.X, Touch.Y)"
+							}
+						}
+					],
+					"sid": 416457563715214
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the touch is over, apply force based on the distance between the initially created cursor and the current touch position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-nth-touch-end",
+							"objectClass": "Touch",
+							"sid": 289859771598326,
+							"parameters": {
+								"touch-number": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-velocity",
+							"objectClass": "Ball",
+							"sid": 620851906558415,
+							"behaviorType": "Physics",
+							"parameters": {
+								"x-component": "0",
+								"y-component": "0"
+							}
+						},
+						{
+							"id": "apply-force-at-angle",
+							"objectClass": "Ball",
+							"sid": 129158753322012,
+							"behaviorType": "Physics",
+							"parameters": {
+								"force": "distance(Cursor.X, Cursor.Y, Touch.X, Touch.Y)",
+								"angle": "angle(Cursor.X, Cursor.Y, Touch.X, Touch.Y) + 180",
+								"image-point": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also destroy the cursor, since it wont be needed anymore."
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Cursor",
+							"sid": 886590040251199
+						}
+					],
+					"sid": 980274356245180
+				}
+			],
+			"sid": 701421708020806
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "SlowMotion",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Reduce the time scale while the touch is active, which will result in a slow motion effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "has-nth-touch",
+							"objectClass": "Touch",
+							"sid": 385664294566535,
+							"parameters": {
+								"touch-number": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-time-scale",
+							"objectClass": "System",
+							"sid": 715411333082224,
+							"parameters": {
+								"time-scale": "0.1"
+							}
+						}
+					],
+					"sid": 229667387190039
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 802600305637101
+						}
+					],
+					"actions": [
+						{
+							"id": "set-time-scale",
+							"objectClass": "System",
+							"sid": 281162431791800,
+							"parameters": {
+								"time-scale": "1"
+							}
+						}
+					],
+					"sid": 935998206189823
+				}
+			],
+			"sid": 594068316962518
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Confetti",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Spawn a bunch of confetti once the ball collides with the trigger zone."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Ball",
+							"sid": 912781298440284,
+							"parameters": {
+								"object": "TriggerZone"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Destroy the trigger zone, so it can't be triggered twice."
+						},
+						{
+							"id": "destroy",
+							"objectClass": "TriggerZone",
+							"sid": 946559909064741
+						}
+					],
+					"sid": 809980952167493,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 621737609143588,
+									"parameters": {
+										"count": "24"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 219477148754258,
+									"parameters": {
+										"object-to-create": "Confetti",
+										"layer": "\"World\"",
+										"x": "TriggerZone.X",
+										"y": "TriggerZone.Y"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize both angle of motion and speed of each confetti to create a more dynamic effect."
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "Confetti",
+									"sid": 570799748037447,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "random(270 - 15, 270 + 15)"
+									}
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "Confetti",
+									"sid": 644078061589758,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"speed": "random(192, 384)"
+									}
+								}
+							],
+							"sid": 738618193041829
+						}
+					]
+				}
+			],
+			"sid": 821127174776617
+		}
+	],
+	"sid": 977528092617044
+}

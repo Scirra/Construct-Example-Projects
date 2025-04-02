@@ -1,0 +1,657 @@
+{
+	"name": "EventsCredits",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Forsteri Studios\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Credits",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "randomOffset",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Random offset value.",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 972778882708884
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup credits screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 451413765723088
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Clear ArrTemp."
+						},
+						{
+							"id": "set-size",
+							"objectClass": "ArrTemp",
+							"sid": 240295425752267,
+							"parameters": {
+								"width": "0",
+								"height": "1",
+								"depth": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Load ArrCredits."
+						},
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 926068157832944,
+							"parameters": {
+								"tag": "\"Credits\"",
+								"file": "Credits.json"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 359267772070999
+						},
+						{
+							"id": "load",
+							"objectClass": "ArrCredits",
+							"sid": 703657219641406,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set starting camera position."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "CreditsCam",
+							"sid": 277440943092418,
+							"parameters": {
+								"x": "LayoutHeight/2",
+								"y": "LayoutWidth/2"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Generate a random scenario for the menu."
+						},
+						{
+							"callFunction": "genRandomScenario",
+							"sid": 990362519443371,
+							"parameters": [
+								false
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Start playing main menu theme."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 588571604634621,
+							"parameters": {
+								"seconds": "1.0"
+							}
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 781248746434743,
+							"parameters": {
+								"audio-file": "elevatorshaft",
+								"loop": "looping",
+								"volume": "-Infinity",
+								"stereo-pan": "0",
+								"tag-optional": "\"bgm\""
+							}
+						},
+						{
+							"id": "fade-volume",
+							"objectClass": "Audio",
+							"sid": 243715678681176,
+							"parameters": {
+								"tag": "\"bgm\"",
+								"db": "DictProfile.Get(\"Sound\") = 1 ? BGM_MENU_VOLUME : -Infinity",
+								"duration": "1",
+								"ending": "keep-playing"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide fader."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 985245584206999,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "CreditsCam",
+							"sid": 773812062929849,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1.0",
+								"type": "once",
+								"tag": "\"NextCreditsID\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Generate a random offset value for the camera movement."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 586683034627222,
+							"parameters": {
+								"variable": "randomOffset",
+								"value": "random(359)"
+							}
+						}
+					],
+					"sid": 505476692897630,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Populate array of camera movements."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 527237020345056,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "ArrCredits.Height - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "push",
+									"objectClass": "ArrTemp",
+									"sid": 223368729353712,
+									"parameters": {
+										"where": "back",
+										"value": "(360/ArrCredits.Height * loopindex(\"i\") + randomOffset) % 360",
+										"axis": "x"
+									}
+								}
+							],
+							"sid": 123871678512534
+						},
+						{
+							"eventType": "comment",
+							"text": "Shuffle it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "shuffle",
+									"objectClass": "ArrTemp",
+									"sid": 718862435293847,
+									"parameters": {
+										"axis": "x"
+									}
+								}
+							],
+							"sid": 377062170496001
+						}
+					]
+				}
+			],
+			"sid": 973203293017468
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Credits camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "camX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Camera X.",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 454386584785732
+				},
+				{
+					"eventType": "variable",
+					"name": "camY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Camera Y.",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 911997714759747
+				},
+				{
+					"eventType": "comment",
+					"text": "Update camera position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 750425448823129
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 394302028571060,
+							"parameters": {
+								"variable": "camX",
+								"value": "CreditsCam.X"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 157163472639120,
+							"parameters": {
+								"variable": "camY",
+								"value": "CreditsCam.Y"
+							}
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 920676040283455,
+							"parameters": {
+								"cam-x": "lerp(3DCamera.CameraX, camX, CAMERA_SPEED * dt)",
+								"cam-y": "lerp(3DCamera.CameraY, camY + 448, CAMERA_SPEED  * dt)",
+								"cam-z": "lerp(3DCamera.CameraZ, CAMERA_Z, CAMERA_SPEED  * dt)",
+								"look-x": "lerp(3DCamera.LookX, camX, CAMERA_SPEED  * dt)",
+								"look-y": "lerp(3DCamera.LookY, camY, CAMERA_SPEED  * dt)",
+								"look-z": "CreditsCam.ZElevation",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 301342897360864
+				}
+			],
+			"sid": 301529627712457
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Credits logic",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "coordX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Move camera to this X coordinate.",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 989287915037504
+				},
+				{
+					"eventType": "variable",
+					"name": "coordY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Move camera to this Y coordinate.",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 897772359629416
+				},
+				{
+					"eventType": "comment",
+					"text": "Go to the next Credits message."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "CreditsCam",
+							"sid": 127307299957822,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"NextCreditsID\""
+							}
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 180401465609818,
+							"parameters": {
+								"object": "TextGeneric",
+								"expression": "(int(TextGeneric.TagAt(0)) % 2) = (CreditsCam.currCredits % 2)"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set X and Y coordinates."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 171787409945380,
+							"parameters": {
+								"variable": "coordX",
+								"value": "CreditsCam.X + cos(ArrTemp.At(CreditsCam.currCredits)) * 2560"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 257654879026010,
+							"parameters": {
+								"variable": "coordY",
+								"value": "CreditsCam.Y + sin(ArrTemp.At(CreditsCam.currCredits)) * 2560"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set credits text."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "TextGeneric",
+							"sid": 158011473361951,
+							"parameters": {
+								"x": "coordX",
+								"y": "coordY"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextGeneric",
+							"sid": 193982292392812,
+							"parameters": {
+								"text": "\"[outline=#ffffff]\" & ArrCredits.At(0, CreditsCam.currCredits)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move camera."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "CreditsCam",
+							"sid": 494229788988201,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveCreditsCamera\"",
+								"property": "position",
+								"end-x": "coordX",
+								"end-y": "coordY",
+								"time": "1",
+								"ease": "easeinoutcubic",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 788763535457868,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Go to the next message."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "CreditsCam",
+									"sid": 774934228259589,
+									"parameters": {
+										"instance-variable": "currCredits",
+										"comparison": 2,
+										"value": "ArrCredits.Height - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "CreditsCam",
+									"sid": 896178758234725,
+									"parameters": {
+										"instance-variable": "currCredits",
+										"value": "1"
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "CreditsCam",
+									"sid": 894365826215104,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "5.0",
+										"type": "once",
+										"tag": "\"NextCreditsID\""
+									}
+								}
+							],
+							"sid": 504059135448293
+						},
+						{
+							"eventType": "comment",
+							"text": "End credits."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 209467145668784
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 120545622865791,
+									"parameters": {
+										"seconds": "3.0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade out music."
+								},
+								{
+									"id": "fade-volume",
+									"objectClass": "Audio",
+									"sid": 686794320611368,
+									"parameters": {
+										"tag": "\"bgm\"",
+										"db": "-Infinity",
+										"duration": "3",
+										"ending": "stop"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide credits."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 759638636980329,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "3",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Go back to the main menu."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 986322209669251
+								},
+								{
+									"id": "go-to-layout",
+									"objectClass": "System",
+									"sid": 550108742115329,
+									"parameters": {
+										"layout": "MainMenu"
+									}
+								}
+							],
+							"sid": 303609608750891
+						}
+					]
+				}
+			],
+			"sid": 175070085733255
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Credits accelerate",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Accelerate credits when space is down."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 234219874304386,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 149481493439155,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 595228266721209,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-any-playing",
+									"objectClass": "Fader",
+									"sid": 199384849845588,
+									"behaviorType": "Tween",
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-time-scale",
+									"objectClass": "System",
+									"sid": 799887431018024,
+									"parameters": {
+										"time-scale": "5.0"
+									}
+								}
+							],
+							"sid": 936897318908874
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 391091919708956
+						}
+					],
+					"actions": [
+						{
+							"id": "set-time-scale",
+							"objectClass": "System",
+							"sid": 551229323301899,
+							"parameters": {
+								"time-scale": "1.0"
+							}
+						}
+					],
+					"sid": 916044756261360
+				}
+			],
+			"sid": 342672687473927
+		}
+	],
+	"sid": 447114207887195
+}

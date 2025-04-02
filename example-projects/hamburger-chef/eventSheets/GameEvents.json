@@ -1,0 +1,2074 @@
+{
+	"name": "GameEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nTwitter: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Global variables"
+		},
+		{
+			"eventType": "variable",
+			"name": "score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "How many hamburgers the player has successfully served",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 613011323858628
+		},
+		{
+			"eventType": "variable",
+			"name": "lives",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "How many lives the player has left. Every time the player fails to deliver an order in time, they lose a life",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 108139650829925
+		},
+		{
+			"eventType": "variable",
+			"name": "gameOver",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the game over?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 155905624080339
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Spawn an ingredient in a specific slot."
+				},
+				{
+					"functionName": "spawnIngredient",
+					"functionDescription": "Spawn an ingredient in a specific slot",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "slot",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Slot to spawn the ingredient",
+							"sid": 189622938738213
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 969140319906181,
+							"parameters": {
+								"object": "IngredientSlot",
+								"expression": "IngredientSlot.Ingredient = slot"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 758759649183721,
+							"parameters": {
+								"object-to-create": "Ingredient",
+								"layer": "\"Game\"",
+								"x": "IngredientSlot.X",
+								"y": "IngredientSlot.Y",
+								"create-hierarchy": false,
+								"template-name": "slot"
+							}
+						}
+					],
+					"sid": 191692188807233
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 631305828829419
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Start orders timer."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Orders",
+							"sid": 207606443164510,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1.0",
+								"type": "once",
+								"tag": "\"newOrder\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide game over text."
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextGameOver",
+							"sid": 128236742368871,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Fade-In the game"
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 915355948757993,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 979748025028825,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Spawn starting ingredients."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 226656873821891,
+									"parameters": {
+										"object": "IngredientSlot"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "spawnIngredient",
+									"sid": 128265293747391,
+									"parameters": [
+										"IngredientSlot.Ingredient"
+									]
+								}
+							],
+							"sid": 506520720987395
+						}
+					]
+				}
+			],
+			"sid": 298924599617850
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Ingredients",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Process the act of dragging an ingredient."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-drag-start",
+							"objectClass": "Ingredient",
+							"sid": 666192375195497,
+							"behaviorType": "DragDrop"
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Move dragged ingredient to the top of the layer."
+						},
+						{
+							"id": "move-to-top",
+							"objectClass": "Ingredient",
+							"sid": 294662720322619
+						},
+						{
+							"type": "comment",
+							"text": "Pause grillTimer."
+						},
+						{
+							"id": "pause-resume-timer",
+							"objectClass": "Ingredient",
+							"sid": 204551423533993,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"grillTimer\"",
+								"state": "paused"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set ingredient as non-placed."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Ingredient",
+							"sid": 843430378427095,
+							"parameters": {
+								"instance-variable": "placed",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 158942991785378,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 699709049331905,
+									"parameters": {
+										"object": "IngredientSlot",
+										"expression": "IngredientSlot.Ingredient = Ingredient.TemplateName"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 241514302505705,
+									"parameters": {
+										"value": "Ingredient.X = IngredientSlot.X & Ingredient.Y = IngredientSlot.Y"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create a new identical ingredient and place it on the bottom of the layer."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 984323864859604,
+									"parameters": {
+										"object-to-create": "Ingredient",
+										"layer": "\"Game\"",
+										"x": "IngredientSlot.X",
+										"y": "IngredientSlot.Y",
+										"create-hierarchy": false,
+										"template-name": "IngredientSlot.Ingredient"
+									}
+								},
+								{
+									"id": "move-to-bottom",
+									"objectClass": "Ingredient",
+									"sid": 805782582494354
+								},
+								{
+									"id": "move-to-bottom",
+									"objectClass": "Background",
+									"sid": 133880112268947
+								}
+							],
+							"sid": 897310617153548
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Process the act of dropping an ingredient."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-drop",
+							"objectClass": "Ingredient",
+							"sid": 972062286702964,
+							"behaviorType": "DragDrop"
+						}
+					],
+					"actions": [
+						{
+							"id": "move-to-top",
+							"objectClass": "Ingredient",
+							"sid": 691882160033982
+						}
+					],
+					"sid": 255698215776751,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Ingredient [b]IS NOT[/b] a hamburger meat."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-animation-playing",
+									"objectClass": "Ingredient",
+									"sid": 762753183161536,
+									"parameters": {
+										"animation": "\"Misc\""
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Ingredient",
+									"sid": 819624868690575,
+									"parameters": {
+										"object": "Bread"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 724941727182098,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Ingredients can only be placed if the bread doesn't already have it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 591868031027259,
+											"parameters": {
+												"value": "Ingredient.TemplateName = \"Tomato\""
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Bread",
+											"sid": 106945782729860,
+											"parameters": {
+												"instance-variable": "hasTomato"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Put ingredient inside the bread | disable its DragDrop behavior and collisions | update the bread status and hierarchy."
+										},
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "Ingredient",
+											"sid": 530039718104899,
+											"parameters": {
+												"object": "Bread",
+												"image-point-optional": "Ingredient.TemplateName"
+											}
+										},
+										{
+											"id": "set-enabled",
+											"objectClass": "Ingredient",
+											"sid": 649860269570934,
+											"behaviorType": "DragDrop",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"id": "set-collisions-enabled",
+											"objectClass": "Ingredient",
+											"sid": 995841363994513,
+											"parameters": {
+												"collisions": "disabled"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Ingredient",
+											"sid": 210272205264465,
+											"parameters": {
+												"instance-variable": "placed",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Bread",
+											"sid": 169367899063207,
+											"parameters": {
+												"instance-variable": "hasTomato",
+												"value": "true"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Bread",
+											"sid": 908200788402581,
+											"parameters": {
+												"child": "Ingredient",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": true,
+												"transform-h": true,
+												"transform-a": true,
+												"transform-o": false,
+												"transform-z-elevation": true,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										}
+									],
+									"sid": 689015228367183
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 475234970008638
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 509396068305855,
+											"parameters": {
+												"value": "Ingredient.TemplateName = \"Lettuce\""
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Bread",
+											"sid": 705681611653687,
+											"parameters": {
+												"instance-variable": "hasLettuce"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Put ingredient inside the bread | disable its DragDrop behavior and collisions | update the bread status and hierarchy."
+										},
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "Ingredient",
+											"sid": 456471469689053,
+											"parameters": {
+												"object": "Bread",
+												"image-point-optional": "Ingredient.TemplateName"
+											}
+										},
+										{
+											"id": "set-enabled",
+											"objectClass": "Ingredient",
+											"sid": 140507707165051,
+											"behaviorType": "DragDrop",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"id": "set-collisions-enabled",
+											"objectClass": "Ingredient",
+											"sid": 203330478001690,
+											"parameters": {
+												"collisions": "disabled"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Ingredient",
+											"sid": 985598963558058,
+											"parameters": {
+												"instance-variable": "placed",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Bread",
+											"sid": 780742997672460,
+											"parameters": {
+												"instance-variable": "hasLettuce",
+												"value": "true"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Bread",
+											"sid": 142255454635953,
+											"parameters": {
+												"child": "Ingredient",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": true,
+												"transform-h": true,
+												"transform-a": true,
+												"transform-o": false,
+												"transform-z-elevation": true,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										}
+									],
+									"sid": 914409667546283
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 231437843000449
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 374886348945397,
+											"parameters": {
+												"value": "Ingredient.TemplateName = \"Cheese\""
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Bread",
+											"sid": 232637701291146,
+											"parameters": {
+												"instance-variable": "hasCheese"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Put ingredient inside the bread | disable its DragDrop behavior and collisions | update the bread status and hierarchy."
+										},
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "Ingredient",
+											"sid": 135825095392324,
+											"parameters": {
+												"object": "Bread",
+												"image-point-optional": "Ingredient.TemplateName"
+											}
+										},
+										{
+											"id": "set-enabled",
+											"objectClass": "Ingredient",
+											"sid": 321390422878905,
+											"behaviorType": "DragDrop",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"id": "set-collisions-enabled",
+											"objectClass": "Ingredient",
+											"sid": 518184276807582,
+											"parameters": {
+												"collisions": "disabled"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Ingredient",
+											"sid": 879876381965819,
+											"parameters": {
+												"instance-variable": "placed",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Bread",
+											"sid": 814967415081578,
+											"parameters": {
+												"instance-variable": "hasCheese",
+												"value": "true"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Bread",
+											"sid": 976768939658559,
+											"parameters": {
+												"child": "Ingredient",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": true,
+												"transform-h": true,
+												"transform-a": true,
+												"transform-o": false,
+												"transform-z-elevation": true,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										}
+									],
+									"sid": 645801795869664
+								},
+								{
+									"eventType": "comment",
+									"text": "If the bread already has the same type of ingredient, the dragged ingredient is destroyed."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 950247042886335
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Ingredient",
+											"sid": 986866026747774
+										}
+									],
+									"sid": 578004684747184
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Ingredient [b]IS[/b] a hamburger meat."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 710136289336510
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "Ingredient",
+									"sid": 566693862897396,
+									"parameters": {
+										"animation": "\"Hamburger\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 645214616933641,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Hamburger dropped on top of a grill."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Ingredient",
+											"sid": 588036787111049,
+											"parameters": {
+												"object": "Grill"
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Grill",
+											"sid": 620739695773185,
+											"parameters": {
+												"instance-variable": "hasHamburger"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Put hamburger on the grill and update the grill status."
+										},
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "Ingredient",
+											"sid": 552378402512882,
+											"parameters": {
+												"object": "Grill",
+												"image-point-optional": "Ingredient.TemplateName"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Grill",
+											"sid": 668015628429446,
+											"parameters": {
+												"instance-variable": "hasHamburger",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 843447156690280,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-timer-paused",
+													"objectClass": "Ingredient",
+													"sid": 288350071442039,
+													"behaviorType": "Timer",
+													"parameters": {
+														"tag": "\"grillTimer\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "pause-resume-timer",
+													"objectClass": "Ingredient",
+													"sid": 531383876318224,
+													"behaviorType": "Timer",
+													"parameters": {
+														"tag": "\"grillTimer\"",
+														"state": "resumed"
+													}
+												}
+											],
+											"sid": 758144563614639
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 192137001891291
+												}
+											],
+											"actions": [
+												{
+													"id": "start-timer",
+													"objectClass": "Ingredient",
+													"sid": 363538594132821,
+													"behaviorType": "Timer",
+													"parameters": {
+														"duration": "1.0",
+														"type": "regular",
+														"tag": "\"grillTimer\""
+													}
+												}
+											],
+											"sid": 392016456866479
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Hamburger dropped on the bread."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 662703099528620
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Ingredient",
+											"sid": 767375283362296,
+											"parameters": {
+												"object": "Bread"
+											}
+										},
+										{
+											"id": "compare-animation-frame-tag",
+											"objectClass": "Ingredient",
+											"sid": 958099905791929,
+											"parameters": {
+												"comparison": 0,
+												"tag": "\"ProperlyFried\""
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Bread",
+											"sid": 696162837699220,
+											"parameters": {
+												"instance-variable": "hasHamburger"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "Ingredient",
+											"sid": 536205631817816,
+											"parameters": {
+												"object": "Bread",
+												"image-point-optional": "Ingredient.TemplateName"
+											}
+										},
+										{
+											"id": "set-enabled",
+											"objectClass": "Ingredient",
+											"sid": 585295878865975,
+											"behaviorType": "DragDrop",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"id": "set-collisions-enabled",
+											"objectClass": "Ingredient",
+											"sid": 104802948725138,
+											"parameters": {
+												"collisions": "disabled"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Ingredient",
+											"sid": 797819001959881,
+											"parameters": {
+												"instance-variable": "placed",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Bread",
+											"sid": 137403784854634,
+											"parameters": {
+												"instance-variable": "hasHamburger",
+												"value": "true"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Bread",
+											"sid": 969839955809281,
+											"parameters": {
+												"child": "Ingredient",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": true,
+												"transform-h": true,
+												"transform-a": true,
+												"transform-o": false,
+												"transform-z-elevation": true,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										}
+									],
+									"sid": 443566028648919
+								},
+								{
+									"eventType": "comment",
+									"text": "Invalid position."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 466187129001548
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Ingredient",
+											"sid": 674692485354917
+										}
+									],
+									"sid": 660688270191951
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Invalid ingredient state."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 586785920599292
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Ingredient",
+									"sid": 372111438528320
+								}
+							],
+							"sid": 208952326525084
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Add 1 to grillTime when grillTimer is triggered."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Ingredient",
+							"sid": 408134503717569,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"grillTimer\""
+							}
+						},
+						{
+							"id": "compare-animation-frame",
+							"objectClass": "Ingredient",
+							"sid": 103007939619029,
+							"parameters": {
+								"comparison": 2,
+								"number": "3"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-instvar",
+							"objectClass": "Ingredient",
+							"sid": 891712406781080,
+							"parameters": {
+								"instance-variable": "grillTime",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 552653860816153,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 639357690736426,
+									"parameters": {
+										"value": "Ingredient.grillTime > 0 & Ingredient.grillTime % 4 = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Ingredient",
+									"sid": 708410833445046,
+									"parameters": {
+										"frame-number": "int(Self.grillTime/4)"
+									}
+								}
+							],
+							"sid": 340407758796519,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the hamburger got burned, it is no longer draggable (player loses a grill slot) and smoke appears to indicate the event."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-animation-frame",
+											"objectClass": "Ingredient",
+											"sid": 198211792289677,
+											"parameters": {
+												"comparison": 0,
+												"number": "3"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-enabled",
+											"objectClass": "Ingredient",
+											"sid": 564096127639988,
+											"behaviorType": "DragDrop",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Smoke 1."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 724724953663194,
+											"parameters": {
+												"object-to-create": "Smoke",
+												"layer": "\"Game\"",
+												"x": "Ingredient.X",
+												"y": "Ingredient.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Smoke",
+											"sid": 194796143230180,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SmokeSize\"",
+												"property": "scale",
+												"end-x": "2",
+												"end-y": "2",
+												"time": "0.3",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Smoke",
+											"sid": 762022381731714,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SmokeOpacity\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.3",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 755786043772924,
+											"parameters": {
+												"seconds": "0.03"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Smoke 2."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 447335430071878,
+											"parameters": {
+												"object-to-create": "Smoke",
+												"layer": "\"Game\"",
+												"x": "Ingredient.X - 32",
+												"y": "Ingredient.Y - 16",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Smoke",
+											"sid": 343926176786423,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SmokeSize\"",
+												"property": "scale",
+												"end-x": "2",
+												"end-y": "2",
+												"time": "0.3",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Smoke",
+											"sid": 556138688534871,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SmokeOpacity\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.3",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 346085652591014,
+											"parameters": {
+												"seconds": "0.03"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Smoke 3."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 580360961890678,
+											"parameters": {
+												"object-to-create": "Smoke",
+												"layer": "\"Game\"",
+												"x": "Ingredient.X + 16",
+												"y": "Ingredient.Y + 32",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Smoke",
+											"sid": 682390620996499,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SmokeSize\"",
+												"property": "scale",
+												"end-x": "2",
+												"end-y": "2",
+												"time": "0.3",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Smoke",
+											"sid": 882277481048641,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SmokeOpacity\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.3",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 710522932659213,
+											"parameters": {
+												"seconds": "0.03"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Smoke 4."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 144150757715640,
+											"parameters": {
+												"object-to-create": "Smoke",
+												"layer": "\"Game\"",
+												"x": "Ingredient.X - 16",
+												"y": "Ingredient.Y + 32",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Smoke",
+											"sid": 841391459698361,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SmokeSize\"",
+												"property": "scale",
+												"end-x": "2",
+												"end-y": "2",
+												"time": "0.3",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Smoke",
+											"sid": 798919466140699,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SmokeOpacity\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.3",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 892228851172187,
+											"parameters": {
+												"seconds": "0.03"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Smoke 5."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 630741039282800,
+											"parameters": {
+												"object-to-create": "Smoke",
+												"layer": "\"Game\"",
+												"x": "Ingredient.X + 16",
+												"y": "Ingredient.Y - 32",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Smoke",
+											"sid": 942626745378075,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SmokeSize\"",
+												"property": "scale",
+												"end-x": "2",
+												"end-y": "2",
+												"time": "0.3",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Smoke",
+											"sid": 327375310546261,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SmokeOpacity\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.3",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 514196668375082
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if a grill has a hamburger on top."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 839946267226882,
+							"parameters": {
+								"object": "Grill"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Grill",
+							"sid": 152200535162397,
+							"parameters": {
+								"instance-variable": "hasHamburger",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 457159143122727,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 370763629680251,
+									"parameters": {
+										"object": "Ingredient"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 116309865922436,
+									"parameters": {
+										"value": "Ingredient.X = Grill.X & Ingredient.Y = Grill.Y "
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Grill",
+									"sid": 854107616717208,
+									"parameters": {
+										"instance-variable": "hasHamburger",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 771708659489223
+						}
+					]
+				}
+			],
+			"sid": 619428913301540
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Bread",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Bread dragged."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-drag-start",
+							"objectClass": "Bread",
+							"sid": 442736990985226,
+							"behaviorType": "DragDrop"
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set animation to closed."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Bread",
+							"sid": 276085152109148,
+							"parameters": {
+								"animation": "\"Closed\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 862162371252202,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Bread",
+									"sid": 247588079374666,
+									"parameters": {
+										"child": "Ingredient",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Hide ingredients."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Ingredient",
+									"sid": 130300113035969,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								}
+							],
+							"sid": 647332948238472
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Bread dropped."
+				},
+				{
+					"eventType": "variable",
+					"name": "breadOrderValue",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Store hot-encoded ingredient bools",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 798298779580867
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-drop",
+							"objectClass": "Bread",
+							"sid": 180375205877690,
+							"behaviorType": "DragDrop"
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Hot-encode all of the current bread ingredient bools to allow for a more compact boolean comparison."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 446242706006394,
+							"parameters": {
+								"variable": "breadOrderValue",
+								"value": "1000 * Bread.hasHamburger + 100 * Bread.hasTomato + 10 * Bread.hasLettuce + 1 * Bread.hasCheese"
+							}
+						}
+					],
+					"sid": 922636517849797,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Serve the bread."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Bread",
+									"sid": 659525795444604,
+									"parameters": {
+										"object": "ServeSlot"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Bread",
+									"sid": 608749584176519
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 312078981359700,
+									"parameters": {
+										"object-to-create": "Bread",
+										"layer": "\"Game\"",
+										"x": "BreadSlot.X",
+										"y": "BreadSlot.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								}
+							],
+							"sid": 783620627173140,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If a compatible order is detected, destroy it (since it was delivered), add to the player's score and update TextScore text."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 668668075638930,
+											"parameters": {
+												"object": "Order"
+											}
+										},
+										{
+											"id": "is-on-screen",
+											"objectClass": "Order",
+											"sid": 284320116813993
+										},
+										{
+											"id": "compare-animation-frame-tag",
+											"objectClass": "Order",
+											"sid": 333214205063884,
+											"parameters": {
+												"comparison": 0,
+												"tag": "str(breadOrderValue)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Order",
+											"sid": 795313869957354
+										},
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 257128191336902,
+											"parameters": {
+												"variable": "score",
+												"value": "1"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "TextScore",
+											"sid": 729443471321599,
+											"parameters": {
+												"text": "\"Score: \" & score"
+											}
+										},
+										{
+											"id": "stop-loop",
+											"objectClass": "System",
+											"sid": 555096967043619
+										}
+									],
+									"sid": 998962544012807,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If score is a multiple of 5, make the game slightly more difficult"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 265233096878716,
+													"parameters": {
+														"value": "score > 0 & score % 5 = 0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Orders",
+													"sid": 321736603676553,
+													"parameters": {
+														"instance-variable": "orderSpeed",
+														"value": "Self.orderSpeed * 1.1"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Orders",
+													"sid": 472802555114668,
+													"parameters": {
+														"instance-variable": "orderTimer",
+														"value": "Self.orderTimer * 0.9"
+													}
+												}
+											],
+											"sid": 492625270687485
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Invalid position."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 379345278945030
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Put bread back on top of BreadSlot and open it."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "Bread",
+									"sid": 537882045301090,
+									"parameters": {
+										"animation": "\"Open\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "Bread",
+									"sid": 381138645155834,
+									"parameters": {
+										"object": "BreadSlot",
+										"image-point-optional": "0"
+									}
+								}
+							],
+							"sid": 771672675393420,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Bread",
+											"sid": 574458541300422,
+											"parameters": {
+												"child": "Ingredient",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "show ingredients"
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "Ingredient",
+											"sid": 838957302969732,
+											"parameters": {
+												"visibility": "visible"
+											}
+										}
+									],
+									"sid": 286056446433316
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 459714989804727
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Orders",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Move orders every tick."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 817257717339772,
+							"parameters": {
+								"object": "Order"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 157131424508180,
+							"parameters": {
+								"variable": "gameOver"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 654299805383864,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the order goes outside the screen, destroy it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-x",
+									"objectClass": "Order",
+									"sid": 822448661247044,
+									"parameters": {
+										"comparison": 2,
+										"x-co-ordinate": "-Self.Width/2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Order",
+									"sid": 894928495345773
+								}
+							],
+							"sid": 986184693049752,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the player has 0 lives left, it is game over."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 339732229173780,
+											"parameters": {
+												"value": "lives = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Set game over state variable"
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 226656502897461,
+											"parameters": {
+												"variable": "gameOver",
+												"value": "true"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Stop all order timers"
+										},
+										{
+											"id": "stop-all-timers",
+											"objectClass": "Orders",
+											"sid": 990710128952772,
+											"behaviorType": "Timer"
+										},
+										{
+											"type": "comment",
+											"text": "Disable bread."
+										},
+										{
+											"id": "set-enabled",
+											"objectClass": "Bread",
+											"sid": 398613406356619,
+											"behaviorType": "DragDrop",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"id": "set-collisions-enabled",
+											"objectClass": "Bread",
+											"sid": 502890846156307,
+											"parameters": {
+												"collisions": "disabled"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Disable ingredients."
+										},
+										{
+											"id": "set-enabled",
+											"objectClass": "Ingredient",
+											"sid": 708145861937193,
+											"behaviorType": "DragDrop",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"id": "set-collisions-enabled",
+											"objectClass": "Ingredient",
+											"sid": 648301936481656,
+											"parameters": {
+												"collisions": "disabled"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Show game over message."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Fader",
+											"sid": 513796322235217,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShowFader\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "TextGameOver",
+											"sid": 368166537327308,
+											"parameters": {
+												"text": "\"GAME OVER\n\nScore: \" & score"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "TextGameOver",
+											"sid": 473642127539039,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShowGameOver\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Restart layout after 3s."
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 877416929667393,
+											"parameters": {
+												"seconds": "5.0"
+											}
+										},
+										{
+											"id": "restart-layout",
+											"objectClass": "System",
+											"sid": 726776622791789
+										},
+										{
+											"id": "reset-global-variables",
+											"objectClass": "System",
+											"sid": 542420170477490
+										}
+									],
+									"sid": 722325845780929
+								},
+								{
+									"eventType": "comment",
+									"text": "Otherwise, subtract a life and update TextLives text"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 274718628280044
+										}
+									],
+									"actions": [
+										{
+											"id": "subtract-from-eventvar",
+											"objectClass": "System",
+											"sid": 379910195691807,
+											"parameters": {
+												"variable": "lives",
+												"value": "1"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "TextLives",
+											"sid": 943955665243987,
+											"parameters": {
+												"text": "\"Lives: \" & lives"
+											}
+										}
+									],
+									"sid": 131940815143403
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, just move it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 131462091665716
+								}
+							],
+							"actions": [
+								{
+									"id": "set-x",
+									"objectClass": "Order",
+									"sid": 207101807370159,
+									"parameters": {
+										"x": "Self.X - Orders.orderSpeed * dt"
+									}
+								},
+								{
+									"id": "set-period",
+									"objectClass": "Order",
+									"sid": 917942234013237,
+									"behaviorType": "Sine",
+									"parameters": {
+										"period": "Self.X < LayoutWidth/3 ? max(Self.X/(LayoutWidth/3), 0.05) : 0"
+									}
+								}
+							],
+							"sid": 155154891733644
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn a new order."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Orders",
+							"sid": 963164505813475,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"newOrder\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "Orders",
+							"sid": 343859657009749,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "Orders.orderTimer",
+								"type": "once",
+								"tag": "\"newOrder\""
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 511098362464463,
+							"parameters": {
+								"object-to-create": "Order",
+								"layer": "\"Game\"",
+								"x": "LayoutWidth + 224",
+								"y": "Orders.Y",
+								"create-hierarchy": true,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Order",
+							"sid": 251353507414378,
+							"parameters": {
+								"frame-number": "int(random(7))"
+							}
+						}
+					],
+					"sid": 498968062641142
+				}
+			],
+			"sid": 178928536796275
+		}
+	],
+	"sid": 704861174784225
+}

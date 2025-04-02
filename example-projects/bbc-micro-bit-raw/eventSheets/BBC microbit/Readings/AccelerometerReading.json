@@ -1,0 +1,312 @@
+{
+	"name": "AccelerometerReading",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "These IDs are from the following documentation: https://lancaster-university.github.io/microbit-docs/resources/bluetooth/bluetooth_profile.html"
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for the overall accelerometer service."
+		},
+		{
+			"eventType": "variable",
+			"name": "AccelerometerServiceUUID",
+			"type": "string",
+			"initialValue": "e95d0753-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 653588076107740
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for the accelerometer reading."
+		},
+		{
+			"eventType": "variable",
+			"name": "AccelerometerDataUUID",
+			"type": "string",
+			"initialValue": "e95dca4b-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 234789732018371
+		},
+		{
+			"eventType": "comment",
+			"text": "These global variables have the raw accelerometer readings for each axis. The raw readings are quite noisy, meaning they vary a lot."
+		},
+		{
+			"eventType": "variable",
+			"name": "AccelerometerRawX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 476535201388450
+		},
+		{
+			"eventType": "variable",
+			"name": "AccelerometerRawY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 352871112776292
+		},
+		{
+			"eventType": "variable",
+			"name": "AccelerometerRawZ",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 363020697301236
+		},
+		{
+			"eventType": "comment",
+			"text": "These global variables have a smoothed accelerometer reading for each axis. This uses a simple formula to eliminate most of the \"noise\" in the readings, producing a smoother reading."
+		},
+		{
+			"eventType": "variable",
+			"name": "AccelerometerSmoothedX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 399764898055998
+		},
+		{
+			"eventType": "variable",
+			"name": "AccelerometerSmoothedY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 120385292076691
+		},
+		{
+			"eventType": "variable",
+			"name": "AccelerometerSmoothedZ",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 362777595093115
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Accelerometer readings",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Upon connecting to a device, start notifications for the accelerometer reading in the accelerometer service."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-device-connected",
+							"objectClass": "Bluetooth",
+							"sid": 563090005776487
+						}
+					],
+					"actions": [
+						{
+							"id": "start-stop-characteristic-notifications",
+							"objectClass": "Bluetooth",
+							"sid": 244519488819261,
+							"parameters": {
+								"device-id": "Bluetooth.DeviceID",
+								"service": "AccelerometerServiceUUID",
+								"characteristic": "AccelerometerDataUUID",
+								"notifications": "start"
+							}
+						}
+					],
+					"sid": 797079579397097
+				},
+				{
+					"eventType": "comment",
+					"text": "These variables store the last smoothed accelerometer reading for each axis, which helps with calculating the smoothed readings."
+				},
+				{
+					"eventType": "variable",
+					"name": "LastAccelerometerX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 462816768238844
+				},
+				{
+					"eventType": "variable",
+					"name": "LastAccelerometerY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 779486365853381
+				},
+				{
+					"eventType": "variable",
+					"name": "LastAccelerometerZ",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 361649152654664
+				},
+				{
+					"eventType": "comment",
+					"text": "When an accelerometer reading is received, it's loaded in to the Binary Data object. The documentation states each axis is represented by a signed 16-bit integer and should be divided by 1000, so each axis is read with the GetInt16 expression and scaled accordingly.\n[b]Note:[/b] these values are also received in little-endian format. Therefore the Binary Data object 'Endian' property is set to 'Little'."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-characteristic-notification",
+							"objectClass": "Bluetooth",
+							"sid": 529019301665578,
+							"parameters": {
+								"characteristic": "AccelerometerDataUUID",
+								"binary-data": "BinaryData"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 892736652102929,
+							"parameters": {
+								"variable": "AccelerometerRawX",
+								"value": "BinaryData.GetInt16(0) / 1000"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 746838238682073,
+							"parameters": {
+								"variable": "AccelerometerRawY",
+								"value": "BinaryData.GetInt16(2) / 1000"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 244387114817227,
+							"parameters": {
+								"variable": "AccelerometerRawZ",
+								"value": "BinaryData.GetInt16(4) / 1000"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Use a formula to produce the smoothed readings, reducing the extent of the unpredictable variations in the raw readings."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 330401191462432,
+							"parameters": {
+								"variable": "AccelerometerSmoothedX",
+								"value": "AccelerometerRawX * 0.2 + LastAccelerometerX * 0.8"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 613781563079932,
+							"parameters": {
+								"variable": "AccelerometerSmoothedY",
+								"value": "AccelerometerRawY * 0.2 + LastAccelerometerY * 0.8"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 442050429523573,
+							"parameters": {
+								"variable": "AccelerometerSmoothedZ",
+								"value": "AccelerometerRawZ * 0.2 + LastAccelerometerZ * 0.8"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 784805647478938,
+							"parameters": {
+								"variable": "LastAccelerometerX",
+								"value": "AccelerometerSmoothedX"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 108024504715694,
+							"parameters": {
+								"variable": "LastAccelerometerY",
+								"value": "AccelerometerSmoothedY"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 982876718699018,
+							"parameters": {
+								"variable": "LastAccelerometerZ",
+								"value": "AccelerometerSmoothedZ"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Use some Sprite objects to visualize the readings. These use the smoothed readings for a better display."
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "SpriteX",
+							"sid": 535283827193914,
+							"parameters": {
+								"angle": "AccelerometerSmoothedX * 90"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "SpriteY",
+							"sid": 832482202383853,
+							"parameters": {
+								"angle": "AccelerometerSmoothedY * 90"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "SpriteZ",
+							"sid": 122226885892651,
+							"parameters": {
+								"angle": "AccelerometerSmoothedZ * 90"
+							}
+						}
+					],
+					"sid": 290129630888151
+				}
+			],
+			"sid": 415466749296601
+		}
+	],
+	"sid": 737118148786287
+}

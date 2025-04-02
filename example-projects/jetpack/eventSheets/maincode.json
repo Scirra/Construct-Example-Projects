@@ -1,0 +1,934 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How much fuel the player's tank can store."
+		},
+		{
+			"eventType": "variable",
+			"name": "JetpackFuelTankSize",
+			"type": "number",
+			"initialValue": "200",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 530929768202910
+		},
+		{
+			"eventType": "comment",
+			"text": "How long it takes before the jetpack starts to recharge its fuel."
+		},
+		{
+			"eventType": "variable",
+			"name": "JetpackCooldownTime",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 479640622882185
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the jetpack gains vertical speed."
+		},
+		{
+			"eventType": "variable",
+			"name": "JetpackForce",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 541903914882526
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the jetpack can go."
+		},
+		{
+			"eventType": "variable",
+			"name": "JetpackMaxSpeed",
+			"type": "number",
+			"initialValue": "256",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 593582879472431
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast fuel is depleted while flying."
+		},
+		{
+			"eventType": "variable",
+			"name": "JetpackDepleteRate",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 859321798987282
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast fuel is recharged while not flying."
+		},
+		{
+			"eventType": "variable",
+			"name": "JetpackRechargeRate",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 518518070328723
+		},
+		{
+			"eventType": "comment",
+			"text": "How large the fuel bar is displayed on screen."
+		},
+		{
+			"eventType": "variable",
+			"name": "FuelBarScaledWidth",
+			"type": "number",
+			"initialValue": "64",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 474825773557415
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "PlayerSetup",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Setup the player by adding its graphics as a child of the collider."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-created",
+									"objectClass": "PlayerGraphics",
+									"sid": 594730415360274
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "PlayerGraphics",
+									"sid": 841884366138315,
+									"parameters": {
+										"object": "PlayerCollision",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "PlayerCollision",
+									"sid": 368018056916068,
+									"parameters": {
+										"child": "PlayerGraphics",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": true
+									}
+								}
+							],
+							"sid": 960983322737064
+						}
+					],
+					"sid": 784603836528212
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "PlayerControls",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move the player to the left while also mirroring its graphics."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 940876619458367,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 567482654135624,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 855623151936150,
+									"behaviorType": "Platform",
+									"parameters": {
+										"control": "left"
+									}
+								},
+								{
+									"id": "set-mirrored",
+									"objectClass": "PlayerGraphics",
+									"sid": 924546847111706,
+									"parameters": {
+										"state": "mirrored"
+									}
+								}
+							],
+							"sid": 264402595788968,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player to the right while also \"unmirroring\" its graphics."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 419887578263887,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 333856580533468,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 519097540705963,
+									"behaviorType": "Platform",
+									"parameters": {
+										"control": "right"
+									}
+								},
+								{
+									"id": "set-mirrored",
+									"objectClass": "PlayerGraphics",
+									"sid": 584584600934052,
+									"parameters": {
+										"state": "not-mirrored"
+									}
+								}
+							],
+							"sid": 600039708179932,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Make the player jump."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 728455790943578,
+									"parameters": {
+										"key": 90
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 969167575902803,
+									"parameters": {
+										"gamepad": "0",
+										"button": "button-a"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 801526876848270,
+									"behaviorType": "Platform",
+									"parameters": {
+										"control": "jump"
+									}
+								}
+							],
+							"sid": 145191292488866,
+							"isOrBlock": true
+						}
+					],
+					"sid": 284160857497412
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "PlayerAnimations",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Change the player's animation states depending on what the player is currently doing."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-on-floor",
+									"objectClass": "PlayerCollision",
+									"sid": 266464726372936,
+									"behaviorType": "Platform"
+								}
+							],
+							"actions": [],
+							"sid": 639517252066251,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Walk animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-moving",
+											"objectClass": "PlayerCollision",
+											"sid": 294208329514007,
+											"behaviorType": "Platform"
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 147197398511397,
+											"parameters": {
+												"animation": "\"Walk\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 679531821720365
+								},
+								{
+									"eventType": "comment",
+									"text": "Idle animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 123040406395366
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 989432892141503,
+											"parameters": {
+												"animation": "\"Idle\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 452014725985018
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Jump animation."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-jumping",
+									"objectClass": "PlayerCollision",
+									"sid": 168244418263795,
+									"behaviorType": "Platform"
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerGraphics",
+									"sid": 711508245098272,
+									"parameters": {
+										"animation": "\"Jump\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 938264186792587
+						},
+						{
+							"eventType": "comment",
+							"text": "Fall animation."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-falling",
+									"objectClass": "PlayerCollision",
+									"sid": 457562151276971,
+									"behaviorType": "Platform"
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerGraphics",
+									"sid": 452514544712140,
+									"parameters": {
+										"animation": "\"Fall\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 205139548287961
+						}
+					],
+					"sid": 613719944894298
+				}
+			],
+			"sid": 438447210557978
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Jetpack",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Grant a full fuel tank to the player once it's created."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "PlayerCollision",
+							"sid": 193081627624958
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "PlayerCollision",
+							"sid": 798813105721769,
+							"parameters": {
+								"instance-variable": "FuelLeft",
+								"value": "JetpackFuelTankSize"
+							}
+						}
+					],
+					"sid": 624525941570915
+				},
+				{
+					"eventType": "comment",
+					"text": "Disable fuel recharging after pressing or releasing any of the flying buttons."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 485625055394469,
+							"parameters": {
+								"key": 88
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 655482222159562,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-b"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "PlayerCollision",
+							"sid": 234681947142653,
+							"parameters": {
+								"instance-variable": "RechargeNow",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 572537432600886,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-released",
+							"objectClass": "Keyboard",
+							"sid": 122434151808566,
+							"parameters": {
+								"key": 88
+							}
+						},
+						{
+							"id": "on-button-released",
+							"objectClass": "Gamepad",
+							"sid": 576334393594385,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-b"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "PlayerCollision",
+							"sid": 138879676451487,
+							"parameters": {
+								"instance-variable": "RechargeNow",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start a cooldown timer before the jetpack is allowed to recharge its fuel."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "PlayerCollision",
+							"sid": 434224598328570,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "JetpackCooldownTime",
+								"type": "once",
+								"tag": "\"Cooldown\""
+							}
+						}
+					],
+					"sid": 423401942399974,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the cooldown timer is over, allow the fuel to be recharged."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "PlayerCollision",
+							"sid": 340462894269472,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Cooldown\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "PlayerCollision",
+							"sid": 966674425028740,
+							"parameters": {
+								"instance-variable": "RechargeNow",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 270715078501194
+				},
+				{
+					"eventType": "comment",
+					"text": "Activate the jetpack by increase the player's vertical speed (Vector Y), but only if there's enough fuel left."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 116553552981813,
+							"parameters": {
+								"key": 88
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 320970977058544,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-b"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 989489506707794,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "PlayerCollision",
+									"sid": 295143426647801,
+									"parameters": {
+										"instance-variable": "FuelLeft",
+										"comparison": 4,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-vector-y",
+									"objectClass": "PlayerCollision",
+									"sid": 908129086141780,
+									"behaviorType": "Platform",
+									"parameters": {
+										"vector-y": "clamp(Self.Platform.VectorY - JetpackForce * 60 * dt, -JetpackMaxSpeed, Self.Platform.MaxFallSpeed)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also slowly deplete the amount of fuel left."
+								},
+								{
+									"callFunction": "UpdateFuel",
+									"sid": 850998662038495,
+									"parameters": [
+										"-JetpackDepleteRate "
+									]
+								}
+							],
+							"sid": 717759260523016,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Leave a trail of particle behind the player while he's flying."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "every-x-seconds",
+											"objectClass": "System",
+											"sid": 758286894795130,
+											"parameters": {
+												"interval-seconds": "0.1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "spawn-another-object",
+											"objectClass": "PlayerCollision",
+											"sid": 357281214889513,
+											"parameters": {
+												"object": "JetpackParticles",
+												"layer": "\"World\"",
+												"image-point": "0"
+											}
+										},
+										{
+											"id": "move-to-bottom",
+											"objectClass": "JetpackParticles",
+											"sid": 694021344280352
+										}
+									],
+									"sid": 876127648287122
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Slowly recharge the amount of fuel left if there's no input from the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 744025388397219,
+							"parameters": {
+								"key": 88
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 607881337459423,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-b"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 321935766295825,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also checks if the fuel tank is not already full and if recharging is allowed."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "PlayerCollision",
+									"sid": 210871678746695,
+									"parameters": {
+										"instance-variable": "FuelLeft",
+										"comparison": 2,
+										"value": "JetpackFuelTankSize"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "PlayerCollision",
+									"sid": 183319880803256,
+									"parameters": {
+										"instance-variable": "RechargeNow"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "UpdateFuel",
+									"sid": 975705098943190,
+									"parameters": [
+										"JetpackRechargeRate"
+									]
+								}
+							],
+							"sid": 209619920261634
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the amount of fuel left while also clamping it to make sure it's not lower than zero or higher than what the tank is able to carry."
+				},
+				{
+					"functionName": "UpdateFuel",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Value",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 793928586039939
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "PlayerCollision",
+							"sid": 226624076391059,
+							"parameters": {
+								"instance-variable": "FuelLeft",
+								"value": "clamp(Self.FuelLeft + Value * 60 * dt, 0, JetpackFuelTankSize)"
+							}
+						}
+					],
+					"sid": 695984812404796
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "FuelBarBackground",
+							"sid": 636238297566731
+						}
+					],
+					"actions": [
+						{
+							"id": "set-width",
+							"objectClass": "FuelBarBackground",
+							"sid": 444565930906516,
+							"parameters": {
+								"width": "FuelBarScaledWidth + 8"
+							}
+						}
+					],
+					"sid": 869425413785780
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 427864478182235
+						}
+					],
+					"actions": [
+						{
+							"id": "set-width",
+							"objectClass": "FuelBar",
+							"sid": 534898593842028,
+							"parameters": {
+								"width": "PlayerCollision.FuelLeft / JetpackFuelTankSize * FuelBarScaledWidth"
+							}
+						}
+					],
+					"sid": 143604319855366
+				}
+			],
+			"sid": 758937664538235
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "SpikeBall",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Restart the game if the player collides with a spike ball (game over)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 791866201013897,
+							"parameters": {
+								"object": "SpikeBall"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 343324890073017
+						}
+					],
+					"sid": 920268800499432
+				}
+			],
+			"sid": 241650174444376
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Force a restart of the layout. This is used for debugging purposes only."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 266296388691312,
+							"parameters": {
+								"key": 82
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 641121902214600,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 585051950330234
+						}
+					],
+					"sid": 880938872539025,
+					"isOrBlock": true
+				}
+			],
+			"sid": 665628359241446
+		}
+	],
+	"sid": 703169307524782
+}

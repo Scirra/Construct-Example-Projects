@@ -1,0 +1,285 @@
+{
+	"name": "ReadingsEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Include the common BBC micro:bit event sheets for this layout."
+		},
+		{
+			"eventType": "include",
+			"includeSheet": "Common"
+		},
+		{
+			"eventType": "comment",
+			"text": "Clicking the 'Change LED' button goes to the LED layout."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "ChangeLEDButton",
+					"sid": 714997104834017
+				}
+			],
+			"actions": [
+				{
+					"id": "go-to-layout",
+					"objectClass": "System",
+					"sid": 954260162290251,
+					"parameters": {
+						"layout": "LEDLayout"
+					}
+				}
+			],
+			"sid": 448620334126458
+		},
+		{
+			"eventType": "comment",
+			"text": "On startup, destroy the initial 'Button pressed' message text object, as we only want it to appear when a button is pressed."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 615439652267421
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "ButtonPressMessage",
+					"sid": 103944804531875
+				}
+			],
+			"sid": 491008483077909
+		},
+		{
+			"eventType": "comment",
+			"text": "When accelerometer readings are received, set the Sprite object angles to illustrate the readings. Use the smoothed readings as they have less \"noise\" in the measurements (i.e. the raw measurements can have fairly significant random variations)."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-accelerometer-reading",
+					"objectClass": "BBCMicrobit",
+					"sid": 580372977502571
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "SpriteX",
+					"sid": 806894506059948,
+					"parameters": {
+						"angle": "BBCMicrobit.AccelerometerSmoothedX * 90"
+					}
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "SpriteY",
+					"sid": 971560849199187,
+					"parameters": {
+						"angle": "BBCMicrobit.AccelerometerSmoothedY * 90"
+					}
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "SpriteZ",
+					"sid": 259663266861556,
+					"parameters": {
+						"angle": "BBCMicrobit.AccelerometerSmoothedZ * 90"
+					}
+				}
+			],
+			"sid": 205023246817121
+		},
+		{
+			"eventType": "comment",
+			"text": "Note the compass bearing reading is only available if the device compass has been calibrated.\nIf it has, bearing readings can be received very rapidly, and similar to the accelerometer they are very \"noisy\" measurements, with lots of random variation. This makes a constantly-updated reading hard to read. To make it easier to read, when the first reading is received, activate a group that updates the reading every 0.5 seconds, so the displayed reading updates less frequently."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-bearing-reading",
+					"objectClass": "BBCMicrobit",
+					"sid": 128972767578570
+				}
+			],
+			"actions": [
+				{
+					"id": "set-group-active",
+					"objectClass": "System",
+					"sid": 265150128883451,
+					"parameters": {
+						"group-name": "\"Update bearing reading\"",
+						"state": "activated"
+					}
+				}
+			],
+			"sid": 392851081423782
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Update bearing reading",
+			"description": "",
+			"isActiveOnStart": false,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 609757433853135,
+							"parameters": {
+								"interval-seconds": "0.5"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "BearingReadingText",
+							"sid": 713715447252474,
+							"parameters": {
+								"text": "\"Bearing: \" & BBCMicrobit.Bearing & \"°\""
+							}
+						}
+					],
+					"sid": 524429768423631
+				}
+			],
+			"sid": 477895371616263
+		},
+		{
+			"eventType": "comment",
+			"text": "Display received temperature readings in degrees celcius."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-temperature-reading",
+					"objectClass": "BBCMicrobit",
+					"sid": 547654804043725
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "TemperatureReadingText",
+					"sid": 178775214459524,
+					"parameters": {
+						"text": "\"Temperature: \" & BBCMicrobit.Temperature & \"°C\""
+					}
+				}
+			],
+			"sid": 851411599703652
+		},
+		{
+			"eventType": "comment",
+			"text": "When either button A or B are pressed, to show feedback, create a Text object with a message. This then uses the Bullet behavior to move it upwards, and also the Fade behavior to fade it out after a couple of seconds."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-button-pressed",
+					"objectClass": "BBCMicrobit",
+					"sid": 802075003310558,
+					"parameters": {
+						"button": "a",
+						"input": "pressed"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 190505763062763,
+					"parameters": {
+						"object-to-create": "ButtonPressMessage",
+						"layer": "0",
+						"x": "7",
+						"y": "385",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "ButtonPressMessage",
+					"sid": 387050030833863,
+					"parameters": {
+						"text": "\"Button A pressed\""
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "ButtonPressMessage",
+					"sid": 872252963353955,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "270"
+					}
+				}
+			],
+			"sid": 484593418104059
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-button-pressed",
+					"objectClass": "BBCMicrobit",
+					"sid": 111811689689951,
+					"parameters": {
+						"button": "b",
+						"input": "pressed"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 631320372639836,
+					"parameters": {
+						"object-to-create": "ButtonPressMessage",
+						"layer": "0",
+						"x": "7",
+						"y": "385",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "ButtonPressMessage",
+					"sid": 315055058938961,
+					"parameters": {
+						"text": "\"Button B pressed\""
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "ButtonPressMessage",
+					"sid": 630793573368025,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "270"
+					}
+				}
+			],
+			"sid": 647115617107975
+		}
+	],
+	"sid": 391525961934366
+}

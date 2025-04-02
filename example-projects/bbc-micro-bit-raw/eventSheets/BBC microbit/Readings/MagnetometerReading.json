@@ -1,0 +1,128 @@
+{
+	"name": "MagnetometerReading",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "These IDs are from the following documentation: https://lancaster-university.github.io/microbit-docs/resources/bluetooth/bluetooth_profile.html"
+		},
+		{
+			"eventType": "comment",
+			"text": "The ID for the overall magnetometer service."
+		},
+		{
+			"eventType": "variable",
+			"name": "MagnetometerServiceUUID",
+			"type": "string",
+			"initialValue": "e95df2d8-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 484946214614283
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for receiving the bearing reading from the magnetometer."
+		},
+		{
+			"eventType": "variable",
+			"name": "MagnetometerBearingDataUUID",
+			"type": "string",
+			"initialValue": "e95d9715-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 546839205527838
+		},
+		{
+			"eventType": "comment",
+			"text": "A global variable with the last magnetometer bearing reading, in degrees from due north."
+		},
+		{
+			"eventType": "variable",
+			"name": "MagnetometerBearing",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 814627784129053
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Magnetometer reading",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Upon connecting to a device, start notifications for the bearing reading in the magnetometer service."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-device-connected",
+							"objectClass": "Bluetooth",
+							"sid": 802498234726695
+						}
+					],
+					"actions": [
+						{
+							"id": "start-stop-characteristic-notifications",
+							"objectClass": "Bluetooth",
+							"sid": 250940817537361,
+							"parameters": {
+								"device-id": "Bluetooth.DeviceID",
+								"service": "MagnetometerServiceUUID",
+								"characteristic": "MagnetometerBearingDataUUID",
+								"notifications": "start"
+							}
+						}
+					],
+					"sid": 468371219828795
+				},
+				{
+					"eventType": "comment",
+					"text": "When a bearing reading is received, read the value from the Binary Data object. The documentation indicates this is an unsigned 16-bit integer representing degrees from due north, so read it with the GetUint16 expression, and display the result."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-characteristic-notification",
+							"objectClass": "Bluetooth",
+							"sid": 442891997466062,
+							"parameters": {
+								"characteristic": "MagnetometerBearingDataUUID",
+								"binary-data": "BinaryData"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 876022646879597,
+							"parameters": {
+								"variable": "MagnetometerBearing",
+								"value": "BinaryData.GetUint16(0)"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "BearingReadingText",
+							"sid": 380549454340352,
+							"parameters": {
+								"text": "\"Bearing: \" & MagnetometerBearing & \"°\""
+							}
+						}
+					],
+					"sid": 686939744055764
+				}
+			],
+			"sid": 357796554427753
+		}
+	],
+	"sid": 869661392135677
+}

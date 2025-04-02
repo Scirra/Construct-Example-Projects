@@ -1,0 +1,268 @@
+{
+	"name": "RequestingDevice",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "[h1]Set up micro:bit[/h1]\nTo use this example, the BBC micro:bit must be running code that starts the relevant Bluetooth services.\nYou can use this MakeCode project: https://makecode.microbit.org/_1D095uH7HHoM"
+		},
+		{
+			"eventType": "variable",
+			"name": "IsConnected",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Indicates if a Bluetooth connection is active.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 340186399976907
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Requesting device",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On startup, show a message if bluetooth is not supported."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 839414930581236
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "ButtonPressMessage",
+							"sid": 804370632440932
+						}
+					],
+					"sid": 100141991540160,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-supported",
+									"objectClass": "Bluetooth",
+									"sid": 291902467020260,
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "StatusText",
+									"sid": 972213484823081,
+									"parameters": {
+										"text": "\"Bluetooth is not supported on this browser/platform. Try Chrome on Windows 10, macOS or Android 6+.\""
+									}
+								}
+							],
+							"sid": 332365971985203
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When clicking 'Request device', use the Bluetooth object to request pairing to a device. This uses the name prefix \"BBC micro:bit\" to only list micro:bit devices. It also specifies every service UUID of interest in the optional services field, separated by commas."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "RequestDevice",
+							"sid": 976602237129215
+						}
+					],
+					"actions": [
+						{
+							"id": "request-device",
+							"objectClass": "Bluetooth",
+							"sid": 285257181664097,
+							"parameters": {
+								"services": "\"\"",
+								"device-name": "\"\"",
+								"device-name-prefix": "\"BBC micro:bit\"",
+								"optional-services": "AccelerometerServiceUUID & \",\" & ButtonServiceUUID & \",\" & TemperatureServiceUUID & \",\" & MagnetometerServiceUUID & \",\" & LEDServiceUUID",
+								"accept-all-devices": "no"
+							}
+						}
+					],
+					"sid": 152683524269571
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the status text to show if requesting a device failed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-request-device-failed",
+							"objectClass": "Bluetooth",
+							"sid": 618053435505898
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 569072396139732,
+							"parameters": {
+								"text": "\"Requesting device failed\""
+							}
+						}
+					],
+					"sid": 495665769844943
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the status text to show when a device connects or disconnects. Also update the IsConnected boolean."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-device-connected",
+							"objectClass": "Bluetooth",
+							"sid": 438637151072618
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 500365536985759,
+							"parameters": {
+								"text": "\"Device connected! (ID: [i]\" & Bluetooth.DeviceID & \"[/i])\""
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 349308029779419,
+							"parameters": {
+								"variable": "IsConnected",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 520403532959123
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-device-disconnected",
+							"objectClass": "Bluetooth",
+							"sid": 938018000904912
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 860935867408071,
+							"parameters": {
+								"text": "\"Device disconnected (ID: [i]\" & Bluetooth.DeviceID & \"[/i])\""
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 849419487838898,
+							"parameters": {
+								"variable": "IsConnected",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 569736163026097
+				},
+				{
+					"eventType": "comment",
+					"text": "Also update the status text just in case any kind of read error occurs, to help indicate something went wrong."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-characteristic-read-error",
+							"objectClass": "Bluetooth",
+							"sid": 814357428501149
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 613737731088555,
+							"parameters": {
+								"text": "\"Error reading characteristic\""
+							}
+						}
+					],
+					"sid": 994159147446328
+				},
+				{
+					"eventType": "comment",
+					"text": "Disable the 'Request device' button when already connected to a device."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 102103449264015,
+							"parameters": {
+								"variable": "IsConnected"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "RequestDevice",
+							"sid": 820080697611497,
+							"parameters": {
+								"mode": "disabled"
+							}
+						}
+					],
+					"sid": 904607796904471
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 999028422055607
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "RequestDevice",
+							"sid": 853372411853615,
+							"parameters": {
+								"mode": "enabled"
+							}
+						}
+					],
+					"sid": 646908721667509
+				}
+			],
+			"sid": 871080036773144
+		}
+	],
+	"sid": 990840741355449
+}

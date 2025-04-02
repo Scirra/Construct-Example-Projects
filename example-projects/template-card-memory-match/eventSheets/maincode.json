@@ -1,0 +1,1735 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How high cards will fly when selected."
+		},
+		{
+			"eventType": "variable",
+			"name": "CARDSMAXHEIGHT",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 972883140327553
+		},
+		{
+			"eventType": "comment",
+			"text": "How many cards are active, but not necesseraly ready to be compared."
+		},
+		{
+			"eventType": "variable",
+			"name": "ActiveCards",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 938226536879816
+		},
+		{
+			"eventType": "comment",
+			"text": "How many cards are ready to be compared."
+		},
+		{
+			"eventType": "variable",
+			"name": "ReadyCards",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 503627653510155
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "BasicSetup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Center the camera in the middle of the layout."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 632568660239836
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-x",
+							"objectClass": "System",
+							"sid": 706706919902103,
+							"parameters": {
+								"x": "LayoutWidth / 2"
+							}
+						},
+						{
+							"id": "scroll-to-y",
+							"objectClass": "System",
+							"sid": 440244388792092,
+							"parameters": {
+								"y": "LayoutHeight / 2"
+							}
+						}
+					],
+					"sid": 523721049656255
+				},
+				{
+					"eventType": "comment",
+					"text": "shuffle cards"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 446121964176180
+						}
+					],
+					"actions": [
+						{
+							"id": "set-size",
+							"objectClass": "CardsRandomizer",
+							"sid": 709084301818039,
+							"parameters": {
+								"width": "Card.Count",
+								"height": "3",
+								"depth": "1"
+							}
+						}
+					],
+					"sid": 479856696565421,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Store the UID and position of every single card inside an array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 870178550814154,
+									"parameters": {
+										"object": "Card"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-at-xy",
+									"objectClass": "CardsRandomizer",
+									"sid": 723637392061697,
+									"parameters": {
+										"x": "loopindex",
+										"y": "0",
+										"value": "Card.UID"
+									}
+								},
+								{
+									"id": "set-at-xy",
+									"objectClass": "CardsRandomizer",
+									"sid": 164531334556926,
+									"parameters": {
+										"x": "loopindex",
+										"y": "1",
+										"value": "Card.X"
+									}
+								},
+								{
+									"id": "set-at-xy",
+									"objectClass": "CardsRandomizer",
+									"sid": 524142708915247,
+									"parameters": {
+										"x": "loopindex",
+										"y": "2",
+										"value": "Card.Y"
+									}
+								}
+							],
+							"sid": 320125047192151
+						},
+						{
+							"eventType": "comment",
+							"text": "Create a permutation table based on how many cards are stored inside the array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "createPermutationTable",
+									"objectClass": "AdvancedRandom",
+									"sid": 618831451793456,
+									"parameters": {
+										"length": "CardsRandomizer.Width",
+										"offset": "0"
+									}
+								}
+							],
+							"sid": 638779286920984
+						},
+						{
+							"eventType": "comment",
+							"text": "Shuffle all cards by grabbing them by UID and mixing their position values."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 505942126818899,
+									"parameters": {
+										"name": "\"shuffle_array\"",
+										"start-index": "0",
+										"end-index": "CardsRandomizer.Width - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "log",
+									"objectClass": "Browser",
+									"sid": 975150147904895,
+									"parameters": {
+										"type": "log",
+										"message": "\"----//----\"\n&newline&\n\"Loop index: \"&loopindex(\"shuffle_array\")\n&newline&\n\"Random number: \"&CardsRandomizer.At(AdvancedRandom.Permutation(loopindex(\"shuffle_array\")), 0)\n"
+									}
+								}
+							],
+							"sid": 379634881765634,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Card",
+											"sid": 831471995676548,
+											"parameters": {
+												"unique-id": "CardsRandomizer.At(AdvancedRandom.Permutation(loopindex(\"shuffle_array\")), 0)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Card",
+											"sid": 422942707160941,
+											"behaviorType": "beh_tween",
+											"parameters": {
+												"tags": "\"PositionRandom\"",
+												"property": "position",
+												"end-x": "CardsRandomizer.At(loopindex(\"shuffle_array\"), 1)",
+												"end-y": "CardsRandomizer.At(loopindex(\"shuffle_array\"), 2)",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 977784225854730
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 869163605323640
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Selector",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create a card selector and adjust its properties so it's slightly larger than a card."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "SelectedArea",
+							"sid": 439004706884138
+						}
+					],
+					"actions": [
+						{
+							"id": "set-size",
+							"objectClass": "SelectedArea",
+							"sid": 909522876399027,
+							"parameters": {
+								"width": "Card.ImageWidth + 2",
+								"height": "Card.ImageHeight + 2"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "SelectedArea",
+							"sid": 373050960944763,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"SizeSine\"",
+								"property": "size",
+								"end-x": "Self.Width - 2",
+								"end-y": "Self.Height - 2",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "yes",
+								"ping-pong": "yes"
+							}
+						}
+					],
+					"sid": 106088545344157
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the card selector on top of a card or outside the screen depending on where the cursor is positioned."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 550842033405958,
+							"parameters": {
+								"object": "Card"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Card",
+							"sid": 670630824020804,
+							"parameters": {
+								"instance-variable": "Active"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "SelectedArea",
+							"sid": 134898540506286,
+							"parameters": {
+								"object": "Card",
+								"image-point-optional": "0"
+							}
+						}
+					],
+					"sid": 793294787073837
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 284903666746211
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "SelectedArea",
+							"sid": 177743966079724,
+							"parameters": {
+								"x": "0 - Self.Width / 2",
+								"y": "0 - Self.Height / 2"
+							}
+						}
+					],
+					"sid": 637925308849585
+				}
+			],
+			"sid": 230131513689278
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Activate a card if it's not already activated."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 968429274623898,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Card"
+							}
+						},
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 913421326222492,
+							"parameters": {
+								"object": "Card"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 131584927527288,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Card",
+									"sid": 397430947518017,
+									"parameters": {
+										"instance-variable": "Active"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "CountActiveCards",
+									"sid": 804237359703701
+								}
+							],
+							"sid": 184937594494907,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 750668653715605,
+											"parameters": {
+												"variable": "ActiveCards",
+												"comparison": 2,
+												"value": "2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Card",
+											"sid": 874233121161123,
+											"parameters": {
+												"instance-variable": "Active",
+												"value": "true"
+											}
+										},
+										{
+											"callFunction": "CountActiveCards",
+											"sid": 725791119565583
+										},
+										{
+											"type": "comment",
+											"text": "Start a sequence of tween animations to reveal the card in a very cool looking way."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Card",
+											"sid": 702374675028397,
+											"behaviorType": "beh_tween",
+											"parameters": {
+												"tags": "\"ZElevationUp\"",
+												"property": "offsetZElevation",
+												"end-value": "CardsMaxHeight",
+												"time": "0.5",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 359632863896219
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Card",
+							"sid": 236199266298949,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"ZElevationUp\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Card",
+							"sid": 620671390212431,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"Width1\"",
+								"property": "offsetWidth",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 732735190332368
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Card",
+							"sid": 127613298793339,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"Width1\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Card",
+							"sid": 796380499058011,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"Width2\"",
+								"property": "offsetWidth",
+								"end-value": "Self.ImageWidth",
+								"time": "0.25",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Card",
+							"sid": 762222836350700,
+							"parameters": {
+								"animation": "\"Front\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Card",
+							"sid": 165966105506563,
+							"parameters": {
+								"frame-number": "Self.CardIndex"
+							}
+						}
+					],
+					"sid": 536095256736716
+				},
+				{
+					"eventType": "comment",
+					"text": "Once all animations are done, set the card as ready for comparison."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Card",
+							"sid": 217270429665682,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"Width2\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Card",
+							"sid": 959746029037044,
+							"parameters": {
+								"instance-variable": "Ready",
+								"value": "true"
+							}
+						},
+						{
+							"callFunction": "CountReadyCards",
+							"sid": 874783418511130
+						},
+						{
+							"callFunction": "TestCards",
+							"sid": 662948699490673
+						}
+					],
+					"sid": 561976607379923
+				},
+				{
+					"eventType": "comment",
+					"text": "Test if the currently ready cards are really the same."
+				},
+				{
+					"functionName": "TestCards",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 195970627157587,
+							"parameters": {
+								"variable": "ReadyCards",
+								"comparison": 0,
+								"value": "2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "clear",
+							"objectClass": "SelectedCards",
+							"sid": 118538915330233,
+							"parameters": {
+								"value": "-1"
+							}
+						}
+					],
+					"sid": 950352976880183,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "Step",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 751689157434586
+						},
+						{
+							"eventType": "comment",
+							"text": "Store the index value of each ready card inside an array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 263389914594031,
+									"parameters": {
+										"object": "Card"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Card",
+									"sid": 139000826905882,
+									"parameters": {
+										"instance-variable": "Ready"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-at-x",
+									"objectClass": "SelectedCards",
+									"sid": 945717195184445,
+									"parameters": {
+										"x": "Step",
+										"value": "Card.CardIndex"
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 359029830096162,
+									"parameters": {
+										"variable": "Step",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 316278906478153
+						},
+						{
+							"eventType": "comment",
+							"text": "If both cards have the same index value, destroy both of them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 624098220594951,
+									"parameters": {
+										"first-value": "SelectedCards.At(0)",
+										"comparison": 0,
+										"second-value": "SelectedCards.At(1)"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 943838020836371,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Before destroying each card, spawn a variety of visual effects for polishing."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 202757899153958,
+											"parameters": {
+												"object": "Card"
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Card",
+											"sid": 667285465905690,
+											"parameters": {
+												"instance-variable": "Ready"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Spawn a big vertical flash."
+										},
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Card",
+											"sid": 854574279063255,
+											"parameters": {
+												"object": "Flash",
+												"layer": "\"lay_cards\"",
+												"image-point": "0",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-z-elevation",
+											"objectClass": "Flash",
+											"sid": 645271652814481,
+											"parameters": {
+												"z": "Card.ZElevation"
+											}
+										},
+										{
+											"id": "set-y",
+											"objectClass": "Flash",
+											"sid": 423060558966362,
+											"parameters": {
+												"y": "LayoutHeight / 2"
+											}
+										},
+										{
+											"id": "set-size",
+											"objectClass": "Flash",
+											"sid": 263357067737015,
+											"parameters": {
+												"width": "Card.ImageWidth",
+												"height": "LayoutHeight"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Flash",
+											"sid": 660574591116985,
+											"behaviorType": "beh_tween",
+											"parameters": {
+												"tags": "\"WidthDown\"",
+												"property": "offsetWidth",
+												"end-value": "0",
+												"time": "0.5",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Spawn a few glow particles."
+										},
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Card",
+											"sid": 774754553362835,
+											"parameters": {
+												"object": "GlowParticles",
+												"layer": "\"lay_cards\"",
+												"image-point": "0",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Destroy the card."
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Card",
+											"sid": 479835831147845
+										},
+										{
+											"type": "comment",
+											"text": "Count how many cards are active and ready."
+										},
+										{
+											"callFunction": "CountActiveCards",
+											"sid": 903135339812623
+										},
+										{
+											"callFunction": "CountReadyCards",
+											"sid": 494093594711612
+										}
+									],
+									"sid": 329649329224181
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the cards are not the same, start an animation sequence to put them back in place."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 547920554927403,
+									"parameters": {
+										"first-value": "SelectedCards.At(0)",
+										"comparison": 1,
+										"second-value": "SelectedCards.At(1)"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 776205328338316,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 387244485909798,
+											"parameters": {
+												"object": "Card"
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Card",
+											"sid": 586005047121726,
+											"parameters": {
+												"instance-variable": "Ready"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Card",
+											"sid": 117179590908734,
+											"parameters": {
+												"instance-variable": "Ready",
+												"value": "false"
+											}
+										},
+										{
+											"callFunction": "CountReadyCards",
+											"sid": 515020122410238
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Card",
+											"sid": 352096762932739,
+											"behaviorType": "beh_tween",
+											"parameters": {
+												"tags": "\"Width3\"",
+												"property": "offsetWidth",
+												"end-value": "0",
+												"time": "0.25",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 842922355496672
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Card",
+							"sid": 760565540159547,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"Width3\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Card",
+							"sid": 339230013350645,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"Width4\"",
+								"property": "offsetWidth",
+								"end-value": "Self.ImageWidth",
+								"time": "0.25",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Card",
+							"sid": 695530117518973,
+							"parameters": {
+								"animation": "\"Back\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Card",
+							"sid": 353585982685367,
+							"parameters": {
+								"frame-number": "0"
+							}
+						}
+					],
+					"sid": 425542452997413
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Card",
+							"sid": 267822112144658,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"Width4\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Card",
+							"sid": 426177464159052,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"ZElevationDown\"",
+								"property": "offsetZElevation",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 761556863443247
+				},
+				{
+					"eventType": "comment",
+					"text": "After the animation is complete, set the card as not active."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Card",
+							"sid": 279330871047346,
+							"behaviorType": "beh_tween",
+							"parameters": {
+								"tags": "\"ZElevationDown\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Card",
+							"sid": 693421478754884,
+							"parameters": {
+								"instance-variable": "Active",
+								"value": "false"
+							}
+						},
+						{
+							"callFunction": "CountActiveCards",
+							"sid": 790750164282548
+						}
+					],
+					"sid": 606679601410951
+				},
+				{
+					"eventType": "comment",
+					"text": "Helper functions."
+				},
+				{
+					"eventType": "comment",
+					"text": "Count how many cards are active and store the result in a variable."
+				},
+				{
+					"functionName": "CountActiveCards",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 115598144824216,
+							"parameters": {
+								"variable": "ActiveCards",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 158250730778809,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 156294545997567,
+									"parameters": {
+										"object": "Card"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Card",
+									"sid": 392524539708374,
+									"parameters": {
+										"instance-variable": "Active"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 602733472314842,
+									"parameters": {
+										"variable": "ActiveCards",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 781084782754318
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Count how many cards are ready and store the result in a variable."
+				},
+				{
+					"functionName": "CountReadyCards",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 734049597502623,
+							"parameters": {
+								"variable": "ReadyCards",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 713214236324692,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 937145993693505,
+									"parameters": {
+										"object": "Card"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Card",
+									"sid": 706091709816580,
+									"parameters": {
+										"instance-variable": "Ready"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 367939230032095,
+									"parameters": {
+										"variable": "ReadyCards",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 341822955627922
+						}
+					]
+				}
+			],
+			"sid": 165202143908325
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "HUD",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Always set the HUD text to display how many pairs are still present in the table."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 475359414043374
+						}
+					],
+					"actions": [],
+					"sid": 518735306295693,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 882161009343186,
+									"parameters": {
+										"object": "Text",
+										"expression": "Text.FontID",
+										"comparison": 0,
+										"value": "\"HUD\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "Text",
+									"sid": 387080057451385,
+									"parameters": {
+										"text": "\"Remaining pairs: \"&Card.Count / 2"
+									}
+								}
+							],
+							"sid": 161302713970225
+						}
+					]
+				}
+			],
+			"sid": 951329819344532
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Shadows",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the card shadow, so it's always following its position and in a lower layer."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "CardShadow",
+							"sid": 449707188492778
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "CardShadow",
+							"sid": 367019115318309,
+							"parameters": {
+								"object": "Card",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "pin-to-object-properties",
+							"objectClass": "CardShadow",
+							"sid": 174075903283460,
+							"behaviorType": "beh_pin",
+							"parameters": {
+								"pin-to": "Card",
+								"x": true,
+								"y": true,
+								"angle": true,
+								"width-type": "absolute",
+								"height-type": "absolute",
+								"z": false
+							}
+						},
+						{
+							"id": "move-to-layer",
+							"objectClass": "CardShadow",
+							"sid": 548012966372132,
+							"parameters": {
+								"layer": "\"lay_table\""
+							}
+						},
+						{
+							"id": "move-to-object",
+							"objectClass": "CardShadow",
+							"sid": 420303560775283,
+							"parameters": {
+								"where": "in-front",
+								"object": "Table"
+							}
+						}
+					],
+					"sid": 279860246023693
+				},
+				{
+					"eventType": "comment",
+					"text": "Always update every shadow object to more or less opaque depending on how it's from their parent card."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 912344544143568
+						}
+					],
+					"actions": [],
+					"sid": 710321917473714,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 382817624527959,
+									"parameters": {
+										"object": "CardShadow"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-opacity",
+									"objectClass": "CardShadow",
+									"sid": 873490805194882,
+									"parameters": {
+										"opacity": "50 - ((100 / 32) * Card.ZElevation / 4)"
+									}
+								}
+							],
+							"sid": 725273621955816
+						}
+					]
+				}
+			],
+			"sid": 244199833896209
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Scrolling",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How close the cursor must be to a viewport border before the camera starts moving."
+				},
+				{
+					"eventType": "variable",
+					"name": "CURSORBORDER",
+					"type": "number",
+					"initialValue": "16",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 395651976283407
+				},
+				{
+					"eventType": "comment",
+					"text": "How fast the camera will move."
+				},
+				{
+					"eventType": "variable",
+					"name": "CurrentCursorSpeed",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 277038430436885
+				},
+				{
+					"eventType": "comment",
+					"text": "Where the camera will move towards."
+				},
+				{
+					"eventType": "variable",
+					"name": "CursorAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 307454486490154
+				},
+				{
+					"eventType": "comment",
+					"text": "Check what the current platform is to prevent any kind of scrolling on mobile devices, since there's no constant input from the cursor."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 523098785455629
+						}
+					],
+					"actions": [],
+					"sid": 291397468947653,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-on-android",
+									"objectClass": "PlatformInfo",
+									"sid": 586946310247929
+								},
+								{
+									"id": "is-on-ios",
+									"objectClass": "PlatformInfo",
+									"sid": 798532502542830
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Center the camera based on the layout size."
+								},
+								{
+									"id": "scroll-to-x",
+									"objectClass": "System",
+									"sid": 404096869482508,
+									"parameters": {
+										"x": "LayoutWidth / 2"
+									}
+								},
+								{
+									"id": "scroll-to-y",
+									"objectClass": "System",
+									"sid": 513679476093535,
+									"parameters": {
+										"y": "LayoutHeight / 2"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Completely disable scrolling."
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 113936931659404,
+									"parameters": {
+										"group-name": "\"Scrolling\"",
+										"state": "deactivated"
+									}
+								}
+							],
+							"sid": 191991376365284,
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Increase and decrease the cursor speed depending on where it's located on screen. The value is interpolated for smoother results."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 355318869466723,
+							"parameters": {
+								"first-value": "Mouse.X",
+								"comparison": 2,
+								"second-value": "ViewportLeft(0) + CURSORBORDER"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 317910609477920,
+							"parameters": {
+								"first-value": "Mouse.X",
+								"comparison": 4,
+								"second-value": "ViewportRight(0) - CURSORBORDER"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 339596641186068,
+							"parameters": {
+								"first-value": "Mouse.Y",
+								"comparison": 2,
+								"second-value": "ViewportTop(0) + CURSORBORDER"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 428644505060886,
+							"parameters": {
+								"first-value": "Mouse.Y",
+								"comparison": 4,
+								"second-value": "ViewportBottom(0) - CURSORBORDER"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 964559300280388,
+							"parameters": {
+								"variable": "CurrentCursorSpeed",
+								"value": "clamp(CurrentCursorSpeed + 0.1 * 60 * dt, 0, 4)"
+							}
+						}
+					],
+					"sid": 966608361510022,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 139942252981745
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 448328370225222,
+							"parameters": {
+								"variable": "CurrentCursorSpeed",
+								"value": "clamp(CurrentCursorSpeed - 0.25 * 60 * dt, 0, Infinity)"
+							}
+						}
+					],
+					"sid": 653627535163630
+				},
+				{
+					"eventType": "comment",
+					"text": "If the cursor speed is higher than zero, then start moving the camera towards the mouse cursor."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 692167494654945,
+							"parameters": {
+								"variable": "CurrentCursorSpeed",
+								"comparison": 4,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 659772497164628,
+							"parameters": {
+								"variable": "CursorAngle",
+								"value": "angle(scrollx, scrolly, Mouse.X, Mouse.Y)"
+							}
+						},
+						{
+							"id": "scroll-to-x",
+							"objectClass": "System",
+							"sid": 297372379109947,
+							"parameters": {
+								"x": "scrollx + cos(CursorAngle) * CurrentCursorSpeed * 60 * dt"
+							}
+						},
+						{
+							"id": "scroll-to-y",
+							"objectClass": "System",
+							"sid": 321825768075034,
+							"parameters": {
+								"y": "scrolly + sin(CursorAngle) * CurrentCursorSpeed * 60 * dt"
+							}
+						}
+					],
+					"sid": 878063161248307
+				}
+			],
+			"sid": 193694107232655
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Debug",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Force the game to be restarted. This is just a debug tool, it's not really part of the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 117682342957174,
+							"parameters": {
+								"key": 82
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 134162887066858
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 215781237490560
+						}
+					],
+					"sid": 965686160520913
+				},
+				{
+					"eventType": "comment",
+					"text": "Reveal all cards in the table."
+				},
+				{
+					"eventType": "variable",
+					"name": "ShowCards",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 183715395304968
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 632612728446278,
+							"parameters": {
+								"key": 83
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "toggle-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 608216864753772,
+							"parameters": {
+								"variable": "ShowCards"
+							}
+						}
+					],
+					"sid": 206008743298584,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Enabled."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 822605454172903,
+									"parameters": {
+										"variable": "ShowCards"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Card",
+									"sid": 111913725542221,
+									"parameters": {
+										"animation": "\"Front\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Card",
+									"sid": 501160657973293,
+									"parameters": {
+										"frame-number": "Self.CardIndex"
+									}
+								}
+							],
+							"sid": 467605949883099
+						},
+						{
+							"eventType": "comment",
+							"text": "Disabled."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 330003656731474
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Card",
+									"sid": 456644056709511,
+									"parameters": {
+										"animation": "\"Back\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Card",
+									"sid": 286878889409593,
+									"parameters": {
+										"frame-number": "0"
+									}
+								}
+							],
+							"sid": 817705296279066
+						}
+					]
+				}
+			],
+			"sid": 841198613588654
+		}
+	],
+	"sid": 251820423589458
+}

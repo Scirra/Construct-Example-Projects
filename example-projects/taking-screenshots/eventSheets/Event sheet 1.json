@@ -1,0 +1,304 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "When the user clicks 'Take screenshot', use the system 'Snapshot canvas' action to take a screenshot. Note this takes some time to complete. The system 'Wait for previous actions to complete' action ensures the snapshot has finished being taken before proceeding."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "TakeScreenshotButton",
+					"sid": 11
+				}
+			],
+			"actions": [
+				{
+					"id": "snapshot-canvas",
+					"objectClass": "System",
+					"sid": 12,
+					"parameters": {
+						"format": "png",
+						"jpeg-quality": "75",
+						"x": "0",
+						"y": "0",
+						"width": "0",
+						"height": "0"
+					}
+				},
+				{
+					"id": "wait-for-previous-actions",
+					"objectClass": "System",
+					"sid": 864076354065314
+				},
+				{
+					"type": "comment",
+					"text": "Once the snapshot has been taken, we can display it in a sprite by using the 'Load image from URL' action and enable the Download button."
+				},
+				{
+					"id": "load-image-from-url",
+					"objectClass": "ScreenshotSprite",
+					"sid": 540630615925876,
+					"parameters": {
+						"uri": "CanvasSnapshot",
+						"size": "keep-current-size",
+						"cross-origin": "anonymous"
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "DownloadButton",
+					"sid": 922522636172960,
+					"parameters": {
+						"mode": "enabled"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Also use AJAX to load it in to a Binary Data object for sharing it as a file or copying to the clipboard."
+				},
+				{
+					"id": "set-response-binary",
+					"objectClass": "AJAX",
+					"sid": 118262523484797,
+					"parameters": {
+						"destination": "BinaryData"
+					}
+				},
+				{
+					"id": "request-url",
+					"objectClass": "AJAX",
+					"sid": 243153983055321,
+					"parameters": {
+						"tag": "\"load-screenshot\"",
+						"url": "CanvasSnapshot"
+					}
+				},
+				{
+					"id": "wait-for-previous-actions",
+					"objectClass": "System",
+					"sid": 575642934794395
+				},
+				{
+					"type": "comment",
+					"text": "Also enable the 'Copy' button to copy the screenshot to the clipboard."
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "CopyButton",
+					"sid": 571170457171076,
+					"parameters": {
+						"mode": "enabled"
+					}
+				}
+			],
+			"sid": 10,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Once the snapshot has been loaded in to the Binary Data object, activate the Share button if sharing files is supported, and activate the 'Save as' button if the File System feature is supported."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-sharing-files-supported",
+							"objectClass": "Share",
+							"sid": 522649491494953
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "ShareButton",
+							"sid": 675749785244928,
+							"parameters": {
+								"mode": "enabled"
+							}
+						}
+					],
+					"sid": 880561539529895
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-supported",
+							"objectClass": "FileSystem",
+							"sid": 388021228383677
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "SaveAsButton",
+							"sid": 517044851841953,
+							"parameters": {
+								"mode": "enabled"
+							}
+						}
+					],
+					"sid": 748417723125466
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "If the user clicks the 'Download' button, we can use the Browser object's 'Invoke download' action to download it as an image file."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "DownloadButton",
+					"sid": 19
+				}
+			],
+			"actions": [
+				{
+					"id": "invoke-download",
+					"objectClass": "Browser",
+					"sid": 20,
+					"parameters": {
+						"url": "CanvasSnapshot",
+						"filename": "\"myscreenshot.png\""
+					}
+				}
+			],
+			"sid": 18
+		},
+		{
+			"eventType": "comment",
+			"text": "If the Share button is clicked, use the Share plugin to share the screenshot as an image file from the Binary Data object."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "ShareButton",
+					"sid": 894116725225140
+				}
+			],
+			"actions": [
+				{
+					"id": "add-file",
+					"objectClass": "Share",
+					"sid": 625861147654931,
+					"parameters": {
+						"filename": "\"myscreenshot.png\"",
+						"type": "\"image/png\"",
+						"data": "BinaryData"
+					}
+				},
+				{
+					"id": "share-text",
+					"objectClass": "Share",
+					"sid": 946409623295282,
+					"parameters": {
+						"text": "\"Take a look at this screenshot!\"",
+						"title": "\"\"",
+						"url": "\"\""
+					}
+				}
+			],
+			"sid": 426903465180392
+		},
+		{
+			"eventType": "comment",
+			"text": "If the Copy button is clicked, use the Clipboard plugin to copy the screenshot image to the clipboard from the Binary Data object."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "CopyButton",
+					"sid": 521626803417410
+				}
+			],
+			"actions": [
+				{
+					"id": "copy-binary",
+					"objectClass": "Clipboard",
+					"sid": 984316890762415,
+					"parameters": {
+						"data": "BinaryData",
+						"type": "\"image/png\""
+					}
+				}
+			],
+			"sid": 966124802542558
+		},
+		{
+			"eventType": "comment",
+			"text": "If the 'Save as' button is clicked, use the File System plugin to show a save file picker. Once the picker is completed, then write the screenshot to the chosen file."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "SaveAsButton",
+					"sid": 708331616356077
+				}
+			],
+			"actions": [
+				{
+					"id": "add-accept-type",
+					"objectClass": "FileSystem",
+					"sid": 557011742429594,
+					"parameters": {
+						"mime-type": "\"image/png\"",
+						"file-extensions": "\".png\"",
+						"description": "\"PNG images\""
+					}
+				},
+				{
+					"id": "show-save-file-picker",
+					"objectClass": "FileSystem",
+					"sid": 579126276383616,
+					"parameters": {
+						"picker-tag": "\"save\"",
+						"show-accept-all": true,
+						"suggested-name": "\"screenshot.png\"",
+						"id": "\"screenshot\"",
+						"start-in": "pictures"
+					}
+				}
+			],
+			"sid": 907891919369065
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-picker-complete",
+					"objectClass": "FileSystem",
+					"sid": 466734882040189,
+					"parameters": {
+						"picker-tag": "\"save\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "write-binary-file",
+					"objectClass": "FileSystem",
+					"sid": 759329542018629,
+					"parameters": {
+						"picker-tag": "\"save\"",
+						"folder-path": "\"\"",
+						"file-tag": "\"\"",
+						"data": "BinaryData"
+					}
+				}
+			],
+			"sid": 717559181769740
+		}
+	],
+	"sid": 842614643689741
+}

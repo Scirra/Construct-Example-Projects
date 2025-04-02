@@ -1,0 +1,1837 @@
+{
+	"name": "CombatEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables"
+		},
+		{
+			"eventType": "variable",
+			"name": "randomEnemyAmount",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Random number of enemies",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 227816907126002
+		},
+		{
+			"eventType": "variable",
+			"name": "enemyType",
+			"type": "string",
+			"initialValue": "",
+			"comment": "Type of the enemies",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 998995342496687
+		},
+		{
+			"eventType": "variable",
+			"name": "secondaryEnemyType",
+			"type": "string",
+			"initialValue": "",
+			"comment": "Type of the secondary enemy",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 872518810990472
+		},
+		{
+			"eventType": "variable",
+			"name": "inputsEnabled",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "Are the player inputs enabled?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 312633554340530
+		},
+		{
+			"eventType": "variable",
+			"name": "clrH",
+			"type": "string",
+			"initialValue": "#ffff00",
+			"comment": "Text highlight color",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 986970431611997
+		},
+		{
+			"eventType": "comment",
+			"text": "Constants"
+		},
+		{
+			"eventType": "variable",
+			"name": "GOLD_RAT",
+			"type": "number",
+			"initialValue": "5",
+			"comment": "Gold reward for killing a rat",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 235372692566713
+		},
+		{
+			"eventType": "variable",
+			"name": "GOLD_SNAKE",
+			"type": "number",
+			"initialValue": "10",
+			"comment": "Gold reward for killing a snake",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 778032492073628
+		},
+		{
+			"eventType": "variable",
+			"name": "GOLD_JELLYFISH",
+			"type": "number",
+			"initialValue": "15",
+			"comment": "Gold reward for killing a jellyfish",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 516972844694181
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 973615563401153
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Fade to combat"
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Fader",
+					"sid": 118207887372439,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeToCombat\"",
+						"property": "offsetOpacity",
+						"end-value": "0",
+						"time": "1",
+						"ease": "easeinoutsine",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Set stats text"
+				},
+				{
+					"id": "set-text",
+					"objectClass": "UITextStats",
+					"sid": 271798058331611,
+					"parameters": {
+						"text": "\"[color=\" & clrH & \"]HP: [/color]\" & playerHP &\r\n\"  |  [color=\" & clrH & \"]ATK: [/color]\" & playerATK & \n\"  |  [color=\" & clrH & \"]GOLD: [/color]\" & playerGold &\n\"  |  [color=\" & clrH & \"]JELLY: [/color]\" & playerJellyfish"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Choose amount of enemies randomly"
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 434040649209722,
+					"parameters": {
+						"variable": "randomEnemyAmount",
+						"value": "floor(random(3)) + 1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Get the enemy type"
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 552555522597544,
+					"parameters": {
+						"variable": "enemyType",
+						"value": "currentEncounter = 0 ? \"Rat\" : (currentEncounter = 3 ? \"Jellyfish\" : \"Snake\")"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Get the secondary enemy type"
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 931669159545944,
+					"parameters": {
+						"variable": "secondaryEnemyType",
+						"value": "random(10) > 3 ? \"Rat\" : \"Snake\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Let the player input"
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 920522681050404,
+					"parameters": {
+						"variable": "inputsEnabled",
+						"value": "true"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "Cursor",
+					"sid": 625202171909324,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 765243934069516,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "1 Enemy"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 564394651040908,
+							"parameters": {
+								"value": "randomEnemyAmount = 1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Enemy 0"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 763146377914634,
+							"parameters": {
+								"object-to-create": "EnemyCombat",
+								"layer": "\"World\"",
+								"x": "269",
+								"y": "116",
+								"create-hierarchy": true,
+								"template-name": "enemyType"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 139387905844687,
+							"parameters": {
+								"instance-variable": "enemyID",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 195689109247141,
+							"parameters": {
+								"instance-variable": "posX",
+								"value": "Self.X"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 595402027599798,
+							"parameters": {
+								"instance-variable": "posY",
+								"value": "Self.Y"
+							}
+						}
+					],
+					"sid": 990425930666085
+				},
+				{
+					"eventType": "comment",
+					"text": "2 Enemies"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 611214620960663,
+							"parameters": {
+								"value": "randomEnemyAmount = 2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Enemy 0"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 604034879857550,
+							"parameters": {
+								"object-to-create": "EnemyCombat",
+								"layer": "\"World\"",
+								"x": "231",
+								"y": "89",
+								"create-hierarchy": true,
+								"template-name": "enemyType"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 294536465975296,
+							"parameters": {
+								"instance-variable": "enemyID",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 712459959203425,
+							"parameters": {
+								"instance-variable": "posX",
+								"value": "Self.X"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 426021839603245,
+							"parameters": {
+								"instance-variable": "posY",
+								"value": "Self.Y"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Enemy 1"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 497598169114568,
+							"parameters": {
+								"object-to-create": "EnemyCombat",
+								"layer": "\"World\"",
+								"x": "274",
+								"y": "104",
+								"create-hierarchy": true,
+								"template-name": "enemyType = \"Rat\" ? \"Rat\" : (random(10) < 5 ? enemyType : secondaryEnemyType)"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 849970485887952,
+							"parameters": {
+								"instance-variable": "enemyID",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 165497750965536,
+							"parameters": {
+								"instance-variable": "posX",
+								"value": "Self.X"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 859202792791267,
+							"parameters": {
+								"instance-variable": "posY",
+								"value": "Self.Y"
+							}
+						}
+					],
+					"sid": 977342613965746
+				},
+				{
+					"eventType": "comment",
+					"text": "3 Enemies"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 916410244084634,
+							"parameters": {
+								"value": "randomEnemyAmount = 3"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Enemy 0"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 488597535428443,
+							"parameters": {
+								"object-to-create": "EnemyCombat",
+								"layer": "\"World\"",
+								"x": "188",
+								"y": "116",
+								"create-hierarchy": true,
+								"template-name": "enemyType"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 621988005895397,
+							"parameters": {
+								"instance-variable": "enemyID",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 194139831660108,
+							"parameters": {
+								"instance-variable": "posX",
+								"value": "Self.X"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 579011764927454,
+							"parameters": {
+								"instance-variable": "posY",
+								"value": "Self.Y"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Enemy 1"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 631152197230658,
+							"parameters": {
+								"object-to-create": "EnemyCombat",
+								"layer": "\"World\"",
+								"x": "231",
+								"y": "89",
+								"create-hierarchy": true,
+								"template-name": "enemyType = \"Rat\" ? \"Rat\" : (random(10) < 5 ? enemyType : secondaryEnemyType)"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 781091070477240,
+							"parameters": {
+								"instance-variable": "enemyID",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 924054193150991,
+							"parameters": {
+								"instance-variable": "posX",
+								"value": "Self.X"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 434014454500705,
+							"parameters": {
+								"instance-variable": "posY",
+								"value": "Self.Y"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Enemy 2"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 882047848864428,
+							"parameters": {
+								"object-to-create": "EnemyCombat",
+								"layer": "\"World\"",
+								"x": "274",
+								"y": "104",
+								"create-hierarchy": true,
+								"template-name": "enemyType = \"Rat\" ? \"Rat\" : (random(10) < 5 ? enemyType : secondaryEnemyType)"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 753849057040777,
+							"parameters": {
+								"instance-variable": "enemyID",
+								"value": "2"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 576357236734149,
+							"parameters": {
+								"instance-variable": "posX",
+								"value": "Self.X"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCombat",
+							"sid": 825050339448679,
+							"parameters": {
+								"instance-variable": "posY",
+								"value": "Self.Y"
+							}
+						}
+					],
+					"sid": 132365587844205
+				},
+				{
+					"eventType": "comment",
+					"text": "Position cursor and move player to the top"
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 579691317731170,
+							"parameters": {
+								"seconds": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set cursor to currently selected enemy"
+						},
+						{
+							"id": "set-position",
+							"objectClass": "Cursor",
+							"sid": 859785689749796,
+							"parameters": {
+								"x": "EnemyCombat.X",
+								"y": "EnemyCombat.Y - 32"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Put the player on the top of all sprites"
+						},
+						{
+							"id": "move-to-top",
+							"objectClass": "PlayerCombat",
+							"sid": 485251311196538
+						}
+					],
+					"sid": 919732955497899
+				}
+			]
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "CombatInputs",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Pick an enemy that is still alive"
+				},
+				{
+					"functionName": "pickAliveEnemy",
+					"functionDescription": "Pick an enemy that is still alive",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 708722899499630,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "newEnemyID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "New enemy identification number",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 791972613487135
+						},
+						{
+							"eventType": "comment",
+							"text": "Renumber enemies, so that they start from ID 0 and go from there up to the amount of enemies still alive"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 235174227262357,
+									"parameters": {
+										"object": "EnemyCombat"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "EnemyCombat",
+									"sid": 241252383718933,
+									"parameters": {
+										"instance-variable": "enemyID",
+										"value": "newEnemyID"
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 155290304112117,
+									"parameters": {
+										"variable": "newEnemyID",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 269757968402976
+						},
+						{
+							"eventType": "comment",
+							"text": "Put the cursor on the enemy with ID 0"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 942408783878661,
+									"parameters": {
+										"object": "EnemyCombat",
+										"expression": "EnemyCombat.enemyID = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Cursor",
+									"sid": 508339951139346,
+									"parameters": {
+										"instance-variable": "enemyID",
+										"value": "EnemyCombat.enemyID"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "Cursor",
+									"sid": 198004259198462,
+									"parameters": {
+										"x": "EnemyCombat.X",
+										"y": "EnemyCombat.Y - 32"
+									}
+								}
+							],
+							"sid": 622994161489007
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Change target"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 767459935645777,
+							"parameters": {
+								"key": 67
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 947010928633804,
+							"parameters": {
+								"variable": "inputsEnabled"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Cycle between the enemies"
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Cursor",
+							"sid": 974837640274187,
+							"parameters": {
+								"instance-variable": "enemyID",
+								"value": "(Self.enemyID + 1) % EnemyCombat.Count"
+							}
+						}
+					],
+					"sid": 117259180292273,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Position the cursor over the currently selected enemy"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 984425325166685,
+									"parameters": {
+										"object": "EnemyCombat",
+										"expression": "EnemyCombat.EnemyID = Cursor.enemyID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "Cursor",
+									"sid": 245659991109592,
+									"parameters": {
+										"x": "EnemyCombat.X",
+										"y": "EnemyCombat.Y - 32"
+									}
+								}
+							],
+							"sid": 393352093997227
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Attack"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 630833932947820,
+							"parameters": {
+								"key": 90
+							}
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 453173412370594,
+							"parameters": {
+								"object": "EnemyCombat",
+								"expression": "EnemyCombat.EnemyID = Cursor.enemyID"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 499167821653245,
+							"parameters": {
+								"variable": "inputsEnabled"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Start attack animation"
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "PlayerCombat",
+							"sid": 598886286377861,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerStartAttack\"",
+								"property": "position",
+								"end-x": "EnemyCombat.X - 16",
+								"end-y": "EnemyCombat.Y",
+								"time": "0.33",
+								"ease": "easeincubic",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerCombat",
+							"sid": 756847630177804,
+							"parameters": {
+								"animation": "\"Travel\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Disable inputs and hide cursor"
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 298769898199597,
+							"parameters": {
+								"variable": "inputsEnabled",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "Cursor",
+							"sid": 760621040031027,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 946830098131087
+				},
+				{
+					"eventType": "comment",
+					"text": "Player hit the enemy"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCombat",
+							"sid": 510550025461279,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerStartAttack\""
+							}
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 866103320295209,
+							"parameters": {
+								"object": "EnemyCombat",
+								"expression": "EnemyCombat.EnemyID = Cursor.enemyID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 146618312910227,
+							"parameters": {
+								"seconds": "0.25"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerCombat",
+							"sid": 156168301471903,
+							"parameters": {
+								"animation": "\"Attack\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start enemy flash"
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "EnemyCombat",
+							"sid": 486701069193089,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"EnemyFlash\"",
+								"start-value": "200",
+								"end-value": "100",
+								"time": "0.2",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 597921715028510,
+							"parameters": {
+								"seconds": "0.40"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerCombat",
+							"sid": 906537742681666,
+							"parameters": {
+								"animation": "\"idle\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start player back animation"
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "PlayerCombat",
+							"sid": 230917646640084,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerEndAttack\"",
+								"property": "position",
+								"end-x": "51",
+								"end-y": "102",
+								"time": "0.33",
+								"ease": "easeoutcubic",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 652725670827693,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Enemy is dead"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "EnemyCombat",
+									"sid": 416273446645437,
+									"parameters": {
+										"instance-variable": "hitpoints",
+										"comparison": 3,
+										"value": "playerATK"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "EnemyCombat",
+									"sid": 238599660086172,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"EnemyDies\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 499035753560274
+						},
+						{
+							"eventType": "comment",
+							"text": "Enemy is still alive"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 848172364394644
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "EnemyCombat",
+									"sid": 314215319679506,
+									"parameters": {
+										"child": "UITextCombatHealthSmall",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Reduce hitpoints"
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "EnemyCombat",
+									"sid": 760506058843269,
+									"parameters": {
+										"instance-variable": "hitpoints",
+										"value": "max(Self.hitpoints - playerATK, 0)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Update health text"
+								},
+								{
+									"id": "set-text",
+									"objectClass": "UITextCombatHealthSmall",
+									"sid": 224841552440590,
+									"parameters": {
+										"text": "\"HP: \" & EnemyCombat.hitpoints"
+									}
+								}
+							],
+							"sid": 178176745913616
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Enemy flashes"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "EnemyCombat",
+							"sid": 478489408781948,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"EnemyFlash\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "EnemyCombat",
+							"sid": 335461730356865,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Self.Tween.Value(\"EnemyFlash\")"
+							}
+						}
+					],
+					"sid": 920281948949075
+				},
+				{
+					"eventType": "comment",
+					"text": "Enemy is dead, so look for another one to focus"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "EnemyCombat",
+							"sid": 201367226885917,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"EnemyDies\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "EnemyCombat",
+							"sid": 734999776560865
+						},
+						{
+							"type": "comment",
+							"text": "Add gold to the player"
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 641270019182294,
+							"parameters": {
+								"variable": "playerGold",
+								"value": "EnemyCombat.TemplateName = \"Rat\" ? GOLD_RAT : (EnemyCombat.TemplateName = \"Snake\" ? GOLD_SNAKE : GOLD_JELLYFISH)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "If the enemy is a jellyfish, add a jelly to the player"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 465708798883958,
+							"parameters": {
+								"variable": "playerJellyfish",
+								"value": "EnemyCombat.TemplateName = \"Jellyfish\" ? playerJellyfish + 1 : playerJellyfish"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update the text"
+						},
+						{
+							"id": "set-text",
+							"objectClass": "UITextStats",
+							"sid": 312844579717565,
+							"parameters": {
+								"text": "\"[color=\" & clrH & \"]HP: [/color]\" & playerHP &\r\n\"  |  [color=\" & clrH & \"]ATK: [/color]\" & playerATK & \n\"  |  [color=\" & clrH & \"]GOLD: [/color]\" & playerGold &\n\"  |  [color=\" & clrH & \"]JELLY: [/color]\" & playerJellyfish"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 631555351209321,
+							"parameters": {
+								"seconds": "0"
+							}
+						},
+						{
+							"callFunction": "pickAliveEnemy",
+							"sid": 319774509475934
+						}
+					],
+					"sid": 439943485589344
+				},
+				{
+					"eventType": "comment",
+					"text": "After player finishes the attack, reset to idle"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCombat",
+							"sid": 958291823489164,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerEndAttack\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerCombat",
+							"sid": 556045597740627,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 222221248676643,
+							"parameters": {
+								"seconds": "1.0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start enemy attacks"
+						},
+						{
+							"callFunction": "EnemyAttack",
+							"sid": 707337286758767,
+							"parameters": [
+								"0"
+							]
+						}
+					],
+					"sid": 685290913747085
+				},
+				{
+					"eventType": "comment",
+					"text": "Run"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 252618581803434,
+							"parameters": {
+								"key": 88
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 213168771669250,
+							"parameters": {
+								"variable": "inputsEnabled"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 116591164387206,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Ran successfully"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 157804376952703,
+									"parameters": {
+										"value": "random(10) < 7"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 150926396146960,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeToWorld\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 416400338101742,
+									"parameters": {
+										"variable": "inputsEnabled",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Cursor",
+									"sid": 982123718555599,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								}
+							],
+							"sid": 337881039108855
+						},
+						{
+							"eventType": "comment",
+							"text": "Failed to run"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 884286949025764
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Show failed to run text"
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UITextCombatRun",
+									"sid": 421402776363151,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"RunFailOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "2",
+										"ease": "easeinoutquart",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "yes",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Disable inputs and hide cursor"
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 126808318065250,
+									"parameters": {
+										"variable": "inputsEnabled",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Cursor",
+									"sid": 531387371042586,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 404076935043191,
+									"parameters": {
+										"seconds": "1.0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Start enemy attacks"
+								},
+								{
+									"callFunction": "EnemyAttack",
+									"sid": 455076181778050,
+									"parameters": [
+										"0"
+									]
+								}
+							],
+							"sid": 598734319085579
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "End combat"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Fader",
+							"sid": 891544290381481,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeToWorld\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "go-to-layout",
+							"objectClass": "System",
+							"sid": 776355176751535,
+							"parameters": {
+								"layout": "Overworld"
+							}
+						}
+					],
+					"sid": 317242076726492
+				}
+			],
+			"sid": 713494316799696
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "EnemiesRound",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "This function starts the attacking procedure"
+				},
+				{
+					"functionName": "EnemyAttack",
+					"functionDescription": "Enemy attacks the player",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "EnemyID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "ID of the enemy that will attack now",
+							"sid": 163687120825155
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 155557486876688,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Make enemy attack"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 206982468660731,
+									"parameters": {
+										"object": "EnemyCombat",
+										"expression": "EnemyCombat.enemyID = EnemyID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Start attacking motion"
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "EnemyCombat",
+									"sid": 560606870316064,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"EnemyStartAttack\"",
+										"property": "position",
+										"end-x": "PlayerCombat.X",
+										"end-y": "PlayerCombat.Y",
+										"time": "0.33",
+										"ease": "easeincubic",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Start attacking animation"
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "EnemyCombat",
+									"sid": 579001058740909,
+									"parameters": {
+										"animation": "Self.TemplateName & \"Atk\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 394751473609547
+						},
+						{
+							"eventType": "comment",
+							"text": "If the enemy with the requested ID does not exist, but there are still enemies alive, enable inputs and show cursor"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 330848027287207
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 504364420446903,
+									"parameters": {
+										"value": "EnemyCombat.Count > 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 274688964772982,
+									"parameters": {
+										"variable": "inputsEnabled",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Cursor",
+									"sid": 344652865787334,
+									"parameters": {
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 887260442367872
+						},
+						{
+							"eventType": "comment",
+							"text": "If no enemy is alive, go back to the overworld"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 230683429095435
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 786807888234739,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeToWorld\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 751092111043912,
+									"parameters": {
+										"variable": "inputsEnabled",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Cursor",
+									"sid": 369153502820510,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								}
+							],
+							"sid": 329198798878822
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Enemy hit the player"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "EnemyCombat",
+							"sid": 876847514471439,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"EnemyStartAttack\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Change animation back to idle"
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "EnemyCombat",
+							"sid": 252790870565660,
+							"parameters": {
+								"animation": "Self.TemplateName",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Damage the player and update the interface"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 799487555844050,
+							"parameters": {
+								"variable": "playerHP",
+								"value": "max(playerHP - EnemyCombat.attack, 0)"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "UITextStats",
+							"sid": 593418843430056,
+							"parameters": {
+								"text": "\"[color=\" & clrH & \"]HP: [/color]\" & playerHP &\r\n\"  |  [color=\" & clrH & \"]ATK: [/color]\" & playerATK & \n\"  |  [color=\" & clrH & \"]GOLD: [/color]\" & playerGold &\n\"  |  [color=\" & clrH & \"]JELLY: [/color]\" & playerJellyfish"
+							}
+						}
+					],
+					"sid": 953236966504195,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player dies"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 835647140259849,
+									"parameters": {
+										"value": "playerHP <= 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Reset player to the starting position and remove all the gold"
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 921380107960281,
+									"parameters": {
+										"variable": "playerX",
+										"value": "PLAYER_STARTING_X"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 224982711002689,
+									"parameters": {
+										"variable": "playerY",
+										"value": "PLAYER_STARTING_Y"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 289409984766850,
+									"parameters": {
+										"variable": "playerHP",
+										"value": "PLAYER_STARTING_HP"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 514221230205630,
+									"parameters": {
+										"variable": "playerGold",
+										"value": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Go back to overworld"
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 839063574185865,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeToWorld\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 797815959576133
+						},
+						{
+							"eventType": "comment",
+							"text": "Player is still alive"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 546968813583146
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Start enemy back animation"
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "EnemyCombat",
+									"sid": 545517169231549,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"EnemyEndAttack\"",
+										"property": "position",
+										"end-x": "Self.posX",
+										"end-y": "Self.posY",
+										"time": "0.33",
+										"ease": "easeoutcubic",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Player flashes"
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "PlayerCombat",
+									"sid": 383639321991088,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"PlayerFlash\"",
+										"start-value": "200",
+										"end-value": "100",
+										"time": "0.2",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 891612212515134
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Enemy backs off"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "EnemyCombat",
+							"sid": 404884866255947,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"EnemyEndAttack\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "EnemyAttack",
+							"sid": 895064424526722,
+							"parameters": [
+								"EnemyCombat.enemyID + 1"
+							]
+						}
+					],
+					"sid": 649622253970060
+				},
+				{
+					"eventType": "comment",
+					"text": "Player flashes"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCombat",
+							"sid": 231019844999430,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerFlash\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "PlayerCombat",
+							"sid": 869972626862870,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Self.Tween.Value(\"PlayerFlash\")"
+							}
+						}
+					],
+					"sid": 600374485029059
+				}
+			],
+			"sid": 934385268069427
+		}
+	],
+	"sid": 616868171890666
+}

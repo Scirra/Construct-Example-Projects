@@ -1,0 +1,1792 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "The index value of the note that is currently being played."
+		},
+		{
+			"eventType": "variable",
+			"name": "CurrentNoteIndex",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 309407831945654
+		},
+		{
+			"eventType": "comment",
+			"text": "How many correct notes the player got in a streak."
+		},
+		{
+			"eventType": "variable",
+			"name": "ScoreStreak",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": false,
+			"sid": 946806439959801
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the game will play itself for testing purposes only."
+		},
+		{
+			"eventType": "variable",
+			"name": "AUTOPLAY",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 908785091892222
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the game by loading the notes sequence stored in a JSON file."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 490397696778829
+						}
+					],
+					"actions": [
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 895388293143968,
+							"parameters": {
+								"tag": "\"LoadSong\"",
+								"file": "EVARealizations.json"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also reset the score streak to make sure it's set to zero."
+						},
+						{
+							"callFunction": "UpdateScoreStreak",
+							"sid": 787347175923989,
+							"parameters": [
+								false,
+								false
+							]
+						}
+					],
+					"sid": 620398408109449
+				},
+				{
+					"eventType": "comment",
+					"text": "After all notes have been placed inside the array, load the first note and start to play the song."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 724131293035322,
+							"parameters": {
+								"tag": "\"LoadSong\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "SongArray",
+							"sid": 705456039682348,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"callFunction": "LoadNextNote",
+							"sid": 617818303901430
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 296748727318062,
+							"parameters": {
+								"audio-file": "EVARealizations",
+								"loop": "not-looping",
+								"volume": "-24",
+								"tag-optional": "\"Music\""
+							}
+						}
+					],
+					"sid": 702747775661368
+				}
+			],
+			"sid": 933772940343183
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "NotesLoader",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How long it takes for each note to cross the entire grid (can be used to determine difficulty)."
+				},
+				{
+					"eventType": "variable",
+					"name": "TRAVELTIME",
+					"type": "number",
+					"initialValue": "2",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 940175328824023
+				},
+				{
+					"eventType": "comment",
+					"text": "How long it takes to load each note from the array."
+				},
+				{
+					"eventType": "variable",
+					"name": "TIMEBETWEENNOTES",
+					"type": "number",
+					"initialValue": "0.05",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 270265412522773
+				},
+				{
+					"eventType": "comment",
+					"text": "In order to load the next note, start a short timer that acts as a delayer, just to make sure the note are not too close to each other."
+				},
+				{
+					"functionName": "LoadNextNote",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 302514226210216,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "TIMEBETWEENNOTES",
+								"type": "once",
+								"tag": "\"Delay\""
+							}
+						}
+					],
+					"sid": 621230933043369
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the timer is complete, loop through every column in the array, and if any of them have a \"X\" as its value, create a note in that column."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 861910240751960,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Delay\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 965321623111027,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 703406194026161,
+									"parameters": {
+										"name": "\"\"",
+										"start-index": "0",
+										"end-index": "4"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 908254160918238,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 670769010976042,
+											"parameters": {
+												"value": "SongArray.At(loopindex, CurrentNoteIndex) = \"X\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Create a note in equivalent \"start\" image point."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 373151084713963,
+											"parameters": {
+												"object-to-create": "Note",
+												"layer": "\"Notes\"",
+												"x": "Grid.ImagePointX(\"Start\"&loopindex)",
+												"y": "Grid.ImagePointY(\"Start\"&loopindex)",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Store the loopindex in a local variable for later comparisons."
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Note",
+											"sid": 369438443907122,
+											"parameters": {
+												"instance-variable": "ColorIndex",
+												"value": "loopindex"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move the note towards the equivalent \"end\" image point."
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Note",
+											"sid": 945378268023516,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Movement\"",
+												"property": "position",
+												"end-x": "Grid.ImagePointX(\"End\"&loopindex)",
+												"end-y": "Grid.ImagePointY(\"End\"&loopindex)",
+												"time": "TRAVELTIME",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Make the note smaller and slowly increase its size, to make it look like they're really coming from the horizon."
+										},
+										{
+											"id": "set-size",
+											"objectClass": "Note",
+											"sid": 799657605694698,
+											"parameters": {
+												"width": "Self.Width / 2",
+												"height": "Self.Height / 2"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Note",
+											"sid": 639817765476553,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ReduceSize\"",
+												"property": "size",
+												"end-x": "16",
+												"end-y": "16",
+												"time": "TRAVELTIME",
+												"ease": "default",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 157162602900193
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Create and move a horizon line after every ten notes."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 473974112345341,
+									"parameters": {
+										"first-value": "CurrentNoteIndex%10",
+										"comparison": 0,
+										"second-value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 299019962500958,
+									"parameters": {
+										"object-to-create": "HorizontalLine",
+										"layer": "\"Grid\"",
+										"x": "Grid.ImagePointX(\"Start2\")",
+										"y": "Grid.ImagePointY(\"Start2\")",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "HorizontalLine",
+									"sid": 151488719898251,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveDownwards\"",
+										"property": "offsetY",
+										"end-value": "Grid.ImagePointY(\"End2\")",
+										"time": "TRAVELTIME",
+										"ease": "easeinsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "HorizontalLine",
+									"sid": 473336934896460,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"IncreaseWidth\"",
+										"property": "offsetWidth",
+										"end-value": "Self.Width * 1.5",
+										"time": "TRAVELTIME",
+										"ease": "easeinsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 345267993113661
+						},
+						{
+							"eventType": "comment",
+							"text": "If there are notes left in the array, increase the current note index and load the next note based on its value."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 261804312851069,
+									"parameters": {
+										"first-value": "CurrentNoteIndex",
+										"comparison": 2,
+										"second-value": "SongArray.Height - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 653283498215556,
+									"parameters": {
+										"variable": "CurrentNoteIndex",
+										"value": "1"
+									}
+								},
+								{
+									"callFunction": "LoadNextNote",
+									"sid": 256274535295719
+								}
+							],
+							"sid": 295816194125563
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if there are no note left in the array, wait a few seconds before restarting the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 754642072980009
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 912239268595962,
+									"parameters": {
+										"first-value": "CurrentNoteIndex",
+										"comparison": 0,
+										"second-value": "SongArray.Height - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "GameManager",
+									"sid": 818937594136901,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "TRAVELTIME",
+										"type": "once",
+										"tag": "\"Restart\""
+									}
+								}
+							],
+							"sid": 550211393981399
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Restart the game, since the song is already over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 538699030845280,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Restart\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "Restart",
+							"sid": 702258466128411
+						}
+					],
+					"sid": 372175212139164
+				},
+				{
+					"eventType": "comment",
+					"text": "If a note reaches the end of the screen without being played by the player, destroy it and reset the score streak."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Note",
+							"sid": 357886482817191,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Movement\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "DestroyNote",
+							"sid": 523939226180269,
+							"parameters": [
+								"Note.UID",
+								false
+							]
+						},
+						{
+							"callFunction": "UpdateScoreStreak",
+							"sid": 927538138534302,
+							"parameters": [
+								false,
+								true
+							]
+						}
+					],
+					"sid": 585905144166049
+				}
+			],
+			"sid": 310588704830937
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The auto play feature is meant to be used for testing purposes only, it will play any note if it's close enough to its equivalent platform."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 446201818631228,
+							"parameters": {
+								"variable": "AUTOPLAY"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 449971821019338,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 204509059207973,
+									"parameters": {
+										"object": "Note"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 323073533820406,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 275427966122998,
+											"parameters": {
+												"first-value": "Note.Tween.Progress(\"Movement\")",
+												"comparison": 5,
+												"second-value": "0.95"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "CheckNoteProgress",
+											"sid": 454021320458241,
+											"parameters": [
+												"Note.ColorIndex"
+											]
+										}
+									],
+									"sid": 904728157745187
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "How close a note has to be to its equivalent platform before it can be played by the player."
+				},
+				{
+					"eventType": "variable",
+					"name": "MINPROGRESS",
+					"type": "number",
+					"initialValue": "0.8",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 213930148440501
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if there's a note close enough to the first platform."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 736003887012971,
+							"parameters": {
+								"key": 90
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 831636497880006,
+							"parameters": {
+								"gamepad": "0",
+								"button": "left-shoulder-trigger"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "CheckNoteProgress",
+							"sid": 227697273106024,
+							"parameters": [
+								"0"
+							]
+						}
+					],
+					"sid": 333887815610048,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if there's a note close enough to the second platform."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 473391724128622,
+							"parameters": {
+								"key": 88
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 118020763369731,
+							"parameters": {
+								"gamepad": "0",
+								"button": "left-shoulder-button"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "CheckNoteProgress",
+							"sid": 295354622990909,
+							"parameters": [
+								"1"
+							]
+						}
+					],
+					"sid": 332229748876963,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if there's a note close enough to the third platform."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 830754665877558,
+							"parameters": {
+								"key": 67
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 593115937848038,
+							"parameters": {
+								"gamepad": "0",
+								"button": "right-shoulder-button"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "CheckNoteProgress",
+							"sid": 318430595859321,
+							"parameters": [
+								"2"
+							]
+						}
+					],
+					"sid": 169237766342519,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if there's a note close enough to the fourth platform."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 883400023416628,
+							"parameters": {
+								"key": 86
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 602592049764884,
+							"parameters": {
+								"gamepad": "0",
+								"button": "right-shoulder-trigger"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "CheckNoteProgress",
+							"sid": 361689221588864,
+							"parameters": [
+								"3"
+							]
+						}
+					],
+					"sid": 158172812681221,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if there's a note close enough to the fifth platform."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 974308627893430,
+							"parameters": {
+								"key": 66
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 236496133300826,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "CheckNoteProgress",
+							"sid": 850803140185993,
+							"parameters": [
+								"4"
+							]
+						}
+					],
+					"sid": 705089801472372,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if a note is close enough to its equivalent platform."
+				},
+				{
+					"functionName": "CheckNoteProgress",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "ColorIndex",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 611081873448179
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "At first, create a thunder sprite on top of the desired platform and set its animation to \"Wrong\", this will be changed later if needed."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 348971566487598,
+							"parameters": {
+								"object-to-create": "Thunder",
+								"layer": "\"Effects\"",
+								"x": "Grid.ImagePointX(\"End\"&ColorIndex)",
+								"y": "Grid.ImagePointY(\"End\"&ColorIndex)",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Thunder",
+							"sid": 848253906196368,
+							"parameters": {
+								"animation": "\"Wrong\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 435642017461479,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Pick all notes with the desired color index and then narrow the scope by picking only the nearest one to the equivalent platform, resulting in a single picked instance."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 844397180516848,
+									"parameters": {
+										"object": "Note",
+										"expression": "Note.ColorIndex",
+										"comparison": 0,
+										"value": "ColorIndex"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 593397737667313,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-nearestfurthest",
+											"objectClass": "Note",
+											"sid": 801310220709698,
+											"parameters": {
+												"which": "nearest",
+												"x": "Grid.ImagePointX(\"End\"&ColorIndex)",
+												"y": "Grid.ImagePointY(\"End\"&ColorIndex)"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 990365310822343,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the picked note is close enough to its equivalent platform, change the thunder animation to \"Correct\" and destroy the note."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 494898202279430,
+													"parameters": {
+														"first-value": "Note.Tween.Progress(\"Movement\")",
+														"comparison": 5,
+														"second-value": "MINPROGRESS"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation",
+													"objectClass": "Thunder",
+													"sid": 660870476119244,
+													"parameters": {
+														"animation": "\"Correct\"",
+														"from": "beginning"
+													}
+												},
+												{
+													"callFunction": "DestroyNote",
+													"sid": 463195711187924,
+													"parameters": [
+														"Note.UID",
+														true
+													]
+												}
+											],
+											"sid": 170375554571183
+										},
+										{
+											"eventType": "comment",
+											"text": "However, if the picked note is not close enough to its equivalent platform, leave the thunder animation as \"Wrong\"."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 521482041595024
+												},
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 544914116444241,
+													"parameters": {
+														"first-value": "Note.Tween.Progress(\"Movement\")",
+														"comparison": 2,
+														"second-value": "MINPROGRESS"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation",
+													"objectClass": "Thunder",
+													"sid": 795908695966061,
+													"parameters": {
+														"animation": "\"Wrong\"",
+														"from": "beginning"
+													}
+												}
+											],
+											"sid": 895269135159963
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "In the end, if the thunder animation is set to \"Correct\", increase the player's score streak."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-animation-playing",
+									"objectClass": "Thunder",
+									"sid": 911134319598594,
+									"parameters": {
+										"animation": "\"Correct\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "UpdateScoreStreak",
+									"sid": 689974330177725,
+									"parameters": [
+										true,
+										false
+									]
+								}
+							],
+							"sid": 804298870120060
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, reset the player's score streak."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 978526411464641
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "Thunder",
+									"sid": 785498788933441,
+									"parameters": {
+										"animation": "\"Wrong\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "UpdateScoreStreak",
+									"sid": 280458691678794,
+									"parameters": [
+										false,
+										true
+									]
+								}
+							],
+							"sid": 208598048510089
+						},
+						{
+							"eventType": "comment",
+							"text": "Also make sure to play a quick blink animation in the chosen platform."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 878903846176171,
+									"parameters": {
+										"object": "Platform",
+										"expression": "Platform.ColorIndex",
+										"comparison": 0,
+										"value": "ColorIndex"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Platform",
+									"sid": 529793174642802,
+									"parameters": {
+										"animation": "\"Blink\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 396186173054864
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Reset the platform's animation after it finished blinking."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Platform",
+							"sid": 858901357822660,
+							"parameters": {
+								"animation": "\"Blink\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Platform",
+							"sid": 867737490477253,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 979117233732897
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy a specific note and leave a fake note that can have a slightly different look depending on the situation."
+				},
+				{
+					"functionName": "DestroyNote",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "NoteUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 892605569556292
+						},
+						{
+							"name": "SpawnFakeFlyingNote",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 600702590079331
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Note",
+							"sid": 258811747496675,
+							"parameters": {
+								"unique-id": "NoteUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Note",
+							"sid": 387706892038396
+						}
+					],
+					"sid": 304655371221247,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "A flying fake note will keep flashing while being thrown in the air for a few seconds before it start to fall outside the screen."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 968978553506109,
+									"parameters": {
+										"variable": "SpawnFakeFlyingNote"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Note",
+									"sid": 502576048179111,
+									"parameters": {
+										"object": "FakeNote",
+										"layer": "\"Effects\"",
+										"image-point": "0",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "FakeNote",
+									"sid": 407681222190557,
+									"parameters": {
+										"animation": "\"Flash\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Thrown the fake note upwards in a random direction."
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "FakeNote",
+									"sid": 184402456605757,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"state": "enabled"
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "FakeNote",
+									"sid": 218054950358804,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "random(225, 315)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Rotate the fake note with a kind of random speed."
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "FakeNote",
+									"sid": 446728180694630,
+									"behaviorType": "Rotate",
+									"parameters": {
+										"state": "enabled"
+									}
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "FakeNote",
+									"sid": 220433028003390,
+									"behaviorType": "Rotate",
+									"parameters": {
+										"speed": "choose(-720, 720)"
+									}
+								}
+							],
+							"sid": 892112955967694
+						},
+						{
+							"eventType": "comment",
+							"text": "A non-flying fake note will simply fade out without moving."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 147267857227594
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 451759406931918,
+									"parameters": {
+										"variable": "SpawnFakeFlyingNote"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Note",
+									"sid": 622013250847704,
+									"parameters": {
+										"object": "FakeNote",
+										"layer": "\"Effects\"",
+										"image-point": "0",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "FakeNote",
+									"sid": 981766092326682,
+									"parameters": {
+										"animation": "\"Fade\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Disable all movement behaviors."
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "FakeNote",
+									"sid": 758656783095491,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"state": "disabled"
+									}
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "FakeNote",
+									"sid": 216868035818254,
+									"behaviorType": "Rotate",
+									"parameters": {
+										"state": "disabled"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also play a beep sound, so the player knows something is wrong."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 170250274649799,
+									"parameters": {
+										"audio-file": "WrongButton",
+										"loop": "not-looping",
+										"volume": "-24",
+										"tag-optional": "\"SFX\""
+									}
+								}
+							],
+							"sid": 438450405827838
+						}
+					]
+				}
+			],
+			"sid": 693750474151220
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Particles",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "After any particle object has completed its animation, destroy it in order to prevent any sort of CPU overload."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Thunder",
+							"sid": 394157000901058,
+							"parameters": {
+								"animation": "\"Correct\""
+							}
+						},
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Thunder",
+							"sid": 854488350408310,
+							"parameters": {
+								"animation": "\"Wrong\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Thunder",
+							"sid": 769180227089161
+						}
+					],
+					"sid": 546516128633803,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "FakeNote",
+							"sid": 796631867234797,
+							"parameters": {
+								"animation": "\"Fade\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "FakeNote",
+							"sid": 294305127187834
+						}
+					],
+					"sid": 869406072348007
+				}
+			],
+			"sid": 921904581576724
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Shake the screen with a specific strength/offset value and duration."
+				},
+				{
+					"functionName": "Shake Screen",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Strength",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 928528259377881
+						},
+						{
+							"name": "Duration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 743556884687748
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "stop-tweens",
+							"objectClass": "GameManager",
+							"sid": 608229866734725,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\""
+							}
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 538713652823814,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\"",
+								"start-value": "Strength",
+								"end-value": "0",
+								"time": "Duration",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 166123383537278
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the scroll position to match the center of the layout, but also allow it to receive an offset value that works as a screen shake effect for a few occasions."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 782075536296233
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 573841922072274,
+							"parameters": {
+								"x": "LayoutWidth / 2 + random(-GameManager.Tween.Value(\"ScreenShake\"), GameManager.Tween.Value(\"ScreenShake\"))",
+								"y": "LayoutHeight / 2 + random(-GameManager.Tween.Value(\"ScreenShake\"), GameManager.Tween.Value(\"ScreenShake\"))"
+							}
+						}
+					],
+					"sid": 417715841879925
+				}
+			],
+			"sid": 744151206542390
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ScoreStreak",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the drop shadow object by storing its initial position in a couple of local variables."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "DropShadow",
+							"sid": 187564530192406
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "DropShadow",
+							"sid": 104182611398667,
+							"parameters": {
+								"instance-variable": "InitialX",
+								"value": "Self.X"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "DropShadow",
+							"sid": 787387607727256,
+							"parameters": {
+								"instance-variable": "InitialY",
+								"value": "Self.Y"
+							}
+						}
+					],
+					"sid": 600607728705189
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the score streak value displayed in the HUD."
+				},
+				{
+					"functionName": "UpdateScoreStreak",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Increase",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 361604545365555
+						},
+						{
+							"name": "Reset",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 956613645395309
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 754253616638700,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Optionally increase or reset the value of the score streak before updating each text object."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 674959661136036,
+									"parameters": {
+										"variable": "Increase"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 171833686750003,
+									"parameters": {
+										"variable": "ScoreStreak",
+										"value": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also, if the score streak is increased, randomly shake the drop shadow below the main text object."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "DropShadow",
+									"sid": 334866032773428,
+									"parameters": {
+										"x": "Self.InitialX",
+										"y": "Self.InitialY"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "DropShadow",
+									"sid": 721742697846506,
+									"parameters": {
+										"instance-variable": "RandomAngle",
+										"value": "random(0, 360)"
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "DropShadow",
+									"sid": 415994613031522,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"\"",
+										"property": "position",
+										"end-x": "Self.InitialX + cos(Self.RandomAngle) * 8",
+										"end-y": "Self.InitialY + sin(Self.RandomAngle) * 8",
+										"time": "0.05",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "yes"
+									}
+								}
+							],
+							"sid": 143477285329521
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 299356759340423,
+									"parameters": {
+										"variable": "Reset"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 187866510270759,
+									"parameters": {
+										"variable": "ScoreStreak",
+										"value": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also, if the score streak is reset, shake the screen for a moment."
+								},
+								{
+									"callFunction": "Shake Screen",
+									"sid": 972785196509637,
+									"parameters": [
+										"2",
+										"0.25"
+									]
+								}
+							],
+							"sid": 580201734373441
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "Text",
+									"sid": 124216417441696,
+									"parameters": {
+										"text": "\"X\"&ScoreStreak"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "DropShadow",
+									"sid": 535365670857035,
+									"parameters": {
+										"text": "\"X\"&ScoreStreak"
+									}
+								}
+							],
+							"sid": 376553396865261
+						}
+					]
+				}
+			],
+			"sid": 907728556102132
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Background",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly offset the stars texture, so they look like they're moving."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 128962912716875
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Stars",
+							"sid": 405708288565506,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY - 0.25 * 60 * dt"
+							}
+						}
+					],
+					"sid": 432718559245298
+				}
+			],
+			"sid": 743788763595203
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 618755894397256,
+							"parameters": {
+								"key": 82
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 760965966061695,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "Restart",
+							"sid": 197809782304580
+						}
+					],
+					"sid": 288696408248340,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Restart the game, but first reset all global variables, just to make sure nothing from the previous session will be carried over."
+				},
+				{
+					"functionName": "Restart",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 701754196450251
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 131073125934752
+						}
+					],
+					"sid": 203179229385190
+				}
+			],
+			"sid": 586398161431545
+		}
+	],
+	"sid": 492980733327813
+}

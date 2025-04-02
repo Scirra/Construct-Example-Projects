@@ -1,0 +1,1408 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "PERIODREDUCTION",
+			"type": "number",
+			"initialValue": "0.1",
+			"comment": "Seconds to subtract from the current period",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 922791683939050
+		},
+		{
+			"eventType": "variable",
+			"name": "MINIMUMPERIOD",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "Minimum value for the period",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 959180291777289
+		},
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "currentPeriod",
+			"type": "number",
+			"initialValue": "4",
+			"comment": "Current period for the sine wave",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 514858560451676
+		},
+		{
+			"eventType": "variable",
+			"name": "lives",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "Current amount of lives",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 841459272872567
+		},
+		{
+			"eventType": "variable",
+			"name": "score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Current score",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 554151145455925
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "randomColorID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Random color ID",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 716711088486838
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 647984469620493
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Request colors."
+						},
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 942614064327872,
+							"parameters": {
+								"tag": "\"RequestColors\"",
+								"file": "Colors.json"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 263561231435972
+						},
+						{
+							"type": "comment",
+							"text": "Load array with the colors."
+						},
+						{
+							"id": "load",
+							"objectClass": "ColorsArr",
+							"sid": 466228131340585,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Disable gameplay logic."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 474639843871887,
+							"parameters": {
+								"group-name": "\"Controls\"",
+								"state": "deactivated"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create player tile using a random color."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 878650675395482,
+							"parameters": {
+								"object-to-create": "PlayerTile",
+								"layer": "\"Game\"",
+								"x": "LayoutWidth/2 - 160",
+								"y": "LayoutHeight/2",
+								"create-hierarchy": true,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 297565513607742,
+							"parameters": {
+								"variable": "randomColorID",
+								"value": "int(random(7))"
+							}
+						},
+						{
+							"id": "set-default-color",
+							"objectClass": "PlayerTile",
+							"sid": 791475455268999,
+							"parameters": {
+								"color": "rgba255(ColorsArr.At(0, randomColorID), ColorsArr.At(1, randomColorID), ColorsArr.At(2, randomColorID), 255)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create new column of tiles."
+						},
+						{
+							"callFunction": "createNewCol",
+							"sid": 588836337939706,
+							"parameters": [
+								"4"
+							]
+						}
+					],
+					"sid": 725350739184572
+				}
+			],
+			"sid": 406516539314338
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tutorial",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "randomColorID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Random color ID",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 177573936955434
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-touch-start",
+							"objectClass": "Touch",
+							"sid": 924478489371961
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextTutorial",
+							"sid": 810651920776752,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "100"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Show in-game UI"
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextScore",
+							"sid": 858572902299083,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TextScoreOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Life",
+							"sid": 287364081243819,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"LifeOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide tutorial"
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTutorial",
+							"sid": 203677739836939,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TextTutorialOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 714270732780942,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FaderOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 389752683915455
+						},
+						{
+							"type": "comment",
+							"text": "Enable gameplay logic."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 193763265467614,
+							"parameters": {
+								"group-name": "\"Controls\"",
+								"state": "activated"
+							}
+						}
+					],
+					"sid": 920269553046707
+				}
+			],
+			"sid": 775921679219153
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game Over",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player taps the screen during Game Over, restart the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-touch-start",
+							"objectClass": "Touch",
+							"sid": 271007859832511
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextGameOver",
+							"sid": 801476109943349,
+							"parameters": {
+								"comparison": 4,
+								"opacity": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 701080609015904
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 144015014987409
+						}
+					],
+					"sid": 474190586873065
+				}
+			],
+			"sid": 453080178688617
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tiles",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create new column of tiles."
+				},
+				{
+					"functionName": "createNewCol",
+					"functionDescription": "Create new column of tiles",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "period",
+							"type": "number",
+							"initialValue": "4",
+							"comment": "Sine wave period",
+							"sid": 369442674601248
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 661494395648080,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "periodOffset",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Offset to be applied to the sine wave",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 614065788521620
+						},
+						{
+							"eventType": "comment",
+							"text": "Fill array with numbers from 0 to maximum loopindex."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 336268764816482,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "6"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-at-x",
+									"objectClass": "TileOrderArr",
+									"sid": 292178639065293,
+									"parameters": {
+										"x": "loopindex",
+										"value": "loopindex"
+									}
+								}
+							],
+							"sid": 672185818559065
+						},
+						{
+							"eventType": "comment",
+							"text": "Shuffle the array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "shuffle",
+									"objectClass": "TileOrderArr",
+									"sid": 211824270955858,
+									"parameters": {
+										"axis": "x"
+									}
+								}
+							],
+							"sid": 237302421569541
+						},
+						{
+							"eventType": "comment",
+							"text": "Choose period sign randomly."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 506537507734320,
+									"parameters": {
+										"variable": "periodOffset",
+										"value": "choose(0, 0.5)"
+									}
+								}
+							],
+							"sid": 586037154022801
+						},
+						{
+							"eventType": "comment",
+							"text": "Create column of tiles based on the shuffled array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 411559827494424,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "6"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create the tile object, set its color and its position."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 994127024532136,
+									"parameters": {
+										"object-to-create": "Tile",
+										"layer": "\"Game\"",
+										"x": "LayoutWidth/2 + cos(-45 + 12.85*loopindex) * 1000",
+										"y": "LayoutHeight/2 + sin(-45 + 12.85*loopindex) * 1000",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "Tile",
+									"sid": 694196096624340,
+									"parameters": {
+										"color": "rgba255(ColorsArr.At(0, TileOrderArr.At(loopindex)), ColorsArr.At(1, TileOrderArr.At(loopindex)), ColorsArr.At(2, TileOrderArr.At(loopindex)), 255)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move tile to central position."
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Tile",
+									"sid": 146085480829852,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"TilePosition\"",
+										"property": "position",
+										"end-x": "LayoutWidth/2",
+										"end-y": "LayoutHeight/2 + (loopindex - 3) * 144",
+										"time": "0.25",
+										"ease": "noease",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 472477710191596
+								},
+								{
+									"type": "comment",
+									"text": "After the tile has been moved, start sine vertical movement with correct period and offset."
+								},
+								{
+									"id": "set-active",
+									"objectClass": "Tile",
+									"sid": 823497670793741,
+									"behaviorType": "Sine",
+									"parameters": {
+										"state": "active"
+									}
+								},
+								{
+									"id": "set-period",
+									"objectClass": "Tile",
+									"sid": 757800870242812,
+									"behaviorType": "Sine",
+									"parameters": {
+										"period": "period"
+									}
+								},
+								{
+									"id": "set-cycle-position",
+									"objectClass": "Tile",
+									"sid": 643847482710693,
+									"behaviorType": "Sine",
+									"parameters": {
+										"cycle-position": "periodOffset"
+									}
+								}
+							],
+							"sid": 838575924635823
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move old tiles."
+				},
+				{
+					"functionName": "moveOldTiles",
+					"functionDescription": "Move old tiles",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "OldTile",
+							"sid": 498822889955939,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveOldTile\"",
+								"property": "offsetX",
+								"end-value": "Self.X - 160",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 817549701346574
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy all tiles."
+				},
+				{
+					"functionName": "destroyAllTiles",
+					"functionDescription": "Destroy all tiles",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Disable sine."
+						},
+						{
+							"id": "set-active",
+							"objectClass": "Tile",
+							"sid": 689602332407879,
+							"behaviorType": "Sine",
+							"parameters": {
+								"state": "inactive"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Play a simple animation before destroying the tile."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Tile",
+							"sid": 324046141562021,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TileSizeDestroy\"",
+								"property": "scale",
+								"end-x": "4",
+								"end-y": "0",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Tile",
+							"sid": 844974490904090,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TileOpacityDestroy\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 592222988356312
+				},
+				{
+					"eventType": "comment",
+					"text": "Player got the correct tile."
+				},
+				{
+					"functionName": "playerCorrect",
+					"functionDescription": "Player got the correct tile",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": true,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "correctTileUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "UID for matched tile",
+							"sid": 264854268599713
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 319369055919659,
+							"parameters": {
+								"variable": "score",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextScore",
+							"sid": 918022158846037,
+							"parameters": {
+								"text": "\"Score: \" & score"
+							}
+						}
+					],
+					"sid": 716385761563927,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "randomColorID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Random color ID",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 732277829657656
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Tile",
+									"sid": 106294549621126,
+									"parameters": {
+										"unique-id": "correctTileUID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Destroy all current tiles."
+								},
+								{
+									"callFunction": "destroyAllTiles",
+									"sid": 882729261744656
+								},
+								{
+									"type": "comment",
+									"text": "Create an OldTile to replace PlayerTile"
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 500730332992664,
+									"parameters": {
+										"object-to-create": "OldTile",
+										"layer": "\"Game\"",
+										"x": "PlayerTile.X",
+										"y": "PlayerTile.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "OldTile",
+									"sid": 521321549262837,
+									"parameters": {
+										"color": "PlayerTile.ColorValue"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move PlayerTile to the front, to replace correct color tile, then randomize the color and move it back again."
+								},
+								{
+									"id": "set-x",
+									"objectClass": "PlayerTile",
+									"sid": 106259944926196,
+									"parameters": {
+										"x": "Self.X + 160"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 822437018629861,
+									"parameters": {
+										"variable": "randomColorID",
+										"value": "int(random(7))"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "PlayerTile",
+									"sid": 999768110368011,
+									"parameters": {
+										"color": "rgba255(ColorsArr.At(0, randomColorID), ColorsArr.At(1, randomColorID), ColorsArr.At(2, randomColorID), 255)"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerTile",
+									"sid": 716126704374684,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MovePlayerTile\"",
+										"property": "offsetX",
+										"end-value": "Self.X - 160",
+										"time": "0.25",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move all the old tiles back."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 846396127276028,
+									"parameters": {
+										"seconds": "0.0"
+									}
+								},
+								{
+									"callFunction": "moveOldTiles",
+									"sid": 276816637692368
+								},
+								{
+									"type": "comment",
+									"text": "Create new column of tiles."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 296929207646641,
+									"parameters": {
+										"seconds": "0.25"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 301137491624890,
+									"parameters": {
+										"variable": "currentPeriod",
+										"value": "max(MINIMUMPERIOD, currentPeriod - PERIODREDUCTION)"
+									}
+								},
+								{
+									"callFunction": "createNewCol",
+									"sid": 456118338012923,
+									"parameters": [
+										"currentPeriod"
+									]
+								}
+							],
+							"sid": 949780078068413
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Player got the incorrect tile."
+				},
+				{
+					"functionName": "playerIncorrect",
+					"functionDescription": "Player got the incorrect tile",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "PlayerTile",
+							"sid": 498901336172312,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerIncorrect\"",
+								"property": "offsetX",
+								"end-value": "Self.X + 48",
+								"time": "0.1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 608620213943658,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Lose a life."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 519810564167969,
+									"parameters": {
+										"value": "lives > 1"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 480974500501556,
+									"parameters": {
+										"object": "Life",
+										"expression": "Life.lifeID = lives"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Life",
+									"sid": 827300393725177,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"LifeOut\"",
+										"property": "offsetY",
+										"end-value": "1208",
+										"time": "0.5",
+										"ease": "easeinback",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 466916810384841,
+									"parameters": {
+										"variable": "lives",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 967516696274367
+						},
+						{
+							"eventType": "comment",
+							"text": "Game over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 825449851998173
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Destroy the last life."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Life",
+									"sid": 439305192053870,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"LifeOut\"",
+										"property": "offsetY",
+										"end-value": "1208",
+										"time": "0.5",
+										"ease": "easeinback",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide in-game UI."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextScore",
+									"sid": 712087013416512,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"TextScoreOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show game over screen with player's score."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 340902761269310,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FaderOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "80",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextGameOver",
+									"sid": 142748458426817,
+									"parameters": {
+										"text": "replace(Self.Text, \"###\", str(score))"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextGameOver",
+									"sid": 847448593772586,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"TextGameOverOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "80",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Disable gameplay logic."
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 291670725138325,
+									"parameters": {
+										"group-name": "\"Controls\"",
+										"state": "deactivated"
+									}
+								}
+							],
+							"sid": 869932840284953
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy old tile if it has gone too far outside of the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "OldTile",
+							"sid": 943404070493107,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveOldTile\""
+							}
+						},
+						{
+							"id": "compare-x",
+							"objectClass": "OldTile",
+							"sid": 690763968409325,
+							"parameters": {
+								"comparison": 2,
+								"x-co-ordinate": "-128"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "OldTile",
+							"sid": 292642865495351
+						}
+					],
+					"sid": 456680860099172
+				},
+				{
+					"eventType": "comment",
+					"text": "Tint background when player makes a mistake."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 250561096920644
+						}
+					],
+					"actions": [
+						{
+							"id": "set-default-color",
+							"objectClass": "Background",
+							"sid": 319976364042840,
+							"parameters": {
+								"color": "rgba255(255, 255 * (1-PlayerTile.Tween.Progress(\"PlayerIncorrect\")), 255 * (1-PlayerTile.Tween.Progress(\"PlayerIncorrect\")), 255)"
+							}
+						}
+					],
+					"sid": 719070643621880
+				}
+			],
+			"sid": 362106055720907
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player tapped/clicked."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-touch-start",
+							"objectClass": "Touch",
+							"sid": 612533083475852
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "Fader",
+							"sid": 821178684838264,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "Tile",
+							"sid": 588743364641879,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TilePosition\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerTile",
+							"sid": 893001032532803,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerIncorrect\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 887594784592579,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "correct",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "Stores if the player got the correct color",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 573658963350874
+						},
+						{
+							"eventType": "variable",
+							"name": "correctTileUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "UID for the matched tile",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 518707196136371
+						},
+						{
+							"eventType": "comment",
+							"text": "Check which tile the collider hit."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 527717684927125,
+									"parameters": {
+										"object": "Tile"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 792489924068166,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Player got the correct color."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "PlayerCollider",
+											"sid": 523394215644096,
+											"parameters": {
+												"object": "Tile"
+											}
+										},
+										{
+											"id": "pick-parent",
+											"objectClass": "PlayerCollider",
+											"sid": 584319086133286,
+											"parameters": {
+												"parent": "PlayerTile",
+												"which": "own"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 589459790257230,
+											"parameters": {
+												"value": "PlayerTile.ColorValue = Tile.ColorValue"
+											}
+										},
+										{
+											"id": "is-playing",
+											"objectClass": "Tile",
+											"sid": 152965186512298,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"TileOpacityDestroy\""
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 126407751775138,
+											"parameters": {
+												"variable": "correct",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 841058173532402,
+											"parameters": {
+												"variable": "correctTileUID",
+												"value": "Tile.UID"
+											}
+										}
+									],
+									"sid": 393809947249538
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Player got the correct color."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 218961090433394,
+									"parameters": {
+										"variable": "correct"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "playerCorrect",
+									"sid": 584700614854633,
+									"parameters": [
+										"correctTileUID"
+									]
+								}
+							],
+							"sid": 944773929703454
+						},
+						{
+							"eventType": "comment",
+							"text": "Player got the wrong color."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 145438898387116
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "playerIncorrect",
+									"sid": 285002525668331
+								}
+							],
+							"sid": 974962492006934
+						}
+					]
+				}
+			],
+			"sid": 734070037534949
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Background",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Scroll Background."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 141274942379251
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Background",
+							"sid": 362473591224437,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX -200 *dt"
+							}
+						}
+					],
+					"sid": 416460512020739
+				}
+			],
+			"sid": 317401981066063
+		}
+	],
+	"sid": 761546240119227
+}

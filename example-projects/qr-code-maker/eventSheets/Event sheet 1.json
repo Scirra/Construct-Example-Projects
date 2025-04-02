@@ -1,0 +1,462 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "On startup, default the correction level list to \"High\" and generate the initial QR code."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 484662617451310
+				}
+			],
+			"actions": [
+				{
+					"id": "set-selection",
+					"objectClass": "CorrectionLevelList",
+					"sid": 791925719628475,
+					"parameters": {
+						"index": "3"
+					}
+				},
+				{
+					"callFunction": "GenerateQRCode",
+					"sid": 778739341912206
+				}
+			],
+			"sid": 910483422304801,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Only show the 'Save as' button when the File System feature is supported."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-supported",
+							"objectClass": "FileSystem",
+							"sid": 640115639996501
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "SaveAsButton",
+							"sid": 432117924107411,
+							"parameters": {
+								"visibility": "visible"
+							}
+						}
+					],
+					"sid": 148413808139652
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When clicking the 'Update' button, update the QR code text and correction level, then generate a new QR code ready for downloading or sharing."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "UpdateButton",
+					"sid": 900680128154044
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "UpdateQRCode",
+					"sid": 855589088416003
+				},
+				{
+					"callFunction": "GenerateQRCode",
+					"sid": 746479491841805
+				}
+			],
+			"sid": 598539625390346
+		},
+		{
+			"eventType": "comment",
+			"text": "Update the QR code with a new text content and correction level."
+		},
+		{
+			"functionName": "UpdateQRCode",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "QRCode",
+					"sid": 458450580022309,
+					"parameters": {
+						"text": "TextInput.Text"
+					}
+				}
+			],
+			"sid": 307388892527167,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-selection",
+							"objectClass": "CorrectionLevelList",
+							"sid": 548935535131476,
+							"parameters": {
+								"comparison": 0,
+								"index": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-correction-level",
+							"objectClass": "QRCode",
+							"sid": 269203513440294,
+							"parameters": {
+								"correction-level": "l"
+							}
+						}
+					],
+					"sid": 984477295589250
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-selection",
+							"objectClass": "CorrectionLevelList",
+							"sid": 446251158516048,
+							"parameters": {
+								"comparison": 0,
+								"index": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-correction-level",
+							"objectClass": "QRCode",
+							"sid": 247861780032235,
+							"parameters": {
+								"correction-level": "m"
+							}
+						}
+					],
+					"sid": 886794400919954
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-selection",
+							"objectClass": "CorrectionLevelList",
+							"sid": 235687200698146,
+							"parameters": {
+								"comparison": 0,
+								"index": "2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-correction-level",
+							"objectClass": "QRCode",
+							"sid": 515609934665698,
+							"parameters": {
+								"correction-level": "q"
+							}
+						}
+					],
+					"sid": 413123165685243
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-selection",
+							"objectClass": "CorrectionLevelList",
+							"sid": 530443931814268,
+							"parameters": {
+								"comparison": 0,
+								"index": "3"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-correction-level",
+							"objectClass": "QRCode",
+							"sid": 279892715196267,
+							"parameters": {
+								"correction-level": "h"
+							}
+						}
+					],
+					"sid": 125523953843890
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Generate a new QR code. This pastes the QR code in to a Drawing Canvas directly under the QR code, and then saves the Drawing Canvas image, providing a PNG image file of the QR code. The image is also loaded in to a Binary Data object for sharing and copying."
+		},
+		{
+			"functionName": "GenerateQRCode",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Clear the Drawing Canvas and then paste the QR code on to it."
+				},
+				{
+					"id": "clear-canvas",
+					"objectClass": "DrawingCanvas",
+					"sid": 981401146929216,
+					"parameters": {
+						"color": "rgba(0, 0, 0, 0)"
+					}
+				},
+				{
+					"id": "paste-object",
+					"objectClass": "DrawingCanvas",
+					"sid": 493223677237962,
+					"parameters": {
+						"object": "QRCode",
+						"effects": "without-effects"
+					}
+				},
+				{
+					"id": "wait-for-previous-actions",
+					"objectClass": "System",
+					"sid": 413326568277797
+				},
+				{
+					"type": "comment",
+					"text": "One complete, save the Drawing Canvas image."
+				},
+				{
+					"id": "save-image",
+					"objectClass": "DrawingCanvas",
+					"sid": 428470960260340,
+					"parameters": {
+						"format": "png",
+						"jpeg-quality": "75",
+						"x": "0",
+						"y": "0",
+						"width": "DrawingCanvas.SurfaceDeviceWidth - 1",
+						"height": "DrawingCanvas.SurfaceDeviceHeight - 1"
+					}
+				},
+				{
+					"id": "wait-for-previous-actions",
+					"objectClass": "System",
+					"sid": 160280011702414
+				},
+				{
+					"type": "comment",
+					"text": "Also load the Drawing Canvas image in to a Binary Data object."
+				},
+				{
+					"id": "set-response-binary",
+					"objectClass": "AJAX",
+					"sid": 211430028974912,
+					"parameters": {
+						"destination": "BinaryData"
+					}
+				},
+				{
+					"id": "request-url",
+					"objectClass": "AJAX",
+					"sid": 739692952872519,
+					"parameters": {
+						"tag": "\"\"",
+						"url": "DrawingCanvas.SavedImageURL"
+					}
+				},
+				{
+					"id": "wait-for-previous-actions",
+					"objectClass": "System",
+					"sid": 623114267007299
+				}
+			],
+			"sid": 460004926936848
+		},
+		{
+			"eventType": "comment",
+			"text": "Download the resulting image using the Browser object's 'Invoke download' action."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "DownloadButton",
+					"sid": 836594680040316
+				}
+			],
+			"actions": [
+				{
+					"id": "invoke-download",
+					"objectClass": "Browser",
+					"sid": 182819590311378,
+					"parameters": {
+						"url": "DrawingCanvas.SavedImageURL",
+						"filename": "\"qrcode.png\""
+					}
+				}
+			],
+			"sid": 316785116517833
+		},
+		{
+			"eventType": "comment",
+			"text": "Share the resulting image using the Share object adding the Binary Data object as a file."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "ShareButton",
+					"sid": 672433195578099
+				}
+			],
+			"actions": [
+				{
+					"id": "add-file",
+					"objectClass": "Share",
+					"sid": 538116692768422,
+					"parameters": {
+						"filename": "\"qrcode.png\"",
+						"type": "\"image/png\"",
+						"data": "BinaryData"
+					}
+				},
+				{
+					"id": "share-text",
+					"objectClass": "Share",
+					"sid": 853053376903763,
+					"parameters": {
+						"text": "\"QR code generated by the QR code maker\"",
+						"title": "\"QR code\"",
+						"url": "\"\""
+					}
+				}
+			],
+			"sid": 131618119210849
+		},
+		{
+			"eventType": "comment",
+			"text": "Copy the resulting image to the clipboard from the Binary Data object."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "CopyButton",
+					"sid": 364468131698862
+				}
+			],
+			"actions": [
+				{
+					"id": "copy-binary",
+					"objectClass": "Clipboard",
+					"sid": 548388922333361,
+					"parameters": {
+						"data": "BinaryData",
+						"type": "\"image/png\""
+					}
+				}
+			],
+			"sid": 613435058170015
+		},
+		{
+			"eventType": "comment",
+			"text": "When the File System object is supported, the 'Save as' button is shown. When clicked show a save file picker, and once the picker is complete write the resulting image to the chosen file."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "SaveAsButton",
+					"sid": 821316013463903
+				}
+			],
+			"actions": [
+				{
+					"id": "add-accept-type",
+					"objectClass": "FileSystem",
+					"sid": 237856600390789,
+					"parameters": {
+						"mime-type": "\"image/png\"",
+						"file-extensions": "\".png\"",
+						"description": "\"PNG images\""
+					}
+				},
+				{
+					"id": "show-save-file-picker",
+					"objectClass": "FileSystem",
+					"sid": 966158290702084,
+					"parameters": {
+						"picker-tag": "\"save\"",
+						"show-accept-all": true,
+						"suggested-name": "\"qrcode.png\"",
+						"id": "\"qrcode\"",
+						"start-in": "pictures"
+					}
+				}
+			],
+			"sid": 607251886549962
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-picker-complete",
+					"objectClass": "FileSystem",
+					"sid": 222912023675682,
+					"parameters": {
+						"picker-tag": "\"save\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "write-binary-file",
+					"objectClass": "FileSystem",
+					"sid": 858238549954783,
+					"parameters": {
+						"picker-tag": "\"save\"",
+						"folder-path": "\"\"",
+						"file-tag": "\"\"",
+						"data": "BinaryData"
+					}
+				}
+			],
+			"sid": 898492250142630
+		}
+	],
+	"sid": 224238622385053
+}

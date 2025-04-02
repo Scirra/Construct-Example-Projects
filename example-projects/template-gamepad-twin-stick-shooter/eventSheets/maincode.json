@@ -1,0 +1,1171 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Screen center position."
+		},
+		{
+			"eventType": "variable",
+			"name": "SCREENCENTERX",
+			"type": "number",
+			"initialValue": "320",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 960615313515902
+		},
+		{
+			"eventType": "variable",
+			"name": "SCREENCENTERY",
+			"type": "number",
+			"initialValue": "184",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 638178779495466
+		},
+		{
+			"eventType": "comment",
+			"text": "The angle each analog stick is currently pointing towards."
+		},
+		{
+			"eventType": "variable",
+			"name": "LeftStickAngle",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 122567412141639
+		},
+		{
+			"eventType": "variable",
+			"name": "RightStickAngle",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 328771847363012
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GeneralSetup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Center the camera in the middle of the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 153599553383530
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 515005541097921,
+							"parameters": {
+								"x": "ScreenCenterX",
+								"y": "ScreenCenterY"
+							}
+						}
+					],
+					"sid": 876869622817367
+				}
+			],
+			"sid": 574354331945888
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If there's any input from the left analog stick, calculate and store the angle it's currently pointing towards. Also use the result to move the player by manually changing his vectors."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 137582544759731,
+							"parameters": {
+								"value": "Gamepad.Axis(0, 0) <> 0 | Gamepad.Axis(0, 1) <> 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 199590204291832,
+							"parameters": {
+								"variable": "LeftStickAngle",
+								"value": "angle(0, 0, Gamepad.Axis(0, 0), Gamepad.Axis(0, 1))"
+							}
+						},
+						{
+							"id": "set-vector-x",
+							"objectClass": "PlayerCollision",
+							"sid": 687232165847964,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"vector-x": "cos(LeftStickAngle) * ((Self.8Direction.MaxSpeed / 100) * abs(Gamepad.Axis(0, 0)))"
+							}
+						},
+						{
+							"id": "set-vector-y",
+							"objectClass": "PlayerCollision",
+							"sid": 608497969259401,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"vector-y": "sin(LeftStickAngle) * ((Self.8Direction.MaxSpeed / 100) * abs(Gamepad.Axis(0, 1)))"
+							}
+						}
+					],
+					"sid": 684108777665604
+				},
+				{
+					"eventType": "comment",
+					"text": "If there's any input from the right analog stick, calculate and store the angle it's currently pointing towards. Also use the result to adjust the gun angle."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 122073331156715,
+							"parameters": {
+								"value": "Gamepad.Axis(0, 2) <> 0 | Gamepad.Axis(0, 3) <> 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 128060274439367,
+							"parameters": {
+								"variable": "RightStickAngle",
+								"value": "angle(0, 0, Gamepad.Axis(0, 2), Gamepad.Axis(0, 3))"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Gun",
+							"sid": 755405124223639,
+							"parameters": {
+								"angle": "RightStickAngle"
+							}
+						}
+					],
+					"sid": 405948397553771
+				}
+			],
+			"sid": 495237743496869
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Animations",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the player's animations by adding the graphics as a child of the collision, so they always stay together."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "PlayerGraphics",
+							"sid": 217442672487375
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "PlayerGraphics",
+							"sid": 201607458890707,
+							"parameters": {
+								"object": "PlayerCollision",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerCollision",
+							"sid": 614933852567854,
+							"parameters": {
+								"child": "PlayerGraphics",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 231768170793952
+				},
+				{
+					"eventType": "comment",
+					"text": "Change the player's animation states depending on what the input being received by the gamepad."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 955238170229541
+						}
+					],
+					"actions": [],
+					"sid": 328365309791178,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the there's any kind of input from the left analog stick, show a walking animation."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 666697718782245,
+									"parameters": {
+										"value": "Gamepad.Axis(0, 0) <> 0 | Gamepad.Axis(0, 1) <> 0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 705840747957030,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "From the back."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-between-angles",
+											"objectClass": "System",
+											"sid": 740308838142096,
+											"parameters": {
+												"angle": "Gun.Angle",
+												"first-angle": "-180",
+												"second-angle": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 155806513112374,
+											"parameters": {
+												"animation": "\"WalkBack\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 168094391185531
+								},
+								{
+									"eventType": "comment",
+									"text": "From the front."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 261608297609599
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 345408491091615,
+											"parameters": {
+												"animation": "\"WalkFront\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 817309285920224
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the there's any kind of input from the right analog stick, show an idle animation."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 647944541486430
+								}
+							],
+							"actions": [],
+							"sid": 473730644851120,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "From the back."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-between-angles",
+											"objectClass": "System",
+											"sid": 712845125900032,
+											"parameters": {
+												"angle": "Gun.Angle",
+												"first-angle": "-180",
+												"second-angle": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 302437814701361,
+											"parameters": {
+												"animation": "\"IdleBack\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 814714993611664
+								},
+								{
+									"eventType": "comment",
+									"text": "From the front."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 938186516747185
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 969941395864767,
+											"parameters": {
+												"animation": "\"IdleFront\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 676665585749110
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the there's any kind of input from the left analog stick, mirror the player according to the stick angle."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 852475590739095,
+									"parameters": {
+										"value": "Gamepad.Axis(0, 0) <> 0 | Gamepad.Axis(0, 1) <> 0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 907112459760945,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-between-angles",
+											"objectClass": "System",
+											"sid": 267847219556624,
+											"parameters": {
+												"angle": "LeftStickAngle",
+												"first-angle": "-90",
+												"second-angle": "90"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-mirrored",
+											"objectClass": "PlayerGraphics",
+											"sid": 739611081753041,
+											"parameters": {
+												"state": "not-mirrored"
+											}
+										}
+									],
+									"sid": 730145123897370
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 809655099513619
+										}
+									],
+									"actions": [
+										{
+											"id": "set-mirrored",
+											"objectClass": "PlayerGraphics",
+											"sid": 753524980720033,
+											"parameters": {
+												"state": "mirrored"
+											}
+										}
+									],
+									"sid": 301729721054941
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the there's any kind of input from the right analog stick, flip the gun according to the stick angle."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 629249056850081,
+									"parameters": {
+										"value": "Gamepad.Axis(0, 2) <> 0 | Gamepad.Axis(0, 3) <> 0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 384128457913541,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-between-angles",
+											"objectClass": "System",
+											"sid": 883543880016282,
+											"parameters": {
+												"angle": "RightStickAngle",
+												"first-angle": "-90",
+												"second-angle": "90"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-flipped",
+											"objectClass": "Gun",
+											"sid": 505421147213197,
+											"parameters": {
+												"state": "not-flipped"
+											}
+										}
+									],
+									"sid": 369799062179305
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 414386328037631
+										}
+									],
+									"actions": [
+										{
+											"id": "set-flipped",
+											"objectClass": "Gun",
+											"sid": 796336563368506,
+											"parameters": {
+												"state": "flipped"
+											}
+										}
+									],
+									"sid": 664052957178909
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the gun behind or in front of the player depending on the direction it's currently pointing towards."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-between-angles",
+									"objectClass": "System",
+									"sid": 557624747421863,
+									"parameters": {
+										"angle": "Gun.Angle",
+										"first-angle": "-180",
+										"second-angle": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "move-to-object",
+									"objectClass": "Gun",
+									"sid": 568435002982221,
+									"parameters": {
+										"where": "behind",
+										"object": "PlayerGraphics"
+									}
+								}
+							],
+							"sid": 361001786781138
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 218179663473957
+								}
+							],
+							"actions": [
+								{
+									"id": "move-to-object",
+									"objectClass": "Gun",
+									"sid": 393935221068688,
+									"parameters": {
+										"where": "in-front",
+										"object": "PlayerGraphics"
+									}
+								}
+							],
+							"sid": 362160547812131
+						}
+					]
+				}
+			],
+			"sid": 795840425604335
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Gun",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the gun by pinning it to the player. The pin behavior is very useful in this, because it can attach the object to a specific image point instead of the limited origin point from the hierarchy system."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Gun",
+							"sid": 972906459891799
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "Gun",
+							"sid": 729523833937712,
+							"parameters": {
+								"object": "PlayerGraphics",
+								"image-point-optional": "\"Hand\""
+							}
+						},
+						{
+							"id": "pin-to-object-imagepoint",
+							"objectClass": "Gun",
+							"sid": 195138949320189,
+							"behaviorType": "Pin",
+							"parameters": {
+								"pin-to": "PlayerGraphics",
+								"image-point": "\"Hand\"",
+								"angle": false,
+								"width-type": "no",
+								"height-type": "no",
+								"z": false
+							}
+						}
+					],
+					"sid": 127753430356798
+				},
+				{
+					"eventType": "comment",
+					"text": "How long it takes for each bullet to be shot."
+				},
+				{
+					"eventType": "variable",
+					"name": "FIRERATE",
+					"type": "number",
+					"initialValue": "0.05",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 230794100858218
+				},
+				{
+					"eventType": "comment",
+					"text": "How much the bullets will spread after being shot."
+				},
+				{
+					"eventType": "variable",
+					"name": "SPREADANGLE",
+					"type": "number",
+					"initialValue": "5",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 438972986890981
+				},
+				{
+					"eventType": "comment",
+					"text": "Keep shooting while the right trigger is being pressed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 481056113735774,
+							"parameters": {
+								"gamepad": "0",
+								"button": "right-shoulder-trigger"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 972220167413620,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 254598277799107,
+									"parameters": {
+										"interval-seconds": "FIRERATE"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Spawn a bullet and slightly randomize its angle of motion."
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Gun",
+									"sid": 631689760461371,
+									"parameters": {
+										"object": "Bullet",
+										"layer": "\"Ground\"",
+										"image-point": "\"Tip\"",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Bullet",
+									"sid": 192537850373018,
+									"parameters": {
+										"angle": "Self.Angle + random(-SPREADANGLE, SPREADANGLE)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Spawn a shell for each bullet shot."
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Gun",
+									"sid": 964071927600660,
+									"parameters": {
+										"object": "Shell",
+										"layer": "\"Player\"",
+										"image-point": "\"ShellEjector\"",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set the ground height for the bullet to land eventually."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Shell",
+									"sid": 803878690754984,
+									"parameters": {
+										"instance-variable": "GroundY",
+										"value": "PlayerCollision.Y + random(0, 16)"
+									}
+								}
+							],
+							"sid": 637041943612978,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Set the shell angle of motion based on the gun's flip state, while also applying a bit of randomization."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-flipped",
+											"objectClass": "Gun",
+											"sid": 952437209503025
+										}
+									],
+									"actions": [
+										{
+											"id": "set-angle-of-motion",
+											"objectClass": "Shell",
+											"sid": 168091677732534,
+											"behaviorType": "Bullet",
+											"parameters": {
+												"angle": "Gun.Angle + 90 + random(45, 15)"
+											}
+										}
+									],
+									"sid": 660755708679688
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 364097191611723
+										}
+									],
+									"actions": [
+										{
+											"id": "set-angle-of-motion",
+											"objectClass": "Shell",
+											"sid": 946467812353513,
+											"behaviorType": "Bullet",
+											"parameters": {
+												"angle": "Gun.Angle - 90 + random(-45, -15)"
+											}
+										}
+									],
+									"sid": 278309357643385
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When a bullet \"hits the ground\", paste it into the drawing canvas and delete it. This is useful to keep them visible on the screen, without the performance cost of having too many sprites."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-y",
+							"objectClass": "Shell",
+							"sid": 583248651365116,
+							"parameters": {
+								"comparison": 5,
+								"y-co-ordinate": "Self.GroundY"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "paste-object",
+							"objectClass": "DrawingCanvas",
+							"sid": 962973844676413,
+							"parameters": {
+								"object": "Shell",
+								"effects": "with-effects"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 392139783624866,
+							"parameters": {
+								"seconds": "0"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Shell",
+							"sid": 124881911943218
+						}
+					],
+					"sid": 980779094788349
+				},
+				{
+					"eventType": "comment",
+					"text": "If a bullet collides with a wall or crate, spawn sparkles and destroy the bullet."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Bullet",
+							"sid": 103618926437224,
+							"parameters": {
+								"object": "Wall"
+							}
+						},
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Bullet",
+							"sid": 321640460069274,
+							"parameters": {
+								"object": "Crate"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Bullet",
+							"sid": 726207418468145,
+							"parameters": {
+								"object": "Sparkles",
+								"layer": "\"lay_player\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Sparkles",
+							"sid": 867090426735316,
+							"parameters": {
+								"angle": "0"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 747507063864805
+						},
+						{
+							"type": "comment",
+							"text": "Also shake the screen for a more impactful effect."
+						},
+						{
+							"callFunction": "ShakeScreen",
+							"sid": 791910823025299,
+							"parameters": [
+								"0.1",
+								"1"
+							]
+						}
+					],
+					"sid": 212648309242696,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If a bullet collides with a crate specifically, flash it very quickly."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Bullet",
+							"sid": 561239834933673,
+							"parameters": {
+								"object": "Crate"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Crate",
+							"sid": 941057913750851,
+							"parameters": {
+								"animation": "\"Flash\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 318664707896337
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Crate",
+							"sid": 192829366667189,
+							"parameters": {
+								"animation": "\"Flash\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Crate",
+							"sid": 575191057571690,
+							"parameters": {
+								"animation": "\"Normal\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 216537764352824
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the sparkles after its is over, to prevent any sort of CPU overload."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Sparkles",
+							"sid": 975363086974817,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Sparkles",
+							"sid": 893886336103386
+						}
+					],
+					"sid": 631347255147997
+				}
+			],
+			"sid": 960490461599325
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ScreenShake",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How strong the screen will shake."
+				},
+				{
+					"eventType": "variable",
+					"name": "StoredIntensity",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 578194783863511
+				},
+				{
+					"eventType": "comment",
+					"text": "Start a time, which dictate how long the screen shake will last, and store the intensity value, which will dictate how far the screen will move from the center."
+				},
+				{
+					"functionName": "ShakeScreen",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Duration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 442312107009759
+						},
+						{
+							"name": "Intensity",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 981339411455344
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 431015034155825,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "Duration",
+								"type": "once",
+								"tag": "\"ShakeScreen\""
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 264934484591212,
+							"parameters": {
+								"variable": "StoredIntensity",
+								"value": "Intensity"
+							}
+						}
+					],
+					"sid": 648309768866136
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-timer-running",
+							"objectClass": "GameManager",
+							"sid": 955639315944713,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"ShakeScreen\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 618171447450069,
+							"parameters": {
+								"x": "ScreenCenterX+random(-StoredIntensity, StoredIntensity)",
+								"y": "ScreenCenterY+random(-StoredIntensity, StoredIntensity)"
+							}
+						}
+					],
+					"sid": 151563399909431
+				},
+				{
+					"eventType": "comment",
+					"text": "Reset the camera position after the screen shake is over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 117869063196913,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"ShakeScreen\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 636892886583604,
+							"parameters": {
+								"x": "ScreenCenterX",
+								"y": "ScreenCenterY"
+							}
+						}
+					],
+					"sid": 472764777985168
+				}
+			],
+			"sid": 636529213642219
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Force the game to restart for testing purposes only."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 556956523251638,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 606203821153294
+						}
+					],
+					"sid": 500852883333048
+				}
+			],
+			"sid": 665274136398795
+		}
+	],
+	"sid": 196852048920571
+}

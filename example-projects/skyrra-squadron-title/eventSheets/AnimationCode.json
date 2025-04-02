@@ -1,0 +1,392 @@
+{
+	"name": "AnimationCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @Bäto\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How deep the scene is."
+		},
+		{
+			"eventType": "variable",
+			"name": "SceneDepth",
+			"type": "number",
+			"initialValue": "2048",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 699883370295589
+		},
+		{
+			"eventType": "comment",
+			"text": "How long each fade animation takes."
+		},
+		{
+			"eventType": "variable",
+			"name": "FadeTime",
+			"type": "number",
+			"initialValue": "0.5",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 727605893724975
+		},
+		{
+			"eventType": "comment",
+			"text": "How long it takes for every object to fall in place."
+		},
+		{
+			"eventType": "variable",
+			"name": "AnimationTime",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 768663318800349
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player is allowed to interact with the scene."
+		},
+		{
+			"eventType": "variable",
+			"name": "AllowPlayerInteraction",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 891919055431934
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup the scene by playing a fade out animaiton."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 494518205211081
+				}
+			],
+			"actions": [
+				{
+					"id": "tween-one-property",
+					"objectClass": "Fade",
+					"sid": 498400578864638,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeOut\"",
+						"property": "offsetOpacity",
+						"end-value": "0",
+						"time": "FadeTime",
+						"ease": "noease",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "Fade",
+					"sid": 540991332056707,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "FadeTime",
+						"type": "once",
+						"tag": "\"FadeOut\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Hide the text object by changing its opacity to zero."
+				},
+				{
+					"id": "set-opacity",
+					"objectClass": "Text",
+					"sid": 509484646711195,
+					"parameters": {
+						"opacity": "0"
+					}
+				},
+				{
+					"id": "set-height",
+					"objectClass": "ModalBox",
+					"sid": 227448259027365,
+					"parameters": {
+						"height": "0"
+					}
+				}
+			],
+			"sid": 227617565967410,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Also move every element up, so they're not visible by the camera."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 982363184623985,
+							"parameters": {
+								"object": "Elements"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Elements",
+							"sid": 342361611256401,
+							"parameters": {
+								"z": "-clamp(Self.DepthPercentage / 100, 0, 1) * SceneDepth + SceneDepth + 1300"
+							}
+						}
+					],
+					"sid": 267036792781370
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the fade out animation is complete, move every element to the right position."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "Fade",
+					"sid": 544076151689467,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"FadeOut\""
+					}
+				}
+			],
+			"actions": [],
+			"sid": 222265750473056,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 162377748789226,
+							"parameters": {
+								"object": "Elements"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Elements",
+							"sid": 656489677803236,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveElement\"",
+								"property": "offsetZElevation",
+								"end-value": "-clamp(Self.DepthPercentage / 100, 0, 1) * SceneDepth",
+								"time": "AnimationTime",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Fade",
+							"sid": 328063125288916,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "AnimationTime",
+								"type": "once",
+								"tag": "\"EndAnimation\""
+							}
+						}
+					],
+					"sid": 489340524865678
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once every element is in the right position, display the text object and allow the player to interact with the scene."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "Fade",
+					"sid": 803270004814071,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"EndAnimation\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "tween-one-property",
+					"objectClass": "Text",
+					"sid": 688065517022387,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Flash\"",
+						"property": "offsetOpacity",
+						"end-value": "100",
+						"time": "0.5",
+						"ease": "easeinoutsine",
+						"destroy-on-complete": "no",
+						"loop": "yes",
+						"ping-pong": "yes",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "ModalBox",
+					"sid": 817808919370236,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeIn\"",
+						"property": "offsetHeight",
+						"end-value": "64",
+						"time": "0.25",
+						"ease": "noease",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 503721629706657,
+					"parameters": {
+						"variable": "AllowPlayerInteraction",
+						"value": "true"
+					}
+				}
+			],
+			"sid": 231411641318103
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player presses any key while player interactions are allowed, play a fade in animation."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 346935754819519
+				}
+			],
+			"actions": [],
+			"sid": 658475617989230,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 866184094560717,
+							"parameters": {
+								"value": "AllowPlayerInteraction = 1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fade",
+							"sid": 356805061291867,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeIn\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "FadeTime",
+								"ease": "noease",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Fade",
+							"sid": 519703249836507,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "FadeTime",
+								"type": "once",
+								"tag": "\"FadeIn\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also, prevent the player from performing any further interactions."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 512944160763756,
+							"parameters": {
+								"variable": "AllowPlayerInteraction",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 218703584636131
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the fade in animation is complete, restart the scene."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "Fade",
+					"sid": 813268024151377,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"FadeIn\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 764114059260435
+				}
+			],
+			"sid": 974528291475218
+		}
+	],
+	"sid": 408071616518664
+}

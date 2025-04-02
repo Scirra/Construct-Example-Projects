@@ -1,0 +1,762 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Cars from the Racing pack from Kenney.nl\nhttps://kenney.nl/assets/racing-pack"
+		},
+		{
+			"eventType": "variable",
+			"name": "tLane",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 915041230550068
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 386004937000137
+				}
+			],
+			"actions": [
+				{
+					"id": "start-timer",
+					"objectClass": "glob",
+					"sid": 471550826310779,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "3",
+						"type": "once",
+						"tag": "\"Spawn\""
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Car",
+					"sid": 275077810038128
+				},
+				{
+					"id": "set-animation-frame",
+					"objectClass": "Player",
+					"sid": 244787122278732,
+					"parameters": {
+						"frame-number": "floor(random(Self.AnimationFrameCount))"
+					}
+				}
+			],
+			"sid": 149163484141826
+		},
+		{
+			"eventType": "comment",
+			"text": "[h3]Scrolling[/h3]\nThe game doesn't really scroll. Instead the effect is faked by moving three Road segments down continuously. When the bottom one goes off the bottom of the screen, it's moved back to the top so the effect repeats forever."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "glob",
+					"sid": 861673713684218,
+					"parameters": {
+						"instance-variable": "Crashed"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-y",
+					"objectClass": "Road",
+					"sid": 917906785462799,
+					"parameters": {
+						"y": "Self.Y+glob.roadSpeed*dt - glob.roadSpeedMod*dt"
+					}
+				}
+			],
+			"sid": 712311809664975
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-y",
+					"objectClass": "Road",
+					"sid": 288733369916079,
+					"parameters": {
+						"comparison": 5,
+						"y-co-ordinate": "ViewportBottom(0)"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-y",
+					"objectClass": "Road",
+					"sid": 788055941720697,
+					"parameters": {
+						"y": "Self.Y - Self.Height * 3"
+					}
+				}
+			],
+			"sid": 133268984600259
+		},
+		{
+			"eventType": "comment",
+			"text": "[h3]Inputs[/h3]\nWhen the right or left key are pressed, the Player's car lane is changed within the boundaries of the 4 available lanes"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 639148573366323,
+					"parameters": {
+						"key": 39
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Player",
+					"sid": 362318604876921,
+					"parameters": {
+						"instance-variable": "lane",
+						"value": "clamp(Self.lane+1,0,3)"
+					}
+				}
+			],
+			"sid": 670823025266504
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 723028986676131,
+					"parameters": {
+						"key": 37
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Player",
+					"sid": 405651717035762,
+					"parameters": {
+						"instance-variable": "lane",
+						"value": "clamp(Self.lane-1,0,3)"
+					}
+				}
+			],
+			"sid": 659005763931539
+		},
+		{
+			"eventType": "comment",
+			"text": "When the down key is held, the speed of the Player's car is dropped down, in order to prevent impossible moves. To do so, we modify a roadSpeedMod(ifier) value that is applied to the scrolling of the Road and the speed of the cars that go in the opposite direction."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 618994572385404,
+					"parameters": {
+						"key": 40
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "glob",
+					"sid": 855283852711662,
+					"parameters": {
+						"instance-variable": "roadSpeedMod",
+						"value": "clamp(Self.roadSpeedMod + 256*dt,Self.roadSpeed/6,(Self.roadSpeed/4)*3)"
+					}
+				}
+			],
+			"sid": 630449084888986
+		},
+		{
+			"eventType": "comment",
+			"text": "When the down key is not held, roadSpeedMod is 0, not modifying the speeds previously mentioned"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 427879985288630,
+					"parameters": {
+						"key": 40
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "glob",
+					"sid": 828468436781101,
+					"parameters": {
+						"instance-variable": "roadSpeedMod",
+						"value": "0"
+					}
+				}
+			],
+			"sid": 953177417918297
+		},
+		{
+			"eventType": "comment",
+			"text": "[h3]Gameplay[/h3]\nWe set the cars X position according to their current lane"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 857615474410273
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "Car",
+					"sid": 467277599071480,
+					"parameters": {
+						"x": "Self.lane * 120 + 65"
+					}
+				},
+				{
+					"id": "set-x",
+					"objectClass": "Player",
+					"sid": 548669862260192,
+					"parameters": {
+						"x": "Self.lane * 120 + 65"
+					}
+				},
+				{
+					"id": "add-to-instvar",
+					"objectClass": "glob",
+					"sid": 932482400204736,
+					"parameters": {
+						"instance-variable": "dist",
+						"value": "dt"
+					}
+				}
+			],
+			"sid": 698607201724105,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "At certain distance travelled, we speed up the overall scrolling speed"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "glob",
+							"sid": 963113429017550,
+							"parameters": {
+								"instance-variable": "dist",
+								"comparison": 5,
+								"value": "10"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-instvar",
+							"objectClass": "glob",
+							"sid": 524961741675205,
+							"parameters": {
+								"instance-variable": "roadSpeed",
+								"value": "10"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "glob",
+							"sid": 502454733884402,
+							"parameters": {
+								"instance-variable": "dist",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 448414478174272
+				},
+				{
+					"eventType": "comment",
+					"text": "The cars that are in the same direction as the Player's need specific attention."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Car",
+							"sid": 654447737325425,
+							"parameters": {
+								"instance-variable": "Dir",
+								"comparison": 0,
+								"value": "-1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 186970980458844,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When the player has crashed, we want the existing one to move towards the top of the screen"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "glob",
+									"sid": 851513747282855,
+									"parameters": {
+										"instance-variable": "Crashed"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-y",
+									"objectClass": "Car",
+									"sid": 584454732481536,
+									"parameters": {
+										"y": "Self.Y - Self.speed*dt"
+									}
+								}
+							],
+							"sid": 358487601904281
+						},
+						{
+							"eventType": "comment",
+							"text": "When the player has not crashed, we want them to move towards the bottom of the screen"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "glob",
+									"sid": 151379557176212,
+									"parameters": {
+										"instance-variable": "Crashed"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-y",
+									"objectClass": "Car",
+									"sid": 312613231533430,
+									"parameters": {
+										"y": "Self.Y + Self.speed*dt - glob.roadSpeedMod*dt"
+									}
+								}
+							],
+							"sid": 445682855719337
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "The cars that are in the opposite direction go down wherever the player did crash or not"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Car",
+							"sid": 433765350842469,
+							"parameters": {
+								"instance-variable": "Dir",
+								"comparison": 0,
+								"value": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-y",
+							"objectClass": "Car",
+							"sid": 328394918169411,
+							"parameters": {
+								"y": "Self.Y + Self.speed*dt + glob.roadSpeedMod * dt"
+							}
+						}
+					],
+					"sid": 968785580135855
+				},
+				{
+					"eventType": "comment",
+					"text": "And when the player hasn't crashed we add and display score"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "glob",
+							"sid": 943546079624698,
+							"parameters": {
+								"instance-variable": "Crashed"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-instvar",
+							"objectClass": "glob",
+							"sid": 743380785525596,
+							"parameters": {
+								"instance-variable": "Score",
+								"value": "Self.roadSpeed*dt + Self.roadSpeedMod*dt"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtScore",
+							"sid": 121086381209277,
+							"parameters": {
+								"text": "\"Score: \" & round(glob.Score)"
+							}
+						}
+					],
+					"sid": 899252787102486
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "On a regular basis, spawn cars to provide challenge and traffic"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "glob",
+					"sid": 783995073726985,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Spawn\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "start-timer",
+					"objectClass": "glob",
+					"sid": 655414130121557,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "random(2)",
+						"type": "once",
+						"tag": "\"Spawn\""
+					}
+				},
+				{
+					"callFunction": "Spawn",
+					"sid": 352811045535076
+				}
+			],
+			"sid": 307198829874253
+		},
+		{
+			"eventType": "comment",
+			"text": "We randomise the lane the car will be created on and create it off the top of the screen"
+		},
+		{
+			"functionName": "Spawn",
+			"functionDescription": "Automatically converted from 'Spawn'",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 299596076657916,
+					"parameters": {
+						"variable": "tLane",
+						"value": "floor(random(4))"
+					}
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 699954106886799,
+					"parameters": {
+						"object-to-create": "Car",
+						"layer": "0",
+						"x": "tLane*120+65",
+						"y": "-120"
+					}
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Car",
+					"sid": 999558762404958,
+					"parameters": {
+						"instance-variable": "lane",
+						"value": "tLane"
+					}
+				}
+			],
+			"sid": 176746403821908,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If it is on one of the first two lanes to the left, the car is going in the opposite direction and we set its properties to reflect that"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 462128580584507,
+							"parameters": {
+								"variable": "tLane",
+								"comparison": 3,
+								"value": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Car",
+							"sid": 979111922578723,
+							"parameters": {
+								"frame-number": "int(random(Self.AnimationFrameCount))"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Car",
+							"sid": 273612719124319,
+							"parameters": {
+								"angle": "90"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Car",
+							"sid": 150870751598609,
+							"parameters": {
+								"instance-variable": "Dir",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Car",
+							"sid": 497421291148363,
+							"parameters": {
+								"instance-variable": "speed",
+								"value": "glob.roadSpeed + glob.roadSpeed/4"
+							}
+						}
+					],
+					"sid": 833077100784439
+				},
+				{
+					"eventType": "comment",
+					"text": "If it is on one of the first two lanes to the right, the car is going in the same direction and we set its properties to reflect that"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 797702228507443,
+							"parameters": {
+								"variable": "tLane",
+								"comparison": 4,
+								"value": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Car",
+							"sid": 657914495928990,
+							"parameters": {
+								"frame-number": "int(random(Self.AnimationFrameCount))"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Car",
+							"sid": 440942896800654,
+							"parameters": {
+								"angle": "270"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Car",
+							"sid": 619773727511398,
+							"parameters": {
+								"instance-variable": "Dir",
+								"value": "-1"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Car",
+							"sid": 330797563664915,
+							"parameters": {
+								"instance-variable": "speed",
+								"value": "(glob.roadSpeed/4) * 3"
+							}
+						}
+					],
+					"sid": 609765185797988
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When two cars are overlapping (which can happen during this random creation) we delete them and call for a new Spawn"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-overlapping-another-object",
+					"objectClass": "Car",
+					"sid": 117711606650928,
+					"parameters": {
+						"object": "Car"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Car",
+					"sid": 560797875308932
+				},
+				{
+					"callFunction": "Spawn",
+					"sid": 402240705299957
+				}
+			],
+			"sid": 567523217087630
+		},
+		{
+			"eventType": "comment",
+			"text": "[h3]End of game[/h3]\nWhen a car and the player are colliding, we stop the scrolling and destroy the cars, end the game, and then restart after a few seconds."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Car",
+					"sid": 547644474988969,
+					"parameters": {
+						"object": "Player"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-instvar",
+					"objectClass": "glob",
+					"sid": 349708372008065,
+					"parameters": {
+						"instance-variable": "Crashed",
+						"value": "true"
+					}
+				},
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Car",
+					"sid": 994006612780306,
+					"parameters": {
+						"object": "Explosion",
+						"layer": "0",
+						"image-point": "0"
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Car",
+					"sid": 369389224243967
+				},
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Player",
+					"sid": 492546339186077,
+					"parameters": {
+						"object": "Explosion",
+						"layer": "0",
+						"image-point": "0"
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Player",
+					"sid": 157173657417624
+				},
+				{
+					"id": "stop-timer",
+					"objectClass": "glob",
+					"sid": 364297730563335,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Spawn\""
+					}
+				},
+				{
+					"id": "wait",
+					"objectClass": "System",
+					"sid": 887042534310493,
+					"parameters": {
+						"seconds": "3"
+					}
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 547724977464372
+				}
+			],
+			"sid": 666392855247265
+		}
+	],
+	"sid": 611022670094721
+}

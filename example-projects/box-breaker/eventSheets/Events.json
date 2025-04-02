@@ -1,0 +1,2140 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nFelipe Vaiano Calderan - Programmer\nTwitter: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios\n"
+		},
+		{
+			"eventType": "comment",
+			"text": "Global variables"
+		},
+		{
+			"eventType": "variable",
+			"name": "score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Player score",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 704983928025840
+		},
+		{
+			"eventType": "variable",
+			"name": "atkdelay",
+			"type": "number",
+			"initialValue": "0.2",
+			"comment": "Delay between each shot",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 254161383815498
+		},
+		{
+			"eventType": "variable",
+			"name": "currentSpeed",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Current speed of the game",
+			"isStatic": true,
+			"isConstant": false,
+			"sid": 423900428576827
+		},
+		{
+			"eventType": "variable",
+			"name": "gameStarted",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Has the player read the tutorial?",
+			"isStatic": true,
+			"isConstant": false,
+			"sid": 996238490795897
+		},
+		{
+			"eventType": "variable",
+			"name": "gameOver",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the game over?",
+			"isStatic": true,
+			"isConstant": false,
+			"sid": 986838385055783
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the camera"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 537516150321118
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set camera position"
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 884047973339382,
+							"parameters": {
+								"cam-x": "192",
+								"cam-y": "Player.Y + 96",
+								"cam-z": "96",
+								"look-x": "192",
+								"look-y": "Player.Y - 32",
+								"look-z": "Player.ZElevation + 12",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide Fader object to fade the game in"
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 679994414854133,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"hideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 848583205068784
+				},
+				{
+					"eventType": "comment",
+					"text": "Start the game, if the tutorial is on-screen and the player pressed [Space]"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 538564535265716,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 644340939438994,
+							"parameters": {
+								"variable": "gameStarted"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextTutorial",
+							"sid": 762782042285470,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "100"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Define game as started and start the box spawn timer"
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 116353145105943,
+							"parameters": {
+								"variable": "gameStarted",
+								"value": "true"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameTimer",
+							"sid": 570929957299203,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1",
+								"type": "once",
+								"tag": "\"BoxSpawn\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide tutorial and show score"
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTutorial",
+							"sid": 988967251615739,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"hideTutorial\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextScore",
+							"sid": 283622099833442,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"showScore\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make the first guy shoot and prepare to spawn sand smoke"
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Guy",
+							"sid": 777597890370801,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "atkdelay",
+								"type": "once",
+								"tag": "\"Shoot\""
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Guy",
+							"sid": 517714060019368,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.1",
+								"type": "regular",
+								"tag": "\"SpawnSandSmoke\""
+							}
+						}
+					],
+					"sid": 490072744438233
+				},
+				{
+					"eventType": "comment",
+					"text": "Restart the game, if the game over text is on-screen and the player pressed [Space]"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 660823025123289,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 755066153511370,
+							"parameters": {
+								"variable": "gameOver"
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextGameOver",
+							"sid": 786951739357564,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "100"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 558952870918036
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 883315405640083
+						}
+					],
+					"sid": 325414751540037
+				}
+			],
+			"sid": 588543442720349
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Camera always look at the player"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 738225157122315
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 303029484151507,
+							"parameters": {
+								"cam-x": "192",
+								"cam-y": "Player.Y + 96",
+								"cam-z": "64",
+								"look-x": "192",
+								"look-y": "Player.Y - 32",
+								"look-z": "Player.ZElevation + 12",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 112702180245193
+				},
+				{
+					"eventType": "comment",
+					"text": "Get player inputs"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 418274964167328,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 234323218729128,
+							"parameters": {
+								"variable": "gameStarted"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Player",
+							"sid": 939739157102346,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"control": "left"
+							}
+						}
+					],
+					"sid": 516562114465298
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 431328742519163,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 818112887260645,
+							"parameters": {
+								"variable": "gameStarted"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Player",
+							"sid": 669257558202527,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"control": "right"
+							}
+						}
+					],
+					"sid": 986844723667717
+				},
+				{
+					"eventType": "comment",
+					"text": "Set animation"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-moving-direction",
+							"objectClass": "Player",
+							"sid": 776475194804581,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"direction": "left"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "TexGuy",
+							"sid": 771525495467001,
+							"parameters": {
+								"animation": "\"Left\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 339665129399269
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 447511488209412
+						},
+						{
+							"id": "is-moving-direction",
+							"objectClass": "Player",
+							"sid": 468562876165948,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"direction": "right"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "TexGuy",
+							"sid": 184608360529646,
+							"parameters": {
+								"animation": "\"Right\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 762915525145207
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 611024496081796
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 308242461151974,
+							"parameters": {
+								"value": "gameStarted"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "TexGuy",
+							"sid": 975153220191994,
+							"parameters": {
+								"animation": "\"Run\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 477414573078210
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 553651350210033
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "TexGuy",
+							"sid": 644183099713998,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 709958806726531
+				},
+				{
+					"eventType": "comment",
+					"text": "Set guys positions in relation to Player object. How the guys are placed changes according to the amount of them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 845723527824563,
+							"parameters": {
+								"object": "Guy"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Guy",
+							"sid": 120686906867019,
+							"parameters": {
+								"x": "lerp(Guy.X, Player.X - ((Guy.Count-1) * 12) + loopindex * Guy.Width, 0.75 * 60 * dt)",
+								"y": "lerp(Guy.Y, Player.Y, 0.1 * 60 * dt)"
+							}
+						}
+					],
+					"sid": 566397763195252
+				}
+			],
+			"sid": 929298423638460
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Bullets",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Bullets are destroyed upon hitting the bullet destroyer area"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Bullet",
+							"sid": 885030227037561,
+							"parameters": {
+								"object": "BulletDestroyer"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 412481969964631
+						}
+					],
+					"sid": 545655346185945
+				}
+			],
+			"sid": 910020782574531
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Guys",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup shoot and sand smoke timer"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Guy",
+							"sid": 737636951454651
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 689266807730882,
+							"parameters": {
+								"variable": "gameStarted"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "Guy",
+							"sid": 599992047675210,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "atkdelay",
+								"type": "once",
+								"tag": "\"Shoot\""
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Guy",
+							"sid": 254546185064892,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.1",
+								"type": "regular",
+								"tag": "\"SpawnSandSmoke\""
+							}
+						}
+					],
+					"sid": 621129709464844
+				},
+				{
+					"eventType": "comment",
+					"text": "Guy shoot"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Guy",
+							"sid": 470522879035396,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Shoot\""
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 205877292540576,
+							"parameters": {
+								"object": "Guy"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Create and setup bullet"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 428334605783886,
+							"parameters": {
+								"object-to-create": "Bullet",
+								"layer": "\"World\"",
+								"x": "Guy.X",
+								"y": "Guy.Y - 4",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Bullet",
+							"sid": 474647120148366,
+							"parameters": {
+								"z": "16"
+							}
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "Bullet",
+							"sid": 632119552133922,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "270"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Prepare to shoot again"
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Guy",
+							"sid": 928897529753589,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "atkdelay",
+								"type": "once",
+								"tag": "\"Shoot\""
+							}
+						}
+					],
+					"sid": 807373767211254
+				},
+				{
+					"eventType": "comment",
+					"text": "If a guy collides with a box, substitute him with a dead version, which dies shortly."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Guy",
+							"sid": 264549689801901,
+							"parameters": {
+								"object": "Boxes"
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "Boxes",
+							"sid": 542910376776311,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Destroy\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Destroy the box"
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Boxes",
+							"sid": 709407225266742,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Destroy\"",
+								"property": "offsetZElevation",
+								"end-value": "-32",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Destroy the guy"
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Guy",
+							"sid": 223192671463156
+						},
+						{
+							"type": "comment",
+							"text": "Create a dead version"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 504641731349814,
+							"parameters": {
+								"object-to-create": "GuyDead",
+								"layer": "\"World\"",
+								"x": "Guy.X",
+								"y": "Guy.Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GuyDead",
+							"sid": 436283611941294,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1.0",
+								"type": "once",
+								"tag": "\"Destroy\""
+							}
+						}
+					],
+					"sid": 501497011323856,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If every guy dies, game over!"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 524559557366168,
+									"parameters": {
+										"value": "Guy.Count = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Stop box spawn timer"
+								},
+								{
+									"id": "stop-timer",
+									"objectClass": "GameTimer",
+									"sid": 191274489694321,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"Spawn\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set game over to true"
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 705593704461200,
+									"parameters": {
+										"variable": "gameOver",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show game over message"
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextGameOver",
+									"sid": 483468875540671,
+									"parameters": {
+										"text": "\"Game Over\nYour Score: \" & score & \"\nPress [Space] to restart...\""
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextScore",
+									"sid": 338799098456659,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"hideScore\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextGameOver",
+									"sid": 515701400202359,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"showGameOver\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show the fader object to fade the game out"
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 813059570226060,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"showFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 337088596524231,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Hide all text points behind the fader"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 812507871789453,
+											"parameters": {
+												"object": "TextPoints"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "move-to-bottom",
+											"objectClass": "TextPoints",
+											"sid": 219880147822456
+										}
+									],
+									"sid": 879610374032703
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Guy dies"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GuyDead",
+							"sid": 402346990096085,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Destroy\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "GuyDead",
+							"sid": 582416501146693
+						}
+					],
+					"sid": 366663295959238
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn sand smoke"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Guy",
+							"sid": 304185080352325,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SpawnSandSmoke\""
+							}
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "TexGuy",
+							"sid": 763537398249023,
+							"parameters": {
+								"animation": "\"Idle\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 184122641692747,
+							"parameters": {
+								"object-to-create": "SandSmoke",
+								"layer": "\"World\"",
+								"x": "Guy.X",
+								"y": "Guy.Y + 4",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "TexSandSmoke",
+							"sid": 613867262540472,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "SandSmoke",
+							"sid": 935956548942365,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SandSmokeDisappear\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 443753665012773
+				}
+			],
+			"sid": 733179124427943
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Boxes",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "boxType",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "What kind of box will spawn",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 497002321675807
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn a box"
+				},
+				{
+					"functionName": "spawnBox",
+					"functionDescription": "Spawn a barrel",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "UID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Barrel UID",
+							"sid": 870336825446064
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Boxes",
+							"sid": 311861999955724,
+							"parameters": {
+								"unique-id": "UID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set box stats"
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Boxes",
+							"sid": 187172958674035,
+							"parameters": {
+								"instance-variable": "hp",
+								"value": "random(1) < 0.70 ? (5 + int(score/250) + int(random(score/75))) : int(5 + int(random(10)))"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Boxes",
+							"sid": 922524245837608,
+							"parameters": {
+								"instance-variable": "points",
+								"value": "Self.hp"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create and setup HP text above the box on the 2D UI layer"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 855595508716873,
+							"parameters": {
+								"object-to-create": "TextPoints",
+								"layer": "\"UI\"",
+								"x": "0",
+								"y": "0",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Boxes",
+							"sid": 527533069645369,
+							"parameters": {
+								"child": "TextPoints",
+								"transform-x": false,
+								"transform-y": false,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-o": true,
+								"transform-z-elevation": false,
+								"transform-visibility": true,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextPoints",
+							"sid": 460454675509533,
+							"parameters": {
+								"text": "Boxes.points"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "TextPoints",
+							"sid": 984083408671413,
+							"parameters": {
+								"instance-variable": "associatedUID",
+								"value": "Boxes.UID"
+							}
+						}
+					],
+					"sid": 819449302906989
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn a random type of box at a random box spawn"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameTimer",
+							"sid": 881960436726655,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"BoxSpawn\""
+							}
+						},
+						{
+							"id": "pick-random-instance",
+							"objectClass": "System",
+							"sid": 782189922806336,
+							"parameters": {
+								"object": "BoxSpawn"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 638467577996661,
+							"parameters": {
+								"variable": "boxType",
+								"value": "random(1)"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameTimer",
+							"sid": 318215315279229,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "max(0.1, 0.5 - score/25000)",
+								"type": "once",
+								"tag": "\"BoxSpawn\""
+							}
+						}
+					],
+					"sid": 598927923138998,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The player must be within the maximum attack speed for a weapon box to spawn"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 492859485199800,
+									"parameters": {
+										"value": "boxType < 0.1"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 473067692130227,
+									"parameters": {
+										"value": "atkdelay > 0.075"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 329516701319551,
+									"parameters": {
+										"object-to-create": "BoxWeapon",
+										"layer": "\"World\"",
+										"x": "BoxSpawn.X",
+										"y": "BoxSpawn.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "BoxWeapon",
+									"sid": 210774346154094,
+									"parameters": {
+										"instance-variable": "type",
+										"value": "\"Weapon\""
+									}
+								},
+								{
+									"callFunction": "spawnBox",
+									"sid": 290473462372799,
+									"parameters": [
+										"BoxWeapon.UID"
+									]
+								}
+							],
+							"sid": 905014823266392
+						},
+						{
+							"eventType": "comment",
+							"text": "The number of guys + the number of already spawned guy boxes must be below 5 for a new guy box to spawn"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 300867557197824
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 575425918017622,
+									"parameters": {
+										"value": "boxType < 0.2"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 383625295982583,
+									"parameters": {
+										"value": "Guy.Count + BoxGuy.Count < 5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 212891030128743,
+									"parameters": {
+										"object-to-create": "BoxGuy",
+										"layer": "\"World\"",
+										"x": "BoxSpawn.X",
+										"y": "BoxSpawn.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "BoxGuy",
+									"sid": 480738964364415,
+									"parameters": {
+										"instance-variable": "type",
+										"value": "\"Guy\""
+									}
+								},
+								{
+									"callFunction": "spawnBox",
+									"sid": 944302340364361,
+									"parameters": [
+										"BoxGuy.UID"
+									]
+								}
+							],
+							"sid": 975160330379015
+						},
+						{
+							"eventType": "comment",
+							"text": "Common type"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 389498814771632
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 842484819295530,
+									"parameters": {
+										"object-to-create": "BoxCommon",
+										"layer": "\"World\"",
+										"x": "BoxSpawn.X",
+										"y": "BoxSpawn.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "BoxCommon",
+									"sid": 467144037801757,
+									"parameters": {
+										"instance-variable": "type",
+										"value": "\"Common\""
+									}
+								},
+								{
+									"callFunction": "spawnBox",
+									"sid": 774005600163941,
+									"parameters": [
+										"BoxCommon.UID"
+									]
+								}
+							],
+							"sid": 497868091323225
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Bullet collides with a box"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Bullet",
+							"sid": 205451903525081,
+							"parameters": {
+								"object": "Boxes"
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "Boxes",
+							"sid": 989222305548757,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Destroy\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 436488717230718
+						}
+					],
+					"sid": 175112366861416,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Box destroyed"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Boxes",
+									"sid": 714788172883760,
+									"parameters": {
+										"instance-variable": "hp",
+										"comparison": 3,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Box sinks to the ground and dies"
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Boxes",
+									"sid": 850776767248513,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Destroy\"",
+										"property": "offsetZElevation",
+										"end-value": "-32",
+										"time": "0.25",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Boxes",
+									"sid": 834482544393164,
+									"parameters": {
+										"instance-variable": "hp",
+										"value": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Add box points to player's total score and update the text"
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 476934541511732,
+									"parameters": {
+										"variable": "score",
+										"value": "Boxes.points"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextScore",
+									"sid": 779887660380707,
+									"parameters": {
+										"text": "\"Score: \" & score"
+									}
+								}
+							],
+							"sid": 950818079447530,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Box was a weapon box - increase player's team attack speed"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Boxes",
+											"sid": 114910078736238,
+											"parameters": {
+												"instance-variable": "type",
+												"comparison": 0,
+												"value": "\"Weapon\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 695968255913895,
+											"parameters": {
+												"variable": "atkdelay",
+												"value": "atkdelay * 0.98"
+											}
+										}
+									],
+									"sid": 529927736284212,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Show upgrade message"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-any-playing",
+													"objectClass": "TextUpgrade",
+													"sid": 675949125762571,
+													"behaviorType": "Tween",
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-one-property",
+													"objectClass": "TextUpgrade",
+													"sid": 228327680101341,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"ShowUpgrade\"",
+														"property": "offsetOpacity",
+														"end-value": "100",
+														"time": "1",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "yes",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "set-text",
+													"objectClass": "TextUpgrade",
+													"sid": 421453738357282,
+													"parameters": {
+														"text": "\"Weapon attack speed improved!\""
+													}
+												}
+											],
+											"sid": 412912779343960
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Box was a guy box - one more guy joins the player's team"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Boxes",
+											"sid": 350863643059019,
+											"parameters": {
+												"instance-variable": "type",
+												"comparison": 0,
+												"value": "\"Guy\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 511402313028178,
+											"parameters": {
+												"object-to-create": "Guy",
+												"layer": "\"World\"",
+												"x": "Player.X",
+												"y": "Player.Y + 128",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										}
+									],
+									"sid": 614308090138292,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Show upgrade message"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-any-playing",
+													"objectClass": "TextUpgrade",
+													"sid": 521449099807436,
+													"behaviorType": "Tween",
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-one-property",
+													"objectClass": "TextUpgrade",
+													"sid": 616836550741485,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"ShowUpgrade\"",
+														"property": "offsetOpacity",
+														"end-value": "100",
+														"time": "1",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "yes",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "set-text",
+													"objectClass": "TextUpgrade",
+													"sid": 306800911326417,
+													"parameters": {
+														"text": "\"Another guy joined the team!\""
+													}
+												}
+											],
+											"sid": 837071633420500
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Box hit, but not destroyed"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 232426994991174
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Start flash tween (processed ahead) and reduce box hitpoints by 1"
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "Boxes",
+									"sid": 635743818516218,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Flash\"",
+										"start-value": "100",
+										"end-value": "135",
+										"time": "0.1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "yes",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Boxes",
+									"sid": 452349643661725,
+									"parameters": {
+										"instance-variable": "hp",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 908022765451044
+						},
+						{
+							"eventType": "comment",
+							"text": "Update box HP text"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 292001757286157,
+									"parameters": {
+										"object": "TextPoints",
+										"expression": "TextPoints.associatedUID = Boxes.UID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextPoints",
+									"sid": 761514590958761,
+									"parameters": {
+										"text": "Boxes.hp"
+									}
+								}
+							],
+							"sid": 404551610609766
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Box flashes when hit"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 743844018505985
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "Boxes",
+							"sid": 204968809081275,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "max(100, Self.Tween.Value(\"Flash\"))"
+							}
+						}
+					],
+					"sid": 199982235323021
+				}
+			],
+			"sid": 196892957234922
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Box Points Texts",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "canvasXRatio",
+					"type": "number",
+					"initialValue": "1",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 316812931886572
+				},
+				{
+					"eventType": "variable",
+					"name": "canvasYRatio",
+					"type": "number",
+					"initialValue": "1",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 122681018855707
+				},
+				{
+					"eventType": "comment",
+					"text": "Update canvas ratio to perform 3D Layer to Canvas calculations correctly"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 867179920219898
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 594996212320387,
+							"parameters": {
+								"variable": "canvasXRatio",
+								"value": "PlatformInfo.CanvasCssWidth/OriginalViewportWidth"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 847893762049781,
+							"parameters": {
+								"variable": "canvasYRatio",
+								"value": "PlatformInfo.CanvasCssHeight/OriginalViewportHeight"
+							}
+						}
+					],
+					"sid": 484977649649144
+				},
+				{
+					"eventType": "comment",
+					"text": "Update TexPoints"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 767700080927344,
+							"parameters": {
+								"object": "TextPoints"
+							}
+						},
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Boxes",
+							"sid": 169137835932360,
+							"parameters": {
+								"unique-id": "TextPoints.associatedUID"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 499177367023826,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If a Box is on-screen, position the TextPoints following the box's position"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-on-screen",
+									"objectClass": "Boxes",
+									"sid": 233690287633294
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Set TextPoint position and size"
+								},
+								{
+									"id": "set-position",
+									"objectClass": "TextPoints",
+									"sid": 162565920100975,
+									"parameters": {
+										"x": "3DCamera.LayerToCanvasX(0, Boxes.X, Boxes.Y, Boxes.ZElevation + 24)/canvasXRatio",
+										"y": "3DCamera.LayerToCanvasY(0, Boxes.X, Boxes.Y, Boxes.ZElevation + 24)/canvasYRatio"
+									}
+								}
+							],
+							"sid": 162409837558932
+						},
+						{
+							"eventType": "comment",
+							"text": "If the Box is off-screen, move the TextPoint outside of the screen"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 585961092505693
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "TextPoints",
+									"sid": 444974868348968,
+									"parameters": {
+										"x": "10000",
+										"y": "10000"
+									}
+								}
+							],
+							"sid": 129615005852463
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Set opacity of TexPoints based on distance between the object and the camera"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 134369594932986,
+							"parameters": {
+								"object": "TextPoints"
+							}
+						},
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Boxes",
+							"sid": 497886900644119,
+							"parameters": {
+								"unique-id": "TextPoints.associatedUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-opacity",
+							"objectClass": "TextPoints",
+							"sid": 988563045252919,
+							"parameters": {
+								"opacity": "max(0, 100 - distance(3DCamera.CameraX, 3DCamera.CameraY, Boxes.X, Boxes.Y)/8)"
+							}
+						}
+					],
+					"sid": 692409776590682
+				}
+			],
+			"sid": 839430112447594
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "World movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player has at least one guy alive"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 726039535716587,
+							"parameters": {
+								"value": "Guy.Count > 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 662654425889722,
+							"parameters": {
+								"variable": "currentSpeed",
+								"value": "2.5 + score/400"
+							}
+						}
+					],
+					"sid": 793208070669431
+				},
+				{
+					"eventType": "comment",
+					"text": "All of player's guys are dead"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 552568786387183
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 642057431356470,
+							"parameters": {
+								"variable": "currentSpeed",
+								"value": "max(0, currentSpeed - 0.075 * 60 * dt)"
+							}
+						}
+					],
+					"sid": 861262378025607
+				},
+				{
+					"eventType": "comment",
+					"text": "Moves the world at a rate that depends on the player's score"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 324964146093012,
+							"parameters": {
+								"variable": "gameStarted"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-y",
+							"objectClass": "Boxes",
+							"sid": 709542845091191,
+							"parameters": {
+								"y": "Self.Y + currentSpeed  * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Ground",
+							"sid": 589063379490795,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + currentSpeed * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "TexBuildingsRightNear",
+							"sid": 548071461343475,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX - currentSpeed  * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "TexBuildingsLeftNear",
+							"sid": 541263119361832,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + currentSpeed  * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "TexBuildingsRightFar",
+							"sid": 542053822062208,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX - currentSpeed  * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "TexBuildingsLeftFar",
+							"sid": 714076156191061,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + currentSpeed  * 60 * dt"
+							}
+						}
+					],
+					"sid": 447464754282535,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 552500066851558,
+									"parameters": {
+										"object": "GuyDead"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-y",
+									"objectClass": "GuyDead",
+									"sid": 107981385106554,
+									"parameters": {
+										"y": "Self.Y + currentSpeed  * 60 * dt"
+									}
+								}
+							],
+							"sid": 599111316494583
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 266206364766547,
+									"parameters": {
+										"object": "SandSmoke"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-y",
+									"objectClass": "SandSmoke",
+									"sid": 601045876767352,
+									"parameters": {
+										"y": "Self.Y + currentSpeed  * 60 * dt"
+									}
+								}
+							],
+							"sid": 940016921793486
+						}
+					]
+				}
+			],
+			"sid": 240218572687855
+		}
+	],
+	"sid": 370525595403214
+}

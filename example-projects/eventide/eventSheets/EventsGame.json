@@ -1,0 +1,3601 @@
+{
+	"name": "EventsGame",
+	"events": [
+		{
+			"eventType": "include",
+			"includeSheet": "EventsPlayer"
+		},
+		{
+			"eventType": "include",
+			"includeSheet": "EventsEnemy"
+		},
+		{
+			"eventType": "comment",
+			"text": "Made by Forsteri Studios\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com"
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "CAMERA_SPEED",
+			"type": "number",
+			"initialValue": "10",
+			"comment": "How fast the camera locks to the player.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 625052999978777
+		},
+		{
+			"eventType": "variable",
+			"name": "CAMERA_Z",
+			"type": "number",
+			"initialValue": "512",
+			"comment": "Camera Z-Elevation.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 791279699064106
+		},
+		{
+			"eventType": "variable",
+			"name": "CAMERA_OFFSET",
+			"type": "number",
+			"initialValue": "192",
+			"comment": "How much the camera offsets when the player moves.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 920707223507527
+		},
+		{
+			"eventType": "variable",
+			"name": "STARTING_TIME",
+			"type": "number",
+			"initialValue": "720",
+			"comment": "Length of a full playthrough",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 208529648330535
+		},
+		{
+			"eventType": "variable",
+			"name": "BGM_GAME_VOLUME",
+			"type": "number",
+			"initialValue": "-15",
+			"comment": "BGM volume (if playing).",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 590697500125974
+		},
+		{
+			"eventType": "variable",
+			"name": "SFX_SKILLS_VOLUME",
+			"type": "number",
+			"initialValue": "-15",
+			"comment": "Skill SFX volume (if playing).",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 635950103375139
+		},
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "killCount",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Number of enemies killed by the player.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 954057897305670
+		},
+		{
+			"eventType": "variable",
+			"name": "inputFocus",
+			"type": "string",
+			"initialValue": "Player",
+			"comment": "Which aspect of the game the player is currently controlling.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 477763176379356
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup variables and audio",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 847664418184284
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Initialize variables."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 759269224413387,
+							"parameters": {
+								"variable": "inputFocus",
+								"value": "\"Player\""
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 125033546885986,
+							"parameters": {
+								"variable": "killCount",
+								"value": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start audio."
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 512535729298134,
+							"parameters": {
+								"audio-file": "hallowquest",
+								"loop": "looping",
+								"volume": "-Infinity",
+								"stereo-pan": "0",
+								"tag-optional": "\"bgm\""
+							}
+						},
+						{
+							"id": "fade-volume",
+							"objectClass": "Audio",
+							"sid": 352017757723477,
+							"parameters": {
+								"tag": "\"bgm\"",
+								"db": "DictProfile.Get(\"Sound\") = 1 ? BGM_GAME_VOLUME : -Infinity",
+								"duration": "1",
+								"ending": "keep-playing"
+							}
+						}
+					],
+					"sid": 831970579506347
+				}
+			],
+			"sid": 883116202800372
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Load data structures",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 349006802186643
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Load skills."
+						},
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 398762959107480,
+							"parameters": {
+								"tag": "\"SkillsDescriptions\"",
+								"file": "SkillsDescriptions.json"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 212240688664003
+						},
+						{
+							"id": "load",
+							"objectClass": "DictSkill",
+							"sid": 690819534811815,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Load wave times."
+						},
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 445189569299760,
+							"parameters": {
+								"tag": "\"WaveTimes\"",
+								"file": "WaveTimes.json"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 174773038016619
+						},
+						{
+							"id": "load",
+							"objectClass": "DictWaveTimes",
+							"sid": 650124772343788,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Load waves."
+						},
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 706465185570365,
+							"parameters": {
+								"tag": "\"Waves\"",
+								"file": "Waves.json"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 554205968038529
+						},
+						{
+							"id": "load",
+							"objectClass": "ArrWaves",
+							"sid": 759124042930242,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						}
+					],
+					"sid": 430066442181073
+				}
+			],
+			"sid": 960596638129920
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup scenario",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Recursive function to create non-overlapping solid props."
+				},
+				{
+					"functionName": "createProp",
+					"functionDescription": "Recursive function to create non-overlapping solid props",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "currentProp",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Current prop being created.",
+							"sid": 109374053189925
+						},
+						{
+							"name": "maxProps",
+							"type": "number",
+							"initialValue": "128",
+							"comment": "Maximum number of props.",
+							"sid": 356737953329988
+						},
+						{
+							"name": "minimumDistance",
+							"type": "number",
+							"initialValue": "512",
+							"comment": "Minimum distance to other props.",
+							"sid": 906816029541205
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 213298507387541,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "posX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Position X",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 470396458819529
+						},
+						{
+							"eventType": "variable",
+							"name": "posY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Position Y",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 606295448585968
+						},
+						{
+							"eventType": "variable",
+							"name": "canCreate",
+							"type": "boolean",
+							"initialValue": "true",
+							"comment": "Can this prop be created?",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 731579587055798
+						},
+						{
+							"eventType": "comment",
+							"text": "Assign a random position."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 778997516599638,
+									"parameters": {
+										"variable": "posX",
+										"value": "random(1920, LayoutWidth - 1920)"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 927394203317469,
+									"parameters": {
+										"variable": "posY",
+										"value": "random(1080, LayoutHeight - 1080)"
+									}
+								}
+							],
+							"sid": 487938263339420
+						},
+						{
+							"eventType": "comment",
+							"text": "Check if position is available."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 173392633785072,
+									"parameters": {
+										"object": "PropCols"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 819442955103335,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 513572815144676,
+											"parameters": {
+												"value": "distance(posX, posY, PropCols.X, PropCols.Y) < minimumDistance"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 803794868415867,
+											"parameters": {
+												"variable": "canCreate",
+												"value": "false"
+											}
+										},
+										{
+											"id": "stop-loop",
+											"objectClass": "System",
+											"sid": 807746463041060
+										}
+									],
+									"sid": 815680630374883
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the position is available, create the prop."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 792461398952400,
+									"parameters": {
+										"variable": "canCreate"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 802519576923086,
+									"parameters": {
+										"object-to-create": "PropCollider",
+										"layer": "\"World\"",
+										"x": "posX",
+										"y": "posY",
+										"create-hierarchy": true,
+										"template-name": "\"prop\" & int(random(6))"
+									}
+								}
+							],
+							"sid": 776669129208900
+						},
+						{
+							"eventType": "comment",
+							"text": "Create next prop."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 349716028108022,
+									"parameters": {
+										"value": "currentProp < maxProps"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 494470562825330,
+									"parameters": {
+										"seconds": "0"
+									}
+								},
+								{
+									"callFunction": "createProp",
+									"sid": 892569626256567,
+									"parameters": [
+										"currentProp + 1",
+										"maxProps",
+										"minimumDistance"
+									]
+								}
+							],
+							"sid": 577096152251797
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Generate random scenario."
+				},
+				{
+					"functionName": "genRandomScenario",
+					"functionDescription": "Generate random scenario",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": true,
+					"functionParameters": [
+						{
+							"name": "withProps",
+							"type": "boolean",
+							"initialValue": "true",
+							"comment": "Also create props",
+							"sid": 726885697910651
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-tile-range",
+							"objectClass": "TileGrass",
+							"sid": 351112392474921,
+							"parameters": {
+								"tile-x": "0",
+								"tile-y": "0",
+								"width": "floor(LayoutWidth / TileGrass.TileWidth)",
+								"height": "floor(LayoutHeight / TileGrass.TileHeight)",
+								"tile": "40",
+								"state": "normal"
+							}
+						}
+					],
+					"sid": 922814528279776,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Generate grass patches."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 423000048549321,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "floor(LayoutWidth / TileGrass.TileWidth)"
+									}
+								},
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 229238194054243,
+									"parameters": {
+										"name": "\"j\"",
+										"start-index": "0",
+										"end-index": "floor(LayoutHeight / TileGrass.TileHeight)"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 218932874570976,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 638198746823169,
+											"parameters": {
+												"value": "round(AdvancedRandom.Voronoi2d(loopindex(\"i\") * 10, loopindex(\"j\") * 10)) = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "erase-tile-with-brush",
+											"objectClass": "TileGrass",
+											"sid": 664326179713367,
+											"parameters": {
+												"tile-x": "loopindex(\"i\")",
+												"tile-y": "loopindex(\"j\")",
+												"brush": {
+													"objectClassName": "TileGrass",
+													"brushName": "GrassBrush"
+												}
+											}
+										}
+									],
+									"sid": 499857903707961
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Generate paths."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 262269362829335,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "floor(LayoutWidth / TileGrass.TileWidth)"
+									}
+								},
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 203747334042731,
+									"parameters": {
+										"name": "\"j\"",
+										"start-index": "0",
+										"end-index": "floor(LayoutHeight / TileGrass.TileHeight)"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 233975138656673,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 119612324318980,
+											"parameters": {
+												"value": "round(AdvancedRandom.Ridged2d(loopindex(\"i\") * 10, loopindex(\"j\") * 10)) = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-tile-with-brush",
+											"objectClass": "TilePaths",
+											"sid": 236716787813935,
+											"parameters": {
+												"tile-x": "loopindex(\"i\")",
+												"tile-y": "loopindex(\"j\")",
+												"brush": {
+													"objectClassName": "TilePaths",
+													"brushName": "PathBrush"
+												}
+											}
+										}
+									],
+									"sid": 142883416189709
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Generate flowery patches."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 991036324872988,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "floor(LayoutWidth / TileGrass.TileWidth)"
+									}
+								},
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 873449855502151,
+									"parameters": {
+										"name": "\"j\"",
+										"start-index": "0",
+										"end-index": "floor(LayoutHeight / TileGrass.TileHeight)"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 718335680667643,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 394002198906496,
+											"parameters": {
+												"value": "round(AdvancedRandom.Ridged2d(loopindex(\"i\") * 20, loopindex(\"j\") * 20)) = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-tile-with-brush",
+											"objectClass": "TilePlants",
+											"sid": 668375797427424,
+											"parameters": {
+												"tile-x": "loopindex(\"i\")",
+												"tile-y": "loopindex(\"j\")",
+												"brush": {
+													"objectClassName": "TilePlants",
+													"brushName": "PathBrush"
+												}
+											}
+										}
+									],
+									"sid": 532376802619481
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Check if this generation should consider props."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 594112836694656,
+									"parameters": {
+										"value": "withProps"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 287534106477780,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Generate bushes."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 224713147646042,
+											"parameters": {
+												"name": "\"Bush\"",
+												"start-index": "1",
+												"end-index": "1600"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 442958474674509,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 333250142846182,
+													"parameters": {
+														"value": "random(10) < 5"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 838250658724223,
+													"parameters": {
+														"object-to-create": "Bush",
+														"layer": "\"World\"",
+														"x": "random(0, LayoutWidth)",
+														"y": "random(0, LayoutHeight)",
+														"create-hierarchy": false,
+														"template-name": "\"bush\" & floor(random(10))"
+													}
+												}
+											],
+											"sid": 800451592674394
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 709308706846592
+												}
+											],
+											"actions": [],
+											"sid": 199342704745181,
+											"children": [
+												{
+													"eventType": "variable",
+													"name": "centerX",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "Central X position to spawn a patch of bushes.",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 124846032037431
+												},
+												{
+													"eventType": "variable",
+													"name": "centerY",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "Central Y position to spawn a patch of bushes.",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 616288485150916
+												},
+												{
+													"eventType": "variable",
+													"name": "randomAmt",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "Random amount of bushes to spawn",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 908943885079196
+												},
+												{
+													"eventType": "variable",
+													"name": "randomOffset",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "Random angle offset for batch generation.",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 598641430214846
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 371713826829717,
+															"parameters": {
+																"variable": "centerX",
+																"value": "random(0, LayoutWidth)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 227308275102889,
+															"parameters": {
+																"variable": "centerY",
+																"value": "random(0, LayoutHeight)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 611975842248662,
+															"parameters": {
+																"variable": "randomAmt",
+																"value": "random(2, 5)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 236196934328154,
+															"parameters": {
+																"variable": "randomOffset",
+																"value": "random(359)"
+															}
+														}
+													],
+													"sid": 574335700692448
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "for",
+															"objectClass": "System",
+															"sid": 893562375955799,
+															"parameters": {
+																"name": "\"i\"",
+																"start-index": "1",
+																"end-index": "randomAmt"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 839825466955289,
+															"parameters": {
+																"object-to-create": "Bush",
+																"layer": "\"World\"",
+																"x": "centerX + cos((360/randomAmt * loopindex(\"i\") + randomOffset) % 360) * random(48, 96)",
+																"y": "centerY + sin((360/randomAmt * loopindex(\"i\") + randomOffset) % 360) * random(48, 96)",
+																"create-hierarchy": false,
+																"template-name": "\"bush\" & floor(random(10))"
+															}
+														}
+													],
+													"sid": 614403037603542
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Generate props."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"callFunction": "createProp",
+											"sid": 549338083388600,
+											"parameters": [
+												"0",
+												"128",
+												"512"
+											]
+										}
+									],
+									"sid": 693069248971814
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup scenario."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 185767607609298
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Generate random scenario."
+						},
+						{
+							"callFunction": "genRandomScenario",
+							"sid": 752420255801238,
+							"parameters": [
+								true
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Hide fader after the scenario has been generated."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 142454206982942
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 530083215653600,
+							"parameters": {
+								"seconds": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 759433837279324,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 965735941059453
+						},
+						{
+							"type": "comment",
+							"text": "Show tutorial."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TutorialUI",
+							"sid": 771160911449432,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowTutorial\"",
+								"property": "offsetY",
+								"end-value": "ViewportBottom(\"InGameUI\") - Self.Height/2",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide tutorial."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 251924589202905
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 603046989008139,
+							"parameters": {
+								"seconds": "7"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TutorialUI",
+							"sid": 901484237666683,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowTutorial\"",
+								"property": "offsetY",
+								"end-value": "ViewportBottom(\"InGameUI\") + Self.Height",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 413770274296137
+				}
+			],
+			"sid": 164637614431750
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "In-game UI",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup starting in-game UI"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 976466694804887
+						}
+					],
+					"actions": [],
+					"sid": 109228035457888,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Setup player health bar."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 642413477890180,
+									"parameters": {
+										"object-to-create": "PlayerHealthbarBG",
+										"layer": "\"InGameUI\"",
+										"x": "0",
+										"y": "0",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 853789211536289,
+									"parameters": {
+										"object-to-create": "PlayerHealthbar",
+										"layer": "\"InGameUI\"",
+										"x": "0",
+										"y": "0",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "PlayerHealthbarBG",
+									"sid": 556650271031803,
+									"parameters": {
+										"child": "PlayerHealthbar",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-o": true,
+										"transform-z-elevation": true,
+										"transform-visibility": true,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "PlayerHealthbar",
+									"sid": 688680381111014,
+									"parameters": {
+										"x": "PlayerHealthbarBG.X + 3",
+										"y": "PlayerHealthbarBG.Y + 3"
+									}
+								}
+							],
+							"sid": 782445008987589
+						},
+						{
+							"eventType": "comment",
+							"text": "Setup skill slots."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-ordered",
+									"objectClass": "System",
+									"sid": 956010005223592,
+									"parameters": {
+										"object": "SkillSlot",
+										"expression": "SkillSlot.TagAt(0)",
+										"order": "ascending"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "SkillSlot",
+									"sid": 379011966335218,
+									"parameters": {
+										"child": "SkillSlotLevel",
+										"which": "own"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 788036015686915,
+									"parameters": {
+										"value": "loopindex > Player.numOfSlots - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-opacity",
+									"objectClass": "SkillSlotLevel",
+									"sid": 665433095467157,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "SkillSlot",
+									"sid": 346348225133369,
+									"parameters": {
+										"animation": "\"Locked\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 330061154129019
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Update healthbar position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 112702280389205
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "PlayerHealthbarBG",
+							"sid": 510885811700609,
+							"parameters": {
+								"x": "3DCamera.LayerToLayerX(\"World\", \"InGameUI\", Player.X, Player.Y, Player.ZElevation) - 48",
+								"y": "3DCamera.LayerToLayerY(\"World\", \"InGameUI\", Player.X, Player.Y, Player.ZElevation)"
+							}
+						}
+					],
+					"sid": 580092291345229
+				}
+			],
+			"sid": 486763156039195
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game Over",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Check if the player earned new skill slots."
+				},
+				{
+					"functionName": "checkNewSlots",
+					"functionDescription": "Check if the player earned new skill slots",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 798231922610943,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "10 Minutes = 6 slots."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "GameManager",
+									"sid": 406863581372243,
+									"parameters": {
+										"instance-variable": "currentTime",
+										"comparison": 2,
+										"value": "STARTING_TIME - 10 * 60"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 565445244684050,
+									"parameters": {
+										"value": "int(DictProfile.Get(\"Slots\")) < 6"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-key",
+									"objectClass": "DictProfile",
+									"sid": 753460460890577,
+									"parameters": {
+										"key": "\"Slots\"",
+										"value": "6"
+									}
+								}
+							],
+							"sid": 564255931825367
+						},
+						{
+							"eventType": "comment",
+							"text": "6 Minutes = 5 slots"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 780473648252740
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "GameManager",
+									"sid": 445718207743961,
+									"parameters": {
+										"instance-variable": "currentTime",
+										"comparison": 2,
+										"value": "STARTING_TIME - 6 * 60"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 989861667441505,
+									"parameters": {
+										"value": "int(DictProfile.Get(\"Slots\")) < 5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-key",
+									"objectClass": "DictProfile",
+									"sid": 257479680601120,
+									"parameters": {
+										"key": "\"Slots\"",
+										"value": "5"
+									}
+								}
+							],
+							"sid": 169638486176771
+						},
+						{
+							"eventType": "comment",
+							"text": "3 Minutes = 4 slots"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 117417038589383
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "GameManager",
+									"sid": 909228862150855,
+									"parameters": {
+										"instance-variable": "currentTime",
+										"comparison": 2,
+										"value": "STARTING_TIME - 3 * 60"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 812654000668519,
+									"parameters": {
+										"value": "int(DictProfile.Get(\"Slots\")) < 4"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-key",
+									"objectClass": "DictProfile",
+									"sid": 675316651732757,
+									"parameters": {
+										"key": "\"Slots\"",
+										"value": "4"
+									}
+								}
+							],
+							"sid": 197848334537199
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Show game over screen."
+				},
+				{
+					"functionName": "gameOver",
+					"functionDescription": "Show game over screen",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 463261604833793,
+							"parameters": {
+								"instance-variable": "invincible"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Stop everything."
+						},
+						{
+							"id": "stop-all-timers",
+							"objectClass": "GameManager",
+							"sid": 485664510763065,
+							"behaviorType": "Timer"
+						},
+						{
+							"id": "stop-all-timers",
+							"objectClass": "Player",
+							"sid": 212883041290633,
+							"behaviorType": "Timer"
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Player",
+							"sid": 729054745076303,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Enemy",
+							"sid": 980663131697170,
+							"behaviorType": "Physics",
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change input focus."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 949384568737341,
+							"parameters": {
+								"variable": "inputFocus",
+								"value": "\"GameOverTransition\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show game over screen."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "GameOverUI",
+							"sid": 138679405109856,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowGameOver\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "SubFader",
+							"sid": 868396763479434,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowSubFader\"",
+								"property": "offsetOpacity",
+								"end-value": "75",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 214309589050103
+				},
+				{
+					"eventType": "comment",
+					"text": "Show game over screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "GameOverUI",
+							"sid": 125406737658246,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowGameOver\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 836870836977224,
+							"parameters": {
+								"variable": "inputFocus",
+								"value": "\"GameOver\""
+							}
+						}
+					],
+					"sid": 198955505676645
+				},
+				{
+					"eventType": "comment",
+					"text": "Progressively reduce timescale."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "GameOverUI",
+							"sid": 323023966466808,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowGameOver\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-time-scale",
+							"objectClass": "System",
+							"sid": 899101853521423,
+							"parameters": {
+								"time-scale": "1 - GameOverUI.Tween.Progress(\"ShowGameOver\")"
+							}
+						},
+						{
+							"id": "set-object-time-scale",
+							"objectClass": "System",
+							"sid": 708689733470871,
+							"parameters": {
+								"object": "GameOverUI",
+								"time-scale": "1.0"
+							}
+						},
+						{
+							"id": "set-object-time-scale",
+							"objectClass": "System",
+							"sid": 398668626228398,
+							"parameters": {
+								"object": "SubFader",
+								"time-scale": "1.0"
+							}
+						}
+					],
+					"sid": 803940074481097
+				},
+				{
+					"eventType": "comment",
+					"text": "Go to the main menu."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 999763718513094,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 756166769660278,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 547638050508080,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 176598796796853,
+									"parameters": {
+										"value": "inputFocus = \"GameOver\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Check for new skill slots."
+								},
+								{
+									"callFunction": "checkNewSlots",
+									"sid": 264539273757137
+								},
+								{
+									"type": "comment",
+									"text": "Add souls according to the number of kills."
+								},
+								{
+									"id": "set-key",
+									"objectClass": "DictProfile",
+									"sid": 299192122181510,
+									"parameters": {
+										"key": "\"Souls\"",
+										"value": "min(int(Self.Get(\"Souls\")) + int(killCount/3), 99999)"
+									}
+								},
+								{
+									"callFunction": "SaveProfile",
+									"sid": 208129035997839
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 244070182255885
+								},
+								{
+									"type": "comment",
+									"text": "Change input focus."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 310706138762338,
+									"parameters": {
+										"variable": "inputFocus",
+										"value": "\"MenuTransition\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade out music."
+								},
+								{
+									"id": "fade-volume",
+									"objectClass": "Audio",
+									"sid": 630187479282492,
+									"parameters": {
+										"tag": "\"bgm\"",
+										"db": "-Infinity",
+										"duration": "1",
+										"ending": "stop"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show fader."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 152870427500785,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-object-time-scale",
+									"objectClass": "System",
+									"sid": 982884499908466,
+									"parameters": {
+										"object": "Fader",
+										"time-scale": "1.0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Go to the main menu."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 433103253402215
+								},
+								{
+									"id": "set-time-scale",
+									"objectClass": "System",
+									"sid": 116244633564335,
+									"parameters": {
+										"time-scale": "1.0"
+									}
+								},
+								{
+									"id": "go-to-layout",
+									"objectClass": "System",
+									"sid": 480141604367484,
+									"parameters": {
+										"layout": "MainMenu"
+									}
+								}
+							],
+							"sid": 270731260622967
+						}
+					],
+					"isOrBlock": true
+				}
+			],
+			"sid": 964925893665526
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Pause",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Pause the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 525769398340547,
+							"parameters": {
+								"key": 27
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 760528684360133,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 864560079980359,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 845825743625458,
+									"parameters": {
+										"value": "inputFocus = \"Player\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Make the player temporarily invincible."
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 550536517437251,
+									"parameters": {
+										"instance-variable": "invincible",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play cancel audio."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 105892489812756,
+									"parameters": {
+										"audio-file": "menu_cancel",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Change input focus."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 786521029137202,
+									"parameters": {
+										"variable": "inputFocus",
+										"value": "\"PauseTransition\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show pause UI."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PauseUI",
+									"sid": 722372156727800,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowPause\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "SubFader",
+									"sid": 623381710340062,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowSubFader\"",
+										"property": "offsetOpacity",
+										"end-value": "75",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 508923071021935,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Set selection."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 651682616754799,
+											"parameters": {
+												"object": "PauseIcon",
+												"expression": "PauseIcon.TagAt(0) = \"0\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "PauseSelection",
+											"sid": 413839763032684,
+											"parameters": {
+												"x": "PauseIcon.X",
+												"y": "PauseIcon.Y"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "PauseSelection",
+											"sid": 705035592945317,
+											"parameters": {
+												"instance-variable": "current",
+												"value": "int(PauseIcon.TagAt(0))"
+											}
+										}
+									],
+									"sid": 306791103119621
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Open pause menu."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PauseUI",
+							"sid": 449502226969458,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowPause\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Remove player's invincibility."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 844723121671361,
+							"parameters": {
+								"instance-variable": "invincible",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change input focus."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 734002059562528,
+							"parameters": {
+								"variable": "inputFocus",
+								"value": "\"Pause\""
+							}
+						}
+					],
+					"sid": 692258937316161
+				},
+				{
+					"eventType": "comment",
+					"text": "Progressively reduce timescale."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PauseUI",
+							"sid": 467650925213769,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowPause\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-time-scale",
+							"objectClass": "System",
+							"sid": 651386882813517,
+							"parameters": {
+								"time-scale": "1 - PauseUI.Tween.Progress(\"ShowPause\")"
+							}
+						},
+						{
+							"id": "set-object-time-scale",
+							"objectClass": "System",
+							"sid": 773717877534872,
+							"parameters": {
+								"object": "PauseUI",
+								"time-scale": "1.0"
+							}
+						},
+						{
+							"id": "set-object-time-scale",
+							"objectClass": "System",
+							"sid": 973092120101134,
+							"parameters": {
+								"object": "SubFader",
+								"time-scale": "1.0"
+							}
+						}
+					],
+					"sid": 430751150353804
+				},
+				{
+					"eventType": "comment",
+					"text": "Change selection."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 924257642629530,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 549972473426598,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-left"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 415003256961612,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 499159483066249,
+									"parameters": {
+										"value": "inputFocus = \"Pause\""
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 788063550746355,
+									"parameters": {
+										"object": "PauseIcon",
+										"expression": "PauseIcon.TagAt(0) = \"0\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play change audio."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 692148594499223,
+									"parameters": {
+										"audio-file": "menu_change",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "PauseSelection",
+									"sid": 506432519080550,
+									"parameters": {
+										"instance-variable": "current",
+										"value": "0"
+									}
+								},
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "PauseSelection",
+									"sid": 659738464778874,
+									"parameters": {
+										"object": "PauseIcon",
+										"image-point-optional": "0"
+									}
+								}
+							],
+							"sid": 271281936297326
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 882731791677968,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 184679595207589,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-right"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 116097600545088,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 824132494366341,
+									"parameters": {
+										"value": "inputFocus = \"Pause\""
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 750155789147703,
+									"parameters": {
+										"object": "PauseIcon",
+										"expression": "PauseIcon.TagAt(0) = \"1\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play change audio."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 963272537091881,
+									"parameters": {
+										"audio-file": "menu_change",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "PauseSelection",
+									"sid": 619111367452172,
+									"parameters": {
+										"instance-variable": "current",
+										"value": "1"
+									}
+								},
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "PauseSelection",
+									"sid": 817568433884204,
+									"parameters": {
+										"object": "PauseIcon",
+										"image-point-optional": "0"
+									}
+								}
+							],
+							"sid": 549905064648026
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Confirm selection."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 303229316643868,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 610249895662964,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 883220151118525,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 834297129630991,
+									"parameters": {
+										"value": "inputFocus = \"Pause\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 637910223401691,
+									"parameters": {
+										"variable": "inputFocus",
+										"value": "\"PauseTransition\""
+									}
+								}
+							],
+							"sid": 408791005372584,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Unpause."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "PauseSelection",
+											"sid": 510503726933524,
+											"parameters": {
+												"instance-variable": "current",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Play cancel audio."
+										},
+										{
+											"id": "play",
+											"objectClass": "Audio",
+											"sid": 132712489939693,
+											"parameters": {
+												"audio-file": "menu_cancel",
+												"loop": "not-looping",
+												"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_VOLUME : -Infinity",
+												"stereo-pan": "0",
+												"tag-optional": "\"sfx\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Hide pause UI."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "PauseUI",
+											"sid": 155144383268166,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"HidePause\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.5",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "SubFader",
+											"sid": 103003108546729,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"HideSubFader\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.5",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 937748247402340
+								},
+								{
+									"eventType": "comment",
+									"text": "Go back to the main menu."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 810326216483481
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Play accept audio."
+										},
+										{
+											"id": "play",
+											"objectClass": "Audio",
+											"sid": 878975255897930,
+											"parameters": {
+												"audio-file": "menu_accept",
+												"loop": "not-looping",
+												"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_VOLUME : -Infinity",
+												"stereo-pan": "0",
+												"tag-optional": "\"sfx\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Change input focus."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 394175549228467,
+											"parameters": {
+												"variable": "inputFocus",
+												"value": "\"MenuTransition\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Fade out music."
+										},
+										{
+											"id": "fade-volume",
+											"objectClass": "Audio",
+											"sid": 759955301208756,
+											"parameters": {
+												"tag": "\"bgm\"",
+												"db": "-Infinity",
+												"duration": "1",
+												"ending": "stop"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Hide game."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Fader",
+											"sid": 382567791387167,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShowFader\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "set-object-time-scale",
+											"objectClass": "System",
+											"sid": 847450563055058,
+											"parameters": {
+												"object": "Fader",
+												"time-scale": "1.0"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Go to the main menu."
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 438585744069952
+										},
+										{
+											"id": "set-time-scale",
+											"objectClass": "System",
+											"sid": 101954457315468,
+											"parameters": {
+												"time-scale": "1.0"
+											}
+										},
+										{
+											"id": "go-to-layout",
+											"objectClass": "System",
+											"sid": 652193765288318,
+											"parameters": {
+												"layout": "MainMenu"
+											}
+										}
+									],
+									"sid": 537089226660626
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Resume game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 712700577464916,
+							"parameters": {
+								"key": 27
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 745170353565719,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 758390850039667,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 395969281080131,
+									"parameters": {
+										"value": "inputFocus = \"Pause\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play cancel audio."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 581670755870152,
+									"parameters": {
+										"audio-file": "menu_cancel",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Change input focus."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 224232512449391,
+									"parameters": {
+										"variable": "inputFocus",
+										"value": "\"PauseTransition\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide pause UI."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PauseUI",
+									"sid": 134790676013161,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HidePause\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "SubFader",
+									"sid": 760378256974862,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideSubFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 301919846713861
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Go back to gameplay."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PauseUI",
+							"sid": 704478550246420,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HidePause\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 937865148853167,
+							"parameters": {
+								"variable": "inputFocus",
+								"value": "\"Player\""
+							}
+						}
+					],
+					"sid": 333717036276689
+				},
+				{
+					"eventType": "comment",
+					"text": "Progressively increase timescale."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PauseUI",
+							"sid": 615211804298424,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HidePause\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-time-scale",
+							"objectClass": "System",
+							"sid": 811715109015191,
+							"parameters": {
+								"time-scale": "PauseUI.Tween.Progress(\"HidePause\")"
+							}
+						},
+						{
+							"id": "set-object-time-scale",
+							"objectClass": "System",
+							"sid": 259335311579765,
+							"parameters": {
+								"object": "PauseUI",
+								"time-scale": "1.0"
+							}
+						},
+						{
+							"id": "set-object-time-scale",
+							"objectClass": "System",
+							"sid": 824393265818562,
+							"parameters": {
+								"object": "SubFader",
+								"time-scale": "1.0"
+							}
+						}
+					],
+					"sid": 410538781195532
+				}
+			],
+			"sid": 750198500369081
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "camX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Camera X.",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 605925991553016
+				},
+				{
+					"eventType": "variable",
+					"name": "camY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Camera Y.",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 554938130559739
+				},
+				{
+					"eventType": "variable",
+					"name": "offsetY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Camera Y offset.",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 632395881752322
+				},
+				{
+					"eventType": "comment",
+					"text": "Update camera position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 396234025327356
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 117275114498318,
+							"parameters": {
+								"variable": "camX",
+								"value": "Player.X"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 990274370650611,
+							"parameters": {
+								"variable": "camY",
+								"value": "Player.Y"
+							}
+						}
+					],
+					"sid": 858698749603914,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When the player is moving down, shift the camera down for better visualization."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 446848419055363,
+									"parameters": {
+										"value": "Player.8Direction.VectorY > 10"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 152781205243339,
+									"parameters": {
+										"variable": "offsetY",
+										"value": "lerp(offsetY, CAMERA_OFFSET, CAMERA_SPEED/2 * dt)"
+									}
+								}
+							],
+							"sid": 786306157891699
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, return the camera to its original position."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 239980194116095
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 537100041688326,
+									"parameters": {
+										"variable": "offsetY",
+										"value": "lerp(offsetY, 0, CAMERA_SPEED/3 * dt)"
+									}
+								}
+							],
+							"sid": 952562167953130
+						},
+						{
+							"eventType": "comment",
+							"text": "Apply camera movement."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "look-at-position",
+									"objectClass": "3DCamera",
+									"sid": 299652983344148,
+									"parameters": {
+										"cam-x": "lerp(3DCamera.CameraX, camX, CAMERA_SPEED * dt)",
+										"cam-y": "lerp(3DCamera.CameraY, camY + 448 + offsetY, CAMERA_SPEED  * dt)",
+										"cam-z": "lerp(3DCamera.CameraZ, CAMERA_Z, CAMERA_SPEED  * dt)",
+										"look-x": "lerp(3DCamera.LookX, camX, CAMERA_SPEED  * dt)",
+										"look-y": "lerp(3DCamera.LookY, camY + offsetY, CAMERA_SPEED  * dt)",
+										"look-z": "Player.ZElevation",
+										"up-x": "0",
+										"up-y": "0",
+										"up-z": "1"
+									}
+								}
+							],
+							"sid": 551855558888301
+						}
+					]
+				}
+			],
+			"sid": 633310037337626
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game Time",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Finish game and show credits screen.."
+				},
+				{
+					"functionName": "showCredits",
+					"functionDescription": "Finish game and show credits screen",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Stop everything."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 355936368304238,
+							"parameters": {
+								"instance-variable": "invincible",
+								"value": "true"
+							}
+						},
+						{
+							"id": "stop-all-timers",
+							"objectClass": "GameManager",
+							"sid": 456583021819174,
+							"behaviorType": "Timer"
+						},
+						{
+							"id": "stop-all-timers",
+							"objectClass": "Player",
+							"sid": 665861002234473,
+							"behaviorType": "Timer"
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Player",
+							"sid": 467084857723318,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "TexPlayer",
+							"sid": 453266853674808,
+							"parameters": {
+								"animation": "\"Idle_0\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Enemy",
+							"sid": 434841078972783,
+							"behaviorType": "Physics",
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change input focus."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 892367626083576,
+							"parameters": {
+								"variable": "inputFocus",
+								"value": "\"SuccessTransition\""
+							}
+						}
+					],
+					"sid": 462335088861431,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Kill all remaining enemies."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 696273307654650,
+									"parameters": {
+										"object": "Enemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Hit",
+									"objectClass": "Enemy",
+									"sid": 236072841775019,
+									"parameters": [
+										"999999"
+									]
+								}
+							],
+							"sid": 472329473794568
+						},
+						{
+							"eventType": "comment",
+							"text": "Show credits."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Check for new skill slots."
+								},
+								{
+									"callFunction": "checkNewSlots",
+									"sid": 159378448948215
+								},
+								{
+									"type": "comment",
+									"text": "Add souls according to the number of kills."
+								},
+								{
+									"id": "set-key",
+									"objectClass": "DictProfile",
+									"sid": 352189751211771,
+									"parameters": {
+										"key": "\"Souls\"",
+										"value": "int(Self.Get(\"Souls\")) + int(killCount/3)"
+									}
+								},
+								{
+									"callFunction": "SaveProfile",
+									"sid": 762056742095487
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 881597323782049
+								},
+								{
+									"type": "comment",
+									"text": "Go to credits screen."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 746739548145316,
+									"parameters": {
+										"seconds": "2.0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade out music."
+								},
+								{
+									"id": "fade-volume",
+									"objectClass": "Audio",
+									"sid": 361647820999622,
+									"parameters": {
+										"tag": "\"bgm\"",
+										"db": "-Infinity",
+										"duration": "2",
+										"ending": "stop"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 183193018084498,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "2",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 809995865743337
+								},
+								{
+									"id": "go-to-layout",
+									"objectClass": "System",
+									"sid": 794450708857467,
+									"parameters": {
+										"layout": "Credits"
+									}
+								}
+							],
+							"sid": 651502832268104
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup enemy system."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 491100780917519
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Setup timer and countdown timer text."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "GameManager",
+							"sid": 176080958677088,
+							"parameters": {
+								"instance-variable": "currentTime",
+								"value": "STARTING_TIME"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextCountdown",
+							"sid": 948028906111055,
+							"parameters": {
+								"text": "zeropad(int(GameManager.currentTime/60), 2) & \":\" & zeropad(int(GameManager.currentTime % 60), 2)"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 840449435858911,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1",
+								"type": "regular",
+								"tag": "\"TimeTick\""
+							}
+						}
+					],
+					"sid": 800753817659236
+				},
+				{
+					"eventType": "comment",
+					"text": "Tick time."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 851636008651993,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"TimeTick\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "GameManager",
+							"sid": 312545583564616,
+							"parameters": {
+								"instance-variable": "currentTime",
+								"value": "max(Self.currentTime - 1, 0)"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextCountdown",
+							"sid": 658617482926953,
+							"parameters": {
+								"text": "zeropad(int(GameManager.currentTime/60), 2) & \":\" & zeropad(int(GameManager.currentTime % 60), 2)"
+							}
+						}
+					],
+					"sid": 142837825552254,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Check for a new wave."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "has-key",
+									"objectClass": "DictWaveTimes",
+									"sid": 814687434342393,
+									"parameters": {
+										"key": "TextCountdown.Text"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Setup wave."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "GameManager",
+									"sid": 926664118527281,
+									"parameters": {
+										"instance-variable": "waveEnemy",
+										"value": "ArrWaves.At(0, int(DictWaveTimes.Get(TextCountdown.Text)))"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "GameManager",
+									"sid": 468615416597660,
+									"parameters": {
+										"instance-variable": "waveAmount",
+										"value": "int(ArrWaves.At(1, int(DictWaveTimes.Get(TextCountdown.Text))))"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "GameManager",
+									"sid": 220355106989733,
+									"parameters": {
+										"instance-variable": "waveFrequency",
+										"value": "float(ArrWaves.At(2, int(DictWaveTimes.Get(TextCountdown.Text))))"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Start wave."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "GameManager",
+									"sid": 265731448540117,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "Self.waveFrequency",
+										"type": "once",
+										"tag": "\"SpawnEnemy\""
+									}
+								}
+							],
+							"sid": 921058607434416
+						},
+						{
+							"eventType": "comment",
+							"text": "Check for the end of the game."
+						},
+						{
+							"bookmark": true,
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-text",
+									"objectClass": "TextCountdown",
+									"sid": 652495158602200,
+									"parameters": {
+										"text-to-compare": "\"00:00\"",
+										"case-sensitivity": "ignore-case"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Player",
+									"sid": 247838004219633,
+									"parameters": {
+										"instance-variable": "hp",
+										"comparison": 4,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "showCredits",
+									"sid": 547031846137781
+								}
+							],
+							"sid": 798142624659088
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn enemy."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 558439899013472,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SpawnEnemy\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "spawnEnemy",
+							"sid": 861459735577821,
+							"parameters": [
+								"GameManager.waveEnemy"
+							]
+						},
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "GameManager",
+							"sid": 552064408394373,
+							"parameters": {
+								"instance-variable": "waveAmount",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 799078169262300,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Keep spawning enemies until waveAmount = 0."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "GameManager",
+									"sid": 578232940539871,
+									"parameters": {
+										"instance-variable": "waveAmount",
+										"comparison": 4,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "GameManager",
+									"sid": 159462620312796,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "Self.waveFrequency",
+										"type": "once",
+										"tag": "\"SpawnEnemy\""
+									}
+								}
+							],
+							"sid": 419716186032111
+						}
+					]
+				}
+			],
+			"sid": 634085209098403
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Effects",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Muzzle flash",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Spawn projectile hit."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Spawn MuzzleFlash",
+							"objectClass": "MuzzleFlash",
+							"functionDescription": "Spawn muzzle flash",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "xPos",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "X position",
+									"sid": 327337891816834
+								},
+								{
+									"name": "yPos",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Y position",
+									"sid": 129534547317065
+								},
+								{
+									"name": "zPos",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Z position",
+									"sid": 391901668535475
+								},
+								{
+									"name": "type",
+									"type": "string",
+									"initialValue": "MagicMissile",
+									"comment": "Projectile hit type",
+									"sid": 138795041892727
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 582630105318223,
+									"parameters": {
+										"object-to-create": "MuzzleFlash",
+										"layer": "\"Effects\"",
+										"x": "xPos",
+										"y": "yPos",
+										"create-hierarchy": false,
+										"template-name": "type"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "MuzzleFlash",
+									"sid": 244156309672544,
+									"parameters": {
+										"instance-variable": "xPos",
+										"value": "xPos"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "MuzzleFlash",
+									"sid": 135443721016991,
+									"parameters": {
+										"instance-variable": "yPos",
+										"value": "yPos"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "MuzzleFlash",
+									"sid": 983431016678498,
+									"parameters": {
+										"instance-variable": "zPos",
+										"value": "zPos"
+									}
+								}
+							],
+							"sid": 195743323948230
+						},
+						{
+							"eventType": "comment",
+							"text": "Update projectile hit position on screen."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 617642537375635,
+									"parameters": {
+										"object": "MuzzleFlash"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "MuzzleFlash",
+									"sid": 868737375125059,
+									"parameters": {
+										"x": "3DCamera.LayerToLayerX(\"World\", \"Effects\", Self.xPos, Self.yPos, Self.zPos)",
+										"y": "3DCamera.LayerToLayerY(\"World\", \"Effects\", Self.xPos, Self.yPos, Self.zPos)"
+									}
+								}
+							],
+							"sid": 758991218450921
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy impact sprite after animation ends."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-any-animation-finished",
+									"objectClass": "MuzzleFlash",
+									"sid": 339908865953326
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "MuzzleFlash",
+									"sid": 677864913070482
+								}
+							],
+							"sid": 417960536771137
+						}
+					],
+					"sid": 623047308458202
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Projectile Hit",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Spawn projectile hit."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Spawn ProjectileHit",
+							"objectClass": "ProjectileHit",
+							"functionDescription": "Spawn projectile hit",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "xPos",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "X position",
+									"sid": 450094604778035
+								},
+								{
+									"name": "yPos",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Y position",
+									"sid": 769887660240523
+								},
+								{
+									"name": "zPos",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Z position",
+									"sid": 919097537246349
+								},
+								{
+									"name": "type",
+									"type": "string",
+									"initialValue": "MagicMissile",
+									"comment": "Projectile hit type",
+									"sid": 558632982580330
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 979190950323673,
+									"parameters": {
+										"object-to-create": "ProjectileHit",
+										"layer": "\"Effects\"",
+										"x": "xPos",
+										"y": "yPos",
+										"create-hierarchy": false,
+										"template-name": "type"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "ProjectileHit",
+									"sid": 750310995321145,
+									"parameters": {
+										"instance-variable": "xPos",
+										"value": "xPos"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "ProjectileHit",
+									"sid": 474824460688985,
+									"parameters": {
+										"instance-variable": "yPos",
+										"value": "yPos"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "ProjectileHit",
+									"sid": 443155435092134,
+									"parameters": {
+										"instance-variable": "zPos",
+										"value": "zPos"
+									}
+								}
+							],
+							"sid": 194456109661167
+						},
+						{
+							"eventType": "comment",
+							"text": "Update projectile hit position on screen."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 104377995757342,
+									"parameters": {
+										"object": "ProjectileHit"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "ProjectileHit",
+									"sid": 843118753723738,
+									"parameters": {
+										"x": "3DCamera.LayerToLayerX(\"World\", \"Effects\", Self.xPos, Self.yPos, Self.zPos)",
+										"y": "3DCamera.LayerToLayerY(\"World\", \"Effects\", Self.xPos, Self.yPos, Self.zPos)"
+									}
+								}
+							],
+							"sid": 926847510492945
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy impact sprite after animation ends."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-any-animation-finished",
+									"objectClass": "ProjectileHit",
+									"sid": 815001736652908
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "ProjectileHit",
+									"sid": 401319868250868
+								}
+							],
+							"sid": 354660090515654
+						}
+					],
+					"sid": 382581609996530
+				}
+			],
+			"sid": 679287739627423
+		}
+	],
+	"sid": 147861416057517
+}

@@ -1,0 +1,430 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "EnemySpawnTime",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "Seconds interval between spawning a new enemy.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 219748583094263
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Enemy control",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Kick off the first enemy moving. Note that 'Find path' takes some time to complete. The system 'Wait for previous actions to complete' action ensures the 'Find path' has finished calculating a route before moving on to the 'Move along path' action."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 991770033660769
+						}
+					],
+					"actions": [
+						{
+							"id": "find-path",
+							"objectClass": "Enemy",
+							"sid": 868229457336675,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"x": "EnemyTarget.X",
+								"y": "EnemyTarget.Y"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 130630869543076
+						},
+						{
+							"id": "move-along-path",
+							"objectClass": "Enemy",
+							"sid": 821325014688471,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"sid": 604723730995161
+				},
+				{
+					"eventType": "comment",
+					"text": "Every 2 seconds, but gradually reducing the interval, spawn a new enemy and move it to the target."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 393966157724234,
+							"parameters": {
+								"interval-seconds": "EnemySpawnTime"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "EnemySpawner",
+							"sid": 713552564745930,
+							"parameters": {
+								"object": "Enemy",
+								"layer": "\"Game\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "find-path",
+							"objectClass": "Enemy",
+							"sid": 103126766716461,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"x": "EnemyTarget.X",
+								"y": "EnemyTarget.Y"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 236019450965409
+						},
+						{
+							"id": "move-along-path",
+							"objectClass": "Enemy",
+							"sid": 772456115800169,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"sid": 861676579457908,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Every time an enemy spawn, the spawn interval reduces slightly.  This makes them very gradually come faster!  Make sure it doesn't go below every 0.5 seconds though."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 446660242937817,
+									"parameters": {
+										"variable": "EnemySpawnTime",
+										"comparison": 4,
+										"value": "0.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 123056810086567,
+									"parameters": {
+										"variable": "EnemySpawnTime",
+										"value": "0.01"
+									}
+								}
+							],
+							"sid": 133371647119058
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When bullets hit enemies, make it subtract from health and spawn some particles."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Bullet",
+							"sid": 466891102034921,
+							"parameters": {
+								"object": "Enemy"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "Enemy",
+							"sid": 878607188495006,
+							"parameters": {
+								"instance-variable": "health",
+								"value": "1"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 958456731938381
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Bullet",
+							"sid": 494151218755977,
+							"parameters": {
+								"object": "BulletImpactParticles",
+								"layer": "\"Game\"",
+								"image-point": "1"
+							}
+						}
+					],
+					"sid": 364421028838959
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy enemies with no health left, throwing in a particles effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Enemy",
+							"sid": 241418866620985,
+							"parameters": {
+								"instance-variable": "health",
+								"comparison": 3,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Enemy",
+							"sid": 357941761017186,
+							"parameters": {
+								"object": "EnemyDeadParticles",
+								"layer": "\"Game\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Enemy",
+							"sid": 987164200289021
+						}
+					],
+					"sid": 777290698054074
+				},
+				{
+					"eventType": "comment",
+					"text": "When an enemy reaches the target, destroy it, but also pick a random turret and destroy that."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Enemy",
+							"sid": 781217764526962,
+							"parameters": {
+								"object": "EnemyTarget"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Enemy",
+							"sid": 218215841641241
+						}
+					],
+					"sid": 456740824586312,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-random-instance",
+									"objectClass": "System",
+									"sid": 916874982279791,
+									"parameters": {
+										"object": "Turret"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Turret",
+									"sid": 468279116947284
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Turret",
+									"sid": 645520323785034,
+									"parameters": {
+										"object": "EnemyDeadParticles",
+										"layer": "\"Game\"",
+										"image-point": "0"
+									}
+								}
+							],
+							"sid": 706846313651642
+						}
+					]
+				}
+			],
+			"sid": 850363051532598
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Turret control",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Tell the turrets to target the enemies."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 627410859909603
+						}
+					],
+					"actions": [
+						{
+							"id": "add-object-to-target",
+							"objectClass": "Turret",
+							"sid": 693130630459185,
+							"behaviorType": "Turret",
+							"parameters": {
+								"target": "Enemy"
+							}
+						}
+					],
+					"sid": 592003892813498
+				},
+				{
+					"eventType": "comment",
+					"text": "When shooting, spawn a bullet."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-shoot",
+							"objectClass": "Turret",
+							"sid": 818028919705720,
+							"behaviorType": "Turret"
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Turret",
+							"sid": 362043111846009,
+							"parameters": {
+								"object": "Bullet",
+								"layer": "\"Game\"",
+								"image-point": "1"
+							}
+						}
+					],
+					"sid": 604486579436685
+				},
+				{
+					"eventType": "comment",
+					"text": "To prevent bullets that miss flying across the whole screen, destroy them when they've travelled out of range."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-distance-travelled",
+							"objectClass": "Bullet",
+							"sid": 326565496004245,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"comparison": 5,
+								"distance": "100"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 882955444151851
+						}
+					],
+					"sid": 952463111197159
+				},
+				{
+					"eventType": "comment",
+					"text": "Create new turrets by touching the walls."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 196993271211757,
+							"parameters": {
+								"object": "Wall"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 786339078767911,
+							"parameters": {
+								"object-to-create": "Turret",
+								"layer": "\"Game\"",
+								"x": "round((Touch.X - 16) / 32) * 32 + 16",
+								"y": "round((Touch.Y - 16) / 32) * 32 + 16"
+							}
+						}
+					],
+					"sid": 525863487144324
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Turret",
+							"sid": 351876511784967,
+							"parameters": {
+								"object": "Turret"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Turret",
+							"sid": 615780807564669
+						}
+					],
+					"sid": 731747610910838
+				}
+			],
+			"sid": 993972865474410
+		}
+	],
+	"sid": 259881592841642
+}

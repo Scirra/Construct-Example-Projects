@@ -1,0 +1,495 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "TotalDistance",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The total distance flown so far, in pixels.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 4015867643157149
+		},
+		{
+			"eventType": "variable",
+			"name": "NextBlockX",
+			"type": "number",
+			"initialValue": "665",
+			"comment": "The X co-ordinate where to create the next block",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 5327114571015895
+		},
+		{
+			"eventType": "variable",
+			"name": "TopSpawnerTargetY",
+			"type": "number",
+			"initialValue": "40",
+			"comment": "The Y co-ordinate to slide the top block spawner to.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 3439610980831968
+		},
+		{
+			"eventType": "variable",
+			"name": "BottomSpawnerTargetY",
+			"type": "number",
+			"initialValue": "308",
+			"comment": "The Y co-ordinate to slide the bottom spawner to.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 726966054651142
+		},
+		{
+			"eventType": "comment",
+			"text": "Make sure everything moves left across the screen (since the default 0 degrees is right)"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 955088681619798
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "TiledBackground",
+					"sid": 2752486826635685,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "180"
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "Block",
+					"sid": 8317104790204248,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "180"
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "Car",
+					"sid": 7041361615359606,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "180"
+					}
+				}
+			],
+			"sid": 4183837126602792
+		},
+		{
+			"eventType": "comment",
+			"text": "Wrap the scrolling background infinitely by moving it back after it's scrolled the width of the main image to the left."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-x",
+					"objectClass": "TiledBackground",
+					"sid": 243316901774439,
+					"parameters": {
+						"comparison": 3,
+						"x-co-ordinate": "-Self.Width / 2"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "TiledBackground",
+					"sid": 2179266091062072,
+					"parameters": {
+						"x": "Self.X + Self.Width / 2"
+					}
+				}
+			],
+			"sid": 4901695194915258
+		},
+		{
+			"eventType": "comment",
+			"text": "Keep incrementing the current and total distances, and display the total distance in a text object. Move the next block to create position to the left at the same speed the blocks are travelling at."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 2604115586417575
+				}
+			],
+			"actions": [
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 8876768676174938,
+					"parameters": {
+						"variable": "TotalDistance",
+						"value": "Block.Bullet.Speed * dt"
+					}
+				},
+				{
+					"id": "subtract-from-eventvar",
+					"objectClass": "System",
+					"sid": 9086746396162456,
+					"parameters": {
+						"variable": "NextBlockX",
+						"value": "Block.Bullet.Speed * dt"
+					}
+				}
+			],
+			"sid": 4253018152795163
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 310284521710728,
+					"parameters": {
+						"interval-seconds": "0.25"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "DistanceDisplay",
+					"sid": 9060271483953864,
+					"parameters": {
+						"text": "round(TotalDistance)"
+					}
+				}
+			],
+			"sid": 6384751921016593
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the position of the NextBlockX comes on-screen, it is time to create a new block. Create one by both the top and bottom spawners, and then move the next block position back to the right by a block width."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 1221211516252535,
+					"parameters": {
+						"variable": "NextBlockX",
+						"comparison": 3,
+						"value": "LayoutWidth"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 4243493428434381,
+					"parameters": {
+						"variable": "NextBlockX",
+						"value": "Block.Width"
+					}
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 5832322299833301,
+					"parameters": {
+						"object-to-create": "Block",
+						"layer": "\"Game\"",
+						"x": "NextBlockX",
+						"y": "BottomSpawner.Y"
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "Block",
+					"sid": 8860345936452065,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "180"
+					}
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 2983114908923726,
+					"parameters": {
+						"object-to-create": "Block",
+						"layer": "\"Game\"",
+						"x": "NextBlockX",
+						"y": "TopSpawner.Y - Block.Height"
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "Block",
+					"sid": 5487845817932556,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "180"
+					}
+				}
+			],
+			"sid": 8472449884865165
+		},
+		{
+			"eventType": "comment",
+			"text": "Destroy objects that go off the left of the screen so they don't keep taking up memory or CPU."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-x",
+					"objectClass": "Block",
+					"sid": 6241722876341016,
+					"parameters": {
+						"comparison": 2,
+						"x-co-ordinate": "-Self.Width"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Block",
+					"sid": 8331677903348602
+				}
+			],
+			"sid": 8947566349427732
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-x",
+					"objectClass": "Car",
+					"sid": 9100096579619524,
+					"parameters": {
+						"comparison": 2,
+						"x-co-ordinate": "-Self.Width"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Car",
+					"sid": 1440413197584515
+				}
+			],
+			"sid": 7413881295979181
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player falls off the bottom of the screen or hits an obstacle, restart the game."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-on-screen",
+					"objectClass": "Player",
+					"sid": 3891402514105674,
+					"isInverted": true
+				},
+				{
+					"id": "is-overlapping-another-object",
+					"objectClass": "Player",
+					"sid": 3268957067651103,
+					"parameters": {
+						"object": "Block"
+					}
+				},
+				{
+					"id": "is-overlapping-another-object",
+					"objectClass": "Player",
+					"sid": 6082236182021774,
+					"parameters": {
+						"object": "Car"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "reset-global-variables",
+					"objectClass": "System",
+					"sid": 4956800703100719
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 2073033970558668
+				}
+			],
+			"sid": 8029594871088893,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Make the player fall down unless we're touching the screen (or holding space), in which case accelerate them upwards."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-in-touch",
+					"objectClass": "Touch",
+					"sid": 3949683883546242
+				},
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 9858944201141428,
+					"parameters": {
+						"key": 32
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "accelerate",
+					"objectClass": "Player",
+					"sid": 6722068397895388,
+					"behaviorType": "CustomMovement",
+					"parameters": {
+						"which": "vertically",
+						"acceleration": "-300"
+					}
+				}
+			],
+			"sid": 9234784188668332,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 6093573010861637
+				}
+			],
+			"actions": [
+				{
+					"id": "accelerate",
+					"objectClass": "Player",
+					"sid": 6913827940169972,
+					"behaviorType": "CustomMovement",
+					"parameters": {
+						"which": "vertically",
+						"acceleration": "300"
+					}
+				}
+			],
+			"sid": 3300314078748617
+		},
+		{
+			"eventType": "comment",
+			"text": "Every 3 seconds change the target positions for the top and bottom spawners, and create a car obstacle between the spawners. Move the spawners slowly to their target positions using the Bullet behavior."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 2428439987965399,
+					"parameters": {
+						"interval-seconds": "3"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 5930125933111981,
+					"parameters": {
+						"variable": "TopSpawnerTargetY",
+						"value": "10 + random(140)"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 9412943721530512,
+					"parameters": {
+						"variable": "BottomSpawnerTargetY",
+						"value": "LayoutHeight - 10 - random(140)"
+					}
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 902569345590864,
+					"parameters": {
+						"object-to-create": "Car",
+						"layer": "\"Game\"",
+						"x": "700",
+						"y": "random(TopSpawner.Y, BottomSpawner.Y)"
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "Car",
+					"sid": 3752676017994446,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "180"
+					}
+				}
+			],
+			"sid": 9550552744272268
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 7264893038106845
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "TopSpawner",
+					"sid": 3365451695593123,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "angle(Self.X, Self.Y, Self.X, TopSpawnerTargetY)"
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "BottomSpawner",
+					"sid": 7843323627294521,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "angle(Self.X, Self.Y, Self.X, BottomSpawnerTargetY)"
+					}
+				},
+				{
+					"id": "move-to-top",
+					"objectClass": "Car",
+					"sid": 8332615651950919
+				}
+			],
+			"sid": 6625097159697283
+		}
+	],
+	"sid": 774291012352431
+}

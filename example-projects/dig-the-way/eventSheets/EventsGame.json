@@ -1,0 +1,1732 @@
+{
+	"name": "EventsGame",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "variable",
+			"name": "initialTileCount",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Initial number of non-empty tiles in the tilemap",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 267222919478792
+		},
+		{
+			"eventType": "variable",
+			"name": "touchMode",
+			"type": "string",
+			"initialValue": "pan",
+			"comment": "Will the player pan the screen or drill the dirt when touch is detected?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 743958595306237
+		},
+		{
+			"eventType": "variable",
+			"name": "lastPanPosition",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Last pan (Y) position recorded",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 874704081676895
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tools",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Count number of non-empty spaces in a tilemap."
+				},
+				{
+					"functionName": "countTiles",
+					"functionDescription": "Count number of non-empty spaces in a tilemap",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 418799244200967,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "counter",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Variable to accumulate the number of non-empty tiles",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 184147611981734
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 719623587845718,
+									"parameters": {
+										"name": "\"x\"",
+										"start-index": "0",
+										"end-index": "Dirt.Width/Dirt.TileWidth"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 703912868985161,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 523361493553647,
+											"parameters": {
+												"name": "\"y\"",
+												"start-index": "0",
+												"end-index": "Dirt.Height/Dirt.TileHeight"
+											}
+										},
+										{
+											"id": "compare-tile-at",
+											"objectClass": "Dirt",
+											"sid": 552733559524678,
+											"parameters": {
+												"tile-x": "loopindex(\"x\")",
+												"tile-y": "loopindex(\"y\")",
+												"comparison": 5,
+												"tile": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 827946824676092,
+											"parameters": {
+												"variable": "counter",
+												"value": "1"
+											}
+										}
+									],
+									"sid": 212071210867783
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Return amount of initial tiles."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 912450371942766,
+									"parameters": {
+										"value": "counter"
+									}
+								}
+							],
+							"sid": 677749015694457
+						}
+					]
+				}
+			],
+			"sid": 350655551474874
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Game setup."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 699227716984940
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Get initial tile count."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 242520591901738,
+							"parameters": {
+								"variable": "initialTileCount",
+								"value": "Functions.countTiles"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move miner to the top of the layer."
+						},
+						{
+							"id": "move-to-top",
+							"objectClass": "Miner",
+							"sid": 187768418073970
+						},
+						{
+							"type": "comment",
+							"text": "Create occlusion sprite and make it a child of the miner."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 161270654191252,
+							"parameters": {
+								"object-to-create": "Occlusion",
+								"layer": "\"Game\"",
+								"x": "Miner.X",
+								"y": "Miner.Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Miner",
+							"sid": 354707087881931,
+							"parameters": {
+								"child": "Occlusion",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-o": false,
+								"transform-z-elevation": true,
+								"transform-visibility": false,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show fader."
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "Fader",
+							"sid": 936604798711977,
+							"parameters": {
+								"opacity": "100"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextTutorial",
+							"sid": 312758942654027,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set default touch mode as pan."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 741589020815762,
+							"parameters": {
+								"variable": "touchMode",
+								"value": "\"pan\""
+							}
+						}
+					],
+					"sid": 175706864754405,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Level 1 shows the tutorial."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 920877826352632,
+									"parameters": {
+										"value": "LayoutName <> \"Level1\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Enable player controls and disable tutorial controls."
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 598798457949846,
+									"parameters": {
+										"group-name": "\"Game Controls\"",
+										"state": "activated"
+									}
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 301264573992501,
+									"parameters": {
+										"group-name": "\"Tutorial\"",
+										"state": "deactivated"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade-in."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 168819989354165,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 110637251867819
+						},
+						{
+							"eventType": "comment",
+							"text": "Remaining levels don't."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 679152757940664
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Reset score dictionary."
+								},
+								{
+									"id": "clear",
+									"objectClass": "DictScores",
+									"sid": 468153995934633
+								},
+								{
+									"type": "comment",
+									"text": "Disable player controls and enable tutorial controls."
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 768041803257993,
+									"parameters": {
+										"group-name": "\"Game Controls\"",
+										"state": "deactivated"
+									}
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 937858186550974,
+									"parameters": {
+										"group-name": "\"Tutorial\"",
+										"state": "activated"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide UI."
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "ButtonReset",
+									"sid": 328548857858712,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "ButtonDrill",
+									"sid": 928952161379764,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "ButtonPan",
+									"sid": 705835577183326,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "EnergyBar",
+									"sid": 843014851346748,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "EnergyBarBorder",
+									"sid": 842024059051547,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade-out and show tutorial."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 788354025280004,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DimFader\"",
+										"property": "offsetOpacity",
+										"end-value": "90",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextTutorial",
+									"sid": 742774088133617,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowText\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 842441030439694
+						}
+					]
+				}
+			],
+			"sid": 265769303851857
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tutorial",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player taps the screen while in the tutorial, start the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tap",
+							"objectClass": "Touch",
+							"sid": 640299273807010
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Fade-in."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 502171714252561,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide tutorial text."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTutorial",
+							"sid": 658099820832029,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideText\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show UI."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "EnergyBar",
+							"sid": 489022317465441,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowEnergyBar\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "EnergyBarBorder",
+							"sid": 463266200320465,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowEnergyBar\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "ButtonReset",
+							"sid": 454554073381861,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowReset\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "ButtonDrill",
+							"sid": 462356813636169,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowDrill\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "ButtonPan",
+							"sid": 851491430681463,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowPan\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Enable player controls."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 601203672794945
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 110875066472699,
+							"parameters": {
+								"group-name": "\"Game Controls\"",
+								"state": "activated"
+							}
+						}
+					],
+					"sid": 796797991846936
+				}
+			],
+			"sid": 630814584599372
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game Controls",
+			"description": "",
+			"isActiveOnStart": false,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Pan control",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Start panning."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-nth-touch-start",
+									"objectClass": "Touch",
+									"sid": 321558376432886,
+									"parameters": {
+										"touch-number": "0"
+									}
+								},
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 728196905777462,
+									"parameters": {
+										"object": "ButtonReset"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 315070226291051,
+									"parameters": {
+										"object": "ButtonDrill"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 829593944775170,
+									"parameters": {
+										"object": "ButtonPan"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 934491560400952,
+									"parameters": {
+										"value": "touchMode = \"pan\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 423421128090429,
+									"parameters": {
+										"variable": "lastPanPosition",
+										"value": "Touch.Y"
+									}
+								}
+							],
+							"sid": 812726139571539
+						},
+						{
+							"eventType": "comment",
+							"text": "Pan around"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "has-nth-touch",
+									"objectClass": "Touch",
+									"sid": 853737176901874,
+									"parameters": {
+										"touch-number": "0"
+									}
+								},
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 964019442685082,
+									"parameters": {
+										"object": "ButtonReset"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 323621726383765,
+									"parameters": {
+										"object": "ButtonDrill"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 994635563447352,
+									"parameters": {
+										"object": "ButtonPan"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 247613257339259,
+									"parameters": {
+										"value": "touchMode = \"pan\""
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 461100293920697,
+									"parameters": {
+										"value": "Touch.Y <> lastPanPosition"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "scroll-to-y",
+									"objectClass": "System",
+									"sid": 158771213646768,
+									"parameters": {
+										"y": "scrolly - Touch.Y + lastPanPosition"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 445735156990107,
+									"parameters": {
+										"variable": "lastPanPosition",
+										"value": "Touch.Y"
+									}
+								}
+							],
+							"sid": 319734970311753
+						}
+					],
+					"sid": 261579247558632
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Drill control",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Remove cursor when player is not touching the screen."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "has-nth-touch",
+									"objectClass": "Touch",
+									"sid": 483895023536268,
+									"parameters": {
+										"touch-number": "0"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 762618293605516,
+									"parameters": {
+										"value": "touchMode = \"drill\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "Cursor",
+									"sid": 878710928713606,
+									"parameters": {
+										"x": "-999",
+										"y": "-999"
+									}
+								}
+							],
+							"sid": 534714677160291
+						},
+						{
+							"eventType": "comment",
+							"text": "Remove terrain tiles when the player touch them, as long as the driller still has battery."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "has-nth-touch",
+									"objectClass": "Touch",
+									"sid": 408114854607913,
+									"parameters": {
+										"touch-number": "0"
+									}
+								},
+								{
+									"id": "compare-width",
+									"objectClass": "EnergyBar",
+									"sid": 292104961836350,
+									"parameters": {
+										"comparison": 4,
+										"width": "0"
+									}
+								},
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 488208559970741,
+									"parameters": {
+										"object": "ButtonReset"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 995377065139995,
+									"parameters": {
+										"object": "ButtonDrill"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 814567238904663,
+									"parameters": {
+										"object": "ButtonPan"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 503121343875990,
+									"parameters": {
+										"value": "touchMode = \"drill\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Update energy bar according to the amount of tiles removed by the player."
+								},
+								{
+									"id": "set-width",
+									"objectClass": "EnergyBar",
+									"sid": 937054580246462,
+									"parameters": {
+										"width": "max(Self.ImageWidth - round((initialTileCount - Functions.countTiles)/3), 0)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show cursor."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "Cursor",
+									"sid": 361969236163968,
+									"parameters": {
+										"x": "round(Touch.X / 8) * 8",
+										"y": "round(Touch.Y / 8) * 8"
+									}
+								}
+							],
+							"sid": 462410109479715,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Player remove non-empty tiles with a \"brush\" instead of one by one."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 603599987388282,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "-1",
+												"end-index": "1"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 750132334152636,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Outer edges."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-tile-at",
+													"objectClass": "Dirt",
+													"sid": 861583974698949,
+													"parameters": {
+														"tile-x": "Dirt.PositionToTileX(Touch.X) + 2 * loopindex(\"i\")",
+														"tile-y": "Dirt.PositionToTileY(Touch.Y)",
+														"comparison": 1,
+														"tile": "-1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Destroy tile."
+												},
+												{
+													"id": "erase-tile-with-brush",
+													"objectClass": "Dirt",
+													"sid": 773674631821703,
+													"parameters": {
+														"tile-x": "Dirt.PositionToTileX(Touch.X) + 2 * loopindex(\"i\")",
+														"tile-y": "Dirt.PositionToTileY(Touch.Y)",
+														"brush": {
+															"objectClassName": "Dirt",
+															"brushName": "ATBrush"
+														}
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Create particles."
+												},
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 275896746061730,
+													"parameters": {
+														"object-to-create": "DirtParticles",
+														"layer": "\"Game\"",
+														"x": "Touch.X + 2 * loopindex(\"i\") * 8",
+														"y": "Touch.Y",
+														"create-hierarchy": false,
+														"template-name": "\"\""
+													}
+												}
+											],
+											"sid": 555229370224762
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-tile-at",
+													"objectClass": "Dirt",
+													"sid": 591005649181534,
+													"parameters": {
+														"tile-x": "Dirt.PositionToTileX(Touch.X)",
+														"tile-y": "Dirt.PositionToTileY(Touch.Y)  + 2 * loopindex(\"i\")",
+														"comparison": 1,
+														"tile": "-1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Destroy tile."
+												},
+												{
+													"id": "erase-tile-with-brush",
+													"objectClass": "Dirt",
+													"sid": 158466910620539,
+													"parameters": {
+														"tile-x": "Dirt.PositionToTileX(Touch.X)",
+														"tile-y": "Dirt.PositionToTileY(Touch.Y) + 2 * loopindex(\"i\")",
+														"brush": {
+															"objectClassName": "Dirt",
+															"brushName": "ATBrush"
+														}
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Create particles."
+												},
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 603146706411795,
+													"parameters": {
+														"object-to-create": "DirtParticles",
+														"layer": "\"Game\"",
+														"x": "Touch.X",
+														"y": "Touch.Y + 2 * loopindex(\"i\") * 8",
+														"create-hierarchy": false,
+														"template-name": "\"\""
+													}
+												}
+											],
+											"sid": 538712291494759
+										},
+										{
+											"eventType": "comment",
+											"text": "Inner square."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for",
+													"objectClass": "System",
+													"sid": 407560089930531,
+													"parameters": {
+														"name": "\"j\"",
+														"start-index": "-1",
+														"end-index": "1"
+													}
+												},
+												{
+													"id": "compare-tile-at",
+													"objectClass": "Dirt",
+													"sid": 894429677976100,
+													"parameters": {
+														"tile-x": "Dirt.PositionToTileX(Touch.X) + loopindex(\"i\")",
+														"tile-y": "Dirt.PositionToTileY(Touch.Y) + loopindex(\"j\")",
+														"comparison": 1,
+														"tile": "-1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Destroy tile."
+												},
+												{
+													"id": "erase-tile-with-brush",
+													"objectClass": "Dirt",
+													"sid": 258246108599724,
+													"parameters": {
+														"tile-x": "Dirt.PositionToTileX(Touch.X) + loopindex(\"i\")",
+														"tile-y": "Dirt.PositionToTileY(Touch.Y) + loopindex(\"j\")",
+														"brush": {
+															"objectClassName": "Dirt",
+															"brushName": "ATBrush"
+														}
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Create particles."
+												},
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 386121858280051,
+													"parameters": {
+														"object-to-create": "DirtParticles",
+														"layer": "\"Game\"",
+														"x": "Touch.X + loopindex(\"i\") * 8",
+														"y": "Touch.Y + loopindex(\"j\") * 8",
+														"create-hierarchy": false,
+														"template-name": "\"\""
+													}
+												}
+											],
+											"sid": 485081183095369
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Move occlusion to the top of the layer."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "move-to-top",
+											"objectClass": "Occlusion",
+											"sid": 896520163516023
+										}
+									],
+									"sid": 637046086608595
+								},
+								{
+									"eventType": "comment",
+									"text": "If the battery ran out, flash an alert."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-width",
+											"objectClass": "EnergyBar",
+											"sid": 733984519619971,
+											"parameters": {
+												"comparison": 0,
+												"width": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "flash",
+											"objectClass": "TextBatteryOut",
+											"sid": 892903517359942,
+											"behaviorType": "Flash",
+											"parameters": {
+												"on-time": "0.25",
+												"off-time": "0.15",
+												"duration": "604800"
+											}
+										}
+									],
+									"sid": 800226752074163
+								}
+							]
+						}
+					],
+					"sid": 950320638705768
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Buttons",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Reset",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Reset current map."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-tap-object",
+											"objectClass": "Touch",
+											"sid": 949814430635200,
+											"parameters": {
+												"object": "ButtonReset"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Fade-out."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Fader",
+											"sid": 354828175929373,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShowFader\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "0.5",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Disable player controls and go to the next layout."
+										},
+										{
+											"id": "set-group-active",
+											"objectClass": "System",
+											"sid": 677232659664193,
+											"parameters": {
+												"group-name": "\"Game Controls\"",
+												"state": "deactivated"
+											}
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 633947353535862
+										},
+										{
+											"id": "restart-layout",
+											"objectClass": "System",
+											"sid": 412151626057536
+										},
+										{
+											"type": "comment",
+											"text": "Animate buttons."
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "ButtonReset",
+											"sid": 568233428955513,
+											"parameters": {
+												"animation": "\"Pressed\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "ButtonPan",
+											"sid": 836542951577531,
+											"parameters": {
+												"animation": "\"Idle\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "ButtonDrill",
+											"sid": 227641071991841,
+											"parameters": {
+												"animation": "\"Idle\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 802954001148984
+								}
+							],
+							"sid": 176986305667632
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Pan",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Set touch mode as pan."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-tap-object",
+											"objectClass": "Touch",
+											"sid": 739219368310047,
+											"parameters": {
+												"object": "ButtonPan"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Perform action."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 612093985425141,
+											"parameters": {
+												"variable": "touchMode",
+												"value": "\"pan\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Animate buttons."
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "ButtonPan",
+											"sid": 885009103753356,
+											"parameters": {
+												"animation": "\"Pressed\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "ButtonReset",
+											"sid": 445314191598498,
+											"parameters": {
+												"animation": "\"Idle\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "ButtonDrill",
+											"sid": 936636395614681,
+											"parameters": {
+												"animation": "\"Idle\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 529663470072095
+								}
+							],
+							"sid": 651210781565815
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Drill",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Set touch mode as drill."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-tap-object",
+											"objectClass": "Touch",
+											"sid": 640728060934941,
+											"parameters": {
+												"object": "ButtonDrill"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Perform action."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 660486257967938,
+											"parameters": {
+												"variable": "touchMode",
+												"value": "\"drill\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Animate buttons."
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "ButtonDrill",
+											"sid": 282645609422554,
+											"parameters": {
+												"animation": "\"Pressed\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "ButtonPan",
+											"sid": 514161212497520,
+											"parameters": {
+												"animation": "\"Idle\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "ButtonReset",
+											"sid": 948572568283487,
+											"parameters": {
+												"animation": "\"Idle\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 156146268235779
+								}
+							],
+							"sid": 281313033929571
+						}
+					],
+					"sid": 361304697899619
+				}
+			],
+			"sid": 654060454181013
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Win Condition",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the miner collides with GoldWin, advance to the next level."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Miner",
+							"sid": 780415737291024,
+							"parameters": {
+								"object": "GoldWin"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Add score to score dictionary."
+						},
+						{
+							"id": "add-key",
+							"objectClass": "DictScores",
+							"sid": 141771435485804,
+							"parameters": {
+								"key": "LayoutName",
+								"value": "EnergyBar.Width"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Fade-out."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 724298450962126,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Disable player controls and go to the next layout."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 107720012654003,
+							"parameters": {
+								"group-name": "\"Game Controls\"",
+								"state": "deactivated"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 802034172749035
+						},
+						{
+							"id": "go-to-nextprevious-layout",
+							"objectClass": "System",
+							"sid": 259475968772034,
+							"parameters": {
+								"which": "next"
+							}
+						}
+					],
+					"sid": 622335636923751
+				}
+			],
+			"sid": 898466690945480
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Mechanics",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Fan",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Fix fan to fixture using a revolute joint."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 362907634166743
+								}
+							],
+							"actions": [
+								{
+									"id": "create-revolute-joint",
+									"objectClass": "Fan",
+									"sid": 343541048630684,
+									"behaviorType": "Physics",
+									"parameters": {
+										"this-image-point": "0",
+										"object": "FanFixture"
+									}
+								}
+							],
+							"sid": 734089795744369
+						},
+						{
+							"eventType": "comment",
+							"text": "Apply torque to fan until it reaches a certain angular velocity."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 873901834836594
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 531820625868413,
+									"parameters": {
+										"value": "abs(Fan.Physics.AngularVelocity) < 360"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "apply-torque",
+									"objectClass": "Fan",
+									"sid": 575592506689923,
+									"behaviorType": "Physics",
+									"parameters": {
+										"torque": "Self.torqueDir * 10000000 * dt"
+									}
+								}
+							],
+							"sid": 957450016521194
+						}
+					],
+					"sid": 397544007211659
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Switch",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Door opens when the miner collides with the switch."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "Miner",
+									"sid": 927050526281123,
+									"parameters": {
+										"object": "Switch"
+									}
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "Switch",
+									"sid": 551233682288588,
+									"parameters": {
+										"animation": "\"Off\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Switch",
+									"sid": 445197556983664,
+									"parameters": {
+										"animation": "\"On\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Door",
+									"sid": 362744635023526,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"RotateDoor\"",
+										"property": "offsetAngle",
+										"end-value": "Self.Angle + 90",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 909254125937974
+						}
+					],
+					"sid": 873229281068237
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Vent",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When the miner is in the vent, it should be pushed to the left, due to the wind blowing."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Miner",
+									"sid": 507781621361972,
+									"parameters": {
+										"object": "VentBG"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "apply-force",
+									"objectClass": "Miner",
+									"sid": 420930945317912,
+									"behaviorType": "Physics",
+									"parameters": {
+										"force-x": "-100 * dt",
+										"force-y": "0",
+										"image-point": "0"
+									}
+								}
+							],
+							"sid": 105251178324437
+						}
+					],
+					"sid": 415773245017063
+				}
+			],
+			"sid": 982859811532161
+		}
+	],
+	"sid": 279295092154057
+}

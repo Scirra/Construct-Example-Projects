@@ -1,0 +1,2719 @@
+{
+	"name": "Global",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How long it takes for a transition between layouts be finished."
+		},
+		{
+			"eventType": "variable",
+			"name": "LAYOUTTRANSITIONDURATION",
+			"type": "number",
+			"initialValue": "0.5",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": true,
+			"sid": 982133361771474
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "LayoutTransition",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the layout by disabling the player input and playing a fade out animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 113988062621118
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetPlayerInputFocus",
+							"sid": 812975507045881,
+							"parameters": [
+								"0"
+							]
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fade",
+							"sid": 623843093447892,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "LAYOUTTRANSITIONDURATION",
+								"ease": "noease",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 181281096401260
+				},
+				{
+					"eventType": "comment",
+					"text": "The name of the layout that will be loaded once the transition is over."
+				},
+				{
+					"eventType": "variable",
+					"name": "NextLayoutNameBuffer",
+					"type": "string",
+					"initialValue": "",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 856921808927599
+				},
+				{
+					"eventType": "comment",
+					"text": "Whether or not the transition system is busy."
+				},
+				{
+					"eventType": "variable",
+					"name": "IsBusy",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 670485741748477
+				},
+				{
+					"eventType": "comment",
+					"text": "Got to a specific layout by name."
+				},
+				{
+					"functionName": "GoToLayout",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "NextLayoutName",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 629094133992907
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 782740229126100,
+							"parameters": {
+								"value": "IsBusy = 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Disable the player input."
+						},
+						{
+							"callFunction": "SetPlayerInputFocus",
+							"sid": 128683890891685,
+							"parameters": [
+								"0"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Store the layout name in a buffer, so it can be loaded later."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 233414909681582,
+							"parameters": {
+								"variable": "NextLayoutNameBuffer",
+								"value": "NextLayoutName"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start a fade in animation to cover the entire screen."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fade",
+							"sid": 352404870059980,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeIn\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "LAYOUTTRANSITIONDURATION",
+								"ease": "noease",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Tag the transition system as busy."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 901572793542141,
+							"parameters": {
+								"variable": "IsBusy",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 325602525248040
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the fade in animation is over, load the next layout."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Fade",
+							"sid": 651187589503550,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeIn\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "go-to-layout-by-name",
+							"objectClass": "System",
+							"sid": 366713405497411,
+							"parameters": {
+								"layout": "NextLayoutNameBuffer"
+							}
+						}
+					],
+					"sid": 196352891704978
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the fade out animation is over, tag the transition system as not busy."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Fade",
+							"sid": 332265410051899,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 206397204811471,
+							"parameters": {
+								"variable": "IsBusy",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 341409764820941,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the layout name is \"Canvas\", check if instructions need to be shown to the player."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 438718935103575,
+									"parameters": {
+										"value": "LayoutName = \"Canvas\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "EvaluateInstructions",
+									"sid": 903232643542813
+								}
+							],
+							"sid": 872735577665350
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the layout name isn't \"Canvas\", simply enable the player input."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 738057777183123
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 151099397415947,
+									"parameters": {
+										"value": "LayoutName <> \"Canvas\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "SetPlayerInputFocus",
+									"sid": 225269072060469,
+									"parameters": [
+										"1"
+									]
+								}
+							],
+							"sid": 272950993741540
+						}
+					]
+				}
+			],
+			"sid": 847324488564153
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "PlayerInput",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Which type of interactions the player is allowed to make. 0 means no interactions, 1 means generals interactions, and 2 means instructions interactions only."
+				},
+				{
+					"eventType": "variable",
+					"name": "InputFocus",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 738498434054827
+				},
+				{
+					"eventType": "comment",
+					"text": "Set the player input focus to a specific value."
+				},
+				{
+					"functionName": "SetPlayerInputFocus",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Index",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "0 - None | 1 - General | 2 - Instructions",
+							"sid": 204522174550198
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 133691181899578,
+							"parameters": {
+								"variable": "InputFocus",
+								"value": "Index"
+							}
+						}
+					],
+					"sid": 319354218412539
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if the player input focus match a specific value. If it does, return true, if it doesn't, return false."
+				},
+				{
+					"functionName": "DoesPlayerInputFocusMatch",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Index",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 416116259167434
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 271562440948588,
+							"parameters": {
+								"value": "InputFocus = Index ? 1 : 0"
+							}
+						}
+					],
+					"sid": 164928856588924
+				}
+			],
+			"sid": 539438611077075
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Buttons",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup all buttons by playing a tween animaiton."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 637369160436499
+						}
+					],
+					"actions": [],
+					"sid": 779392041091695,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The starting width and height value of the button."
+						},
+						{
+							"eventType": "variable",
+							"name": "StartingWidth",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 358018150306140
+						},
+						{
+							"eventType": "variable",
+							"name": "StartingHeight",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 274511240483932
+						},
+						{
+							"eventType": "comment",
+							"text": "Loop through every button in the layout."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 994124528099838,
+									"parameters": {
+										"object": "Button"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Store the starting width and height value of the button."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 161485290372067,
+									"parameters": {
+										"variable": "StartingWidth",
+										"value": "Button.Width"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 755205583007946,
+									"parameters": {
+										"variable": "StartingHeight",
+										"value": "Button.Height"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set the button size to 32 by 32."
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Button",
+									"sid": 165759346813583,
+									"parameters": {
+										"width": "32",
+										"height": "32"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Start a tween animation to make the button gradually go back to its starting size."
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Button",
+									"sid": 259215980113200,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Size\"",
+										"property": "size",
+										"end-x": "StartingWidth",
+										"end-y": "StartingHeight",
+										"time": "0.5",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 348846567218389
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly check if the player input focus is set to one."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 182326855675217,
+							"parameters": {
+								"value": "Functions.DoesPlayerInputFocusMatch(1) = 1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 618698129474106,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If one finger is touching the screen, use it to pan around."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 781183217823505,
+									"parameters": {
+										"value": "Touch.TouchCount = 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 433985281368984,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "The point of reference X and Y values."
+								},
+								{
+									"eventType": "variable",
+									"name": "ReferenceX",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": true,
+									"isConstant": false,
+									"sid": 140685476805631
+								},
+								{
+									"eventType": "variable",
+									"name": "ReferenceY",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": true,
+									"isConstant": false,
+									"sid": 535235578569882
+								},
+								{
+									"eventType": "comment",
+									"text": "How much has changed in the X and Y axis."
+								},
+								{
+									"eventType": "variable",
+									"name": "ChangeX",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 113629505252037
+								},
+								{
+									"eventType": "variable",
+									"name": "ChangeY",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 565618352678837
+								},
+								{
+									"eventType": "comment",
+									"text": "Store the initial touch position to be used as a reference point."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "trigger-once-while-true",
+											"objectClass": "System",
+											"sid": 435045634342680
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 465456593568923,
+											"parameters": {
+												"variable": "ReferenceX",
+												"value": "Touch.XAt(0, \"CanvasMotionReference\")"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 678887258802852,
+											"parameters": {
+												"variable": "ReferenceY",
+												"value": "Touch.YAt(0, \"CanvasMotionReference\")"
+											}
+										}
+									],
+									"sid": 366619363003447
+								},
+								{
+									"eventType": "comment",
+									"text": "Calculate the change between the current touch position and the previous reference point."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 202815250066124,
+											"parameters": {
+												"variable": "ChangeX",
+												"value": "(ReferenceX - Touch.XAt(0, \"CanvasMotionReference\"))"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 944034209785332,
+											"parameters": {
+												"variable": "ChangeY",
+												"value": "(ReferenceY - Touch.YAt(0, \"CanvasMotionReference\"))"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update the scroll position based on the change values."
+										},
+										{
+											"callFunction": "SetScrollPosition",
+											"sid": 951291848304098,
+											"parameters": [
+												"LayerScrollX(\"CanvasMotionReference\") + ChangeX",
+												"LayerScrollY(\"CanvasMotionReference\") + ChangeY"
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Update the reference values."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 595370061625559,
+											"parameters": {
+												"variable": "ReferenceX",
+												"value": "Touch.XAt(0, \"CanvasMotionReference\")"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 288572545114749,
+											"parameters": {
+												"variable": "ReferenceY",
+												"value": "Touch.YAt(0, \"CanvasMotionReference\")"
+											}
+										}
+									],
+									"sid": 768435070395414
+								},
+								{
+									"eventType": "comment",
+									"text": "Check if the touch is overlapping any interactable objects."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "trigger-once-while-true",
+											"objectClass": "System",
+											"sid": 558207181424750
+										}
+									],
+									"actions": [],
+									"sid": 894579778727308,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Whether or not a cat should be ignored."
+										},
+										{
+											"eventType": "variable",
+											"name": "IgnoreCat",
+											"type": "boolean",
+											"initialValue": "false",
+											"comment": "",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 769701668323292
+										},
+										{
+											"eventType": "comment",
+											"text": "If the player is touching a button, interact with it."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 424162918702384,
+													"parameters": {
+														"object": "Button",
+														"expression": "Touch.XAt(0, \"HUD\") >= Button.BBoxLeft\n&\nTouch.XAt(0, \"HUD\") <= Button.BBoxRight\n&\nTouch.YAt(0, \"HUD\") >= Button.BBoxTop\n&\r\nTouch.YAt(0, \"HUD\") <= Button.BBoxBottom\n"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "InteractWithButton",
+													"sid": 548764324206626,
+													"parameters": [
+														"Button.UID"
+													]
+												},
+												{
+													"type": "comment",
+													"text": "Ignore the cat."
+												},
+												{
+													"id": "set-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 919609012693620,
+													"parameters": {
+														"variable": "IgnoreCat",
+														"value": "true"
+													}
+												}
+											],
+											"sid": 745035620830957
+										},
+										{
+											"eventType": "comment",
+											"text": "If the player is touching a cat, interact with it."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 456598441683581,
+													"parameters": {
+														"object": "CatBoundingBox",
+														"expression": "Touch.XAt(0, \"Canvas\") >= CatBoundingBox.BBoxLeft\r\n&\r\nTouch.XAt(0, \"Canvas\") <= CatBoundingBox.BBoxRight\r\n&\r\nTouch.YAt(0, \"Canvas\") >= CatBoundingBox.BBoxTop\r\n&\r\nTouch.YAt(0, \"Canvas\") <= CatBoundingBox.BBoxBottom"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 765947935489833,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "But only if the ignore cat tag is false."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 925174083643735,
+															"parameters": {
+																"value": "IgnoreCat = 0"
+															}
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "MarkCatAsFound",
+															"sid": 886641117204501,
+															"parameters": [
+																"CatBoundingBox.UID"
+															]
+														}
+													],
+													"sid": 239797822722179
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if two fingers are touching the screen, usem to zoom in and out."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 286735923635763
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 303039770102419,
+									"parameters": {
+										"value": "Touch.TouchCount = 2"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 680415447683007,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "The distance reference used for calculating the change in zoom levels."
+								},
+								{
+									"eventType": "variable",
+									"name": "ReferenceDistance",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": true,
+									"isConstant": false,
+									"sid": 414128478995519
+								},
+								{
+									"eventType": "comment",
+									"text": "How much the distance has changed."
+								},
+								{
+									"eventType": "variable",
+									"name": "Change",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 617489423536484
+								},
+								{
+									"eventType": "comment",
+									"text": "Store the reference value."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "trigger-once-while-true",
+											"objectClass": "System",
+											"sid": 291438321877377
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 959970888944733,
+											"parameters": {
+												"variable": "ReferenceDistance",
+												"value": "distance(Touch.XAt(0, \"HUD\"), Touch.YAt(0, \"HUD\"), Touch.XAt(1, \"HUD\"), Touch.YAt(1, \"HUD\"))"
+											}
+										}
+									],
+									"sid": 610378436637784
+								},
+								{
+									"eventType": "comment",
+									"text": "Calculate the change based on the reference distance."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 787382625091265,
+											"parameters": {
+												"variable": "Change",
+												"value": "(ReferenceDistance - distance(Touch.XAt(0, \"HUD\"), Touch.YAt(0, \"HUD\"), Touch.XAt(1, \"HUD\"), Touch.YAt(1, \"HUD\"))) / 1000"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Change the layer scale based on the recently calculated change."
+										},
+										{
+											"callFunction": "ScrollLayerScale",
+											"sid": 463862549645463,
+											"parameters": [
+												"- Change"
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Update the reference distance value."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 530937580205363,
+											"parameters": {
+												"variable": "ReferenceDistance",
+												"value": "distance(Touch.XAt(0, \"HUD\"), Touch.YAt(0, \"HUD\"), Touch.XAt(1, \"HUD\"), Touch.YAt(1, \"HUD\"))"
+											}
+										}
+									],
+									"sid": 363659311395792
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Change the layer scale based on the scroll wheel delta Y."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-mouse-wheel",
+									"objectClass": "Mouse",
+									"sid": 693037783404869,
+									"parameters": {
+										"direction": "any"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "ScrollLayerScale",
+									"sid": 822684615276374,
+									"parameters": [
+										"- Mouse.WheelDeltaY / 1000"
+									]
+								}
+							],
+							"sid": 939295565197885
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly check if the player input focus is set to two."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 225863224189208,
+							"parameters": {
+								"value": "Functions.DoesPlayerInputFocusMatch(2) = 1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 935381358730960,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the player starts to touch the screen with a single finger, load the next instruction and play a \"boop\" sound effect."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 138708378139668,
+									"parameters": {
+										"value": "Touch.TouchCount = 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 127383481320612,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "trigger-once-while-true",
+											"objectClass": "System",
+											"sid": 759481938818118
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "LoadNextInstruction",
+											"sid": 460175158056909
+										},
+										{
+											"callFunction": "PlaySFX",
+											"sid": 382900839977375,
+											"parameters": [
+												"\"Boop00\"&choose(1, 2, 3, 4, 5)",
+												false
+											]
+										}
+									],
+									"sid": 971100158956464
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "The current button tilt direction."
+				},
+				{
+					"eventType": "variable",
+					"name": "ButtonTiltDirection",
+					"type": "number",
+					"initialValue": "1",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 434632652750350
+				},
+				{
+					"eventType": "comment",
+					"text": "Interact with a button based on its UID."
+				},
+				{
+					"functionName": "InteractWithButton",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "ButtonUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 760881813431452
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Button",
+							"sid": 305815815977768,
+							"parameters": {
+								"unique-id": "ButtonUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Change the button tilt direction."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 412030916711778,
+							"parameters": {
+								"variable": "ButtonTiltDirection",
+								"value": "ButtonTiltDirection = 1 ? -1 : 1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Play a tween animation that changes the button angle for a short amount of time."
+						},
+						{
+							"id": "stop-tweens",
+							"objectClass": "Button",
+							"sid": 940980269573365,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Angle\""
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Button",
+							"sid": 150617123807009,
+							"parameters": {
+								"angle": "ButtonTiltDirection * 5"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Button",
+							"sid": 776039112382596,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Angle\"",
+								"property": "offsetAngle",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 210623499140366,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the button identification is set to \"Play\", go to the canvas layout and play a \"boop\" sound effect."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 251759580949387,
+									"parameters": {
+										"value": "Button.Identification = \"Play\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "GoToLayout",
+									"sid": 664984627725570,
+									"parameters": [
+										"\"Canvas\""
+									]
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 325652259466177,
+									"parameters": [
+										"\"Boop00\"&choose(1, 2, 3, 4, 5)",
+										false
+									]
+								}
+							],
+							"sid": 631763076024890
+						},
+						{
+							"eventType": "comment",
+							"text": "If the button identification is set to \"ToggleSFX\", toggle the SFX on and off, and play a \"boop\" sound effect."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 162663588472128
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 496876677380997,
+									"parameters": {
+										"value": "Button.Identification = \"ToggleSFX\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "ToggleSFX",
+									"sid": 505731164339656
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 111613857821292,
+									"parameters": [
+										"\"Boop00\"&choose(1, 2, 3, 4, 5)",
+										true
+									]
+								}
+							],
+							"sid": 145969003726752
+						},
+						{
+							"eventType": "comment",
+							"text": "If the button identification is set to \"ToggleBGM\", toggle the BGM on and off, and play a \"boop\" sound effect."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 170457407685267
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 529549982860469,
+									"parameters": {
+										"value": "Button.Identification = \"ToggleBGM\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "ToggleBGM",
+									"sid": 480815099772002
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 172867271879470,
+									"parameters": [
+										"\"Boop00\"&choose(1, 2, 3, 4, 5)",
+										false
+									]
+								}
+							],
+							"sid": 136915141466975
+						},
+						{
+							"eventType": "comment",
+							"text": "If the button identification is set to \"Return\", go to the main menu layout, and play a \"boop\" sound effect."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 142831346087545
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 856632817223410,
+									"parameters": {
+										"value": "Button.Identification = \"Return\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "GoToLayout",
+									"sid": 304977427806143,
+									"parameters": [
+										"\"MainMenu\""
+									]
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 792497212681609,
+									"parameters": [
+										"\"Boop00\"&choose(1, 2, 3, 4, 5)",
+										false
+									]
+								}
+							],
+							"sid": 826951294954311
+						}
+					]
+				}
+			],
+			"sid": 192233487699776
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the camera."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 404322973144326
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Reset the camera to the center of the level."
+						},
+						{
+							"id": "set-layer-scroll",
+							"objectClass": "System",
+							"sid": 875864933784564,
+							"parameters": {
+								"layer": "\"CanvasMotionReference\"",
+								"scroll-x": "LayoutWidth / 2",
+								"scroll-y": "LayoutHeight / 2"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 915871454336441,
+							"parameters": {
+								"layer": "\"CanvasMotionReference\"",
+								"scale": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Copy and paste layer scroll and layer scale values to the canvas layer."
+						},
+						{
+							"id": "set-layer-scroll",
+							"objectClass": "System",
+							"sid": 960787662123922,
+							"parameters": {
+								"layer": "\"Canvas\"",
+								"scroll-x": "LayerScrollX(\"CanvasMotionReference\")",
+								"scroll-y": "LayerScrollY(\"CanvasMotionReference\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 644652475855503,
+							"parameters": {
+								"layer": "\"Canvas\"",
+								"scale": "LayerScale(\"CanvasMotionReference\")"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Copy and paste layer scroll and layer scale values to the cats layer."
+						},
+						{
+							"id": "set-layer-scroll",
+							"objectClass": "System",
+							"sid": 280952694123565,
+							"parameters": {
+								"layer": "\"Cats\"",
+								"scroll-x": "LayerScrollX(\"Canvas\")",
+								"scroll-y": "LayerScrollY(\"Canvas\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 418889950535279,
+							"parameters": {
+								"layer": "\"Cats\"",
+								"scale": "LayerScale(\"Canvas\")"
+							}
+						}
+					],
+					"sid": 835307529618711
+				},
+				{
+					"eventType": "comment",
+					"text": "Set the canvas motion reference layer scroll position to a specific value."
+				},
+				{
+					"functionName": "SetScrollPosition",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "PositionX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 247241100772170
+						},
+						{
+							"name": "PositionY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 812503275614272
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-layer-scroll",
+							"objectClass": "System",
+							"sid": 971190998403909,
+							"parameters": {
+								"layer": "\"CanvasMotionReference\"",
+								"scroll-x": "clamp(PositionX, OriginalViewportWidth / 2, LayoutWidth - OriginalViewportWidth / 2)",
+								"scroll-y": "clamp(PositionY, OriginalViewportHeight / 2, LayoutHeight - OriginalViewportHeight / 2)"
+							}
+						}
+					],
+					"sid": 606449523440081
+				},
+				{
+					"eventType": "comment",
+					"text": "Change the canvas motion reference layer scale based on a delta value, that's added to the current value."
+				},
+				{
+					"functionName": "ScrollLayerScale",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Delta",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 913036588002026
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 956218031844706,
+							"parameters": {
+								"layer": "\"CanvasMotionReference\"",
+								"scale": "clamp(LayerScale(\"CanvasMotionReference\") + Delta, Functions.RuleOfThree(LayoutHeight, 1, OriginalViewportHeight), 1)"
+							}
+						}
+					],
+					"sid": 290801723621896
+				},
+				{
+					"eventType": "comment",
+					"text": "Set the canvas motion reference layer scale to a specific value."
+				},
+				{
+					"functionName": "SetLayerScale",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Scale",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 760479545160332
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 439695970242842,
+							"parameters": {
+								"layer": "\"CanvasMotionReference\"",
+								"scale": "clamp(Scale, Functions.RuleOfThree(LayoutHeight, 1, OriginalViewportHeight), 1)"
+							}
+						}
+					],
+					"sid": 303167380823220
+				},
+				{
+					"eventType": "comment",
+					"text": "Calculate a proportional value using the rule of three."
+				},
+				{
+					"functionName": "RuleOfThree",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "A",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 561911272078995
+						},
+						{
+							"name": "B",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 799830028507732
+						},
+						{
+							"name": "C",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 670564208870194
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 379867043017048,
+							"parameters": {
+								"value": "C * B / A"
+							}
+						}
+					],
+					"sid": 617446127337626
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the canvas layer scroll and layer scale to match the values from the canvas motion reference layer, but using linear interpolation for smoother results."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 282196924656130
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layer-scroll",
+							"objectClass": "System",
+							"sid": 903226764892528,
+							"parameters": {
+								"layer": "\"Canvas\"",
+								"scroll-x": "Functions.FiniteLerp(LayerScrollX(\"Canvas\"), LayerScrollX(\"CanvasMotionReference\"), 0.25 * 60 * dt)",
+								"scroll-y": "Functions.FiniteLerp(LayerScrollY(\"Canvas\"), LayerScrollY(\"CanvasMotionReference\"), 0.25 * 60 * dt)"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 201523388632716,
+							"parameters": {
+								"layer": "\"Canvas\"",
+								"scale": "Functions.FiniteLerp(LayerScale(\"Canvas\"), LayerScale(\"CanvasMotionReference\"), 0.1 * 60 * dt)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Copy and paste layer scroll and layer scale values to the cats layer."
+						},
+						{
+							"id": "set-layer-scroll",
+							"objectClass": "System",
+							"sid": 335015621599353,
+							"parameters": {
+								"layer": "\"Cats\"",
+								"scroll-x": "LayerScrollX(\"Canvas\")",
+								"scroll-y": "LayerScrollY(\"Canvas\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 416336046547591,
+							"parameters": {
+								"layer": "\"Cats\"",
+								"scale": "LayerScale(\"Canvas\")"
+							}
+						}
+					],
+					"sid": 153611903329554
+				}
+			],
+			"sid": 595567714015152
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Audio",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update the audio icons in the entire layout."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 633285226242423
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "UpdateAudioIcons",
+							"sid": 674185004130391
+						}
+					],
+					"sid": 136766703193406
+				},
+				{
+					"eventType": "comment",
+					"text": "The default sound effects volume in dB."
+				},
+				{
+					"eventType": "variable",
+					"name": "DEFAULTSFXVOLUME",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 932189546531228
+				},
+				{
+					"eventType": "comment",
+					"text": "The default background music volume in dB."
+				},
+				{
+					"eventType": "variable",
+					"name": "DEFAULTBGMVOLUME",
+					"type": "number",
+					"initialValue": "-24",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 660043392931293
+				},
+				{
+					"eventType": "comment",
+					"text": "The current sound effects volume in dB."
+				},
+				{
+					"eventType": "variable",
+					"name": "SFXVolume",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 634562362969864
+				},
+				{
+					"eventType": "comment",
+					"text": "The current background music volume in dB."
+				},
+				{
+					"eventType": "variable",
+					"name": "BGMVolume",
+					"type": "number",
+					"initialValue": "-24",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 736917736536210
+				},
+				{
+					"eventType": "comment",
+					"text": "Toggle the SFX audio on and off."
+				},
+				{
+					"functionName": "ToggleSFX",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 258578064001949,
+							"parameters": {
+								"variable": "SFXVolume",
+								"value": "SFXVolume = DEFAULTSFXVOLUME ? -Infinity : DEFAULTSFXVOLUME"
+							}
+						},
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 827142045953110,
+							"parameters": {
+								"tag": "\"SFX\"",
+								"db": "SFXVolume"
+							}
+						},
+						{
+							"callFunction": "UpdateAudioIcons",
+							"sid": 944218474519673
+						}
+					],
+					"sid": 331100799354149
+				},
+				{
+					"eventType": "comment",
+					"text": "Toggle the BGM volume on and off."
+				},
+				{
+					"functionName": "ToggleBGM",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 941245398635944,
+							"parameters": {
+								"variable": "BGMVolume",
+								"value": "BGMVolume = DEFAULTBGMVOLUME ? -Infinity : DEFAULTBGMVOLUME"
+							}
+						},
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 547063929622046,
+							"parameters": {
+								"tag": "\"BGM\"",
+								"db": "BGMVolume"
+							}
+						},
+						{
+							"callFunction": "UpdateAudioIcons",
+							"sid": 667327607574038
+						}
+					],
+					"sid": 692923042837936
+				},
+				{
+					"eventType": "comment",
+					"text": "Play a specific SFX by name."
+				},
+				{
+					"functionName": "PlaySFX",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "SFXName",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 902637992870943
+						},
+						{
+							"name": "IgnoreSFXVolume",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 537350577871875
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 388843823152822,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the ignore SFX volume option is enabled, play the SFX regardless of the current SFX volume."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 277833272739947,
+									"parameters": {
+										"value": "IgnoreSFXVolume = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "play-by-name",
+									"objectClass": "Audio",
+									"sid": 164690079755181,
+									"parameters": {
+										"folder": "sounds",
+										"audio-file-name": "SFXName",
+										"loop": "not-looping",
+										"volume": "0",
+										"stereo-pan": "0",
+										"tag-optional": "\"None\""
+									}
+								}
+							],
+							"sid": 284302083038624
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the ignore SFX volume option is disabled, play the SFX based on the current SFX volume."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 592275053275354
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 590041446894748,
+									"parameters": {
+										"value": "IgnoreSFXVolume = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "play-by-name",
+									"objectClass": "Audio",
+									"sid": 752919640378316,
+									"parameters": {
+										"folder": "sounds",
+										"audio-file-name": "SFXName",
+										"loop": "not-looping",
+										"volume": "SFXVolume",
+										"stereo-pan": "0",
+										"tag-optional": "\"SFX\""
+									}
+								}
+							],
+							"sid": 326489153736058
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Play a specific BGM by name."
+				},
+				{
+					"functionName": "PlayBGM",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "BGMName",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 271426358824542
+						},
+						{
+							"name": "IgnoreBGMVolume",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 224889097001458
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 453594921117646,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the ignore BGM volume option is enabled, play the BGM regardless of the current BGM volume."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 846922425397905,
+									"parameters": {
+										"value": "IgnoreBGMVolume = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "play-by-name",
+									"objectClass": "Audio",
+									"sid": 797333473279646,
+									"parameters": {
+										"folder": "music",
+										"audio-file-name": "BGMName",
+										"loop": "looping",
+										"volume": "0",
+										"stereo-pan": "0",
+										"tag-optional": "\"None\""
+									}
+								}
+							],
+							"sid": 876565864839342
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the ignore BGM volume option is disabled, play the BGM based on the current BGM volume."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 118682347479442
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 202411477576907,
+									"parameters": {
+										"value": "IgnoreBGMVolume = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "play-by-name",
+									"objectClass": "Audio",
+									"sid": 904408934243998,
+									"parameters": {
+										"folder": "music",
+										"audio-file-name": "BGMName",
+										"loop": "looping",
+										"volume": "BGMVolume",
+										"stereo-pan": "0",
+										"tag-optional": "\"BGM\""
+									}
+								}
+							],
+							"sid": 377045023567704
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the audio icons to reflect the current state of the SFX and BGM volume options."
+				},
+				{
+					"functionName": "UpdateAudioIcons",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 303800882515060,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 731044672929023,
+									"parameters": {
+										"object": "ButtonIcon"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 866929438535632,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Update the SFX animation icon."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 419225009642154,
+											"parameters": {
+												"value": "ButtonIcon.AnimationName = \"ToggleSFX\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 939706761485788,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the SFX volume is high, display the default icon."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 438070340465906,
+													"parameters": {
+														"value": "SFXVolume = DEFAULTSFXVOLUME"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation-frame",
+													"objectClass": "ButtonIcon",
+													"sid": 514075248183456,
+													"parameters": {
+														"frame-number": "0"
+													}
+												}
+											],
+											"sid": 793726680300250
+										},
+										{
+											"eventType": "comment",
+											"text": "However, if the SFX volume is low, display the scratched icon."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 360794797972625
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 535498645186729,
+													"parameters": {
+														"value": "SFXVolume = -Infinity"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation-frame",
+													"objectClass": "ButtonIcon",
+													"sid": 634468526471418,
+													"parameters": {
+														"frame-number": "1"
+													}
+												}
+											],
+											"sid": 786651338635393
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Update the BGM animation icon."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 958829587205115
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 307456786538640,
+											"parameters": {
+												"value": "ButtonIcon.AnimationName = \"ToggleBGM\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 536809737043290,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the BGM volume is high, display the default icon."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 739090545997834,
+													"parameters": {
+														"value": "BGMVolume = DEFAULTBGMVOLUME"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation-frame",
+													"objectClass": "ButtonIcon",
+													"sid": 214038056966766,
+													"parameters": {
+														"frame-number": "0"
+													}
+												}
+											],
+											"sid": 681713403279484
+										},
+										{
+											"eventType": "comment",
+											"text": "However, if the BGM volume is low, display the scratched icon."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 424878612010538
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 951305222227915,
+													"parameters": {
+														"value": "BGMVolume = -Infinity"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation-frame",
+													"objectClass": "ButtonIcon",
+													"sid": 360625706822419,
+													"parameters": {
+														"frame-number": "1"
+													}
+												}
+											],
+											"sid": 264299398657968
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 522048338363424
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "HelperFunctions",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Gradually moves a value towards another value using a speed parameter."
+				},
+				{
+					"functionName": "MoveValueTowardsAnotherValue",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "CurrentValue",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 590681402788508
+						},
+						{
+							"name": "TargetValue",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 989373338236215
+						},
+						{
+							"name": "Speed",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 456099570678446
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 722347105064343,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The direction in which the current value needs to move at in order to reach the target value."
+						},
+						{
+							"eventType": "variable",
+							"name": "Direction",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 155836006662985
+						},
+						{
+							"eventType": "comment",
+							"text": "Calculate the direction."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 230787283581752,
+									"parameters": {
+										"variable": "Direction",
+										"value": "sign(TargetValue - CurrentValue )"
+									}
+								}
+							],
+							"sid": 144957550329836
+						},
+						{
+							"eventType": "comment",
+							"text": "If the current value is higher than the target value, use the target value as the minimum clamp parameter."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 536655349156905,
+									"parameters": {
+										"value": "CurrentValue > TargetValue"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 839732206313708,
+									"parameters": {
+										"value": "clamp(CurrentValue + Direction * abs(Speed) * 60 * dt, TargetValue, Infinity)"
+									}
+								}
+							],
+							"sid": 444351220999382
+						},
+						{
+							"eventType": "comment",
+							"text": "If the current value is lower than the target value, use the target value as the maximum clamp parameter."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 530847401387825
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 643353252015243,
+									"parameters": {
+										"value": "CurrentValue < TargetValue"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 861598034113989,
+									"parameters": {
+										"value": "clamp(CurrentValue + Direction * abs(Speed) * 60 * dt, -Infinity, TargetValue)"
+									}
+								}
+							],
+							"sid": 703351179396453
+						},
+						{
+							"eventType": "comment",
+							"text": "If the current value equals the target value, simply return the target value."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 324726915524014
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 344921965906930,
+									"parameters": {
+										"value": "CurrentValue = TargetValue"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 543784408932553,
+									"parameters": {
+										"value": "TargetValue"
+									}
+								}
+							],
+							"sid": 513572977621153
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if a target value is within a specific range."
+				},
+				{
+					"functionName": "IsWithinRange",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Minimum",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 871071770338788
+						},
+						{
+							"name": "Maximum",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 821348149418981
+						},
+						{
+							"name": "Target",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 795150536014215
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 295119942420100,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Whether or not the target value is within range."
+						},
+						{
+							"eventType": "variable",
+							"name": "IsWithinRange",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 694922608576750
+						},
+						{
+							"eventType": "comment",
+							"text": "If the target value is equal or greater than the minimum value, and equal or lower than the maximum value, tag it as within range."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 696360873945643,
+									"parameters": {
+										"value": "Target >= Minimum & Target <= Maximum"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 147109911182265,
+									"parameters": {
+										"variable": "IsWithinRange",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 343761992834372
+						},
+						{
+							"eventType": "comment",
+							"text": "If the target value is within range, return true."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 551785743817274,
+									"parameters": {
+										"value": "IsWithinRange = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 814049075935033,
+									"parameters": {
+										"value": "1"
+									}
+								}
+							],
+							"sid": 664611741322112
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the target value isn't within range, return false."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 813398062744262
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 123189070223623,
+									"parameters": {
+										"value": "IsWithinRange = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 436022739383324,
+									"parameters": {
+										"value": "0"
+									}
+								}
+							],
+							"sid": 527863083714139
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Linearly interpolate until it reaches its target value, but with a small threshold for snapping."
+				},
+				{
+					"eventType": "comment",
+					"text": "The minimum threshold value between the first and second values, before they snap."
+				},
+				{
+					"eventType": "variable",
+					"name": "FiniteLerpThreshold",
+					"type": "number",
+					"initialValue": "0.0001",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 291523982971254
+				},
+				{
+					"functionName": "FiniteLerp",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "PointA",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 855273047986094
+						},
+						{
+							"name": "PointB",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 783265281640798
+						},
+						{
+							"name": "Factor",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 635703315068307
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 527371668845998,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The interpolated value between point A and point B."
+						},
+						{
+							"eventType": "variable",
+							"name": "InterpolatedValue",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 632551519246569
+						},
+						{
+							"eventType": "comment",
+							"text": "Calculate and store the interpolated value."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 795300205543929,
+									"parameters": {
+										"variable": "InterpolatedValue",
+										"value": "lerp(PointA, PointB, Factor)"
+									}
+								}
+							],
+							"sid": 477070411898420
+						},
+						{
+							"eventType": "comment",
+							"text": "If the interpolated value is close enough to the point B, then snap the interpolated value."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 731776698647964,
+									"parameters": {
+										"value": "Functions.IsWithinRange(PointB - abs(FiniteLerpThreshold), PointB + abs(FiniteLerpThreshold), InterpolatedValue)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 101542244786718,
+									"parameters": {
+										"variable": "InterpolatedValue",
+										"value": "PointB"
+									}
+								}
+							],
+							"sid": 125155121611410
+						},
+						{
+							"eventType": "comment",
+							"text": "Return the interpolated value."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 835482461544175,
+									"parameters": {
+										"value": "InterpolatedValue"
+									}
+								}
+							],
+							"sid": 775489732545718
+						}
+					]
+				}
+			],
+			"sid": 794031180898711
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Noise",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Change the noise offset every 0.1 seconds to create an old cartoon overlay effect with small imperfections all over the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 828183497035858,
+							"parameters": {
+								"interval-seconds": "0.1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Noise",
+							"sid": 938005629594236,
+							"parameters": {
+								"offset-x": "random(-1024, 1024)"
+							}
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Noise",
+							"sid": 463923212992940,
+							"parameters": {
+								"offset-y": "random(-1024, 1024)"
+							}
+						}
+					],
+					"sid": 464496645149324
+				}
+			],
+			"sid": 316097662280355
+		}
+	],
+	"sid": 137045808867336
+}

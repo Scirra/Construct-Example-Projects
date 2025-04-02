@@ -1,0 +1,395 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "TotalDistance",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The total distance run so far, in pixels.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 210739921804706
+		},
+		{
+			"eventType": "variable",
+			"name": "CurrentDistance",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Counts up to 'NextBlock', at which point a new block is created.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 158908484064844
+		},
+		{
+			"eventType": "variable",
+			"name": "NextBlock",
+			"type": "number",
+			"initialValue": "600",
+			"comment": "The distance after which to create the next block.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 350015955715799
+		},
+		{
+			"eventType": "comment",
+			"text": "Make sure everything moves left across the screen (since the default 0 degrees is right)"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 619669103107944
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "TiledBackground",
+					"sid": 865713238952133,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "180"
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "Block",
+					"sid": 494023372892560,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "180"
+					}
+				}
+			],
+			"sid": 377780561980666
+		},
+		{
+			"eventType": "comment",
+			"text": "Wrap the scrolling background infinitely by moving it back after it's scrolled the width of the main image to the left."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-x",
+					"objectClass": "TiledBackground",
+					"sid": 365144314248410,
+					"parameters": {
+						"comparison": 3,
+						"x-co-ordinate": "-Self.Width / 2"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "TiledBackground",
+					"sid": 555122496863417,
+					"parameters": {
+						"x": "Self.X + Self.Width / 2"
+					}
+				}
+			],
+			"sid": 419611953446057
+		},
+		{
+			"eventType": "comment",
+			"text": "While on floor, keep holding the \"run right\" control, so the character keeps running."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-on-floor",
+					"objectClass": "Player",
+					"sid": 937615273739763,
+					"behaviorType": "Platform"
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Player",
+					"sid": 153621855705251,
+					"behaviorType": "Platform",
+					"parameters": {
+						"control": "right"
+					}
+				}
+			],
+			"sid": 362846559069934
+		},
+		{
+			"eventType": "comment",
+			"text": "On any user input at all, make the character jump."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-start",
+					"objectClass": "Touch",
+					"sid": 584466148285000
+				},
+				{
+					"id": "on-any-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 725144170836347
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Player",
+					"sid": 140706961662193,
+					"behaviorType": "Platform",
+					"parameters": {
+						"control": "jump"
+					}
+				}
+			],
+			"sid": 678551078078269,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Keep incrementing the current and total distances, and display the total distance in a text object."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 760518197470322
+				}
+			],
+			"actions": [
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 699198025176660,
+					"parameters": {
+						"variable": "CurrentDistance",
+						"value": "Block.Bullet.Speed * dt"
+					}
+				},
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 157100948424157,
+					"parameters": {
+						"variable": "TotalDistance",
+						"value": "Block.Bullet.Speed * dt"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "DistanceDisplay",
+					"sid": 915413878714662,
+					"parameters": {
+						"text": "round(TotalDistance)"
+					}
+				}
+			],
+			"sid": 762495059808266
+		},
+		{
+			"eventType": "comment",
+			"text": "Once CurrentDistance reaches NextBlock, it is time to create a new block.  Create it with a random width and height, then position it just off the right edge of the screen.  Make it move to the left again, then set NextBlock to create another block a random distance after this one."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 232323233210146,
+					"parameters": {
+						"variable": "CurrentDistance",
+						"comparison": 5,
+						"value": "NextBlock"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "subtract-from-eventvar",
+					"objectClass": "System",
+					"sid": 941846452308107,
+					"parameters": {
+						"variable": "CurrentDistance",
+						"value": "NextBlock"
+					}
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 392826941104577,
+					"parameters": {
+						"object-to-create": "Block",
+						"layer": "\"Game\"",
+						"x": "0",
+						"y": "0"
+					}
+				},
+				{
+					"id": "set-size",
+					"objectClass": "Block",
+					"sid": 873846802562798,
+					"parameters": {
+						"width": "100 + random(400)",
+						"height": "60 + random(180)"
+					}
+				},
+				{
+					"id": "set-position",
+					"objectClass": "Block",
+					"sid": 220001114596382,
+					"parameters": {
+						"x": "LayoutWidth",
+						"y": "LayoutHeight - Self.Height"
+					}
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "Block",
+					"sid": 767614826765123,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "180"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 535573314995545,
+					"parameters": {
+						"variable": "NextBlock",
+						"value": "Block.Width + 20 + random(200)"
+					}
+				}
+			],
+			"sid": 464045931202879
+		},
+		{
+			"eventType": "comment",
+			"text": "Destroy blocks that go off the left of the screen so they don't keep taking up memory or CPU."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-x",
+					"objectClass": "Block",
+					"sid": 885868198304121,
+					"parameters": {
+						"comparison": 2,
+						"x-co-ordinate": "-Self.Width"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Block",
+					"sid": 503345363633381
+				}
+			],
+			"sid": 191650444649711
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player falls off the bottom of the screen, restart the game."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-y",
+					"objectClass": "Player",
+					"sid": 388677756573857,
+					"parameters": {
+						"comparison": 4,
+						"y-co-ordinate": "LayoutHeight"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "reset-global-variables",
+					"objectClass": "System",
+					"sid": 463241279580804
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 928551936624368
+				}
+			],
+			"sid": 555338191755662
+		},
+		{
+			"eventType": "comment",
+			"text": "Due to the acceleration of the platform movement, we need to do some tweaks to make sure the player doesn't gradually get pushed off to the left of the screen over time."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-x",
+					"objectClass": "Player",
+					"sid": 880719636124439,
+					"parameters": {
+						"comparison": 2,
+						"x-co-ordinate": "105"
+					}
+				},
+				{
+					"id": "is-on-floor",
+					"objectClass": "Player",
+					"sid": 374617276408469,
+					"behaviorType": "Platform",
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "Player",
+					"sid": 798910826400352,
+					"parameters": {
+						"x": "Self.X + 5 * dt"
+					}
+				}
+			],
+			"sid": 737601077525400
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-landed",
+					"objectClass": "Player",
+					"sid": 266860747259659,
+					"behaviorType": "Platform"
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "Player",
+					"sid": 389317957807738,
+					"parameters": {
+						"x": "Self.X + 1"
+					}
+				}
+			],
+			"sid": 449362735842034
+		}
+	],
+	"sid": 274306019501097
+}

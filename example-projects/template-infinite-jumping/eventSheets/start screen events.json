@@ -1,0 +1,138 @@
+{
+	"name": "Start screen events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "There needs to be a start screen because on mobile the player is controlled by the device orientation, which requires a permission prompt in some browsers. If the user proceeds with keyboard or mouse input assume it is a desktop device that will use keyboard input instead."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 488179857965729
+				}
+			],
+			"actions": [
+				{
+					"id": "go-to-nextprevious-layout",
+					"objectClass": "System",
+					"sid": 835925896949161,
+					"parameters": {
+						"which": "next"
+					}
+				}
+			],
+			"sid": 909252423288339
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-click",
+					"objectClass": "Mouse",
+					"sid": 334875358017837
+				}
+			],
+			"actions": [
+				{
+					"id": "go-to-nextprevious-layout",
+					"objectClass": "System",
+					"sid": 373712042215157,
+					"parameters": {
+						"which": "next"
+					}
+				}
+			],
+			"sid": 217096227958735
+		},
+		{
+			"eventType": "comment",
+			"text": "If the user proceeds with a touch, assume this is a mobile device and orientation permission is required, so request the permission. NOTE: this must be done in a touch end trigger, not a touch start trigger.\nAlso request a wake lock using PlatformInfo, which prevents the screen turning off. This is useful if the user is controlling movement entirely by device orientation, since they won't be touching the screen, so there won't be any user input to stop the screen from going to sleep."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-end",
+					"objectClass": "Touch",
+					"sid": 947673034677197
+				}
+			],
+			"actions": [
+				{
+					"id": "request-wake-lock",
+					"objectClass": "PlatformInfo",
+					"sid": 645117472214007
+				},
+				{
+					"id": "request-permission",
+					"objectClass": "Touch",
+					"sid": 375005269891732,
+					"parameters": {
+						"type": "orientation"
+					}
+				}
+			],
+			"sid": 105902672990315
+		},
+		{
+			"eventType": "comment",
+			"text": "If the user grants permission, proceed to the game. Device orientation will now work."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-permission-granted",
+					"objectClass": "Touch",
+					"sid": 824828945320903,
+					"parameters": {
+						"type": "orientation"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "go-to-nextprevious-layout",
+					"objectClass": "System",
+					"sid": 974461497787963,
+					"parameters": {
+						"which": "next"
+					}
+				}
+			],
+			"sid": 512924713339436
+		},
+		{
+			"eventType": "comment",
+			"text": "If the user denies permission, there is no way they can control the game, so there's no point sending them to the game. Instead display a message saying \"Permission denied\"."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-permission-denied",
+					"objectClass": "Touch",
+					"sid": 884075782907479,
+					"parameters": {
+						"type": "orientation"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "StartText",
+					"sid": 880332091583545,
+					"parameters": {
+						"text": "\"Permission denied\""
+					}
+				}
+			],
+			"sid": 130956955051443
+		}
+	],
+	"sid": 313968401027801
+}

@@ -1,0 +1,3026 @@
+{
+	"name": "Game events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Global variables"
+		},
+		{
+			"eventType": "variable",
+			"name": "Score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The player's score",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 104
+		},
+		{
+			"eventType": "variable",
+			"name": "Rockets",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "Number of rocket powerups the player has",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 105
+		},
+		{
+			"eventType": "variable",
+			"name": "startTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Time the level began at",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 106
+		},
+		{
+			"eventType": "variable",
+			"name": "FirstRun",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "0 if first run, 1 after restarting layout",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 107
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Touch control",
+			"description": "Controlling the player spaceship with touch controls, or using the mouse on desktop.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player is touching the screen (but not the rockets button), and the player isn't right under the touch, move them towards the touch location and make the jet sound play."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-in-touch",
+							"objectClass": "Touch",
+							"sid": 109
+						},
+						{
+							"id": "is-touching-object",
+							"objectClass": "Touch",
+							"sid": 110,
+							"parameters": {
+								"object": "RocketButton"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 111,
+							"parameters": {
+								"first-value": "distance(Player.X, Player.Y, Touch.X, Touch.Y)",
+								"comparison": 4,
+								"second-value": "300 * dt"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "move-at-angle",
+							"objectClass": "Player",
+							"sid": 112,
+							"parameters": {
+								"angle": "angle(Player.X, Player.Y, Touch.X, Touch.Y)",
+								"distance": "300 * dt"
+							}
+						},
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 113,
+							"parameters": {
+								"tag": "\"jet\"",
+								"db": "0"
+							}
+						}
+					],
+					"sid": 8716363293371203,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Change the player animation depending on the direction they're travelling in."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-x",
+									"objectClass": "Player",
+									"sid": 114,
+									"parameters": {
+										"comparison": 2,
+										"x-co-ordinate": "Touch.X"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Player",
+									"sid": 115,
+									"parameters": {
+										"animation": "\"TiltRight\"",
+										"from": "current-frame"
+									}
+								}
+							],
+							"sid": 6803767573970454
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-x",
+									"objectClass": "Player",
+									"sid": 116,
+									"parameters": {
+										"comparison": 4,
+										"x-co-ordinate": "Touch.X"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Player",
+									"sid": 117,
+									"parameters": {
+										"animation": "\"Tiltleft\"",
+										"from": "current-frame"
+									}
+								}
+							],
+							"sid": 5124919194001522
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is not touching the screen to move the player, make sure the animation resets to default (not tilting) and the jet sound goes quiet again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 118
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Player",
+							"sid": 119,
+							"parameters": {
+								"animation": "\"Default\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 120,
+							"parameters": {
+								"tag": "\"jet\"",
+								"db": "-60"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Player",
+							"sid": 121,
+							"parameters": {
+								"animation": "\"Default\"",
+								"from": "current-frame"
+							}
+						}
+					],
+					"sid": 7939076744981841
+				},
+				{
+					"eventType": "comment",
+					"text": "Touching the rockets button will fire two rockets if the player has any powerups."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 122,
+							"parameters": {
+								"object": "RocketButton"
+							}
+						},
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 123,
+							"parameters": {
+								"variable": "Rockets",
+								"comparison": 4,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 124,
+							"parameters": {
+								"object": "PlayerRocket",
+								"layer": "\"Game\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "PlayerRocket",
+							"sid": 125,
+							"parameters": {
+								"angle": "270"
+							}
+						},
+						{
+							"id": "set-x",
+							"objectClass": "PlayerRocket",
+							"sid": 126,
+							"parameters": {
+								"x": "Self.X + 35"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "PlayerRocket",
+							"sid": 127,
+							"parameters": {
+								"object": "Explosion2",
+								"layer": "\"Game\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 128,
+							"parameters": {
+								"object": "PlayerRocket",
+								"layer": "\"Game\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "PlayerRocket",
+							"sid": 129,
+							"parameters": {
+								"angle": "270"
+							}
+						},
+						{
+							"id": "set-x",
+							"objectClass": "PlayerRocket",
+							"sid": 130,
+							"parameters": {
+								"x": "Self.X - 35"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "PlayerRocket",
+							"sid": 131,
+							"parameters": {
+								"object": "Explosion2",
+								"layer": "\"Game\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "subtract-from-eventvar",
+							"objectClass": "System",
+							"sid": 132,
+							"parameters": {
+								"variable": "Rockets",
+								"value": "1"
+							}
+						},
+						{
+							"id": "flash",
+							"objectClass": "RocketButton",
+							"sid": 133,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.1",
+								"off-time": "0.1",
+								"duration": "1.0"
+							}
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 134,
+							"parameters": {
+								"audio-file": "TronBlast1",
+								"loop": "not-looping",
+								"volume": "0",
+								"tag-optional": "\"\""
+							}
+						}
+					],
+					"sid": 8584200213496671
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 5696090127453622,
+							"parameters": {
+								"key": 82
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 802379698459329
+						}
+					],
+					"sid": 8814720503861055
+				}
+			],
+			"sid": 108
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player and general",
+			"description": "The player control, UI display and general events",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Play a startup sound, then start the game music.  Remove the initial gun flare object."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 136
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "GunFlare",
+							"sid": 137
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 138,
+							"parameters": {
+								"audio-file": "SquareMotif1",
+								"loop": "not-looping",
+								"volume": "0",
+								"tag-optional": "\"\""
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 139,
+							"parameters": {
+								"seconds": "1.0"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 140,
+							"parameters": {
+								"variable": "Rockets",
+								"value": "3"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 141,
+							"parameters": {
+								"variable": "startTime",
+								"value": "time"
+							}
+						}
+					],
+					"sid": 1454381688018742,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Only play the music on the first run, otherwise music will play twice at the same time when the layout restarts."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 142,
+									"parameters": {
+										"variable": "FirstRun",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 143,
+									"parameters": {
+										"audio-file": "MattOglseby - 3",
+										"loop": "looping",
+										"volume": "0",
+										"tag-optional": "\"music\""
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 144,
+									"parameters": {
+										"variable": "FirstRun",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 5191995455550128
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "On startup, also set the jet loop sound playing and looping, but fade it out if the player is not moving."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 145
+						}
+					],
+					"actions": [
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 146,
+							"parameters": {
+								"audio-file": "JetLoop1",
+								"loop": "looping",
+								"volume": "-60",
+								"tag-optional": "\"jet\""
+							}
+						}
+					],
+					"sid": 9383946689588556
+				},
+				{
+					"eventType": "comment",
+					"text": "Prevent the player flying ahead too far or going off the bottom of the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 147,
+							"parameters": {
+								"first-value": "time",
+								"comparison": 4,
+								"second-value": "starttime + 3"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 148,
+							"parameters": {
+								"first-value": "ViewportTop(\"Game\")",
+								"comparison": 4,
+								"second-value": "0"
+							}
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "Player",
+							"sid": 149,
+							"parameters": {
+								"comparison": 4,
+								"y-co-ordinate": "ViewportBottom(\"Game\")"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-y",
+							"objectClass": "Player",
+							"sid": 150,
+							"parameters": {
+								"y": "ViewportBottom(\"Game\")"
+							}
+						}
+					],
+					"sid": 7293731984141288
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 151,
+							"parameters": {
+								"first-value": "time",
+								"comparison": 4,
+								"second-value": "starttime + 3"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 152,
+							"parameters": {
+								"first-value": "ViewportTop(\"Game\")",
+								"comparison": 4,
+								"second-value": "0"
+							}
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "Player",
+							"sid": 153,
+							"parameters": {
+								"comparison": 2,
+								"y-co-ordinate": "Scroller.Y"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-y",
+							"objectClass": "Player",
+							"sid": 154,
+							"parameters": {
+								"y": "Scroller.Y"
+							}
+						}
+					],
+					"sid": 2509464019115189
+				},
+				{
+					"eventType": "comment",
+					"text": "Fire lasers 10 times a second while enemies are on screen and above the player (there's no point firing otherwise)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-y",
+							"objectClass": "Enemies",
+							"sid": 155,
+							"parameters": {
+								"comparison": 2,
+								"y-co-ordinate": "Player.Y"
+							}
+						},
+						{
+							"id": "is-on-screen",
+							"objectClass": "Enemies",
+							"sid": 156
+						},
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 157,
+							"parameters": {
+								"interval-seconds": "0.1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 158,
+							"parameters": {
+								"object": "PlayerLaser",
+								"layer": "\"FX\"",
+								"image-point": "1"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "PlayerLaser",
+							"sid": 159,
+							"parameters": {
+								"angle": "270"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "PlayerLaser",
+							"sid": 160,
+							"parameters": {
+								"object": "GunFlare",
+								"layer": "\"Game\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "GunFlare",
+							"sid": 161,
+							"parameters": {
+								"angle": "random(360)"
+							}
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 162,
+							"parameters": {
+								"audio-file": "Lazer Fire 1",
+								"loop": "not-looping",
+								"volume": "0",
+								"tag-optional": "\"\""
+							}
+						}
+					],
+					"sid": 270274405319525
+				},
+				{
+					"eventType": "comment",
+					"text": "Don't let player bullets carry on all the way up the layout - destroy them when they reach the top of the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-y",
+							"objectClass": "PlayerLaser",
+							"sid": 163,
+							"parameters": {
+								"comparison": 2,
+								"y-co-ordinate": "ViewportTop(\"Game\") - 80"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "PlayerLaser",
+							"sid": 164
+						}
+					],
+					"sid": 2413735101213299
+				},
+				{
+					"eventType": "comment",
+					"text": "Scroll to the scroller object, keep the gun flares in place, and keep the display updated."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 165,
+							"parameters": {
+								"first-value": "Player.Count",
+								"comparison": 4,
+								"second-value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 166,
+							"parameters": {
+								"x": "Player.X",
+								"y": "Scroller.Y"
+							}
+						}
+					],
+					"sid": 8497866579443441
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 167
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "GunFlare",
+							"sid": 168,
+							"parameters": {
+								"x": "Player.X",
+								"y": "Player.Y - 50"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "ScoreText",
+							"sid": 169,
+							"parameters": {
+								"text": "Score"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "HealthBar",
+							"sid": 170,
+							"parameters": {
+								"width": "(Player.Health / 500) * 150"
+							}
+						},
+						{
+							"id": "set-position",
+							"objectClass": "PlayerThrust",
+							"sid": 171,
+							"parameters": {
+								"x": "Player.X",
+								"y": "Player.Y + 85"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "RocketsDisplay",
+							"sid": 172,
+							"parameters": {
+								"width": "Rockets * 16"
+							}
+						}
+					],
+					"sid": 5111543154680596
+				}
+			],
+			"sid": 135
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Enemies",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "BladeEnemy",
+					"description": "The spinning blade enemy which occasionally fires at the player.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When blade enemies hit, reduce their health.  Rockets destroy them completely on impact."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "PlayerLaser",
+									"sid": 175,
+									"parameters": {
+										"object": "BladeEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerLaser",
+									"sid": 176,
+									"parameters": {
+										"object": "Explosion2",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion2",
+									"sid": 177,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "PlayerLaser",
+									"sid": 178
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "BladeEnemy",
+									"sid": 179,
+									"parameters": {
+										"instance-variable": "Health",
+										"value": "1"
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 180,
+									"parameters": {
+										"variable": "Score",
+										"value": "1"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 181,
+									"parameters": {
+										"audio-file": "Lazer Ricochet",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 9402534322395932
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "PlayerRocket",
+									"sid": 182,
+									"parameters": {
+										"object": "BladeEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BladeEnemy",
+									"sid": 183,
+									"parameters": {
+										"object": "Explosion3",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion3",
+									"sid": 184,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerRocket",
+									"sid": 185,
+									"parameters": {
+										"object": "Explosion3",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion3",
+									"sid": 186,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "BladeEnemy",
+									"sid": 187
+								},
+								{
+									"id": "destroy",
+									"objectClass": "PlayerRocket",
+									"sid": 188
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 189,
+									"parameters": {
+										"variable": "Score",
+										"value": "17"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 190,
+									"parameters": {
+										"audio-file": "Explosion 4",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 8873846590440457
+						},
+						{
+							"eventType": "comment",
+							"text": "When blade enemies run out of health, destroy them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "BladeEnemy",
+									"sid": 191,
+									"parameters": {
+										"instance-variable": "Health",
+										"comparison": 3,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BladeEnemy",
+									"sid": 192,
+									"parameters": {
+										"object": "Explosion1",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "BladeEnemy",
+									"sid": 193
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 194,
+									"parameters": {
+										"variable": "Score",
+										"value": "10"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 195,
+									"parameters": {
+										"audio-file": "Explosion 1",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 3344220462836703
+						},
+						{
+							"eventType": "comment",
+							"text": "Make blade enemies gradually rotate towards the player."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 196
+								}
+							],
+							"actions": [
+								{
+									"id": "rotate-toward-position",
+									"objectClass": "BladeEnemy",
+									"sid": 197,
+									"parameters": {
+										"degrees": "10 * dt",
+										"x": "Player.X",
+										"y": "Player.Y"
+									}
+								}
+							],
+							"sid": 4534815502905883
+						},
+						{
+							"eventType": "comment",
+							"text": "If the blade enemy has gone off the bottom of the screen, destroy it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "BladeEnemy",
+									"sid": 198,
+									"parameters": {
+										"comparison": 5,
+										"y-co-ordinate": "ViewportBottom(\"Game\") + 60"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "BladeEnemy",
+									"sid": 199
+								}
+							],
+							"sid": 5789218779720032
+						},
+						{
+							"eventType": "comment",
+							"text": "While there are BladeEnemies, pick a random one and make it shoot at the player every 1 second."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 200,
+									"parameters": {
+										"first-value": "BladeEnemy.Count",
+										"comparison": 4,
+										"second-value": "0"
+									}
+								},
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 201,
+									"parameters": {
+										"interval-seconds": "1.0"
+									}
+								},
+								{
+									"id": "pick-nth-instance",
+									"objectClass": "System",
+									"sid": 202,
+									"parameters": {
+										"object": "BladeEnemy",
+										"instance": "random(BladeEnemy.Count)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BladeEnemy",
+									"sid": 203,
+									"parameters": {
+										"object": "EnemyBullet",
+										"layer": "\"Game\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle-toward-position",
+									"objectClass": "EnemyBullet",
+									"sid": 204,
+									"parameters": {
+										"x": "Player.X",
+										"y": "Player.Y"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 205,
+									"parameters": {
+										"audio-file": "RetroLaser1",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 6665000046841898
+						},
+						{
+							"eventType": "comment",
+							"text": "When the enemy bullets hit the player, cause some damage."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "EnemyBullet",
+									"sid": 206,
+									"parameters": {
+										"object": "Player"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "EnemyBullet",
+									"sid": 207,
+									"parameters": {
+										"object": "Explosion2",
+										"layer": "\"Game\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "EnemyBullet",
+									"sid": 208
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Player",
+									"sid": 209,
+									"parameters": {
+										"instance-variable": "Health",
+										"value": "10"
+									}
+								},
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 210,
+									"parameters": {
+										"variable": "Score",
+										"value": "2"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 211,
+									"parameters": {
+										"audio-file": "Explosion 3",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 9381846388166988
+						},
+						{
+							"eventType": "comment",
+							"text": "If the blade enemy collides with the player, make it explode and cause the player damage."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "BladeEnemy",
+									"sid": 212,
+									"parameters": {
+										"object": "Player"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BladeEnemy",
+									"sid": 213,
+									"parameters": {
+										"object": "Explosion3",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion3",
+									"sid": 214,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "BladeEnemy",
+									"sid": 215
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Player",
+									"sid": 216,
+									"parameters": {
+										"instance-variable": "Health",
+										"value": "25"
+									}
+								},
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 217,
+									"parameters": {
+										"variable": "Score",
+										"value": "15"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 218,
+									"parameters": {
+										"audio-file": "Explosion 4",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 8207832188253141
+						}
+					],
+					"sid": 174
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "SpikeyEnemy",
+					"description": "The green bomb enemy that doesn't shoot.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Spikey enemies are one-hit kills.  Rockets don't even explode when hitting a spikey enemy, let them pass straight through."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "PlayerLaser",
+									"sid": 220,
+									"parameters": {
+										"object": "SpikeyEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "SpikeyEnemy",
+									"sid": 221,
+									"parameters": {
+										"object": "Explosion1",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "PlayerLaser",
+									"sid": 222
+								},
+								{
+									"id": "destroy",
+									"objectClass": "SpikeyEnemy",
+									"sid": 223
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 224,
+									"parameters": {
+										"variable": "Score",
+										"value": "2"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 225,
+									"parameters": {
+										"audio-file": "Explosion 4",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 4015547760139501
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "PlayerRocket",
+									"sid": 226,
+									"parameters": {
+										"object": "SpikeyEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "SpikeyEnemy",
+									"sid": 227,
+									"parameters": {
+										"object": "Explosion1",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "SpikeyEnemy",
+									"sid": 228
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 229,
+									"parameters": {
+										"variable": "Score",
+										"value": "2"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 230,
+									"parameters": {
+										"audio-file": "Explosion 2",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 7901273154341748
+						},
+						{
+							"eventType": "comment",
+							"text": "SpikeyEnemies are like bombs, so cause lots of damage if they hit the player."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "SpikeyEnemy",
+									"sid": 231,
+									"parameters": {
+										"object": "Player"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "SpikeyEnemy",
+									"sid": 232,
+									"parameters": {
+										"object": "Explosion3",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion3",
+									"sid": 233,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "SpikeyEnemy",
+									"sid": 234
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Player",
+									"sid": 235,
+									"parameters": {
+										"instance-variable": "Health",
+										"value": "25"
+									}
+								},
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 236,
+									"parameters": {
+										"variable": "Score",
+										"value": "15"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 237,
+									"parameters": {
+										"audio-file": "Explosion 4",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 4430708928478686
+						}
+					],
+					"sid": 219
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "BugEnemy",
+					"description": "Moves down the screen and shoots at the player.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Cause damage when the player shoots the bug enemy.  Rockets destroy bug enemies on impact."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "PlayerLaser",
+									"sid": 239,
+									"parameters": {
+										"object": "BugEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerLaser",
+									"sid": 240,
+									"parameters": {
+										"object": "Explosion2",
+										"layer": "\"Game\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion2",
+									"sid": 241,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "PlayerLaser",
+									"sid": 242
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "BugEnemy",
+									"sid": 243,
+									"parameters": {
+										"instance-variable": "Health",
+										"value": "1"
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 244,
+									"parameters": {
+										"variable": "Score",
+										"value": "1"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 245,
+									"parameters": {
+										"audio-file": "Lazer Ricochet",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 4246456051089197
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "PlayerRocket",
+									"sid": 246,
+									"parameters": {
+										"object": "BugEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BugEnemy",
+									"sid": 247,
+									"parameters": {
+										"object": "Explosion3",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion3",
+									"sid": 248,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerRocket",
+									"sid": 249,
+									"parameters": {
+										"object": "Explosion3",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion3",
+									"sid": 250,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "BugEnemy",
+									"sid": 251
+								},
+								{
+									"id": "destroy",
+									"objectClass": "PlayerRocket",
+									"sid": 252
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 253,
+									"parameters": {
+										"variable": "Score",
+										"value": "20"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 254,
+									"parameters": {
+										"audio-file": "Explosion 4",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 8989843740814447
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy the bug enemy when it runs out of health."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "BugEnemy",
+									"sid": 255,
+									"parameters": {
+										"instance-variable": "Health",
+										"comparison": 3,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BugEnemy",
+									"sid": 256,
+									"parameters": {
+										"object": "Explosion1",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "BugEnemy",
+									"sid": 257
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 258,
+									"parameters": {
+										"variable": "Score",
+										"value": "15"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 259,
+									"parameters": {
+										"audio-file": "Explosion 1",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 7338507273615099
+						},
+						{
+							"eventType": "comment",
+							"text": "Make the bug enemies move down the screen at 100 pixels per second."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 260
+								}
+							],
+							"actions": [
+								{
+									"id": "set-y",
+									"objectClass": "BugEnemy",
+									"sid": 261,
+									"parameters": {
+										"y": "BugEnemy.Y + 100 * dt"
+									}
+								}
+							],
+							"sid": 4682957320753409
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy bug enemies if they go off the bottom of the screen."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "BugEnemy",
+									"sid": 262,
+									"parameters": {
+										"comparison": 5,
+										"y-co-ordinate": "ViewportBottom(\"Game\") + 60"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "BugEnemy",
+									"sid": 263
+								}
+							],
+							"sid": 1078978608044163
+						},
+						{
+							"eventType": "comment",
+							"text": "While there are BugEnemies, pick a random one and make it shoot a salvo of three shots at the player, each 200ms apart."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 264,
+									"parameters": {
+										"first-value": "BugEnemy.Count",
+										"comparison": 4,
+										"second-value": "0"
+									}
+								},
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 265,
+									"parameters": {
+										"interval-seconds": "2.0"
+									}
+								},
+								{
+									"id": "pick-nth-instance",
+									"objectClass": "System",
+									"sid": 266,
+									"parameters": {
+										"object": "BugEnemy",
+										"instance": "random(BugEnemy.Count)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BugEnemy",
+									"sid": 267,
+									"parameters": {
+										"object": "EnemyLaser",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 268,
+									"parameters": {
+										"audio-file": "RetroLaser1",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								},
+								{
+									"id": "set-angle-toward-position",
+									"objectClass": "EnemyLaser",
+									"sid": 269,
+									"parameters": {
+										"x": "Player.X",
+										"y": "Player.Y"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 270,
+									"parameters": {
+										"seconds": "0.2"
+									}
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BugEnemy",
+									"sid": 271,
+									"parameters": {
+										"object": "EnemyLaser",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 272,
+									"parameters": {
+										"audio-file": "RetroLaser1",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								},
+								{
+									"id": "set-angle-toward-position",
+									"objectClass": "EnemyLaser",
+									"sid": 273,
+									"parameters": {
+										"x": "Player.X",
+										"y": "Player.Y"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 274,
+									"parameters": {
+										"seconds": "0.2"
+									}
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BugEnemy",
+									"sid": 275,
+									"parameters": {
+										"object": "EnemyLaser",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 276,
+									"parameters": {
+										"audio-file": "RetroLaser1",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								},
+								{
+									"id": "set-angle-toward-position",
+									"objectClass": "EnemyLaser",
+									"sid": 277,
+									"parameters": {
+										"x": "Player.X",
+										"y": "Player.Y"
+									}
+								}
+							],
+							"sid": 8052909176140787
+						},
+						{
+							"eventType": "comment",
+							"text": "If the bug's lasers hit the player, cause them damage."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "EnemyLaser",
+									"sid": 278,
+									"parameters": {
+										"object": "Player"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "EnemyLaser",
+									"sid": 279,
+									"parameters": {
+										"object": "Explosion2",
+										"layer": "\"Game\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "EnemyLaser",
+									"sid": 280
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Player",
+									"sid": 281,
+									"parameters": {
+										"instance-variable": "Health",
+										"value": "10"
+									}
+								},
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 282,
+									"parameters": {
+										"variable": "Score",
+										"value": "2"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 283,
+									"parameters": {
+										"audio-file": "Explosion 3",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 1799138400245412
+						},
+						{
+							"eventType": "comment",
+							"text": "As with the other enemies, if the bug enemy hits the player, explode and cause the player damage."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "BugEnemy",
+									"sid": 284,
+									"parameters": {
+										"object": "Player"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BugEnemy",
+									"sid": 285,
+									"parameters": {
+										"object": "Explosion3",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion3",
+									"sid": 286,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "BugEnemy",
+									"sid": 287
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Player",
+									"sid": 288,
+									"parameters": {
+										"instance-variable": "Health",
+										"value": "25"
+									}
+								},
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 289,
+									"parameters": {
+										"variable": "Score",
+										"value": "15"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 290,
+									"parameters": {
+										"audio-file": "Explosion 4",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 7683923286915163
+						}
+					],
+					"sid": 238
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "FighterEnemy",
+					"description": "Moves in a figure-8 pattern horizontally firing lasers down and occasionally firing a SpikeyEnemy at the player.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When fighter enemies hit, reduce their health.  Rockets don't destroy on impact, just cause 10 damage."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "PlayerLaser",
+									"sid": 292,
+									"parameters": {
+										"object": "FighterEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerLaser",
+									"sid": 293,
+									"parameters": {
+										"object": "Explosion2",
+										"layer": "\"Game\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion2",
+									"sid": 294,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "PlayerLaser",
+									"sid": 295
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "FighterEnemy",
+									"sid": 296,
+									"parameters": {
+										"instance-variable": "Health",
+										"value": "1"
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 297,
+									"parameters": {
+										"variable": "Score",
+										"value": "1"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 298,
+									"parameters": {
+										"audio-file": "Lazer Ricochet",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 7209198017771301
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "PlayerRocket",
+									"sid": 299,
+									"parameters": {
+										"object": "FighterEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerRocket",
+									"sid": 300,
+									"parameters": {
+										"object": "Explosion3",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion3",
+									"sid": 301,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "FighterEnemy",
+									"sid": 302,
+									"parameters": {
+										"instance-variable": "Health",
+										"value": "10"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "PlayerRocket",
+									"sid": 303
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 304,
+									"parameters": {
+										"variable": "Score",
+										"value": "10"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 305,
+									"parameters": {
+										"audio-file": "Explosion 4",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 2761869095436677
+						},
+						{
+							"eventType": "comment",
+							"text": "When fighter enemies run out of health, destroy them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "FighterEnemy",
+									"sid": 306,
+									"parameters": {
+										"instance-variable": "Health",
+										"comparison": 3,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "FighterEnemy",
+									"sid": 307,
+									"parameters": {
+										"object": "Explosion3",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "FighterEnemy",
+									"sid": 308
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 309,
+									"parameters": {
+										"variable": "Score",
+										"value": "25"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 310,
+									"parameters": {
+										"audio-file": "Explosion 1",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 7698895775614397
+						},
+						{
+							"eventType": "comment",
+							"text": "On creation (when the 'created' instance variable is at its default, 0) store the position of the object in the originX and originY instance variables."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "FighterEnemy",
+									"sid": 311,
+									"parameters": {
+										"instance-variable": "created",
+										"comparison": 0,
+										"value": "0"
+									}
+								},
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 312,
+									"parameters": {
+										"object": "FighterEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "FighterEnemy",
+									"sid": 313,
+									"parameters": {
+										"instance-variable": "originX",
+										"value": "Self.X"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "FighterEnemy",
+									"sid": 314,
+									"parameters": {
+										"instance-variable": "originY",
+										"value": "Self.Y"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "FighterEnemy",
+									"sid": 315,
+									"parameters": {
+										"instance-variable": "created",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 2875364898240341
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the fighter enemy in a horizontal figure-8 pattern using its own timer stored in an instance variable."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 316
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "FighterEnemy",
+									"sid": 317,
+									"parameters": {
+										"instance-variable": "myTimer",
+										"value": "dt"
+									}
+								},
+								{
+									"id": "set-x",
+									"objectClass": "FighterEnemy",
+									"sid": 318,
+									"parameters": {
+										"x": "Self.originX + cos(Self.myTimer * 90) * 150"
+									}
+								},
+								{
+									"id": "set-y",
+									"objectClass": "FighterEnemy",
+									"sid": 319,
+									"parameters": {
+										"y": "Self.originY + sin(Self.myTimer * 180) * 50"
+									}
+								}
+							],
+							"sid": 6429642366618753
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy fighter enemies if they go off the bottom of the screen."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "FighterEnemy",
+									"sid": 320,
+									"parameters": {
+										"comparison": 5,
+										"y-co-ordinate": "ViewportBottom(\"Game\") + 60"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "FighterEnemy",
+									"sid": 321
+								}
+							],
+							"sid": 1980961363512752
+						},
+						{
+							"eventType": "comment",
+							"text": "While there are fighter enemies, make them shoot straight down (not at the player) every second."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 322,
+									"parameters": {
+										"first-value": "FighterEnemy.Count",
+										"comparison": 4,
+										"second-value": "0"
+									}
+								},
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 323,
+									"parameters": {
+										"interval-seconds": "1.0"
+									}
+								},
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 324,
+									"parameters": {
+										"object": "FighterEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "FighterEnemy",
+									"sid": 325,
+									"parameters": {
+										"object": "EnemyLaser",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-x",
+									"objectClass": "EnemyLaser",
+									"sid": 326,
+									"parameters": {
+										"x": "Self.X - 40"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "EnemyLaser",
+									"sid": 327,
+									"parameters": {
+										"angle": "90"
+									}
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "FighterEnemy",
+									"sid": 328,
+									"parameters": {
+										"object": "EnemyLaser",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-x",
+									"objectClass": "EnemyLaser",
+									"sid": 329,
+									"parameters": {
+										"x": "Self.X + 40"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "EnemyLaser",
+									"sid": 330,
+									"parameters": {
+										"angle": "90"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 331,
+									"parameters": {
+										"audio-file": "RetroLaser2",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 1811682387117388
+						},
+						{
+							"eventType": "comment",
+							"text": "If the fighter enemy collides with the player, make it explode and cause the player damage."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "Player",
+									"sid": 332,
+									"parameters": {
+										"object": "FighterEnemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "FighterEnemy",
+									"sid": 333,
+									"parameters": {
+										"object": "Explosion3",
+										"layer": "\"FX\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Explosion3",
+									"sid": 334,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "FighterEnemy",
+									"sid": 335
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Player",
+									"sid": 336,
+									"parameters": {
+										"instance-variable": "Health",
+										"value": "50"
+									}
+								},
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 337,
+									"parameters": {
+										"variable": "Score",
+										"value": "25"
+									}
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 338,
+									"parameters": {
+										"audio-file": "Explosion 4",
+										"loop": "not-looping",
+										"volume": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 8841616442334849
+						}
+					],
+					"sid": 291
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the player if they run out of health!"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Player",
+							"sid": 339,
+							"parameters": {
+								"instance-variable": "Health",
+								"comparison": 3,
+								"value": "0"
+							}
+						},
+						{
+							"id": "trigger-once-while-true",
+							"objectClass": "System",
+							"sid": 340
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 341,
+							"parameters": {
+								"object": "Explosion3",
+								"layer": "\"FX\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 342,
+							"parameters": {
+								"audio-file": "Explosion 3",
+								"loop": "not-looping",
+								"volume": "0",
+								"tag-optional": "\"\""
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Player",
+							"sid": 343
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 344,
+							"parameters": {
+								"seconds": "4.0"
+							}
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 345
+						}
+					],
+					"sid": 987701970546947
+				}
+			],
+			"sid": 173
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Enemy spawning",
+			"description": "Turning the hidden 'EnemySpawner' object in to groups of enemies.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the hidden enemy spawner objects get near the visible screen, depending on their 'type' instance variable, spawn a bunch of enemies."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-y",
+							"objectClass": "EnemySpawner",
+							"sid": 347,
+							"parameters": {
+								"comparison": 5,
+								"y-co-ordinate": "Scroller.Y - ((ViewportBottom(\"Game\") - ViewportTop(\"Game\")) / 2) - 80"
+							}
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "EnemySpawner",
+							"sid": 348,
+							"parameters": {
+								"comparison": 2,
+								"y-co-ordinate": "Scroller.Y"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 349,
+							"parameters": {
+								"first-value": "time",
+								"comparison": 4,
+								"second-value": "starttime + 3"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 350,
+							"parameters": {
+								"object": "EnemySpawner"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 7406776314003869,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When the 'type' instance variable is \"4Blades\", create four BladeEnemies."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "EnemySpawner",
+									"sid": 351,
+									"parameters": {
+										"instance-variable": "Type",
+										"comparison": 0,
+										"value": "\"4Blades\""
+									}
+								},
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 352,
+									"parameters": {
+										"count": "4"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 353,
+									"parameters": {
+										"object-to-create": "BladeEnemy",
+										"layer": "\"Game\"",
+										"x": "EnemySpawner.X + loopindex * 50",
+										"y": "EnemySpawner.Y"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "BladeEnemy",
+									"sid": 354,
+									"parameters": {
+										"angle": "135 - loopindex * 22.5"
+									}
+								}
+							],
+							"sid": 3466900314144845
+						},
+						{
+							"eventType": "comment",
+							"text": "When the 'type' instance variable is \"9Spikey\", create nine SpikeyEnemies."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "EnemySpawner",
+									"sid": 355,
+									"parameters": {
+										"instance-variable": "Type",
+										"comparison": 0,
+										"value": "\"9Spikey\""
+									}
+								},
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 356,
+									"parameters": {
+										"count": "9"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 357,
+									"parameters": {
+										"object-to-create": "SpikeyEnemy",
+										"layer": "\"Game\"",
+										"x": "EnemySpawner.X + loopindex * 20",
+										"y": "EnemySpawner.Y"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "SpikeyEnemy",
+									"sid": 358,
+									"parameters": {
+										"angle": "135 - loopindex * 10"
+									}
+								}
+							],
+							"sid": 7228901400506483
+						},
+						{
+							"eventType": "comment",
+							"text": "And so on for other enemy types..."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "EnemySpawner",
+									"sid": 359,
+									"parameters": {
+										"instance-variable": "Type",
+										"comparison": 0,
+										"value": "\"3Bugs\""
+									}
+								},
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 360,
+									"parameters": {
+										"count": "3"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 361,
+									"parameters": {
+										"object-to-create": "BugEnemy",
+										"layer": "\"Game\"",
+										"x": "EnemySpawner.X + loopindex * 150",
+										"y": "EnemySpawner.Y"
+									}
+								}
+							],
+							"sid": 7536849900412782
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "EnemySpawner",
+									"sid": 362,
+									"parameters": {
+										"instance-variable": "Type",
+										"comparison": 0,
+										"value": "\"Fighter\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 363,
+									"parameters": {
+										"object-to-create": "FighterEnemy",
+										"layer": "\"Game\"",
+										"x": "EnemySpawner.X",
+										"y": "EnemySpawner.Y"
+									}
+								}
+							],
+							"sid": 5690647283866974
+						},
+						{
+							"eventType": "comment",
+							"text": "Don't forget to destroy the enemy spawner, or it will keep spawning enemies."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "EnemySpawner",
+									"sid": 364
+								}
+							],
+							"sid": 3457925913710455
+						}
+					]
+				}
+			],
+			"sid": 346
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Misc",
+			"description": "Powerups and other events.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player collecting a rocket powerup."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Player",
+							"sid": 366,
+							"parameters": {
+								"object": "RocketPowerup"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 367,
+							"parameters": {
+								"variable": "Rockets",
+								"value": "3"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "RocketPowerup",
+							"sid": 368
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 369,
+							"parameters": {
+								"audio-file": "Upgrade1",
+								"loop": "not-looping",
+								"volume": "0",
+								"tag-optional": "\"\""
+							}
+						}
+					],
+					"sid": 7053245334166749
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy rocket powerups if they go too far off the bottom of the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-y",
+							"objectClass": "RocketPowerup",
+							"sid": 370,
+							"parameters": {
+								"comparison": 5,
+								"y-co-ordinate": "ViewportTop(\"Game\") - 80"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-y",
+							"objectClass": "RocketPowerup",
+							"sid": 371,
+							"parameters": {
+								"y": "Self.Y + 100 * dt"
+							}
+						}
+					],
+					"sid": 8691586416514886
+				},
+				{
+					"eventType": "comment",
+					"text": "This event is intentionally empty, it simply stops the browser scrolling down when you press spacebar (Construct 2 prevents browser shortcuts if any key press event exists for it)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 372,
+							"parameters": {
+								"key": 32
+							}
+						}
+					],
+					"actions": [],
+					"sid": 9729175546626436
+				},
+				{
+					"eventType": "comment",
+					"text": "Explosions need to be destroyed when their animation is over, otherwise they would still exist on their last frame, gradually slowing down the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-animation-finished",
+							"objectClass": "Explosion1",
+							"sid": 373
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Explosion1",
+							"sid": 374
+						}
+					],
+					"sid": 4108505705043359
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-animation-finished",
+							"objectClass": "GunFlare",
+							"sid": 375
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "GunFlare",
+							"sid": 376
+						}
+					],
+					"sid": 2468450829937101
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-animation-finished",
+							"objectClass": "Explosion2",
+							"sid": 377
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Explosion2",
+							"sid": 378
+						}
+					],
+					"sid": 8401496105756393
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-animation-finished",
+							"objectClass": "Explosion3",
+							"sid": 379
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Explosion3",
+							"sid": 380
+						}
+					],
+					"sid": 443021990203365
+				}
+			],
+			"sid": 365
+		}
+	],
+	"sid": 762385358362124
+}

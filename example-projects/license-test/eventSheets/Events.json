@@ -1,0 +1,1520 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nFelipe Vaiano Calderan - Programmer\nTwitter: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios\n"
+		},
+		{
+			"eventType": "comment",
+			"text": "Camera settings"
+		},
+		{
+			"eventType": "variable",
+			"name": "CAMERA_CHASE_SPEED",
+			"type": "number",
+			"initialValue": "0.08",
+			"comment": "How fast the camera moves in relation to the car",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 296270483453410
+		},
+		{
+			"eventType": "variable",
+			"name": "CAMERA_CHASE_DISTANCE",
+			"type": "number",
+			"initialValue": "96",
+			"comment": "How far the camera is in relation to the car",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 229197854615914
+		},
+		{
+			"eventType": "comment",
+			"text": "Car settings"
+		},
+		{
+			"eventType": "variable",
+			"name": "CAR_FORWARD_MAX_SPEED",
+			"type": "number",
+			"initialValue": "300",
+			"comment": "How fast the car can go if it is moving forward",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 654535927645991
+		},
+		{
+			"eventType": "variable",
+			"name": "CAR_REVERSE_MAX_SPEED",
+			"type": "number",
+			"initialValue": "100",
+			"comment": "How fast the car can go if it is moving on reverse",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 916168975395489
+		},
+		{
+			"eventType": "variable",
+			"name": "CAR_STEER_SPEED",
+			"type": "number",
+			"initialValue": "140",
+			"comment": "How fast the car turns",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 607952563971147
+		},
+		{
+			"eventType": "variable",
+			"name": "CAR_DRIFT_RECOVER",
+			"type": "number",
+			"initialValue": "100",
+			"comment": "How easily the car recovers from a drift",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 460416713745141
+		},
+		{
+			"eventType": "comment",
+			"text": "Game variables"
+		},
+		{
+			"eventType": "variable",
+			"name": "objCounter",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Current objective identification number",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 973963293928822
+		},
+		{
+			"eventType": "variable",
+			"name": "tutorial",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "Is the player reading the tutorial?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 627200199031420
+		},
+		{
+			"eventType": "variable",
+			"name": "levelFinished",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Did the player finish the level?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 505390566641086
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tutorial",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Set initial camera, fade the game in, and disable car (wait for tutorial)"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 384558013111788
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "Car",
+							"sid": 806517292378773,
+							"behaviorType": "Car",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 647584558134497,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeIn\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 410605481272295,
+							"parameters": {
+								"cam-x": "1504",
+								"cam-y": "240",
+								"cam-z": "512",
+								"look-x": "Car.X",
+								"look-y": "Car.Y",
+								"look-z": "32",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 702620556189083
+				},
+				{
+					"eventType": "comment",
+					"text": "Close tutorial and begin the game"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 752495166171871,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 481686860918575,
+							"parameters": {
+								"variable": "tutorial"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Hide tutorial"
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTutorial",
+							"sid": 648511725883987,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideTutorial\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set initial objective position"
+						},
+						{
+							"id": "set-position",
+							"objectClass": "ObjectiveArrow",
+							"sid": 376162828561243,
+							"parameters": {
+								"x": "Objective.X",
+								"y": "Objective.Y"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show the countdown (3)"
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextCountdown",
+							"sid": 114920957203715,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowCountdown\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Countdown (2)"
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 691080209883131,
+							"parameters": {
+								"seconds": "1.0"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextCountdown",
+							"sid": 813916781369771,
+							"parameters": {
+								"text": "\"2\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Countdown (1)"
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 591847071202415,
+							"parameters": {
+								"seconds": "1.0"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextCountdown",
+							"sid": 783854977286506,
+							"parameters": {
+								"text": "\"1\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Countdown (GO!)"
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 352922156691352,
+							"parameters": {
+								"seconds": "1.0"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextCountdown",
+							"sid": 526564806318505,
+							"parameters": {
+								"text": "\"[color=#00FF00]GO![/color]\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change game state, enable car, show timer text, start timer and hide countdown"
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 518994006553981,
+							"parameters": {
+								"variable": "tutorial",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Car",
+							"sid": 742145924627098,
+							"behaviorType": "Car",
+							"parameters": {
+								"state": "enabled"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextCountdown",
+							"sid": 897854972937549,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowCountdown\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTimer",
+							"sid": 595884257964650,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TimerOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Timer",
+							"sid": 404108990798246,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1.0",
+								"type": "regular",
+								"tag": "\"TimeElapsed\""
+							}
+						}
+					],
+					"sid": 438381059758515
+				}
+			],
+			"sid": 191393759879007
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player/Car",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update car and camera state every frame"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 746173263923614
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextTutorial",
+							"sid": 886950021536669,
+							"parameters": {
+								"comparison": 2,
+								"opacity": "10"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "If the car is moving forward, camera follows from behind. Otherwise, in the case where the car is on reverse, camera follows from the front."
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 462479504314503,
+							"parameters": {
+								"cam-x": "lerp(3DCamera.CameraX, Car.X + (Car.Car.Speed >= 0 ? -1 : 1) * cos(Car.Angle) * CAMERA_CHASE_DISTANCE, CAMERA_CHASE_SPEED * 60 * dt)",
+								"cam-y": "lerp(3DCamera.CameraY, Car.Y + (Car.Car.Speed >= 0 ? -1 : 1) * sin(Car.Angle) * CAMERA_CHASE_DISTANCE, CAMERA_CHASE_SPEED  * 60 * dt)",
+								"cam-z": "lerp(3DCamera.CameraZ, 80, CAMERA_CHASE_SPEED  * 60 * dt)",
+								"look-x": "Car.X",
+								"look-y": "Car.Y",
+								"look-z": "32",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Limit the car reverse speed"
+						},
+						{
+							"id": "set-max-speed",
+							"objectClass": "Car",
+							"sid": 336043829818070,
+							"behaviorType": "Car",
+							"parameters": {
+								"max-speed": "Car.Car.Speed >= 0 ? CAR_FORWARD_MAX_SPEED : CAR_REVERSE_MAX_SPEED"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change car's behavior as its speed changes. The faster it is, the less it steers and the more it drifts"
+						},
+						{
+							"id": "set-steer-speed",
+							"objectClass": "Car",
+							"sid": 944427685132368,
+							"behaviorType": "Car",
+							"parameters": {
+								"steer-speed": "CAR_STEER_SPEED + (Car.Car.Speed < 0 ? -40 : (CAR_FORWARD_MAX_SPEED - Car.Car.Speed)/2)"
+							}
+						},
+						{
+							"id": "set-drift-recover",
+							"objectClass": "Car",
+							"sid": 182336408754525,
+							"behaviorType": "Car",
+							"parameters": {
+								"drift-recover": "CAR_DRIFT_RECOVER + (CAR_FORWARD_MAX_SPEED - abs(Car.Car.Speed))/2"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change wheels texture, depending on the current movement state of the car"
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "CarWheelRightTexture",
+							"sid": 951342358956113,
+							"parameters": {
+								"animation": "Car.Car.Speed = 0 ? \"Stopped\" : (Car.Car.Speed > 0 ? \"Forward\" : \"Reverse\")",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "CarWheelLeftTexture",
+							"sid": 271358948136313,
+							"parameters": {
+								"animation": "Car.Car.Speed = 0 ? \"Stopped\" : (Car.Car.Speed > 0 ? \"Forward\" : \"Reverse\")",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 675871397089887
+				},
+				{
+					"eventType": "comment",
+					"text": "Steer Left"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 118470144889022,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextFail",
+							"sid": 368630924347110,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Car",
+							"sid": 961865129987069,
+							"behaviorType": "Car",
+							"parameters": {
+								"control": "steer-left"
+							}
+						}
+					],
+					"sid": 559471659268285
+				},
+				{
+					"eventType": "comment",
+					"text": "Steer Right"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 596072708329489,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextFail",
+							"sid": 462845024256828,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Car",
+							"sid": 994734392735414,
+							"behaviorType": "Car",
+							"parameters": {
+								"control": "steer-right"
+							}
+						}
+					],
+					"sid": 380329244756407
+				},
+				{
+					"eventType": "comment",
+					"text": "Accelerate"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 636031190068964,
+							"parameters": {
+								"key": 38
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextFail",
+							"sid": 321345978110967,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Car",
+							"sid": 416416844156396,
+							"behaviorType": "Car",
+							"parameters": {
+								"control": "accelerate"
+							}
+						}
+					],
+					"sid": 274849371384828
+				},
+				{
+					"eventType": "comment",
+					"text": "Brake"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 709429619367466,
+							"parameters": {
+								"key": 40
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextFail",
+							"sid": 699755453053474,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Car",
+							"sid": 174506358675521,
+							"behaviorType": "Car",
+							"parameters": {
+								"control": "brake"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Activate brake lights"
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "CarBrakeLights",
+							"sid": 330699850652954,
+							"parameters": {
+								"animation": "\"Brake\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 993098344517597
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 143178806057178
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Deactivate brake lights"
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "CarBrakeLights",
+							"sid": 563722772326868,
+							"parameters": {
+								"animation": "\"Normal\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 435313539502675
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn smoke behind the exhaust"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 853264401120987,
+							"parameters": {
+								"interval-seconds": "0.1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 899707959250903,
+							"parameters": {
+								"object-to-create": "Smoke",
+								"layer": "\"Objects\"",
+								"x": "CarExhaust.X - cos(Car.Angle) * 8",
+								"y": "CarExhaust.Y - sin(Car.Angle) * 8",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Smoke",
+							"sid": 648701550013645,
+							"parameters": {
+								"angle": "Car.Angle"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Smoke",
+							"sid": 727061088732930,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SmokeDisappear\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 872919171940916
+				}
+			],
+			"sid": 897101783657854
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Cones",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the car hits a cone, the cone moves according to which direction and how fast it was hit. If the cone is against a wall, make it immovable to avoid any clipping."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Car",
+							"sid": 618345926124625,
+							"parameters": {
+								"object": "ConeBase"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "ConeBase",
+							"sid": 597220848404873,
+							"parameters": {
+								"object": "Fence"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-two-properties",
+							"objectClass": "ConeBase",
+							"sid": 729213013608392,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ConeHit\"",
+								"property": "position",
+								"end-x": "Self.X + (Car.Car.Speed >= 0 ? -1 : 1) * cos(angle(Self.X, Self.Y, Car.X, Car.Y)) * Car.Car.Speed",
+								"end-y": "Self.Y + (Car.Car.Speed >= 0 ? -1 : 1) * sin(angle(Self.X, Self.Y, Car.X, Car.Y)) * Car.Car.Speed",
+								"time": "0.5",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 131454051693164
+				},
+				{
+					"eventType": "comment",
+					"text": "Avoid cones going through walls and other cones"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "ConeBase",
+							"sid": 625045027402376,
+							"parameters": {
+								"object": "Fence"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "ConeBase",
+							"sid": 989211714957282,
+							"parameters": {
+								"object": "ConeBaseFamily"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "stop-all-tweens",
+							"objectClass": "ConeBase",
+							"sid": 842556650606821,
+							"behaviorType": "Tween"
+						}
+					],
+					"sid": 109645287295005
+				}
+			],
+			"sid": 136504847855799
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Objectives",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Set objective arrow position"
+				},
+				{
+					"functionName": "setObjectiveArrowPosition",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 230151259710426,
+							"parameters": {
+								"object": "Objective",
+								"expression": "Objective.ID",
+								"comparison": 0,
+								"value": "objCounter"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "ObjectiveArrow",
+							"sid": 815285607349238,
+							"parameters": {
+								"x": "Objective.X",
+								"y": "Objective.Y"
+							}
+						}
+					],
+					"sid": 251980498719095
+				},
+				{
+					"eventType": "comment",
+					"text": "Car reached an objective"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Car",
+							"sid": 709757917449051,
+							"parameters": {
+								"object": "Objective"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Objective",
+							"sid": 532807048847213,
+							"parameters": {
+								"instance-variable": "ID",
+								"comparison": 0,
+								"value": "objCounter"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 566390546378758,
+							"parameters": {
+								"variable": "levelFinished"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 986517046466755,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Before parallel parking"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 903914589580570,
+									"parameters": {
+										"value": "objCounter < 11"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 265213509447529,
+									"parameters": {
+										"variable": "objCounter",
+										"value": "1"
+									}
+								},
+								{
+									"callFunction": "setObjectiveArrowPosition",
+									"sid": 309577367692834
+								}
+							],
+							"sid": 248885305794960
+						},
+						{
+							"eventType": "comment",
+							"text": "Parallel parking"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 842278531629909
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 993136712177117,
+									"parameters": {
+										"value": "objCounter = 11"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "ObjectiveArrow",
+									"sid": 465408057717909,
+									"parameters": {
+										"x": "ParallelParkingZone.X",
+										"y": "ParallelParkingZone.Y"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "TextInfo",
+									"sid": 481508596994892,
+									"parameters": {
+										"opacity": "100"
+									}
+								},
+								{
+									"id": "flash",
+									"objectClass": "TextInfo",
+									"sid": 702357653454653,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.1",
+										"off-time": "0.1",
+										"duration": "604800"
+									}
+								}
+							],
+							"sid": 596249173824148
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Car has been parked successfully - Enter free roam and wait for restart"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Car",
+							"sid": 196894074431346,
+							"parameters": {
+								"object": "ParallelParkingZone"
+							}
+						},
+						{
+							"id": "is-between-angles",
+							"objectClass": "Car",
+							"sid": 383400921976469,
+							"parameters": {
+								"first-angle": "178",
+								"second-angle": "182"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 753677466324766,
+							"parameters": {
+								"variable": "levelFinished"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "stop-timer",
+							"objectClass": "Timer",
+							"sid": 757219563768182,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"TimeElapsed\""
+							}
+						},
+						{
+							"id": "stop-flashing",
+							"objectClass": "TextInfo",
+							"sid": 652984817480438,
+							"behaviorType": "Flash"
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 831073835149223,
+							"parameters": {
+								"variable": "levelFinished",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 474431727592689,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Show the medal the player got"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 157089330922989,
+									"parameters": {
+										"value": "int(tokenat(tokenat(TextTimer.Text, 1, \" \"), 0, \"s\")) <= 35"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextInfo",
+									"sid": 936331922758737,
+									"parameters": {
+										"text": "\"[color=#AAFFAA]You got the[/color] [color=#FFD700]Gold Medal[/color][color=#AAFFAA]. Press \\[Space] to restart, or, if you feel like it, go kick some cones![/color]\""
+									}
+								}
+							],
+							"sid": 794181723830427
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 390946903136845
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 553698784966664,
+									"parameters": {
+										"value": "int(tokenat(tokenat(TextTimer.Text, 1, \" \"), 0, \"s\")) <= 45"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextInfo",
+									"sid": 416879410642432,
+									"parameters": {
+										"text": "\"[color=#AAFFAA]You got the[/color] [color=#B0B0B0]Silver Medal[/color][color=#AAFFAA]. Press \\[Space] to restart, or, if you feel like it, go kick some cones![/color]\""
+									}
+								}
+							],
+							"sid": 731561905875944
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 294294272665818
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 566161724912528,
+									"parameters": {
+										"value": "int(tokenat(tokenat(TextTimer.Text, 1, \" \"), 0, \"s\")) <= 60"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextInfo",
+									"sid": 942336409151290,
+									"parameters": {
+										"text": "\"[color=#AAFFAA]You got the[/color] [color=#CD853F]Bronze Medal[/color][color=#AAFFAA]. Press \\[Space] to restart, or, if you feel like it, go kick some cones![/color]\""
+									}
+								}
+							],
+							"sid": 783806643712161
+						},
+						{
+							"eventType": "comment",
+							"text": "Player did not get any medal"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 868155621778171
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextInfo",
+									"sid": 630299374925465,
+									"parameters": {
+										"text": "\"[color=#FF8888]You did not get any medal. Press \\[Space] to restart, or, if you feel like it, go kick some cones![/color]\""
+									}
+								}
+							],
+							"sid": 181074753093036
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Restart after winning"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 106163468799489,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 397814878765539,
+							"parameters": {
+								"variable": "levelFinished"
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "Fader",
+							"sid": 581216221975449,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 520767969963127,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 798507877453926,
+							"parameters": {
+								"seconds": "1.0"
+							}
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 166656875832807
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 187657183517380
+						}
+					],
+					"sid": 704544720859406
+				}
+			],
+			"sid": 931095965563350
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Fail",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player has failed the test"
+				},
+				{
+					"functionName": "PlayerFailed",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextFail",
+							"sid": 839762708596275,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FailOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 412554444080145,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "3",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "stop-timer",
+							"objectClass": "Timer",
+							"sid": 769750088726614,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"TimeElapsed\""
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 570675760675149,
+							"parameters": {
+								"seconds": "4.0"
+							}
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 300987770719311
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 759623691730726
+						}
+					],
+					"sid": 388600199354159
+				},
+				{
+					"eventType": "comment",
+					"text": "Show FAIL message and fade out to restart the game"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Car",
+							"sid": 201947027479816,
+							"parameters": {
+								"object": "ConeBase"
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextFail",
+							"sid": 922645889984059,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 365413274727312,
+							"parameters": {
+								"variable": "levelFinished"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "PlayerFailed",
+							"sid": 499732021244756
+						}
+					],
+					"sid": 114640771371153
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Car",
+							"sid": 686488213443136,
+							"parameters": {
+								"object": "FailZone"
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextFail",
+							"sid": 603676070968712,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 303558344818044,
+							"parameters": {
+								"variable": "levelFinished"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "PlayerFailed",
+							"sid": 738146457686934
+						}
+					],
+					"sid": 169884114208348
+				}
+			],
+			"sid": 101734407907607
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Timer",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Add 1s to the current time"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Timer",
+							"sid": 661737253701052,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"TimeElapsed\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "TextTimer",
+							"sid": 889385405869597,
+							"parameters": {
+								"text": "\"Time: \" & int(tokenat(tokenat(Self.Text, 1, \" \"), 0, \"s\")) + 1 & \"s\""
+							}
+						}
+					],
+					"sid": 252200303672203
+				}
+			],
+			"sid": 936205919520903
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Billboards",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Make billboards look at the camera"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 364229180493660
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "Trees",
+							"sid": 743310152310030,
+							"parameters": {
+								"x": "3DCamera.CameraX",
+								"y": "3DCamera.CameraY"
+							}
+						},
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "ObjectiveArrow",
+							"sid": 337651681362825,
+							"parameters": {
+								"x": "3DCamera.CameraX",
+								"y": "3DCamera.CameraY"
+							}
+						}
+					],
+					"sid": 811796879652451
+				}
+			],
+			"sid": 672316246725907
+		}
+	],
+	"sid": 517270577260505
+}

@@ -1,0 +1,3060 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "Scrolling",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "Is there a scrolling going on ?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 171747503732970
+		},
+		{
+			"eventType": "variable",
+			"name": "maxScrollX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The maximum X we have reached currently in the level to prevent going back to the left",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 875334677543026
+		},
+		{
+			"eventType": "variable",
+			"name": "screenW",
+			"type": "number",
+			"initialValue": "1280",
+			"comment": "Width of the project",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 250275957707869
+		},
+		{
+			"eventType": "variable",
+			"name": "screenH",
+			"type": "number",
+			"initialValue": "720",
+			"comment": "Height of the project",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 591054338144783
+		},
+		{
+			"eventType": "comment",
+			"text": "Graphics based on : \nhttps://opengameart.org/content/platformer-base by Miguel Duarte released under CC By SA 3.0 - https://creativecommons.org/licenses/by-sa/3.0/\nhttps://opengameart.org/content/sunset-temple-tiles by Pyromantic released under CC 0 1.0 Public Domain - https://creativecommons.org/publicdomain/zero/1.0/\n\nIf you are reusing the graphics of this project, you need to attribute them correctly and indicates the license type for those as well. \n"
+		},
+		{
+			"eventType": "comment",
+			"text": "This template demonstrates a brawler type of game like the classics Golden Axe or Streets of rage.\nThe player controls the character with the arrows (and the default controls of the 8-directions behavior of charPos) and press D to kick the bad monks.\nThere is a camera control in the group Scrolling that will set \"fixed\" zones that need to be cleared of the enemies before allowing to go further.\n"
+		},
+		{
+			"eventType": "comment",
+			"text": "The pos object (charPos for the main character and ePos for the enemies) contains the 8-directions behavior.\nIt will react to the solid \"Boundary\" object. As *Pos objects are placed at the feet of the characters, they allow for the impression the character can move \"on the ground\" but not \"into\" the scenery.\n\nSame thing for the enemies.\nThe ePos object also has the Solid behavior to prevent the enemies from overlapping each other too much.\nWe also have a quick Z-Order management to make things more visually coherent."
+		},
+		{
+			"eventType": "comment",
+			"text": "The Enemy animations are the same as the Character.\nThe color change is done by using the 'Replace Color' effect.\nThe four colors of the original sprite are replaced by another set of colors that allow to have visually different sprites."
+		},
+		{
+			"eventType": "comment",
+			"text": "On start of layout we set the Character object to the correct position in relation to charPos and pin it to it. The player effectively control charPos, but in doing so moves the Character (with its animation) away.\nWe destroy the existing Enemy (which, because it is using containers does destroy its related ePos and eHB at the same time).\nFinally we position, set the sizes and display the health bar for the character and the enemy. The health bar for the enemy is initially invisible, only displayed when the character kicks an enemy.\nThe health bar is displayed over an \"UnderBar\" which gives a reference to the current quantity of health."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 181823496065611
+				}
+			],
+			"actions": [
+				{
+					"id": "set-position",
+					"objectClass": "charPos",
+					"sid": 172629844689512,
+					"parameters": {
+						"x": "Character.X",
+						"y": "Character.Y"
+					}
+				},
+				{
+					"id": "pin-to-object",
+					"objectClass": "Character",
+					"sid": 957619281468858,
+					"behaviorType": "Pin",
+					"parameters": {
+						"pin-to": "charPos",
+						"mode": "position-angle"
+					}
+				},
+				{
+					"id": "set-animation",
+					"objectClass": "Character",
+					"sid": 195539383179171,
+					"parameters": {
+						"animation": "\"idle\"",
+						"from": "beginning"
+					}
+				},
+				{
+					"id": "set-position",
+					"objectClass": "charPos",
+					"sid": 361920846815492,
+					"parameters": {
+						"x": "0",
+						"y": "screenH/2"
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Enemy",
+					"sid": 997987190517356
+				},
+				{
+					"id": "set-width",
+					"objectClass": "cUnderHPBar",
+					"sid": 604551369898647,
+					"parameters": {
+						"width": "136"
+					}
+				},
+				{
+					"id": "move-to-object",
+					"objectClass": "cHPBar",
+					"sid": 771804418576314,
+					"parameters": {
+						"where": "in-front",
+						"object": "cUnderHPBar"
+					}
+				},
+				{
+					"id": "set-position",
+					"objectClass": "cHPBar",
+					"sid": 349117513485530,
+					"parameters": {
+						"x": "cUnderHPBar.X + 4",
+						"y": "cUnderHPBar.Y"
+					}
+				},
+				{
+					"id": "set-width",
+					"objectClass": "cHPBar",
+					"sid": 962565350965056,
+					"parameters": {
+						"width": "clamp((cHPBar.maxWidth / Character.hpMax)*Character.hp,0,cHPBar.maxWidth)"
+					}
+				},
+				{
+					"id": "set-width",
+					"objectClass": "eUnderHPBar",
+					"sid": 936883937069815,
+					"parameters": {
+						"width": "136"
+					}
+				},
+				{
+					"id": "move-to-object",
+					"objectClass": "eHPBar",
+					"sid": 820636824391240,
+					"parameters": {
+						"where": "in-front",
+						"object": "eUnderHPBar"
+					}
+				},
+				{
+					"id": "set-position",
+					"objectClass": "eHPBar",
+					"sid": 666995923824788,
+					"parameters": {
+						"x": "eUnderHPBar.X - 4",
+						"y": "eUnderHPBar.Y"
+					}
+				},
+				{
+					"id": "set-width",
+					"objectClass": "eHPBar",
+					"sid": 128480129105824,
+					"parameters": {
+						"width": "clamp((eHPBar.maxWidth / enemy.hp)*enemy.hp,0,eHPBar.maxWidth)"
+					}
+				}
+			],
+			"sid": 642493240704304
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Scrolling",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Scrolling management"
+				},
+				{
+					"eventType": "comment",
+					"text": "We use the system expressions ScrollX and ScrollY position to determine the position of the \"camera\".\nWe also have a global variable keeping the maximum ScrollX value we reached used to prevent going back on our tracks."
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current ScrollX value is the new \"furthest X\" we've reached, we keep it in memory."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 219665291333472,
+							"parameters": {
+								"first-value": "scrollx",
+								"comparison": 4,
+								"second-value": "maxScrollX"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 378309199045114,
+							"parameters": {
+								"variable": "maxScrollX",
+								"value": "scrollx"
+							}
+						}
+					],
+					"sid": 302362978049035
+				},
+				{
+					"eventType": "comment",
+					"text": "When the Scrolling Boolean is set to False, it means we want to stick to the current \"screen position\" and have the character stick to those boundaries until the zone is cleared.\nTo do so, we clamp the position of charPos within the current screen boundaries."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 671531641186193,
+							"parameters": {
+								"variable": "Scrolling"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "charPos",
+							"sid": 254156514268379,
+							"parameters": {
+								"x": "clamp(Self.X,ScrollX - screenW/2 + Self.Width/2,ScrollX + screenW/2  - Self.Width/2)",
+								"y": "Clamp(Self.Y,ScrollY - screenH/2, ScrollY + screenH/2)"
+							}
+						}
+					],
+					"sid": 648836818465953
+				},
+				{
+					"eventType": "comment",
+					"text": "When the Scrolling Boolean is set to True, it means we \"follow\" the charPos position. Nevertheless, in order to have the \"diagonal\" ways like in the middle of the level, we have to keep track and limit the possible ScrollY value.\nTo do so, we clamp the position of ScrollY according to limits stored in charPos. Those limits are set when colliding with zone object.\nWe are also using the lerp() system expression in order to have a smoother movement instead of a \"teleportation\". The camera is lagging behind the current character's position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 891903371694835,
+							"parameters": {
+								"variable": "Scrolling"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-y",
+							"objectClass": "System",
+							"sid": 759809345214730,
+							"parameters": {
+								"y": "Clamp(lerp(scrollY,charPos.Y,dt*4),charPos.ScrollYmin,charPos.ScrollYmax)"
+							}
+						}
+					],
+					"sid": 628501179243351,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the current X position of charPos is greater than the maximum ScrollX value we have reached, we do lerp Scroll X to the current X value of charPos."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-x",
+									"objectClass": "charPos",
+									"sid": 132324883865469,
+									"parameters": {
+										"comparison": 5,
+										"x-co-ordinate": "maxScrollX"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "scroll-to-x",
+									"objectClass": "System",
+									"sid": 179121592649700,
+									"parameters": {
+										"x": "lerp(scrollx,charPos.X,dt*4)"
+									}
+								}
+							],
+							"sid": 667784897884470
+						},
+						{
+							"eventType": "comment",
+							"text": "If the current X position of charPos is less than the maximum ScrollX value we have reached, we do clamp the current charPos X value so it stays in the boundaries of the current screen and does not go back to the left of the level."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 309489666507410
+								}
+							],
+							"actions": [
+								{
+									"id": "set-x",
+									"objectClass": "charPos",
+									"sid": 279683279177327,
+									"parameters": {
+										"x": "clamp(Self.X,maxScrollX - ScreenW/2 + Self.Width/2,ScrollX + screenW/2  - Self.Width/2)"
+									}
+								}
+							],
+							"sid": 474136096725385
+						}
+					]
+				}
+			],
+			"sid": 997672809065199
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Inputs",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Inputs"
+				},
+				{
+					"eventType": "comment",
+					"text": "The default controls for the 8-direction behavior are the arrow keys and allow to have move it moving around."
+				},
+				{
+					"eventType": "comment",
+					"text": "Nevertheless, when the player presses the left key we need to mirror the character to reflect this new orientation. We also change the dir value that will be used for the character's hitbox when kicking."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Character",
+							"sid": 844172689470546,
+							"parameters": {
+								"instance-variable": "Alive"
+							}
+						},
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 817524820367727,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 283762478740484,
+							"parameters": {
+								"animation": "\"kick\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 941041012602236,
+							"parameters": {
+								"animation": "\"hit\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-mirrored",
+							"objectClass": "Character",
+							"sid": 210080646548481,
+							"parameters": {
+								"state": "mirrored"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "charPos",
+							"sid": 493010746872139,
+							"parameters": {
+								"instance-variable": "dir",
+								"value": "180"
+							}
+						}
+					],
+					"sid": 272603422675602
+				},
+				{
+					"eventType": "comment",
+					"text": "Nevertheless, when the player presses the right key we need to not mirror the character to reflect this new orientation. We also change the dir value that will be used for the character's hitbox when kicking."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Character",
+							"sid": 252857209022441,
+							"parameters": {
+								"instance-variable": "Alive"
+							}
+						},
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 166071769317777,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 739678370420190,
+							"parameters": {
+								"animation": "\"kick\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 591959109133331,
+							"parameters": {
+								"animation": "\"hit\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-mirrored",
+							"objectClass": "Character",
+							"sid": 980662539095100,
+							"parameters": {
+								"state": "not-mirrored"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "charPos",
+							"sid": 163611925541641,
+							"parameters": {
+								"instance-variable": "dir",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 175624702881740
+				},
+				{
+					"eventType": "comment",
+					"text": "D allows to kick. We stop the character so it has no momentum and change its animation accordingly"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 494316454570265,
+							"parameters": {
+								"key": 68
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Character",
+							"sid": 890615166288110,
+							"parameters": {
+								"instance-variable": "Alive"
+							}
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 292107231852117,
+							"parameters": {
+								"animation": "\"hit\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "charPos",
+							"sid": 408900107529521,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"id": "set-vector-x",
+							"objectClass": "charPos",
+							"sid": 250192729201483,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"vector-x": "0"
+							}
+						},
+						{
+							"id": "set-vector-y",
+							"objectClass": "charPos",
+							"sid": 846099005838867,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"vector-y": "0"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Character",
+							"sid": 790020285435722,
+							"parameters": {
+								"animation": "\"kick\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 484927387548052
+				}
+			],
+			"sid": 464681899012257
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Zone",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Zone"
+				},
+				{
+					"eventType": "comment",
+					"text": "Zones are \"fixed\" areas during the level where the player has to get rid of enemies.\nThose are determined in the editor by placing the object zone, and keeping in mind the current \"screen limits\" are ScreenW / 2 pixels to the left and right of zone.X and the scrollY value will be contained within the ScrollYMin and ScrollYMax values set in the zone object.\nWe also keep track of the last zone reached in charPos to prevent spawning enemies again every time we collide with the zone while we are stuck here."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "charPos",
+							"sid": 574615371291136,
+							"parameters": {
+								"object": "zone"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "zone",
+							"sid": 997544367628826,
+							"parameters": {
+								"instance-variable": "ID",
+								"comparison": 4,
+								"value": "charPos.curZone"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "charPos",
+							"sid": 583571923536906,
+							"parameters": {
+								"instance-variable": "scrollYmin",
+								"value": "zone.scrollYmin"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "charPos",
+							"sid": 552644126653116,
+							"parameters": {
+								"instance-variable": "ScrollYmax",
+								"value": "zone.scrollYmax"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "charPos",
+							"sid": 320308937869724,
+							"parameters": {
+								"instance-variable": "curZone",
+								"value": "zone.ID"
+							}
+						}
+					],
+					"sid": 468612765606379,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Some zones will only be used to define the scrollY value. For those, the stopping boolean value will be set to false.\nWhen we want a fixed zone with enemies spawning we set the stopping value to True.\nWhen it is we stop the scrolling by changing the Scrolling value to False has handled in the Scrolling group above.\nWe also reset the value of eToBeat which is the expected number of enemies to beat in the current zone before considering this zone is cleared."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "zone",
+									"sid": 804175819291296,
+									"parameters": {
+										"instance-variable": "stopping"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 134306656023905,
+									"parameters": {
+										"variable": "Scrolling",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "charPos",
+									"sid": 931841323081199,
+									"parameters": {
+										"instance-variable": "eToBeat",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 702888370969727,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "To spawn enemies, we check all the eSpawn objects that have the same ID as the current zone and for each one spawn an enemy at its location."
+								},
+								{
+									"eventType": "comment",
+									"text": "To add eSpawns in the layout, make sure their ID is set to the ID of the zone object you are willing to add them.\nTo position the X of the eSpawn take the zone.X value and add/remove 736 to it (in our 1280 pixels wide project that is half of the screen and an extra 16 pixels so the enemy does not seem to completely pop out of thin air)"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "eSpawn",
+											"sid": 927192835279216,
+											"parameters": {
+												"instance-variable": "IDStep",
+												"comparison": 0,
+												"value": "zone.ID"
+											}
+										},
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 341526194472406,
+											"parameters": {
+												"object": "eSpawn"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "createEnemy",
+											"sid": 296128154983931,
+											"parameters": [
+												"eSpawn.X",
+												"eSpawn.Y"
+											]
+										}
+									],
+									"sid": 676976820499974
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "A special zone has its END value set to True.\nThis zones indicates the end of the level/game and disable the character and makes him strike a victory pose while displaying a victory message.\nAt this point press F5 in the browser to play again, or can be the point where to take the player to another layout."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "zone",
+									"sid": 947585878853830,
+									"parameters": {
+										"instance-variable": "END"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "gameOver",
+									"sid": 479180542599042,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "gameOver",
+									"sid": 240164167735711,
+									"parameters": {
+										"animation": "\"victory\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Character",
+									"sid": 842134176050005,
+									"parameters": {
+										"instance-variable": "won",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "Character",
+									"sid": 967795235938836,
+									"parameters": {
+										"animation": "\"victory\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "charPos",
+									"sid": 139350287730974,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"state": "disabled"
+									}
+								}
+							],
+							"sid": 288981641116246
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When the value of eToBeat drops to or under 0 when there is no scrolling allowed, we consider the player has cleared all the enemies of a current fixed zone. \nWe set Scrolling to True again to resume the camera following the character and allowing the player to progress in the level.\nWe also display the \"Go\" flashy message that indicates you can move on."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "charPos",
+							"sid": 349669865092901,
+							"parameters": {
+								"instance-variable": "eToBeat",
+								"comparison": 3,
+								"value": "0"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 572179947038992,
+							"parameters": {
+								"variable": "Scrolling"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 460118156669596,
+							"parameters": {
+								"variable": "Scrolling",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "go",
+							"sid": 623269558937782,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "go",
+							"sid": 352644078101058,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1.0",
+								"type": "once",
+								"tag": "\"flash\""
+							}
+						}
+					],
+					"sid": 276706139054197
+				}
+			],
+			"sid": 446688387735998
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "HUD",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "HUD"
+				},
+				{
+					"eventType": "comment",
+					"text": "We display the health bar for a specific Enemy.\nWe pick the enemy instance thanks to its UID, passed as a parameter of the function.\nThe health bar is displaying the current HP. This is a percentage of the HPMax.\nYou divide the maximum width of the health bar by the maximum number of HP. Then you multiply that result by the current HP. \nClamp between 0 and the maximum width of your bar and you are having a display bar."
+				},
+				{
+					"functionName": "displayHealth",
+					"functionDescription": "Automatically converted from 'displayHealth'",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "enemyUid",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 907273971235010
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Enemy",
+							"sid": 139206989780525,
+							"parameters": {
+								"unique-id": "enemyUid"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "eUnderHPBar",
+							"sid": 685288429849541,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "eHPBar",
+							"sid": 819054164634293,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "eHPBar",
+							"sid": 541679623129554,
+							"parameters": {
+								"width": "clamp((eHPBar.maxWidth / enemy.hpMax)*enemy.hp,0,eHPBar.maxWidth)"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "eHPBar",
+							"sid": 884610508258893,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1.0",
+								"type": "once",
+								"tag": "\"Disappear\""
+							}
+						}
+					],
+					"sid": 785598415429413
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "eHPBar",
+							"sid": 417065341199927,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Disappear\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "eUnderHPBar",
+							"sid": 563923048708990,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "eHPBar",
+							"sid": 996555487298874,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 663292895413456
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "go",
+							"sid": 709262811121809,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"flash\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "flash",
+							"objectClass": "go",
+							"sid": 757541100570247,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.1",
+								"off-time": "0.1",
+								"duration": "2"
+							}
+						}
+					],
+					"sid": 134463196019193
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-flash-ended",
+							"objectClass": "go",
+							"sid": 614193765437810,
+							"behaviorType": "Flash"
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "go",
+							"sid": 456530706517173,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 813758806479261
+				}
+			],
+			"sid": 572399421178577
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Character",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Character animations"
+				},
+				{
+					"eventType": "comment",
+					"text": "We set the animation of the character according to whether the charPos object is moving or not. Also to display walk or idle, we need to make sure the character is not currently in a kick or being hit"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-moving",
+							"objectClass": "charPos",
+							"sid": 345628697513951,
+							"behaviorType": "8Direction"
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 648797815597975,
+							"parameters": {
+								"animation": "\"walk\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 591263900234119,
+							"parameters": {
+								"animation": "\"hit\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 723667293572399,
+							"parameters": {
+								"animation": "\"kick\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Character",
+							"sid": 816476222403907,
+							"parameters": {
+								"instance-variable": "won"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Character",
+							"sid": 359028491226606,
+							"parameters": {
+								"animation": "\"walk\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 951001072956296
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-moving",
+							"objectClass": "charPos",
+							"sid": 516989175232650,
+							"behaviorType": "8Direction",
+							"isInverted": true
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 171213747251566,
+							"parameters": {
+								"animation": "\"idle\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 832511970265306,
+							"parameters": {
+								"animation": "\"hit\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 674599661927625,
+							"parameters": {
+								"animation": "\"kick\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Character",
+							"sid": 159395310655729,
+							"parameters": {
+								"instance-variable": "won"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Character",
+							"sid": 259901767524114,
+							"parameters": {
+								"animation": "\"idle\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 895136873604656
+				},
+				{
+					"eventType": "comment",
+					"text": "When the kick or hit animations are finished..."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Character",
+							"sid": 491219517522414,
+							"parameters": {
+								"animation": "\"kick\""
+							}
+						},
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Character",
+							"sid": 747998403110735,
+							"parameters": {
+								"animation": "\"hit\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 880749077892662,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "...and the character is alive, we give back the hand to the player and display the character as being idle."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Character",
+									"sid": 801946348100308,
+									"parameters": {
+										"instance-variable": "Alive"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-enabled",
+									"objectClass": "charPos",
+									"sid": 522221327033404,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"state": "enabled"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "Character",
+									"sid": 673890471798742,
+									"parameters": {
+										"animation": "\"idle\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 912271206479202
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-frame-changed",
+							"objectClass": "Character",
+							"sid": 427248023737486
+						}
+					],
+					"actions": [],
+					"sid": 611198743328069,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "On the frame number 2 of the kick animation, we want to place the character HitBox over the character's leg. That is our \"active\" frame that can hurt the enemies."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-animation-playing",
+									"objectClass": "Character",
+									"sid": 624901335106767,
+									"parameters": {
+										"animation": "\"kick\""
+									}
+								},
+								{
+									"id": "compare-animation-frame",
+									"objectClass": "Character",
+									"sid": 340294427382098,
+									"parameters": {
+										"comparison": 0,
+										"number": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "cHitbox",
+									"sid": 613948220440754,
+									"parameters": {
+										"x": "Character.ImagePointX(1)",
+										"y": "Character.ImagePointY(1)"
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "cHitbox",
+									"sid": 947168024199216,
+									"parameters": {
+										"width": "48"
+									}
+								},
+								{
+									"id": "set-height",
+									"objectClass": "cHitbox",
+									"sid": 611092037376497,
+									"parameters": {
+										"height": "33"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "cHitbox",
+									"sid": 641977503700882,
+									"parameters": {
+										"angle": "charPos.dir"
+									}
+								}
+							],
+							"sid": 596913095892503
+						},
+						{
+							"eventType": "comment",
+							"text": "The rest of the time we hide the hitbox out of the screen"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 489843333477303
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "cHitbox",
+									"sid": 599089228024309,
+									"parameters": {
+										"x": "-128",
+										"y": "-128"
+									}
+								}
+							],
+							"sid": 370447750701288
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Character's death"
+				},
+				{
+					"eventType": "comment",
+					"text": "When the character has lost all its health, we make it fade away and display a Game Over message.\nTime to press F5 to play again or handle it the way you prefer"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Character",
+							"sid": 501437573557114,
+							"parameters": {
+								"instance-variable": "hp",
+								"comparison": 3,
+								"value": "0"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Character",
+							"sid": 198446597196800,
+							"parameters": {
+								"instance-variable": "Alive"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Character",
+							"sid": 787744881563178,
+							"parameters": {
+								"instance-variable": "Alive",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "charPos",
+							"sid": 395656727691450,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"id": "restart-fade",
+							"objectClass": "Character",
+							"sid": 279160044227434,
+							"behaviorType": "Fade"
+						}
+					],
+					"sid": 254078772778186
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-fade-out-finished",
+							"objectClass": "Character",
+							"sid": 490473258107960,
+							"behaviorType": "Fade"
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "gameOver",
+							"sid": 818245067145657,
+							"parameters": {
+								"visibility": "visible"
+							}
+						}
+					],
+					"sid": 299591657739746
+				}
+			],
+			"sid": 453306128795590
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Enemy",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "This function is the one creating and initialising an enemy.\nA X and Y position are passed as parameters and will be where the enemy spawns.\n\nePos is position at the feet of the character.\nEnemy is pinned to ePos for the same effect and control as Character and charPos (see the group Character).\nThe maximum HP and current HP are set (you want it to be more than 0 otherwise the Enemy would instantly die).\nYou could modify this to pick those values out of a data array for example to have different types of enemies.\n\nBy default the enemy is set to be walking towards the Character and neither attacking or being hit.\n\nWe also add 1 to charPos.eToBeat to define the number of enemies that are going to be required to beat to clear the current zone (see group Zone)"
+				},
+				{
+					"functionName": "createEnemy",
+					"functionDescription": "Automatically converted from 'createEnemy'",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "positionX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 569927108077556
+						},
+						{
+							"name": "positionY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 517965041733420
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 751651016830224,
+							"parameters": {
+								"object-to-create": "Enemy",
+								"layer": "\"Action\"",
+								"x": "0",
+								"y": "0"
+							}
+						},
+						{
+							"id": "set-position",
+							"objectClass": "ePos",
+							"sid": 278380987640106,
+							"parameters": {
+								"x": "Enemy.X",
+								"y": "Enemy.Y"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Enemy",
+							"sid": 448553014502778,
+							"parameters": {
+								"animation": "\"idle\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "pin-to-object",
+							"objectClass": "Enemy",
+							"sid": 882918831716057,
+							"behaviorType": "Pin",
+							"parameters": {
+								"pin-to": "ePos",
+								"mode": "position-angle"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Enemy",
+							"sid": 300613321828558,
+							"parameters": {
+								"instance-variable": "hpMax",
+								"value": "5"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Enemy",
+							"sid": 711954083740675,
+							"parameters": {
+								"instance-variable": "hp",
+								"value": "5"
+							}
+						},
+						{
+							"id": "set-position",
+							"objectClass": "ePos",
+							"sid": 404891816707210,
+							"parameters": {
+								"x": "positionX",
+								"y": "positionY"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 584375842171191,
+							"parameters": {
+								"instance-variable": "Walking",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 597563034514967,
+							"parameters": {
+								"instance-variable": "WalkingX",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 408547906252825,
+							"parameters": {
+								"instance-variable": "WalkingY",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 720337268493214,
+							"parameters": {
+								"instance-variable": "Attacking",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 228291605620880,
+							"parameters": {
+								"instance-variable": "Hit",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 628846418565707,
+							"parameters": {
+								"instance-variable": "Alive",
+								"value": "true"
+							}
+						},
+						{
+							"id": "add-to-instvar",
+							"objectClass": "charPos",
+							"sid": 561696010291928,
+							"parameters": {
+								"instance-variable": "eToBeat",
+								"value": "1"
+							}
+						},
+						{
+							"id": "move-to-object",
+							"objectClass": "Enemy",
+							"sid": 411362120343790,
+							"parameters": {
+								"where": "behind",
+								"object": "Character"
+							}
+						}
+					],
+					"sid": 284825209823692
+				},
+				{
+					"eventType": "comment",
+					"text": "Enemy Movement & orientation\nOnly happening when the enemy is not attacking or being hit"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 812155263505791,
+							"parameters": {
+								"object": "ePos"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "ePos",
+							"sid": 727916189608689,
+							"parameters": {
+								"instance-variable": "Hit"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "ePos",
+							"sid": 368553961042613,
+							"parameters": {
+								"instance-variable": "Attacking"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 930261616327481,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Enemy Orientation\nAccording to whether the enemy is to the right or the left of the Character we do set its orientation"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-x",
+									"objectClass": "ePos",
+									"sid": 957560492857196,
+									"parameters": {
+										"comparison": 4,
+										"x-co-ordinate": "charPos.X"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 429109761421408,
+									"parameters": {
+										"instance-variable": "dir",
+										"value": "1"
+									}
+								},
+								{
+									"id": "set-mirrored",
+									"objectClass": "Enemy",
+									"sid": 982114901611976,
+									"parameters": {
+										"state": "mirrored"
+									}
+								}
+							],
+							"sid": 687318069384996
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-x",
+									"objectClass": "ePos",
+									"sid": 442919937185166,
+									"parameters": {
+										"comparison": 2,
+										"x-co-ordinate": "charPos.X"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 681057860431974,
+									"parameters": {
+										"instance-variable": "dir",
+										"value": "0"
+									}
+								},
+								{
+									"id": "set-mirrored",
+									"objectClass": "Enemy",
+									"sid": 234016311940705,
+									"parameters": {
+										"state": "not-mirrored"
+									}
+								}
+							],
+							"sid": 844965902579832
+						},
+						{
+							"eventType": "comment",
+							"text": "Enemy movement"
+						},
+						{
+							"eventType": "comment",
+							"text": "When the enemy is not currently walking and is not in reaching distance of the character, set it to be walking"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "ePos",
+									"sid": 463497532907253,
+									"parameters": {
+										"instance-variable": "Walking"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "ePos",
+									"sid": 979416089605642,
+									"parameters": {
+										"instance-variable": "reach",
+										"comparison": 2,
+										"value": "abs(distance(ePos.X,ePos.Y,charPos.X,charPos.Y))"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "ePos",
+									"sid": 534086187179896,
+									"parameters": {
+										"instance-variable": "WalkingX",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "ePos",
+									"sid": 476909974799195,
+									"parameters": {
+										"instance-variable": "WalkingY",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "ePos",
+									"sid": 203242959342541,
+									"parameters": {
+										"instance-variable": "Walking",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 250081281400671
+						},
+						{
+							"eventType": "comment",
+							"text": "When the enemy is currently walking toward the character"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "ePos",
+									"sid": 992016637722679,
+									"parameters": {
+										"instance-variable": "Walking"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 821853472946831,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "enemy is to the right of the character"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-x",
+											"objectClass": "ePos",
+											"sid": 944516870386220,
+											"parameters": {
+												"comparison": 4,
+												"x-co-ordinate": "charPos.X"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 594789107852082,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "as long as the enemy is more than reach pixels to the right of the character, move to the left"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-x",
+													"objectClass": "ePos",
+													"sid": 628503882813770,
+													"parameters": {
+														"comparison": 4,
+														"x-co-ordinate": "charPos.X + ePos.reach"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "simulate-control",
+													"objectClass": "ePos",
+													"sid": 938877223516101,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"control": "left"
+													}
+												}
+											],
+											"sid": 877341739356047
+										},
+										{
+											"eventType": "comment",
+											"text": "otherwise stop the enemy"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 884394931810668
+												}
+											],
+											"actions": [
+												{
+													"id": "set-vector-x",
+													"objectClass": "ePos",
+													"sid": 600828167056460,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-x": "0"
+													}
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "ePos",
+													"sid": 713572270341463,
+													"parameters": {
+														"instance-variable": "WalkingX",
+														"value": "false"
+													}
+												}
+											],
+											"sid": 154237608164602
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "enemy is to the left of the character"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-x",
+											"objectClass": "ePos",
+											"sid": 298110318172796,
+											"parameters": {
+												"comparison": 2,
+												"x-co-ordinate": "charPos.X"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 149133283547133,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "as long as the enemy is more than reach pixels to the left of the character, move to the right"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-x",
+													"objectClass": "ePos",
+													"sid": 280556271947821,
+													"parameters": {
+														"comparison": 2,
+														"x-co-ordinate": "charPos.X - ePos.reach"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "simulate-control",
+													"objectClass": "ePos",
+													"sid": 705550138473531,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"control": "right"
+													}
+												}
+											],
+											"sid": 748552504854965
+										},
+										{
+											"eventType": "comment",
+											"text": "otherwise stop the enemy"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 283329616355667
+												}
+											],
+											"actions": [
+												{
+													"id": "set-vector-x",
+													"objectClass": "ePos",
+													"sid": 978729100383018,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-x": "0"
+													}
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "ePos",
+													"sid": 227692842864877,
+													"parameters": {
+														"instance-variable": "WalkingX",
+														"value": "false"
+													}
+												}
+											],
+											"sid": 956859112509080
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "enemy is to the bottom of the character"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-y",
+											"objectClass": "ePos",
+											"sid": 118651764125414,
+											"parameters": {
+												"comparison": 4,
+												"y-co-ordinate": "charPos.Y"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 713682396830789,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "as long as the enemy is more than reach pixels to the bottom of the character, move up"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-y",
+													"objectClass": "ePos",
+													"sid": 489111085652720,
+													"parameters": {
+														"comparison": 4,
+														"y-co-ordinate": "charPos.Y + ePos.reachY"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "simulate-control",
+													"objectClass": "ePos",
+													"sid": 446965670062513,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"control": "up"
+													}
+												}
+											],
+											"sid": 517785630306966
+										},
+										{
+											"eventType": "comment",
+											"text": "otherwise stop the enemy"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 788296438511907
+												}
+											],
+											"actions": [
+												{
+													"id": "set-vector-y",
+													"objectClass": "ePos",
+													"sid": 886319363920875,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-y": "0"
+													}
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "ePos",
+													"sid": 756874017733431,
+													"parameters": {
+														"instance-variable": "WalkingY",
+														"value": "false"
+													}
+												}
+											],
+											"sid": 979862200361039
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "enemy is to the top of the character"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-y",
+											"objectClass": "ePos",
+											"sid": 240660789886722,
+											"parameters": {
+												"comparison": 2,
+												"y-co-ordinate": "charPos.Y"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 644112385270302,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "as long as the enemy is more than reach pixels to the Top of the character, move down"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-y",
+													"objectClass": "ePos",
+													"sid": 697073044348133,
+													"parameters": {
+														"comparison": 2,
+														"y-co-ordinate": "charPos.Y - ePos.reachY"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "simulate-control",
+													"objectClass": "ePos",
+													"sid": 851114859304889,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"control": "down"
+													}
+												}
+											],
+											"sid": 258549701027419
+										},
+										{
+											"eventType": "comment",
+											"text": "otherwise stop the enemy"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 297673429841317
+												}
+											],
+											"actions": [
+												{
+													"id": "set-vector-y",
+													"objectClass": "ePos",
+													"sid": 865457541195376,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-y": "0"
+													}
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "ePos",
+													"sid": 358918684031298,
+													"parameters": {
+														"instance-variable": "WalkingY",
+														"value": "false"
+													}
+												}
+											],
+											"sid": 895967183840111
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "The enemy is not walking on the X axis and not walking on the Y axis either, set it to not be walking at all"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "ePos",
+											"sid": 428908792112299,
+											"parameters": {
+												"instance-variable": "WalkingX"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "ePos",
+											"sid": 727668640728923,
+											"parameters": {
+												"instance-variable": "WalkingY"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "ePos",
+											"sid": 517853339477297,
+											"parameters": {
+												"instance-variable": "Walking",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 945586237048309
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "ZOrder management + shadows"
+				},
+				{
+					"eventType": "comment",
+					"text": "According to the enemy Y position we send it to the top of the layer.\nThis way the higher on the screen an enemy will be, the more \"under\" lower enemies it will be, making visual sense."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each-ordered",
+							"objectClass": "System",
+							"sid": 757716721584796,
+							"parameters": {
+								"object": "Enemy",
+								"expression": "Enemy.Y",
+								"order": "ascending"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "move-to-top",
+							"objectClass": "Enemy",
+							"sid": 602999138230150
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "eShadow",
+							"sid": 100556126809533,
+							"parameters": {
+								"object": "Enemy",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "move-to-object",
+							"objectClass": "eShadow",
+							"sid": 567813568520872,
+							"parameters": {
+								"where": "behind",
+								"object": "Enemy"
+							}
+						}
+					],
+					"sid": 741544163083026,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "As long as the Character's Y position is higher than the current enemy we keep sending the character to the top of the layer, ordering it coherently along the way."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "Character",
+									"sid": 182382147513492,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "Enemy.Y"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "move-to-top",
+									"objectClass": "Character",
+									"sid": 647654346771306
+								}
+							],
+							"sid": 892802128152445
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Enemy Animation"
+				},
+				{
+					"eventType": "comment",
+					"text": "Like for the Character, the state of movement of the 8-direction behavior is used."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-moving",
+							"objectClass": "ePos",
+							"sid": 651884294252810,
+							"behaviorType": "8Direction",
+							"isInverted": true
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 537215763557274,
+							"parameters": {
+								"object": "ePos"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 703226165369221,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "ePos",
+									"sid": 641332622843631,
+									"parameters": {
+										"instance-variable": "Hit"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "ePos",
+									"sid": 642308105051827,
+									"parameters": {
+										"instance-variable": "Attacking"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "Enemy",
+									"sid": 689390691368790,
+									"parameters": {
+										"animation": "\"idle\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Enemy",
+									"sid": 191464490270335,
+									"parameters": {
+										"animation": "\"idle\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 547623158094219
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-moving",
+							"objectClass": "ePos",
+							"sid": 342024188651341,
+							"behaviorType": "8Direction"
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 380646441897444,
+							"parameters": {
+								"object": "ePos"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 773653132912794,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "ePos",
+									"sid": 388805030258616,
+									"parameters": {
+										"instance-variable": "Hit"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "ePos",
+									"sid": 705282185989752,
+									"parameters": {
+										"instance-variable": "Attacking"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "Enemy",
+									"sid": 992649023790748,
+									"parameters": {
+										"animation": "\"walk\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Enemy",
+									"sid": 699215421713576,
+									"parameters": {
+										"animation": "\"walk\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 297375497529741
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Like for the Character, in the punch animation of the Enemy we place the eHB (enemy HitBox) to check if the enemy is hitting the Character"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-frame-changed",
+							"objectClass": "Enemy",
+							"sid": 822483953216443
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 147958846379134,
+							"parameters": {
+								"object": "Enemy"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 371416032516359,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-animation-playing",
+									"objectClass": "Enemy",
+									"sid": 207916108203617,
+									"parameters": {
+										"animation": "\"punch\""
+									}
+								},
+								{
+									"id": "compare-animation-frame",
+									"objectClass": "Enemy",
+									"sid": 911809378286568,
+									"parameters": {
+										"comparison": 0,
+										"number": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "eHB",
+									"sid": 784809272853443,
+									"parameters": {
+										"x": "Enemy.X",
+										"y": "Enemy.Y - 60"
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "eHB",
+									"sid": 597995679789389,
+									"parameters": {
+										"width": "34"
+									}
+								},
+								{
+									"id": "set-height",
+									"objectClass": "eHB",
+									"sid": 675128014559001,
+									"parameters": {
+										"height": "19"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "eHB",
+									"sid": 575355932633114,
+									"parameters": {
+										"angle": "Enemy.dir * 180"
+									}
+								}
+							],
+							"sid": 327128305866030
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 210234745107500
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "eHB",
+									"sid": 542563846873418,
+									"parameters": {
+										"x": "-128",
+										"y": "-128"
+									}
+								}
+							],
+							"sid": 910621314809119
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Like for the Character, when the animation hit or punch is finished, we \"reset\" the enemy"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Enemy",
+							"sid": 747410101963229,
+							"parameters": {
+								"animation": "\"hit\""
+							}
+						},
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Enemy",
+							"sid": 131546352351152,
+							"parameters": {
+								"animation": "\"punch\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 503527492162871,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "We also change its Hit and Attack status.\nFrom there, the enemy can attack again or get hit again."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "ePos",
+									"sid": 441772807698177,
+									"parameters": {
+										"instance-variable": "Alive"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Enemy",
+									"sid": 581656565946943,
+									"parameters": {
+										"animation": "\"idle\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "ePos",
+									"sid": 610192282057301,
+									"parameters": {
+										"instance-variable": "Hit",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "ePos",
+									"sid": 714832611953997,
+									"parameters": {
+										"instance-variable": "Attacking",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 355760811565020
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Enemy's death"
+				},
+				{
+					"eventType": "comment",
+					"text": "When the HP of the enemy drop to or under 0 we set it to flash"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Enemy",
+							"sid": 839303459592292,
+							"parameters": {
+								"instance-variable": "hp",
+								"comparison": 3,
+								"value": "0"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 977721328326639,
+							"parameters": {
+								"object": "Enemy"
+							}
+						},
+						{
+							"id": "is-flashing",
+							"objectClass": "Enemy",
+							"sid": 554779372733224,
+							"behaviorType": "Flash",
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "flash",
+							"objectClass": "Enemy",
+							"sid": 366017663515493,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.1",
+								"off-time": "0.1",
+								"duration": "2"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 857274245119363,
+							"parameters": {
+								"instance-variable": "Alive",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 907371900559362
+				},
+				{
+					"eventType": "comment",
+					"text": "When the  flash of the dying enemy is done, we destroy the enemy and remove one to eToBeat, allowing for the Zone group to work as intended"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-flash-ended",
+							"objectClass": "Enemy",
+							"sid": 185836487164389,
+							"behaviorType": "Flash"
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Enemy",
+							"sid": 527939165966512
+						},
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "charPos",
+							"sid": 908433100410627,
+							"parameters": {
+								"instance-variable": "eToBeat",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 537524243499886
+				}
+			],
+			"sid": 549988277829087
+		},
+		{
+			"eventType": "comment",
+			"text": "character shadow position & zOrder"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 509596769497898
+				}
+			],
+			"actions": [
+				{
+					"id": "set-position-to-another-object",
+					"objectClass": "cShadow",
+					"sid": 743302159096744,
+					"parameters": {
+						"object": "Character",
+						"image-point-optional": "0"
+					}
+				},
+				{
+					"id": "move-to-object",
+					"objectClass": "cShadow",
+					"sid": 169196636087473,
+					"parameters": {
+						"where": "behind",
+						"object": "Character"
+					}
+				}
+			],
+			"sid": 754695432118559
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Combat",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Combat"
+				},
+				{
+					"eventType": "comment",
+					"text": "Enemy is in reach and conditions to attack the character ? (conditions being is the enemy alive, not being hit, not already attacking and is the character alive)"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Enemy",
+							"sid": 748805898767379,
+							"parameters": {
+								"instance-variable": "hp",
+								"comparison": 4,
+								"value": "0"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 753434238916389,
+							"parameters": {
+								"object": "Enemy"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "ePos",
+							"sid": 762987660465120,
+							"parameters": {
+								"instance-variable": "reach",
+								"comparison": 5,
+								"value": "distance(ePos.X,ePos.Y,charPos.X,charPos.Y)"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "ePos",
+							"sid": 635365110022902,
+							"parameters": {
+								"instance-variable": "Hit"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "ePos",
+							"sid": 676464109052457,
+							"parameters": {
+								"instance-variable": "Attacking"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Character",
+							"sid": 472925119264142,
+							"parameters": {
+								"instance-variable": "Alive"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 352772007727615,
+							"parameters": {
+								"instance-variable": "Attacking",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Enemy",
+							"sid": 838846908993161,
+							"parameters": {
+								"animation": "\"punch\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "move-to-object",
+							"objectClass": "Enemy",
+							"sid": 155586935352584,
+							"parameters": {
+								"where": "in-front",
+								"object": "Character"
+							}
+						}
+					],
+					"sid": 552535975726413
+				},
+				{
+					"eventType": "comment",
+					"text": "Hitboxes collisions"
+				},
+				{
+					"eventType": "comment",
+					"text": "Character's hitbox hits enemy"
+				},
+				{
+					"eventType": "comment",
+					"text": "If the enemy is in vertical reach distance (sets a visual zone that makes sense for the kick to hit the enemy) and the enemy is not already hit and is alive, we hit it.\nWe set the enemy to display the hit animation, it cannot attack and loses 1 HP.\nWe display the health bar for this Enemy instance and create particles to visually reinforce the fact it has been hit."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "cHitbox",
+							"sid": 735844753358743,
+							"parameters": {
+								"object": "Enemy"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 636997640369574,
+							"parameters": {
+								"object": "Enemy"
+							}
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Enemy",
+							"sid": 413024286681643,
+							"parameters": {
+								"animation": "\"hit\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Enemy",
+							"sid": 188742723132462,
+							"parameters": {
+								"instance-variable": "hp",
+								"comparison": 4,
+								"value": "0"
+							}
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "ePos",
+							"sid": 573904393765737,
+							"parameters": {
+								"comparison": 5,
+								"y-co-ordinate": "charPos.Y - charPos.reachY"
+							}
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "ePos",
+							"sid": 627447222157494,
+							"parameters": {
+								"comparison": 3,
+								"y-co-ordinate": "charPos.Y + charPos.reachY"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Enemy",
+							"sid": 332361073204700,
+							"parameters": {
+								"animation": "\"hit\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 583498652460715,
+							"parameters": {
+								"instance-variable": "Attacking",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 365880925251067,
+							"parameters": {
+								"instance-variable": "Hit",
+								"value": "true"
+							}
+						},
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "Enemy",
+							"sid": 151172952404435,
+							"parameters": {
+								"instance-variable": "hp",
+								"value": "1"
+							}
+						},
+						{
+							"callFunction": "displayHealth",
+							"sid": 542420525770935,
+							"parameters": [
+								"Enemy.UID"
+							]
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 582848952662326,
+							"parameters": {
+								"object-to-create": "Particles",
+								"layer": "\"Action\"",
+								"x": "Enemy.X",
+								"y": "Enemy.Y - Enemy.Height + 24"
+							}
+						}
+					],
+					"sid": 699379737436656
+				},
+				{
+					"eventType": "comment",
+					"text": "Enemy's hitbox hits character"
+				},
+				{
+					"eventType": "comment",
+					"text": "If the character is in vertical reach distance (sets a visual zone that makes sense for the punch to hit the character) and the character is not already hit and is alive, we hit it.\nWe set the character to display the hit animation, we disable the charPos 8 direction behavior to prevent the player from being able to move the character while being hit.\nThe character loses 1 HP.\nWe set the character health bar accordingly to its current HP and create particles to visually reinforce the fact it has been hit.\n\nThe enemy is also set to have a slight delay of recovery. That is to prevent the enemy spamming attacks which the character and player could not get out of."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "eHB",
+							"sid": 610591987704226,
+							"parameters": {
+								"object": "Character"
+							}
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Character",
+							"sid": 709003856297077,
+							"parameters": {
+								"animation": "\"hit\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "charPos",
+							"sid": 547609730194159,
+							"parameters": {
+								"comparison": 5,
+								"y-co-ordinate": "ePos.Y - ePos.reachY"
+							}
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "charPos",
+							"sid": 634394848804264,
+							"parameters": {
+								"comparison": 3,
+								"y-co-ordinate": "ePos.Y + ePos.reachY"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Character",
+							"sid": 575891176319603,
+							"parameters": {
+								"animation": "\"hit\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "Character",
+							"sid": 956412373538361,
+							"parameters": {
+								"instance-variable": "hp",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "cHPBar",
+							"sid": 493863345127888,
+							"parameters": {
+								"width": "clamp((cHPBar.maxWidth / Character.hpMax)*Character.hp,0,cHPBar.maxWidth)"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "charPos",
+							"sid": 353304503597678,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "ePos",
+							"sid": 801976548904475,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1",
+								"type": "once",
+								"tag": "\"recovery\""
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 392495759869782,
+							"parameters": {
+								"object-to-create": "Particles",
+								"layer": "\"Action\"",
+								"x": "Character.X",
+								"y": "Character.Y - Character.Height + 24"
+							}
+						}
+					],
+					"sid": 761064846519762
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "ePos",
+							"sid": 732713814773642,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"recovery\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "ePos",
+							"sid": 592586375309353,
+							"parameters": {
+								"instance-variable": "Attacking",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 719935621992225
+				}
+			],
+			"sid": 279960191178853
+		}
+	],
+	"sid": 777689915491500
+}

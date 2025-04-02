@@ -1,0 +1,296 @@
+{
+	"name": "EventsScore",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Score screen",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 907152066184958
+						}
+					],
+					"actions": [],
+					"sid": 692309650186662,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Tap anywhere to restart should always flash."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 580480889349003,
+									"parameters": {
+										"object": "TextGeneric",
+										"expression": "TextGeneric.textID = 5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "flash",
+									"objectClass": "TextGeneric",
+									"sid": 875457738540736,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.25",
+										"off-time": "0.15",
+										"duration": "604800"
+									}
+								}
+							],
+							"sid": 594686415068634
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the text boxes to their correct position using a bounce animation."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 885028680241891,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "5"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 385793927766409,
+									"parameters": {
+										"object": "TextGeneric",
+										"expression": "TextGeneric.textID = loopindex(\"i\")"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 660934448902560,
+									"parameters": {
+										"seconds": "0.5 * loopindex(\"i\")"
+									}
+								}
+							],
+							"sid": 299255104161630,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Special case for level text boxes."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 566282995154845,
+											"parameters": {
+												"value": "(TextGeneric.textID > 0) & (TextGeneric.textID <= 3)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-one-property",
+											"objectClass": "TextGeneric",
+											"sid": 709903369007773,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"MoveText\"",
+												"property": "offsetX",
+												"end-value": "298 - 118 * (TextGeneric.textID - 1)",
+												"time": "1",
+												"ease": "easeoutback",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 325170872088257
+								},
+								{
+									"eventType": "comment",
+									"text": "General case."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 159567643535199
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-one-property",
+											"objectClass": "TextGeneric",
+											"sid": 824244745356835,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"MoveText\"",
+												"property": "offsetX",
+												"end-value": "LayoutWidth/2",
+												"time": "1",
+												"ease": "easeoutback",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 556667708435615
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Periodically increment score text boxes until the correct amount of points is reached."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 373110100476122,
+							"parameters": {
+								"interval-seconds": "0.075"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 563300740057439,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-key",
+									"objectClass": "DictScores",
+									"sid": 809215209974790
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 839497000468463,
+									"parameters": {
+										"object": "TextScore",
+										"expression": "TextScore.dictKey = DictScores.CurrentKey"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 623877492330057,
+									"parameters": {
+										"value": "int(TextScore.Text) < DictScores.CurrentValue"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Increment individual level scores by 1."
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextScore",
+									"sid": 875639208708170,
+									"parameters": {
+										"text": "zeropad(int(Self.Text) + 1, 3)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Since there are 3 levels, the total score is incremented by 3."
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextTotal",
+									"sid": 903180345769981,
+									"parameters": {
+										"text": "zeropad(int(Self.Text) + 1, 3)"
+									}
+								}
+							],
+							"sid": 228528378001192
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Reset to Level 1."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tap",
+							"objectClass": "Touch",
+							"sid": 779672062076445
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 136129516913557,
+							"parameters": {
+								"object": "TextGeneric",
+								"expression": "TextGeneric.textID = 5"
+							}
+						},
+						{
+							"id": "compare-x",
+							"objectClass": "TextGeneric",
+							"sid": 867806245480626,
+							"parameters": {
+								"comparison": 0,
+								"x-co-ordinate": "LayoutWidth/2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "go-to-layout",
+							"objectClass": "System",
+							"sid": 102012722212127,
+							"parameters": {
+								"layout": "Level1"
+							}
+						}
+					],
+					"sid": 579942454262315
+				}
+			],
+			"sid": 205354067458534
+		}
+	],
+	"sid": 769479628984718
+}

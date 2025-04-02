@@ -1,0 +1,541 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Update the 'IsOnGround' and 'IsFalling' flags of all the blocks every tick."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 8403153807851121
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "UpdateOnGround",
+					"sid": 958601275356365
+				}
+			],
+			"sid": 8023646453671544
+		},
+		{
+			"eventType": "comment",
+			"text": "If the user touches or clicks a block, destroy it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 1326598790274831,
+					"parameters": {
+						"object": "Block"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Block",
+					"sid": 7371627535054665
+				}
+			],
+			"sid": 5028818557126451
+		},
+		{
+			"eventType": "comment",
+			"text": "This function is called when we want to update the state of all the blocks. First of all we start by setting all the blocks 'IsOnGround' to false, and then later set it to true for the ones which are connected to the ground. In other words, assume disconnected from the ground until proven connected."
+		},
+		{
+			"functionName": "UpdateOnGround",
+			"functionDescription": "Automatically converted from 'UpdateOnGround'",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-boolean-instvar",
+					"objectClass": "Block",
+					"sid": 840861801160871,
+					"parameters": {
+						"instance-variable": "IsOnGround",
+						"value": "false"
+					}
+				}
+			],
+			"sid": 471154997789336,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Then we start at the ground, and mark all adjacent blocks as also on the ground using a recursive function."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-at-offset",
+							"objectClass": "Block",
+							"sid": 505189969387307,
+							"parameters": {
+								"object": "TiledBackground",
+								"offset-x": "0",
+								"offset-y": "1"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 707390656782020,
+							"parameters": {
+								"object": "Block"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "MarkAsOnGround",
+							"sid": 811851268148705,
+							"parameters": [
+								"Block.UID"
+							]
+						}
+					],
+					"sid": 211358150161482
+				},
+				{
+					"eventType": "comment",
+					"text": "Once all blocks' 'IsOnGround' flags have been updated, set any which are not on the ground to start falling."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Block",
+							"sid": 530376636905472,
+							"parameters": {
+								"instance-variable": "IsOnGround"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Block",
+							"sid": 885203573030583,
+							"parameters": {
+								"instance-variable": "IsFalling",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 367286786022468
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "This function marks a block as on the ground, then also marks any adjacent blocks. This means the blocks immediately on the ground are marked, then they mark all the connected blocks in a chain; any 'islands' of blocks free-floating (which need to fall) are never reached, so their 'IsOnGround' flags are left 'false'."
+		},
+		{
+			"functionName": "MarkAsOnGround",
+			"functionDescription": "Automatically converted from 'MarkAsOnGround'",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "instUid",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "UID of the instance to mark",
+					"sid": 463673064298336
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "pick-by-unique-id",
+					"objectClass": "Block",
+					"sid": 733387593135397,
+					"parameters": {
+						"unique-id": "instUid"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-instvar",
+					"objectClass": "Block",
+					"sid": 499003635006841,
+					"parameters": {
+						"instance-variable": "IsOnGround",
+						"value": "true"
+					}
+				}
+			],
+			"sid": 245707877599137,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Mark any blocks to the left or to the right as also on the ground. Note we have to use a family to be able to pick instances of 'Block' and refer to them separately."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Block",
+							"sid": 203524338412716,
+							"parameters": {
+								"instance-variable": "IsFalling"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 892953865506992,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-overlapping-point",
+									"objectClass": "System",
+									"sid": 335697259429009,
+									"parameters": {
+										"object": "Family1",
+										"x": "Block.X - 22",
+										"y": "Block.Y"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Family1",
+									"sid": 886920529234738,
+									"parameters": {
+										"instance-variable": "IsOnGround"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MarkAsOnGround",
+									"sid": 182382673292996,
+									"parameters": [
+										"Family1.UID"
+									]
+								}
+							],
+							"sid": 249311117838665
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-overlapping-point",
+									"objectClass": "System",
+									"sid": 783488708436722,
+									"parameters": {
+										"object": "Family1",
+										"x": "Block.X + 22",
+										"y": "Block.Y"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Family1",
+									"sid": 682886283504955,
+									"parameters": {
+										"instance-variable": "IsOnGround"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MarkAsOnGround",
+									"sid": 290372033837750,
+									"parameters": [
+										"Family1.UID"
+									]
+								}
+							],
+							"sid": 493217038722906
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Note the check is slightly different for blocks which are not falling. This is so if a block is falling past a block connected to the ground, the block connected to the ground doesn't mark the falling block as now also connected to the ground. That should only happen when the falling block lands vertically on another block."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Block",
+							"sid": 593278427391744,
+							"parameters": {
+								"instance-variable": "IsFalling"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 577455733905360,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-overlapping-point",
+									"objectClass": "System",
+									"sid": 210942526092803,
+									"parameters": {
+										"object": "Family1",
+										"x": "Block.X - 22",
+										"y": "Block.Y"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Family1",
+									"sid": 989559316951579,
+									"parameters": {
+										"instance-variable": "IsOnGround"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Family1",
+									"sid": 987140513612243,
+									"parameters": {
+										"instance-variable": "IsFalling"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MarkAsOnGround",
+									"sid": 613931670022745,
+									"parameters": [
+										"Family1.UID"
+									]
+								}
+							],
+							"sid": 687191604189261
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-overlapping-point",
+									"objectClass": "System",
+									"sid": 858230093563357,
+									"parameters": {
+										"object": "Family1",
+										"x": "Block.X + 22",
+										"y": "Block.Y"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Family1",
+									"sid": 543394044852987,
+									"parameters": {
+										"instance-variable": "IsOnGround"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Family1",
+									"sid": 815280540139651,
+									"parameters": {
+										"instance-variable": "IsFalling"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MarkAsOnGround",
+									"sid": 637244441893481,
+									"parameters": [
+										"Family1.UID"
+									]
+								}
+							],
+							"sid": 253561123992595
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Also mark blocks above and below as on the ground."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-overlapping-point",
+							"objectClass": "System",
+							"sid": 179906864907843,
+							"parameters": {
+								"object": "Family1",
+								"x": "Block.X",
+								"y": "Block.Y - 22"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Family1",
+							"sid": 208000860090694,
+							"parameters": {
+								"instance-variable": "IsOnGround"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "MarkAsOnGround",
+							"sid": 203227221958631,
+							"parameters": [
+								"Family1.UID"
+							]
+						}
+					],
+					"sid": 342880539682733
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-overlapping-point",
+							"objectClass": "System",
+							"sid": 995951562463969,
+							"parameters": {
+								"object": "Family1",
+								"x": "Block.X",
+								"y": "Block.Y + 22"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Family1",
+							"sid": 821719402720838,
+							"parameters": {
+								"instance-variable": "IsOnGround"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "MarkAsOnGround",
+							"sid": 346247250621662,
+							"parameters": [
+								"Family1.UID"
+							]
+						}
+					],
+					"sid": 606412565107230
+				},
+				{
+					"eventType": "comment",
+					"text": "This block is on the ground, so stop it falling. We have to do this after the above events, since the collision checks are done differently depending on the 'IsFalling' flag."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Block",
+							"sid": 949310240156462,
+							"parameters": {
+								"instance-variable": "IsFalling",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 159929334116144
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "If a block is marked as falling, move it down at 50 pixels per second as long as it is in free fall (i.e. it does not have another block or the ground beneath it). Note we order the movements from bottom to top, so we don't get 'jiggling' as blocks think they've landed on another block which is itself still falling."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "Block",
+					"sid": 6316925441451417,
+					"parameters": {
+						"instance-variable": "IsFalling"
+					}
+				},
+				{
+					"id": "for-each-ordered",
+					"objectClass": "System",
+					"sid": 3139897571699763,
+					"parameters": {
+						"object": "Block",
+						"expression": "Block.Y",
+						"order": "descending"
+					}
+				},
+				{
+					"id": "is-overlapping-at-offset",
+					"objectClass": "Block",
+					"sid": 8525382276142128,
+					"parameters": {
+						"object": "Family1",
+						"offset-x": "0",
+						"offset-y": "50 * dt"
+					},
+					"isInverted": true
+				},
+				{
+					"id": "is-overlapping-at-offset",
+					"objectClass": "Block",
+					"sid": 7291301686176145,
+					"parameters": {
+						"object": "TiledBackground",
+						"offset-x": "0",
+						"offset-y": "50 * dt"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-y",
+					"objectClass": "Block",
+					"sid": 1394400134595628,
+					"parameters": {
+						"y": "Self.Y + 50 * dt"
+					}
+				}
+			],
+			"sid": 2398838445191114
+		}
+	],
+	"sid": 624226169486368
+}

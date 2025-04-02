@@ -1,0 +1,789 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "FrequencyBinCount",
+			"type": "number",
+			"initialValue": "128",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 980950195377679
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Audio devices",
+			"description": "Handling the selection of a microphone input source and requesting access to it.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 432052628537834
+						}
+					],
+					"actions": [],
+					"sid": 230289375592725,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "On startup, if recording is supported, get a list of available media sources and display them in the InputDeviceList dropdown."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-recording-supported",
+									"objectClass": "VideoRecorder",
+									"sid": 972858857934476
+								}
+							],
+							"actions": [
+								{
+									"id": "get-media-sources",
+									"objectClass": "UserMedia",
+									"sid": 856032764035812
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 331681461856697
+								}
+							],
+							"sid": 592498367689159,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 122300772973347,
+											"parameters": {
+												"first-value": "UserMedia.AudioSourceCount",
+												"comparison": 4,
+												"second-value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-enabled",
+											"objectClass": "InputDeviceList",
+											"sid": 572303057878334,
+											"parameters": {
+												"mode": "enabled"
+											}
+										},
+										{
+											"id": "clear",
+											"objectClass": "InputDeviceList",
+											"sid": 852097349528711
+										}
+									],
+									"sid": 221365722302276,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "repeat",
+													"objectClass": "System",
+													"sid": 335980849554321,
+													"parameters": {
+														"count": "UserMedia.AudioSourceCount"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "add-item",
+													"objectClass": "InputDeviceList",
+													"sid": 895671572709204,
+													"parameters": {
+														"text": "\"Microphone \" & loopindex & \" (\" & UserMedia.AudioSourceLabelAt(loopindex) & \")\""
+													}
+												}
+											],
+											"sid": 253735403004042
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "On startup, if recording is not supported, show a message saying to try a different browser."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 816829978958956
+								}
+							],
+							"actions": [
+								{
+									"id": "set-enabled",
+									"objectClass": "RequestMic",
+									"sid": 812925452591839,
+									"parameters": {
+										"mode": "disabled"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "Status",
+									"sid": 745527412629176,
+									"parameters": {
+										"text": "\"Recording not supported! Try another browser\""
+									}
+								}
+							],
+							"sid": 386483639334127
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When 'Request microphone' is clicked, request to use the selected audio input source."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "RequestMic",
+							"sid": 901577347436789
+						}
+					],
+					"actions": [
+						{
+							"id": "request-microphone",
+							"objectClass": "UserMedia",
+							"sid": 277099215669575,
+							"parameters": {
+								"tag": "\"mic\"",
+								"source": "InputDeviceList.SelectedIndex"
+							}
+						}
+					],
+					"sid": 713080000143395
+				},
+				{
+					"eventType": "comment",
+					"text": "If the microphone access was approved, enable the 'Start recording' button."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-media-request-approved",
+							"objectClass": "UserMedia",
+							"sid": 912676668978055
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "Status",
+							"sid": 595055164241188,
+							"parameters": {
+								"text": "\"Microphone access approved\""
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "RequestMic",
+							"sid": 925720661924071,
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "StartRecording",
+							"sid": 420332555807547,
+							"parameters": {
+								"mode": "enabled"
+							}
+						}
+					],
+					"sid": 183718160147186
+				},
+				{
+					"eventType": "comment",
+					"text": "If the microphone access was declined, show a message."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-media-request-declined",
+							"objectClass": "UserMedia",
+							"sid": 789532608639868
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "Status",
+							"sid": 908698727138647,
+							"parameters": {
+								"text": "\"Microphone access declined\""
+							}
+						}
+					],
+					"sid": 531369873296349
+				}
+			],
+			"sid": 154986446899418
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Recording",
+			"description": "Manages starting and stopping the recording, and providing the options to download or share it.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When 'Start recording' is clicked, use the Video Recorder object to start recording from the User Media object, with audio only."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "StartRecording",
+							"sid": 702528742121956
+						}
+					],
+					"actions": [
+						{
+							"id": "start-user-media-recording-2",
+							"objectClass": "VideoRecorder",
+							"sid": 465843786677675,
+							"parameters": {
+								"container": "auto",
+								"video-codec": "none",
+								"audio-codec": "auto",
+								"quality-kbps": "2500"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "Status",
+							"sid": 495408974944792,
+							"parameters": {
+								"text": "\"Recording...\""
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "StartRecording",
+							"sid": 552525738036086,
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "StopRecording",
+							"sid": 869943330419845,
+							"parameters": {
+								"mode": "enabled"
+							}
+						}
+					],
+					"sid": 595445935459684
+				},
+				{
+					"eventType": "comment",
+					"text": "When 'Stop recording' is clicked, stop the recording in Video Recorder. After a moment, 'On recording ready' should trigger."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "StopRecording",
+							"sid": 250010760966211
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "StartRecording",
+							"sid": 100500905030761,
+							"parameters": {
+								"mode": "enabled"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "StopRecording",
+							"sid": 910986562642569,
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"id": "stop-recording",
+							"objectClass": "VideoRecorder",
+							"sid": 549667920130543
+						},
+						{
+							"id": "set-text",
+							"objectClass": "Status",
+							"sid": 931912372838824,
+							"parameters": {
+								"text": "\"Stopped recording...\""
+							}
+						}
+					],
+					"sid": 399935451683776
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the recording is ready and the RecordingURL can be used, enable the download button."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-recording-ready",
+							"objectClass": "VideoRecorder",
+							"sid": 842436319572481
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "Status",
+							"sid": 879448994127746,
+							"parameters": {
+								"text": "\"Recording ready\""
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "DownloadRecording",
+							"sid": 551632441422222,
+							"parameters": {
+								"mode": "enabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also enable the \"Play\" button. Add the recording URL to the Audio object so it can be played."
+						},
+						{
+							"id": "add-remote-url",
+							"objectClass": "Audio",
+							"sid": 396759392574647,
+							"parameters": {
+								"url": "VideoRecorder.RecordingURL",
+								"type": "VideoRecorder.RecordingType",
+								"name": "\"myrecording\""
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "PlayRecording",
+							"sid": 150489404698385,
+							"parameters": {
+								"mode": "enabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Sharing and saving the recording requires using a Binary Data object. To load the recording in to a Binary Data, use the AJAX object to request the RecordingURL, storing the result in the Binary Data object."
+						},
+						{
+							"id": "set-response-binary",
+							"objectClass": "AJAX",
+							"sid": 222770849797153,
+							"parameters": {
+								"destination": "BinaryData"
+							}
+						},
+						{
+							"id": "request-url",
+							"objectClass": "AJAX",
+							"sid": 759825509259002,
+							"parameters": {
+								"tag": "\"recording\"",
+								"url": "VideoRecorder.RecordingURL"
+							}
+						}
+					],
+					"sid": 711689452093098,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Enable the share and save buttons depending on if the features are supported."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-sharing-files-supported",
+									"objectClass": "Share",
+									"sid": 618487486395030
+								}
+							],
+							"actions": [
+								{
+									"id": "set-enabled",
+									"objectClass": "ShareRecording",
+									"sid": 782012972722598,
+									"parameters": {
+										"mode": "enabled"
+									}
+								}
+							],
+							"sid": 326816285281484
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-supported",
+									"objectClass": "FileSystem",
+									"sid": 651086014319722
+								}
+							],
+							"actions": [
+								{
+									"id": "set-enabled",
+									"objectClass": "SaveRecording",
+									"sid": 585766940636858,
+									"parameters": {
+										"mode": "enabled"
+									}
+								}
+							],
+							"sid": 925523004913103
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If a recording error happens for any reason, show an error message."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-recording-error",
+							"objectClass": "VideoRecorder",
+							"sid": 348037060569983
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "Status",
+							"sid": 632476794567470,
+							"parameters": {
+								"text": "\"Recording error\""
+							}
+						}
+					],
+					"sid": 987179517708196
+				},
+				{
+					"eventType": "comment",
+					"text": "When clicking the Play button, play the audio named \"myrecording\". This was added as a URL to be played with the 'Add remote URL' action."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "PlayRecording",
+							"sid": 922337093486362
+						}
+					],
+					"actions": [
+						{
+							"id": "play-by-name",
+							"objectClass": "Audio",
+							"sid": 193207599123004,
+							"parameters": {
+								"folder": "sounds",
+								"audio-file-name": "\"myrecording\"",
+								"loop": "not-looping",
+								"volume": "0",
+								"stereo-pan": "0",
+								"tag-optional": "\"\""
+							}
+						}
+					],
+					"sid": 659910573111450
+				},
+				{
+					"eventType": "comment",
+					"text": "When the download button is clicked, use the Browser object to invoke a download of the recording URL. Note the Video Recorder object also provides the file extension to use, since it depends on the supported encode formats."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "DownloadRecording",
+							"sid": 825751080412399
+						}
+					],
+					"actions": [
+						{
+							"id": "invoke-download",
+							"objectClass": "Browser",
+							"sid": 498402451492622,
+							"parameters": {
+								"url": "VideoRecorder.RecordingURL",
+								"filename": "\"myrecording\" & VideoRecorder.RecordingFileExtension"
+							}
+						}
+					],
+					"sid": 719677327626101
+				},
+				{
+					"eventType": "comment",
+					"text": "If sharing files is supported, use the Share object to share the recording when the share button is clicked. Note we use the 'Add file' action to add the recording from the Binary Data object, which the recording was previously loaded in to. The Video Recorder object also provides the type and file extension to use, since they depend on the supported encode formats."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "ShareRecording",
+							"sid": 563830382963665
+						}
+					],
+					"actions": [
+						{
+							"id": "add-file",
+							"objectClass": "Share",
+							"sid": 205016213434181,
+							"parameters": {
+								"filename": "\"myrecording\" & VideoRecorder.RecordingFileExtension",
+								"type": "VideoRecorder.RecordingType",
+								"data": "BinaryData"
+							}
+						},
+						{
+							"id": "share-text",
+							"objectClass": "Share",
+							"sid": 127903660652312,
+							"parameters": {
+								"text": "\"\"",
+								"title": "\"My audio recording\"",
+								"url": "\"\""
+							}
+						}
+					],
+					"sid": 726294417836290
+				},
+				{
+					"eventType": "comment",
+					"text": "If File System is supported, show a save picker when clicking the save button. As before the recording type and file extension are used for the picker and suggested name. When the picker is completed, write the resulting file from the Binary Data object."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "SaveRecording",
+							"sid": 417629609446300
+						}
+					],
+					"actions": [
+						{
+							"id": "add-accept-type",
+							"objectClass": "FileSystem",
+							"sid": 523638563676840,
+							"parameters": {
+								"mime-type": "VideoRecorder.RecordingType",
+								"file-extensions": "VideoRecorder.RecordingFileExtension",
+								"description": "\"Audio files\""
+							}
+						},
+						{
+							"id": "show-save-file-picker",
+							"objectClass": "FileSystem",
+							"sid": 551097159691260,
+							"parameters": {
+								"picker-tag": "\"save\"",
+								"show-accept-all": true,
+								"suggested-name": "\"recording\" & VideoRecorder.RecordingFileExtension",
+								"id": "\"recording\"",
+								"start-in": "documents"
+							}
+						}
+					],
+					"sid": 874564612178096
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-picker-complete",
+							"objectClass": "FileSystem",
+							"sid": 227245341335406,
+							"parameters": {
+								"picker-tag": "\"save\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "write-binary-file",
+							"objectClass": "FileSystem",
+							"sid": 699979796828200,
+							"parameters": {
+								"picker-tag": "\"save\"",
+								"folder-path": "\"\"",
+								"file-tag": "\"\"",
+								"data": "BinaryData"
+							}
+						}
+					],
+					"sid": 221730433447067
+				}
+			],
+			"sid": 916161459443512
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Spectrum",
+			"description": "Displays the current audio input spectrum using Tiled Background objects.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On startup, destroy the initial SpectrumBar object. Also add an analyser effect on the tag \"mic\" to get frequency information from the microphone input coming from User Media. Also mute the tag to avoid the input coming out the speakers."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 512387824944944
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "SpectrumBar",
+							"sid": 591947181633743
+						},
+						{
+							"id": "add-analyser-effect",
+							"objectClass": "Audio",
+							"sid": 702292750554157,
+							"parameters": {
+								"tag": "\"mic\"",
+								"fft-size": "FrequencyBinCount * 2",
+								"smoothing": "0.2"
+							}
+						},
+						{
+							"id": "add-mute-effect",
+							"objectClass": "Audio",
+							"sid": 955285015844450,
+							"parameters": {
+								"tag": "\"mic\""
+							}
+						}
+					],
+					"sid": 898633972844123,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Create a spectrum bar for each frequency bin, along the width of the SpectrumBase object."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 716623284655285,
+									"parameters": {
+										"count": "FrequencyBinCount"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 362642631343220,
+									"parameters": {
+										"object-to-create": "SpectrumBar",
+										"layer": "0",
+										"x": "SpectrumBase.X + loopindex * (SpectrumBase.Width / FrequencyBinCount)",
+										"y": "SpectrumBase.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "SpectrumBar",
+									"sid": 974206517783691,
+									"parameters": {
+										"instance-variable": "binNumber",
+										"value": "loopindex"
+									}
+								}
+							],
+							"sid": 488839411563024
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the height of each SpectrumBar to represent the audio analyser frequencies."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 818459423853998,
+							"parameters": {
+								"object": "SpectrumBar"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-height",
+							"objectClass": "SpectrumBar",
+							"sid": 104547824653495,
+							"parameters": {
+								"height": "max(150 + Audio.AnalyserFreqBinAt(\"mic\", 0, SpectrumBar.binNumber), 0)"
+							}
+						}
+					],
+					"sid": 329975073707803
+				}
+			],
+			"sid": 241961878669257
+		}
+	],
+	"sid": 532789168636540
+}

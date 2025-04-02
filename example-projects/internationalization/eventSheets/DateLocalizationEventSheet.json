@@ -1,0 +1,452 @@
+{
+	"name": "DateLocalizationEventSheet",
+	"events": [
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 140238138752756
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Load the example's localization file"
+				},
+				{
+					"id": "request-project-file",
+					"objectClass": "AJAX",
+					"sid": 561266916896108,
+					"parameters": {
+						"tag": "\"language-json\"",
+						"file": "en-GB.json"
+					}
+				},
+				{
+					"id": "request-project-file",
+					"objectClass": "AJAX",
+					"sid": 856100964802417,
+					"parameters": {
+						"tag": "\"language-json\"",
+						"file": "fr-FR.json"
+					}
+				},
+				{
+					"id": "request-project-file",
+					"objectClass": "AJAX",
+					"sid": 424949580062481,
+					"parameters": {
+						"tag": "\"language-json\"",
+						"file": "de-DE.json"
+					}
+				},
+				{
+					"id": "request-project-file",
+					"objectClass": "AJAX",
+					"sid": 497411228565589,
+					"parameters": {
+						"tag": "\"language-json\"",
+						"file": "es-ES.json"
+					}
+				},
+				{
+					"id": "request-project-file",
+					"objectClass": "AJAX",
+					"sid": 192616026294080,
+					"parameters": {
+						"tag": "\"language-json\"",
+						"file": "it-IT.json"
+					}
+				}
+			],
+			"sid": 742527407854705
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-completed",
+					"objectClass": "AJAX",
+					"sid": 864929331561848,
+					"parameters": {
+						"tag": "\"language-json\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Populate the internationalization's plugin to be able to query it later"
+				},
+				{
+					"id": "load-from-json",
+					"objectClass": "Internationalization",
+					"sid": 762697351220079,
+					"parameters": {
+						"json": "AJAX.LastData"
+					}
+				},
+				{
+					"callFunction": "UpdateDateExampleText",
+					"sid": 887226145488675
+				}
+			],
+			"sid": 723153428731200
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-selection-changed",
+					"objectClass": "LocaleList",
+					"sid": 144146466825457
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "UpdateDateExampleText",
+					"sid": 118830471651731
+				}
+			],
+			"sid": 240955309964250
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 665437566849910
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Show the current localized date using different expressions"
+				},
+				{
+					"id": "set-text",
+					"objectClass": "DateWithStylesOutput",
+					"sid": 770347266983735,
+					"parameters": {
+						"text": "Date.FormatDateWithStyles(LocaleList.SelectedText, Date.Now, DateStyleFormatList.SelectedText, TimeStyleFormatList.SelectedText, HourFormatStyleList.SelectedText)"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "DateWithComponentsOutput",
+					"sid": 349514954822198,
+					"parameters": {
+						"text": "Date.FormatDateWithComponents(LocaleList.SelectedText, Date.Now, WeekdayComponentFormatList.SelectedText, YearComponentFormatList.SelectedText, MonthComponentFormatList.SelectedText, DayComponentFormatList.SelectedText, HourComponentFormatList.SelectedText, MinuteComponentFormatList.SelectedText, SecondsComponentFormatList.SelectedText, HourFormatComponentList.SelectedText)"
+					}
+				}
+			],
+			"sid": 436255416097941
+		},
+		{
+			"eventType": "comment",
+			"text": "Function to update all the text with the chosen locale from the dropdown list"
+		},
+		{
+			"functionName": "UpdateDateExampleText",
+			"functionDescription": "Update all text with the chosen locale",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Set the locale of the internationalization plugin to pick the correct strings"
+				},
+				{
+					"id": "set-locale",
+					"objectClass": "Internationalization",
+					"sid": 482272717441344,
+					"parameters": {
+						"locale": "LocaleList.SelectedText"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "PickLanguageLabel",
+					"sid": 641520124189763,
+					"parameters": {
+						"text": "Internationalization.Lookup(\"labels.pick-language\")"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "NoticeMessage",
+					"sid": 776549330543391,
+					"parameters": {
+						"text": "Internationalization.Lookup(\"disclaimer\")"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Push the \"date-example\" context to avoid duplication when looking up the localized strings. Note the lack of a \".\" in the context, this means it is at the root of the corresponding locale"
+				},
+				{
+					"id": "push-context",
+					"objectClass": "Internationalization",
+					"sid": 456797414721501,
+					"parameters": {
+						"context": "\"date-example\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Get the localized strings which are in the \"date-example\" context, so a \".\" is used before the key to indicate it is relative to the existing context"
+				},
+				{
+					"id": "set-text",
+					"objectClass": "TitleLabel",
+					"sid": 415907668071212,
+					"parameters": {
+						"text": "Internationalization.Lookup(\".title\")"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "NextButton",
+					"sid": 144615383092135,
+					"parameters": {
+						"text": "Internationalization.Lookup(\".next\")"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Push the \".labels\" context which is relative to \"date-example\", so a \".\" is used before the key to indicate this"
+				},
+				{
+					"id": "push-context",
+					"objectClass": "Internationalization",
+					"sid": 975334474155830,
+					"parameters": {
+						"context": "\".labels\""
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "RegionNameLabel",
+					"sid": 694744714733592,
+					"parameters": {
+						"text": "Internationalization.Lookup(\".region-name\")"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "LanguageNameLabel",
+					"sid": 292348210064651,
+					"parameters": {
+						"text": "Internationalization.Lookup(\".language-name\")"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "DateWithStylesLabel",
+					"sid": 600341990871004,
+					"parameters": {
+						"text": "Internationalization.Lookup(\".date-with-styles\")"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "DateWithComponentsLabel",
+					"sid": 356887999908678,
+					"parameters": {
+						"text": "Internationalization.Lookup(\".date-with-components\")"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Pop the \".labels\" context out of the stack"
+				},
+				{
+					"id": "pop-context",
+					"objectClass": "Internationalization",
+					"sid": 907851557036138
+				},
+				{
+					"type": "comment",
+					"text": "Push the \".tooltips\" context into the stack to get the associated strings"
+				},
+				{
+					"id": "push-context",
+					"objectClass": "Internationalization",
+					"sid": 384525596564340,
+					"parameters": {
+						"context": "\".tooltips\""
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "DateStyleFormatList",
+					"sid": 961083782043078,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".date-style\")"
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "TimeStyleFormatList",
+					"sid": 591234667466586,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".time-style\")"
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "HourFormatStyleList",
+					"sid": 213435786849972,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".hour-format\")"
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "WeekdayComponentFormatList",
+					"sid": 696848891548582,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".weekday-format\")"
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "YearComponentFormatList",
+					"sid": 540280554705464,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".year-format\")"
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "MonthComponentFormatList",
+					"sid": 206530391249145,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".month-format\")"
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "DayComponentFormatList",
+					"sid": 627533998740540,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".day-format\")"
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "HourComponentFormatList",
+					"sid": 977793333907139,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".hours-format\")"
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "MinuteComponentFormatList",
+					"sid": 174748458219019,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".minutes-format\")"
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "SecondsComponentFormatList",
+					"sid": 917397053220886,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".seconds-format\")"
+					}
+				},
+				{
+					"id": "set-tooltip",
+					"objectClass": "HourFormatComponentList",
+					"sid": 974054356938324,
+					"parameters": {
+						"tooltip": "Internationalization.Lookup(\".hour-format\")"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Pop the \".tooltips\" context out of the stack"
+				},
+				{
+					"id": "pop-context",
+					"objectClass": "Internationalization",
+					"sid": 451620231726682
+				},
+				{
+					"type": "comment",
+					"text": "Pop the \"date-example\" context out of the stack"
+				},
+				{
+					"id": "pop-context",
+					"objectClass": "Internationalization",
+					"sid": 543475865298512
+				},
+				{
+					"type": "comment",
+					"text": "Use expressions to get localized region and language names for the chosen locale"
+				},
+				{
+					"id": "set-text",
+					"objectClass": "RegionNameOutput",
+					"sid": 686257686694247,
+					"parameters": {
+						"text": "Internationalization.RegionName(LocaleList.SelectedText)"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "LanguageNameOutput",
+					"sid": 730696681450092,
+					"parameters": {
+						"text": "Internationalization.LanguageName(LocaleList.SelectedText)"
+					}
+				}
+			],
+			"sid": 973412957310024
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "NextButton",
+					"sid": 880247507976458
+				}
+			],
+			"actions": [
+				{
+					"id": "go-to-layout",
+					"objectClass": "System",
+					"sid": 838486472668383,
+					"parameters": {
+						"layout": "CurrencyLocalizationLayout"
+					}
+				}
+			],
+			"sid": 237913157051475
+		},
+		{
+			"eventType": "block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "pop-context",
+					"objectClass": "Internationalization",
+					"sid": 790141059152761
+				}
+			],
+			"sid": 267215899777499
+		}
+	],
+	"sid": 864511046328068
+}

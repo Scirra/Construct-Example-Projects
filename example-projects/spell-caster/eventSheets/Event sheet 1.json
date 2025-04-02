@@ -1,0 +1,446 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "This is the speed new goblins are spawned at, and the player score."
+		},
+		{
+			"eventType": "variable",
+			"name": "GoblinSpeed",
+			"type": "number",
+			"initialValue": "80",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 306571784361586
+		},
+		{
+			"eventType": "variable",
+			"name": "Score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 124521753860944
+		},
+		{
+			"eventType": "comment",
+			"text": "Start goblins at a random angle."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 440540846891912
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "Goblin",
+					"sid": 731458007524144,
+					"parameters": {
+						"angle": "random(360)"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "GameOverText",
+					"sid": 769154193216466,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				}
+			],
+			"sid": 772074008680643
+		},
+		{
+			"eventType": "comment",
+			"text": "Always look the player towards the mouse, and update the status text."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 103847617945822
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "Player",
+					"sid": 634145666098561,
+					"parameters": {
+						"x": "Mouse.X",
+						"y": "Mouse.Y"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "Status",
+					"sid": 781622005956403,
+					"parameters": {
+						"text": "\"Score: \" & Score & newline & \"Use arrow keys to move and click to shoot!\""
+					}
+				}
+			],
+			"sid": 714743478425692
+		},
+		{
+			"eventType": "comment",
+			"text": "Cast a spell on left click."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-click",
+					"objectClass": "Mouse",
+					"sid": 267399057688169,
+					"parameters": {
+						"mouse-button": "left",
+						"click-type": "clicked"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Player",
+					"sid": 264126543711070,
+					"parameters": {
+						"object": "Spell",
+						"layer": "\"Main\"",
+						"image-point": "1",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				}
+			],
+			"sid": 885337720041871
+		},
+		{
+			"eventType": "comment",
+			"text": "If a spell hits a goblin, create a spark and damage the goblin.  Also increase the speed goblins are spawning at."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Spell",
+					"sid": 642573821468769,
+					"parameters": {
+						"object": "Goblin"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Spell",
+					"sid": 689347181953829,
+					"parameters": {
+						"object": "SpellFlash",
+						"layer": "\"Main\"",
+						"image-point": "0",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "SpellFlash",
+					"sid": 202330690085046,
+					"parameters": {
+						"angle": "random(360)"
+					}
+				},
+				{
+					"id": "subtract-from-instvar",
+					"objectClass": "Goblin",
+					"sid": 755401679657296,
+					"parameters": {
+						"instance-variable": "health",
+						"value": "1"
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Spell",
+					"sid": 803837020511362
+				},
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 578102450116816,
+					"parameters": {
+						"variable": "GoblinSpeed",
+						"value": "1"
+					}
+				}
+			],
+			"sid": 723280051103181
+		},
+		{
+			"eventType": "comment",
+			"text": "When a goblin runs out of health (5 hits), destroy it and give some score points depending on how fast it was."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "Goblin",
+					"sid": 218723244694939,
+					"parameters": {
+						"instance-variable": "health",
+						"comparison": 3,
+						"value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Goblin",
+					"sid": 344058551934637
+				},
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Goblin",
+					"sid": 502278426242508,
+					"parameters": {
+						"object": "SpellFlash",
+						"layer": "\"Main\"",
+						"image-point": "0",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "SpellFlash",
+					"sid": 161029628786413,
+					"parameters": {
+						"angle": "random(360)"
+					}
+				},
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 716939534189535,
+					"parameters": {
+						"variable": "Score",
+						"value": "Goblin.Movement.Speed"
+					}
+				}
+			],
+			"sid": 533765650560451
+		},
+		{
+			"eventType": "comment",
+			"text": "Stop goblins wandering off the layout."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-outside-layout",
+					"objectClass": "Goblin",
+					"sid": 267514941046509
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "Goblin",
+					"sid": 232664863565473,
+					"parameters": {
+						"x": "Player.X",
+						"y": "Player.Y"
+					}
+				}
+			],
+			"sid": 385617334807196
+		},
+		{
+			"eventType": "comment",
+			"text": "If a goblin is within 200 pixels of the player, make it start rotating towards them."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 513493301745095,
+					"parameters": {
+						"object": "Goblin"
+					}
+				},
+				{
+					"id": "compare-two-values",
+					"objectClass": "System",
+					"sid": 111880138330549,
+					"parameters": {
+						"first-value": "distance(Player.X, Player.Y, Goblin.X, Goblin.Y)",
+						"comparison": 2,
+						"second-value": "200"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "rotate-toward-position",
+					"objectClass": "Goblin",
+					"sid": 926567564118890,
+					"parameters": {
+						"degrees": "1",
+						"x": "Player.X",
+						"y": "Player.Y"
+					}
+				}
+			],
+			"sid": 529980640427113
+		},
+		{
+			"eventType": "comment",
+			"text": "Every 3 seconds, spawn a new goblin off to the right of the layout, at the current speed."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 821795287752072,
+					"parameters": {
+						"interval-seconds": "3"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 301282175479139,
+					"parameters": {
+						"object-to-create": "Goblin",
+						"layer": "\"Main\"",
+						"x": "1500",
+						"y": "random(1024)",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "set-speed",
+					"objectClass": "Goblin",
+					"sid": 454173747806697,
+					"behaviorType": "Movement",
+					"parameters": {
+						"speed": "GoblinSpeed"
+					}
+				}
+			],
+			"sid": 733933331242486
+		},
+		{
+			"eventType": "comment",
+			"text": "Destroy the player if a goblin touches them!"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Goblin",
+					"sid": 821931788273150,
+					"parameters": {
+						"object": "Player"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Player",
+					"sid": 547681787807630
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "GameOverText",
+					"sid": 620174086227345,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 255376308417319
+		},
+		{
+			"eventType": "comment",
+			"text": "Restart after game over if space pressed."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 618872813221554,
+					"parameters": {
+						"key": 32
+					}
+				},
+				{
+					"id": "compare-two-values",
+					"objectClass": "System",
+					"sid": 661501334177676,
+					"parameters": {
+						"first-value": "Player.Count",
+						"comparison": 0,
+						"second-value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 743100827726758,
+					"parameters": {
+						"variable": "GoblinSpeed",
+						"value": "80"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 514690326892698,
+					"parameters": {
+						"variable": "Score",
+						"value": "0"
+					}
+				},
+				{
+					"id": "go-to-layout",
+					"objectClass": "System",
+					"sid": 104323840324138,
+					"parameters": {
+						"layout": "Layout 1"
+					}
+				}
+			],
+			"sid": 253289707552004
+		}
+	],
+	"sid": 226908219882659
+}

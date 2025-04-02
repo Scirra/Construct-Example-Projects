@@ -1,0 +1,200 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "TouchPanID",
+			"type": "number",
+			"initialValue": "-1",
+			"comment": "ID of the touch using to pan",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 1230510640560827
+		},
+		{
+			"eventType": "variable",
+			"name": "TouchLastX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Initial X position of touch (for pan)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 5784126775226514
+		},
+		{
+			"eventType": "variable",
+			"name": "TouchLastY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Initial Y position of touch (for pan)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 4462469493279042
+		},
+		{
+			"eventType": "comment",
+			"text": "If the user touches, and we're not already panning with a different touch, store the touch ID and the position of the touch. Note we get the position of the touch from a separate layer which has a parallax of 0, otherwise panning the view would alter the reported touch position, resulting in confusing feedback loops."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-start",
+					"objectClass": "Touch",
+					"sid": 1358802375792862
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 760842567554795,
+					"parameters": {
+						"variable": "TouchPanID",
+						"comparison": 0,
+						"value": "-1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 6114902426785022,
+					"parameters": {
+						"variable": "TouchLastX",
+						"value": "Touch.X(\"UI\")"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 8223965341698254,
+					"parameters": {
+						"variable": "TouchLastY",
+						"value": "Touch.Y(\"UI\")"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 659279506720811,
+					"parameters": {
+						"variable": "TouchPanID",
+						"value": "Touch.TouchID"
+					}
+				}
+			],
+			"sid": 2758026465730803
+		},
+		{
+			"eventType": "comment",
+			"text": "While we have a touch to pan with, offset the scroll position by the change in position of the touch. This makes the view scroll with the touch."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 5870689638011144,
+					"parameters": {
+						"variable": "TouchPanID",
+						"comparison": 1,
+						"value": "-1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "scroll-to-position",
+					"objectClass": "System",
+					"sid": 9145582716145406,
+					"parameters": {
+						"x": "scrollx - (Touch.X(\"UI\") - TouchLastX) / LayerScale(\"Main\")",
+						"y": "scrolly - (Touch.Y(\"UI\") - TouchLastY) / LayerScale(\"Main\")"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 9039935865694574,
+					"parameters": {
+						"variable": "TouchLastX",
+						"value": "Touch.X(\"UI\")"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 2232703787438953,
+					"parameters": {
+						"variable": "TouchLastY",
+						"value": "Touch.Y(\"UI\")"
+					}
+				}
+			],
+			"sid": 4941782270580781
+		},
+		{
+			"eventType": "comment",
+			"text": "When the touch we are panning with ends, reset the stored touch ID so we stop panning."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-end",
+					"objectClass": "Touch",
+					"sid": 480219321906777
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 5587444593436808,
+					"parameters": {
+						"variable": "TouchPanID",
+						"comparison": 0,
+						"value": "Touch.TouchID"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 7834167967098645,
+					"parameters": {
+						"variable": "TouchPanID",
+						"value": "-1"
+					}
+				}
+			],
+			"sid": 1848958852897267
+		},
+		{
+			"eventType": "comment",
+			"text": "Display the touch ID panning with."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 7446131909475579
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 7126028645005045,
+					"parameters": {
+						"text": "\"Panning with touch ID: \" & TouchPanID"
+					}
+				}
+			],
+			"sid": 5515730018016006
+		}
+	],
+	"sid": 430597366143905
+}

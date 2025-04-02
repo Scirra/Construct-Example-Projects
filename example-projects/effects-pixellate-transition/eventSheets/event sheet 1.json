@@ -1,0 +1,232 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "This message is shown if WebGL is not supported."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "effects-are-supported",
+					"objectClass": "System",
+					"sid": 760887303200199,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 254242627119493,
+					"parameters": {
+						"text": "\"Effects are not supported!  Try Chrome or Firefox and check graphics drivers are up to date.\""
+					}
+				},
+				{
+					"id": "set-font-color",
+					"objectClass": "Text",
+					"sid": 994821995914693,
+					"parameters": {
+						"color": "rgb(255, 0, 0)"
+					}
+				}
+			],
+			"sid": 533231003421201
+		},
+		{
+			"eventType": "comment",
+			"text": "Disable the layout effect on startup so it does not consume resources while the transition is not running."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 893806066240255
+				}
+			],
+			"actions": [
+				{
+					"id": "set-layout-effect-enabled",
+					"objectClass": "System",
+					"sid": 892798412634182,
+					"parameters": {
+						"mode": "disable",
+						"effect": "\"Pixellate\""
+					}
+				}
+			],
+			"sid": 743208988778433
+		},
+		{
+			"eventType": "comment",
+			"text": "Start the transition when any key pressed."
+		},
+		{
+			"eventType": "variable",
+			"name": "startTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Time at which to start the transition effect.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 654772181481399
+		},
+		{
+			"eventType": "variable",
+			"name": "duration",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "Length, in seconds, of the transition.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 232626614792010
+		},
+		{
+			"eventType": "variable",
+			"name": "isTransitionRunning",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "1 if the transition is running.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 883799322261244
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 875711718132275
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 629087406908729,
+					"parameters": {
+						"variable": "isTransitionRunning",
+						"comparison": 0,
+						"value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 604666526737185,
+					"parameters": {
+						"variable": "startTime",
+						"value": "time"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 741218756245216,
+					"parameters": {
+						"variable": "isTransitionRunning",
+						"value": "1"
+					}
+				},
+				{
+					"id": "set-layout-effect-enabled",
+					"objectClass": "System",
+					"sid": 491711743398033,
+					"parameters": {
+						"mode": "enable",
+						"effect": "\"Pixellate\""
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 778582218235591,
+					"parameters": {
+						"text": "\"Transition running!\""
+					}
+				}
+			],
+			"sid": 135083938847031
+		},
+		{
+			"eventType": "comment",
+			"text": "Adjust the effect intensity during the transition.  Handle the first half of the duration separately (fade in, then fade out)."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 891136822483498,
+					"parameters": {
+						"variable": "isTransitionRunning",
+						"comparison": 0,
+						"value": "1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-layout-effect-parameter",
+					"objectClass": "System",
+					"sid": 704593316689021,
+					"parameters": {
+						"effect": "\"Pixellate\"",
+						"parameter-index": "0",
+						"value": "((time - startTime) / duration) * 100"
+					}
+				}
+			],
+			"sid": 106176474731098,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the transition is finished, restart the layout."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-time",
+							"objectClass": "System",
+							"sid": 726072456693620,
+							"parameters": {
+								"comparison": 4,
+								"time-seconds": "startTime + duration"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 178852459130031,
+							"parameters": {
+								"variable": "isTransitionRunning",
+								"value": "0"
+							}
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 652369309676851
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 489853945778077
+						}
+					],
+					"sid": 975676096183661
+				}
+			]
+		}
+	],
+	"sid": 539141131105281
+}

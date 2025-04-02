@@ -1,0 +1,1665 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "LastClickX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 7615487379381014
+		},
+		{
+			"eventType": "variable",
+			"name": "LastClickY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 169035614773773
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Startup and initialisation",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On startup, tell the friendly turrets to aim for enemy bases, and enemy turrets to aim for friendly bases."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 9367449878697516
+						}
+					],
+					"actions": [
+						{
+							"id": "add-object-to-target",
+							"objectClass": "FriendlyTurrets",
+							"sid": 2271077195474519,
+							"behaviorType": "Turret",
+							"parameters": {
+								"target": "EnemyBases"
+							}
+						},
+						{
+							"id": "add-object-to-target",
+							"objectClass": "EnemyTurrets",
+							"sid": 3033139396137642,
+							"behaviorType": "Turret",
+							"parameters": {
+								"target": "FriendlyBases"
+							}
+						}
+					],
+					"sid": 9801585050267084,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "For the enemies marked as patrolling, send them off on a patrol after 2-25 seconds."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "EnemyBases",
+									"sid": 5506876243779561,
+									"parameters": {
+										"instance-variable": "IsPatrolling"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "EnemyBases",
+									"sid": 3257102111320553,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "random(2, 25)",
+										"type": "once",
+										"tag": "\"patrol\""
+									}
+								}
+							],
+							"sid": 6765874068424131
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Whenever each unit's base is created (which includes every instance initially on the layout at startup), position its turret over the base and pin it so it follows along with the base. We also need both the turret and the base to store each other's UID, so we can find the associated object later on."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Tank1Base",
+							"sid": 9115205636462788
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "Tank1Turret",
+							"sid": 7028680558117771,
+							"parameters": {
+								"object": "Tank1Base",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "pin-to-object",
+							"objectClass": "Tank1Turret",
+							"sid": 2856419547246488,
+							"behaviorType": "Pin",
+							"parameters": {
+								"pin-to": "Tank1Base",
+								"mode": "position-angle"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Tank1Base",
+							"sid": 4089676753000868,
+							"parameters": {
+								"instance-variable": "TurretUID",
+								"value": "Tank1Turret.UID"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Tank1Turret",
+							"sid": 6195019082706329,
+							"parameters": {
+								"instance-variable": "BaseUID",
+								"value": "Tank1Base.UID"
+							}
+						}
+					],
+					"sid": 2496442280823173
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Enemy1Base",
+							"sid": 3323878183526543
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "Enemy1Turret",
+							"sid": 768211071491945,
+							"parameters": {
+								"object": "Enemy1Base",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "pin-to-object",
+							"objectClass": "Enemy1Turret",
+							"sid": 8192746078110451,
+							"behaviorType": "Pin",
+							"parameters": {
+								"pin-to": "Enemy1Base",
+								"mode": "position-angle"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Enemy1Base",
+							"sid": 2802625996607865,
+							"parameters": {
+								"instance-variable": "TurretUID",
+								"value": "Enemy1Turret.UID"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Enemy1Turret",
+							"sid": 6487474392533392,
+							"parameters": {
+								"instance-variable": "BaseUID",
+								"value": "Enemy1Base.UID"
+							}
+						}
+					],
+					"sid": 2902237191386204
+				}
+			],
+			"sid": 9067377116177994
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player unit control",
+			"description": "Left clicking to move units to a destination",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Store the last click position so we can tell the difference between a selection box drag and single click when the left mouse button is released."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-click",
+							"objectClass": "Mouse",
+							"sid": 1841404932720768,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 712064386511624,
+							"parameters": {
+								"variable": "LastClickX",
+								"value": "Mouse.X(\"Bases\")"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 2803511856018814,
+							"parameters": {
+								"variable": "LastClickY",
+								"value": "Mouse.Y(\"Bases\")"
+							}
+						}
+					],
+					"sid": 1179971079378725
+				},
+				{
+					"eventType": "comment",
+					"text": "If the user releases the mouse, tell them to find a path to that location then move there. The cursor has to move less than 16 pixels for it to count as a click and not a selection box drag."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-button-released",
+							"objectClass": "Mouse",
+							"sid": 4147401483280524,
+							"parameters": {
+								"mouse-button": "left"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 2654881225458803,
+							"parameters": {
+								"first-value": "distance(Mouse.X(\"Bases\"), Mouse.Y(\"Bases\"), LastClickX, LastClickY)",
+								"comparison": 2,
+								"second-value": "16"
+							}
+						},
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 1050114067706274,
+							"parameters": {
+								"object": "FriendlyBases"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "FriendlyBases",
+							"sid": 6365922434491374,
+							"parameters": {
+								"instance-variable": "IsSelected"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 2424266692559247,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "We want to keep all our units in formation, instead of all piling on to the same point. So first we find the average of all the selected unit's positions. This gives us the mid-point of the selection. First we need to sum all the X and Y co-ordinates, then divide by the count to get the average."
+						},
+						{
+							"eventType": "variable",
+							"name": "SelectionMidpointX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 6781936523987247
+						},
+						{
+							"eventType": "variable",
+							"name": "SelectionMidpointY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 3322588607930246
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 5601141840231102,
+									"parameters": {
+										"object": "FriendlyBases"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 7491728291617766,
+									"parameters": {
+										"variable": "SelectionMidpointX",
+										"value": "FriendlyBases.X"
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 3369258165190144,
+									"parameters": {
+										"variable": "SelectionMidpointY",
+										"value": "FriendlyBases.Y"
+									}
+								}
+							],
+							"sid": 3003808253370082
+						},
+						{
+							"eventType": "comment",
+							"text": "Now we've summed, we divide by the count to get the mid-point of all the selected units. Then we tell the unit to move to the mouse, but keeping its relative position. This preserves the formation."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 5341116745286072,
+									"parameters": {
+										"variable": "SelectionMidpointX",
+										"value": "SelectionMidpointX / FriendlyBases.PickedCount"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 6593070560678149,
+									"parameters": {
+										"variable": "SelectionMidpointY",
+										"value": "SelectionMidpointY / FriendlyBases.PickedCount"
+									}
+								},
+								{
+									"id": "find-path",
+									"objectClass": "FriendlyBases",
+									"sid": 9766499848418236,
+									"behaviorType": "Pathfinding",
+									"parameters": {
+										"x": "Mouse.X(\"Bases\") + (Self.X - SelectionMidpointX)",
+										"y": "Mouse.Y(\"Bases\") + (Self.Y - SelectionMidpointY)"
+									}
+								}
+							],
+							"sid": 6578267403205623
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-path-found",
+							"objectClass": "FriendlyBases",
+							"sid": 8321821825625413,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [
+						{
+							"id": "move-along-path",
+							"objectClass": "FriendlyBases",
+							"sid": 1220649070629195,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"sid": 514207415207339
+				},
+				{
+					"eventType": "comment",
+					"text": "If a turret has no target, rotate it back to face in the direction of the unit. Note Construct 2 doesn't normally know how to match up the FriendlyTurrets family to the associated FriendlyBases family. So to make sure this works per-unit, we loop each FriendlyTurret and specifically pick its associated base."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "has-target",
+							"objectClass": "FriendlyTurrets",
+							"sid": 7793028890699309,
+							"behaviorType": "Turret",
+							"isInverted": true
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 4762007704451782,
+							"parameters": {
+								"object": "FriendlyTurrets"
+							}
+						},
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "FriendlyBases",
+							"sid": 1473946647105548,
+							"parameters": {
+								"unique-id": "FriendlyTurrets.BaseUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "rotate-toward-angle",
+							"objectClass": "FriendlyTurrets",
+							"sid": 4240295190834539,
+							"parameters": {
+								"degrees": "FriendlyTurrets.Turret.RotateSpeed * dt",
+								"angle": "FriendlyBases.Angle"
+							}
+						}
+					],
+					"sid": 7046896209131613
+				},
+				{
+					"eventType": "comment",
+					"text": "Normally lines of units snake along overlapping each other, which looks unrealistic. This is extremely difficult to get right, but this event implements an \"anti traffic jamming\" hack. If a unit is moving and there is another unit moving 40 pixels in front of it, the unit will slow down and also speed up the unit in front. This basically makes units wait for other units in front of them, so queues form. It doesn't stop units still overlapping or driving through each other, but it does look a little bit more realistic.\r\n\r\nNote in this event to tell apart the instances of the same object type, we take advantage of the fact Construct 2 picks instances for families separately to the object type. So in this case, FriendlyBases is remembering which instances match separately to Tank1Base, even though they refer to the same instances."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-moving-along-path",
+							"objectClass": "FriendlyBases",
+							"sid": 1974485894304094,
+							"behaviorType": "Pathfinding"
+						},
+						{
+							"id": "compare-speed",
+							"objectClass": "FriendlyBases",
+							"sid": 1257908269553713,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"comparison": 4,
+								"speed": "Self.Pathfinding.MaxSpeed / 4"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 411395772856513,
+							"parameters": {
+								"object": "FriendlyBases"
+							}
+						},
+						{
+							"id": "pick-overlapping-point",
+							"objectClass": "System",
+							"sid": 1589812698019903,
+							"parameters": {
+								"object": "Tank1Base",
+								"x": "FriendlyBases.X + cos(FriendlyBases.Angle) * 40",
+								"y": "FriendlyBases.Y + sin(FriendlyBases.Angle) * 40"
+							}
+						},
+						{
+							"id": "is-moving-along-path",
+							"objectClass": "Tank1Base",
+							"sid": 6827118817530815,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [
+						{
+							"id": "set-speed",
+							"objectClass": "FriendlyBases",
+							"sid": 7506142387792049,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"speed": "Self.Pathfinding.MaxSpeed / 4"
+							}
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "Tank1Base",
+							"sid": 1554043181788681,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"speed": "Self.Pathfinding.Speed + Self.Pathfinding.Acceleration * dt * 2"
+							}
+						}
+					],
+					"sid": 9845008589459932
+				}
+			],
+			"sid": 9159341851032568
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player selecting units",
+			"description": "Handles both left-clicking to select individual units, and click-and-drag selection boxes",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Left click to add the unit to selection, and right click to unselect all."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 9177420041428872,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "FriendlyBases"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "FriendlyBases",
+							"sid": 217170246169846,
+							"parameters": {
+								"instance-variable": "IsSelected",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 3726682766314698
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-click",
+							"objectClass": "Mouse",
+							"sid": 4249787431527583,
+							"parameters": {
+								"mouse-button": "right",
+								"click-type": "clicked"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "FriendlyBases",
+							"sid": 1851321274335111,
+							"parameters": {
+								"instance-variable": "IsSelected",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 8153279548452389
+				},
+				{
+					"eventType": "comment",
+					"text": "If holding the left mouse button down and the cursor has moved more than 16 pixels, show a selection box."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "mouse-button-is-down",
+							"objectClass": "Mouse",
+							"sid": 8418455466567298,
+							"parameters": {
+								"mouse-button": "left"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 7139333259418963,
+							"parameters": {
+								"first-value": "distance(Mouse.X(\"Bases\"), Mouse.Y(\"Bases\"), LastClickX, LastClickY)",
+								"comparison": 5,
+								"second-value": "16"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "SelectionBox",
+							"sid": 9179487908724680,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-position",
+							"objectClass": "SelectionBox",
+							"sid": 9384794953312746,
+							"parameters": {
+								"x": "min(Mouse.X(\"Bases\"), LastClickX)",
+								"y": "min(Mouse.Y(\"Bases\"), LastClickY)"
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "SelectionBox",
+							"sid": 6731475628571588,
+							"parameters": {
+								"width": "abs(Mouse.X(\"Bases\") - LastClickX)",
+								"height": "abs(Mouse.Y(\"Bases\") - LastClickY)"
+							}
+						}
+					],
+					"sid": 853279581892255
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 4707586891308932
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "SelectionBox",
+							"sid": 1274096068391291,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 1540049522846377
+				},
+				{
+					"eventType": "comment",
+					"text": "When releasing the left mouse button and the cursor has moved more than 16 pixels, make any units inside the selection box selected."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-button-released",
+							"objectClass": "Mouse",
+							"sid": 9131731803396952,
+							"parameters": {
+								"mouse-button": "left"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 868973423636771,
+							"parameters": {
+								"first-value": "distance(Mouse.X(\"Bases\"), Mouse.Y(\"Bases\"), LastClickX, LastClickY)",
+								"comparison": 5,
+								"second-value": "16"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "FriendlyBases",
+							"sid": 5820310691053569,
+							"parameters": {
+								"instance-variable": "IsSelected",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 6356457613092448,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-x",
+									"objectClass": "FriendlyBases",
+									"sid": 5639487936342808,
+									"parameters": {
+										"comparison": 5,
+										"x-co-ordinate": "SelectionBox.X"
+									}
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "FriendlyBases",
+									"sid": 4312243012344021,
+									"parameters": {
+										"comparison": 3,
+										"x-co-ordinate": "SelectionBox.X + SelectionBox.Width"
+									}
+								},
+								{
+									"id": "compare-y",
+									"objectClass": "FriendlyBases",
+									"sid": 1878180194906869,
+									"parameters": {
+										"comparison": 5,
+										"y-co-ordinate": "SelectionBox.Y"
+									}
+								},
+								{
+									"id": "compare-y",
+									"objectClass": "FriendlyBases",
+									"sid": 7646059355573521,
+									"parameters": {
+										"comparison": 3,
+										"y-co-ordinate": "SelectionBox.Y + SelectionBox.Height"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "FriendlyBases",
+									"sid": 8620022952423794,
+									"parameters": {
+										"instance-variable": "IsSelected",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 6571895406082555
+						}
+					]
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Unit selection boxes",
+					"description": "Create a unit selection box 9-patch for every selected player unit, and position it over the unit.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "We need to create a UnitSelectionBox for every selected unit. First count how many friendly units are selected using the PickedCount expression."
+						},
+						{
+							"eventType": "variable",
+							"name": "NumberSelected",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 5787528179958634
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "FriendlyBases",
+									"sid": 289334330260713,
+									"parameters": {
+										"instance-variable": "IsSelected"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 351524994428543,
+									"parameters": {
+										"variable": "NumberSelected",
+										"value": "FriendlyBases.PickedCount"
+									}
+								}
+							],
+							"sid": 4378576241767043
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 9355142077269748
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 3520067703725249,
+									"parameters": {
+										"variable": "NumberSelected",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 8468442250917351
+						},
+						{
+							"eventType": "comment",
+							"text": "If there are more selected units than UnitSelectionBox objects, create more UnitSelectionBox objects to make up the difference."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 1740906322168787,
+									"parameters": {
+										"variable": "NumberSelected",
+										"comparison": 4,
+										"value": "UnitSelectionBox.Count"
+									}
+								},
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 7488980615084299,
+									"parameters": {
+										"count": "NumberSelected - UnitSelectionBox.Count"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 3113659328415529,
+									"parameters": {
+										"object-to-create": "UnitSelectionBox",
+										"layer": "\"Turrets\"",
+										"x": "-1000",
+										"y": "-1000"
+									}
+								}
+							],
+							"sid": 5578223894700985
+						},
+						{
+							"eventType": "comment",
+							"text": "If there are fewer selected units than UnitSelectionBox objects, destroy UnitSelectionBox objects to make up the difference."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 2056239967697771,
+									"parameters": {
+										"variable": "NumberSelected",
+										"comparison": 2,
+										"value": "UnitSelectionBox.Count"
+									}
+								},
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 1015064329698764,
+									"parameters": {
+										"count": "UnitSelectionBox.Count - NumberSelected"
+									}
+								},
+								{
+									"id": "pick-nth-instance",
+									"objectClass": "System",
+									"sid": 9753802999592972,
+									"parameters": {
+										"object": "UnitSelectionBox",
+										"instance": "loopindex"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "UnitSelectionBox",
+									"sid": 505983896612214
+								}
+							],
+							"sid": 1839028107001407
+						},
+						{
+							"eventType": "comment",
+							"text": "Due to the above two events, we now know there are an equal number of selected Friendly units, and UnitSelectionBox objects. So now we loop for each selected friendly unit, and position a UnitSelectionBox over it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "FriendlyBases",
+									"sid": 1673412369471616,
+									"parameters": {
+										"instance-variable": "IsSelected"
+									}
+								},
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 8041219816053447,
+									"parameters": {
+										"object": "FriendlyBases"
+									}
+								},
+								{
+									"id": "pick-nth-instance",
+									"objectClass": "System",
+									"sid": 8927251382316934,
+									"parameters": {
+										"object": "UnitSelectionBox",
+										"instance": "loopindex"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "UnitSelectionBox",
+									"sid": 8132231047597232,
+									"parameters": {
+										"x": "FriendlyBases.BBoxLeft - 2",
+										"y": "FriendlyBases.BBoxTop - 2"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "UnitSelectionBox",
+									"sid": 1288275508574877,
+									"parameters": {
+										"width": "FriendlyBases.BBoxRight - FriendlyBases.BBoxLeft + 4",
+										"height": "FriendlyBases.BBoxBottom - FriendlyBases.BBoxTop + 4"
+									}
+								}
+							],
+							"sid": 4368589528200321
+						}
+					],
+					"sid": 1173358469440974
+				}
+			],
+			"sid": 6218055322036161
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Scrolling",
+			"description": "Moving the mouse to the edge of the window to scroll.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the mouse is moved to the edge of the screen, scroll in that direction."
+				},
+				{
+					"eventType": "variable",
+					"name": "ScrollSpeed",
+					"type": "number",
+					"initialValue": "600",
+					"comment": "In pixels per second",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 8621110807905758
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 5576956360170799,
+							"parameters": {
+								"first-value": "Mouse.AbsoluteX",
+								"comparison": 2,
+								"second-value": "50"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-x",
+							"objectClass": "System",
+							"sid": 1966215209247309,
+							"parameters": {
+								"x": "scrollx - SCROLLSPEED * dt"
+							}
+						}
+					],
+					"sid": 2506117477363867
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 345726958184850,
+							"parameters": {
+								"first-value": "Mouse.AbsoluteX",
+								"comparison": 4,
+								"second-value": "PlatformInfo.CanvasCssWidth - 50"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-x",
+							"objectClass": "System",
+							"sid": 6145632421125036,
+							"parameters": {
+								"x": "scrollx + SCROLLSPEED * dt"
+							}
+						}
+					],
+					"sid": 4983598428022161
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 5451628486107342,
+							"parameters": {
+								"first-value": "Mouse.AbsoluteY",
+								"comparison": 2,
+								"second-value": "50"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-y",
+							"objectClass": "System",
+							"sid": 5888523302425557,
+							"parameters": {
+								"y": "scrolly - SCROLLSPEED * dt"
+							}
+						}
+					],
+					"sid": 6850801265390018
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 519402459787123,
+							"parameters": {
+								"first-value": "Mouse.AbsoluteY",
+								"comparison": 4,
+								"second-value": "PlatformInfo.CanvasCssHeight - 50"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-y",
+							"objectClass": "System",
+							"sid": 5216371125746004,
+							"parameters": {
+								"y": "scrolly + SCROLLSPEED * dt"
+							}
+						}
+					],
+					"sid": 1060040968579046
+				}
+			],
+			"sid": 623999352849707
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Combat",
+			"description": "Units shooting and doing damage",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the tank turret shoots, spawn its projectile, some particles for eye candy, and randomly adjust the projectile angle slightly to simulate inaccuracy."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-shoot",
+							"objectClass": "Tank1Turret",
+							"sid": 9109795262737996,
+							"behaviorType": "Turret"
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Tank1Turret",
+							"sid": 2380244165317876,
+							"parameters": {
+								"object": "TurretFireParticles",
+								"layer": "\"Projectiles\"",
+								"image-point": "1"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Tank1Turret",
+							"sid": 4392171763982105,
+							"parameters": {
+								"object": "Tank1Projectile",
+								"layer": "\"Projectiles\"",
+								"image-point": "1"
+							}
+						},
+						{
+							"id": "rotate-clockwise",
+							"objectClass": "Tank1Projectile",
+							"sid": 1350495957640814,
+							"parameters": {
+								"degrees": "random(-2, 2)"
+							}
+						}
+					],
+					"sid": 3547298001113685
+				},
+				{
+					"eventType": "comment",
+					"text": "To stop bullets flying across the entire battlefield, fade them out after they've left the turret's range. The Fade behavior is also set to destroy the object after the fade out."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-distance-travelled",
+							"objectClass": "FriendlyProjectiles",
+							"sid": 4464478037492542,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"comparison": 4,
+								"distance": "Self.Range"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "start-fade",
+							"objectClass": "FriendlyProjectiles",
+							"sid": 9445947025418948,
+							"behaviorType": "Fade"
+						}
+					],
+					"sid": 3691002172180998
+				},
+				{
+					"eventType": "comment",
+					"text": "When the friendly projectile hits an enemy, create an explosion and deal some damage to the enemy."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "FriendlyProjectiles",
+							"sid": 7278539631965697,
+							"parameters": {
+								"object": "EnemyBases"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "FriendlyProjectiles",
+							"sid": 697502965917962,
+							"parameters": {
+								"object": "SmallExplosion",
+								"layer": "\"Projectiles\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "FriendlyProjectiles",
+							"sid": 7719620152125941
+						},
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "EnemyBases",
+							"sid": 1307514579502585,
+							"parameters": {
+								"instance-variable": "Health",
+								"value": "FriendlyProjectiles.Damage"
+							}
+						}
+					],
+					"sid": 600931682247169
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy any enemies that have run out of health with an explosion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "EnemyBases",
+							"sid": 7265553054452704,
+							"parameters": {
+								"instance-variable": "Health",
+								"comparison": 3,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 859866031284025,
+							"parameters": {
+								"object-to-create": "BigExplosion",
+								"layer": "\"Projectiles\"",
+								"x": "EnemyBases.X",
+								"y": "EnemyBases.Y"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "EnemyBases",
+							"sid": 4663177168432867
+						}
+					],
+					"sid": 602869783336114
+				},
+				{
+					"eventType": "comment",
+					"text": "These events are the same as above, but simply applying the other way round (for enemies shooting the player's units)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-shoot",
+							"objectClass": "Enemy1Turret",
+							"sid": 3496531023904206,
+							"behaviorType": "Turret"
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Enemy1Turret",
+							"sid": 5248214262821252,
+							"parameters": {
+								"object": "TurretFireParticles",
+								"layer": "\"Projectiles\"",
+								"image-point": "1"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Enemy1Turret",
+							"sid": 6288964784526854,
+							"parameters": {
+								"object": "Enemy1Projectile",
+								"layer": "\"Projectiles\"",
+								"image-point": "1"
+							}
+						},
+						{
+							"id": "rotate-clockwise",
+							"objectClass": "Enemy1Projectile",
+							"sid": 5232317677826025,
+							"parameters": {
+								"degrees": "random(-2, 2)"
+							}
+						}
+					],
+					"sid": 3666384690432053
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-distance-travelled",
+							"objectClass": "EnemyProjectiles",
+							"sid": 5780287956173944,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"comparison": 4,
+								"distance": "Self.Range"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "start-fade",
+							"objectClass": "EnemyProjectiles",
+							"sid": 4356785203277881,
+							"behaviorType": "Fade"
+						}
+					],
+					"sid": 1312700534567445
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "EnemyProjectiles",
+							"sid": 637969743159221,
+							"parameters": {
+								"object": "FriendlyBases"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "EnemyProjectiles",
+							"sid": 4683574998498459,
+							"parameters": {
+								"object": "SmallExplosion",
+								"layer": "\"Projectiles\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "EnemyProjectiles",
+							"sid": 8499889782299617
+						},
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "FriendlyBases",
+							"sid": 9130503386885216,
+							"parameters": {
+								"instance-variable": "Health",
+								"value": "EnemyProjectiles.Damage"
+							}
+						}
+					],
+					"sid": 9857162948479380
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "FriendlyBases",
+							"sid": 8765539706425903,
+							"parameters": {
+								"instance-variable": "Health",
+								"comparison": 3,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 2164470843024905,
+							"parameters": {
+								"object-to-create": "BigExplosion",
+								"layer": "\"Projectiles\"",
+								"x": "FriendlyBases.X",
+								"y": "FriendlyBases.Y"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "FriendlyBases",
+							"sid": 8646748050111755
+						}
+					],
+					"sid": 8938316015146925
+				}
+			],
+			"sid": 2644295899429472
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Enemies",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "To simulate a really basic kind of fake AI, make the enemies pathfind to a random position in the layout every 2 to 25 seconds after arriving at their previous position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "EnemyBases",
+							"sid": 5396819744155298,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"patrol\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "find-path",
+							"objectClass": "EnemyBases",
+							"sid": 2829904507221106,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"x": "random(LayoutWidth)",
+								"y": "random(LayoutHeight)"
+							}
+						}
+					],
+					"sid": 1433970068591195
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-path-found",
+							"objectClass": "EnemyBases",
+							"sid": 6403909366681745,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [
+						{
+							"id": "move-along-path",
+							"objectClass": "EnemyBases",
+							"sid": 9034642771248334,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"sid": 558852769711747
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-arrived",
+							"objectClass": "EnemyBases",
+							"sid": 6919818596742819,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "EnemyBases",
+							"sid": 3911007079668713,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "random(2,25)",
+								"type": "once",
+								"tag": "\"patrol\""
+							}
+						}
+					],
+					"sid": 4930629608383131
+				},
+				{
+					"eventType": "comment",
+					"text": "As with the player units, rotate any enemy turrets which don't have targets back to the direction of their base."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "has-target",
+							"objectClass": "EnemyTurrets",
+							"sid": 2387032294415843,
+							"behaviorType": "Turret",
+							"isInverted": true
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 556935269320856,
+							"parameters": {
+								"object": "EnemyTurrets"
+							}
+						},
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "EnemyBases",
+							"sid": 3711803394035766,
+							"parameters": {
+								"unique-id": "EnemyTurrets.BaseUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "rotate-toward-angle",
+							"objectClass": "EnemyTurrets",
+							"sid": 3628724000204789,
+							"parameters": {
+								"degrees": "EnemyTurrets.Turret.RotateSpeed * dt",
+								"angle": "EnemyBases.Angle"
+							}
+						}
+					],
+					"sid": 4452162790953736
+				}
+			],
+			"sid": 9282592550759028
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Misc",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Destroy explosions after their animations have finished, so they don't pile up and keep using more memory."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-animation-finished",
+							"objectClass": "BigExplosion",
+							"sid": 1880585365296557
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "BigExplosion",
+							"sid": 6242156765455925
+						}
+					],
+					"sid": 234117909967747
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-animation-finished",
+							"objectClass": "SmallExplosion",
+							"sid": 4933053866222982
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "SmallExplosion",
+							"sid": 5973609870105507
+						}
+					],
+					"sid": 8017602554907642
+				},
+				{
+					"eventType": "comment",
+					"text": "Use the mouse wheel to do a basic zoom effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-mouse-wheel",
+							"objectClass": "Mouse",
+							"sid": 8060355448345792,
+							"parameters": {
+								"direction": "down"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 873612590343893,
+							"parameters": {
+								"first-value": "LayoutScale",
+								"comparison": 4,
+								"second-value": "0.75"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-scale",
+							"objectClass": "System",
+							"sid": 2251612799955574,
+							"parameters": {
+								"scale": "LayoutScale - 0.1"
+							}
+						}
+					],
+					"sid": 7903521641061399
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-mouse-wheel",
+							"objectClass": "Mouse",
+							"sid": 5709522980898202,
+							"parameters": {
+								"direction": "up"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-scale",
+							"objectClass": "System",
+							"sid": 8919745265714188,
+							"parameters": {
+								"scale": "LayoutScale + 0.1"
+							}
+						}
+					],
+					"sid": 8632248319928494
+				}
+			],
+			"sid": 370860661121755
+		}
+	],
+	"sid": 506365996826633
+}

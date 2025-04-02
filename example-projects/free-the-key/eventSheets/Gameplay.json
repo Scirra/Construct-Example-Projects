@@ -1,0 +1,1346 @@
+{
+	"name": "Gameplay",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nTwitter: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup all draggable objects."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 259371782231724
+				}
+			],
+			"actions": [],
+			"sid": 699740334135032,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 931784566366608,
+							"parameters": {
+								"object": "Block"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Store initial position. This is used when the game is reset."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Block",
+							"sid": 415163843872987,
+							"parameters": {
+								"instance-variable": "InitialX",
+								"value": "Self.X"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Block",
+							"sid": 558593906131084,
+							"parameters": {
+								"instance-variable": "InitialY",
+								"value": "Self.Y"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Each object must have 2 collider objects linked: OtherSolid and SelfSolid. This is done to recognize which object is causing the collision and which is receiving it."
+						},
+						{
+							"type": "comment",
+							"text": "OtherSolid."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 802394954736907,
+							"parameters": {
+								"object-to-create": "OtherSolid",
+								"layer": "Block.LayerName",
+								"x": "Block.BBoxMidX",
+								"y": "Block.BBoxMidY",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "OtherSolid",
+							"sid": 817560480341000,
+							"parameters": {
+								"width": "Block.Width",
+								"height": "Block.Height"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "OtherSolid",
+							"sid": 902955671558425,
+							"parameters": {
+								"instance-variable": "DefaultWidth",
+								"value": "Self.Width"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "OtherSolid",
+							"sid": 257494959840690,
+							"parameters": {
+								"instance-variable": "DefaultHeight",
+								"value": "Self.Height"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Block",
+							"sid": 499776245865470,
+							"parameters": {
+								"child": "OtherSolid",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-o": false,
+								"transform-z-elevation": false,
+								"transform-visibility": false,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Self Solid."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 168078440608713,
+							"parameters": {
+								"object-to-create": "SelfSolid",
+								"layer": "Block.LayerName",
+								"x": "Block.BBoxMidX",
+								"y": "Block.BBoxMidY",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "SelfSolid",
+							"sid": 481144176536786,
+							"parameters": {
+								"width": "Block.Width",
+								"height": "Block.Height"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "SelfSolid",
+							"sid": 896384828773047,
+							"parameters": {
+								"instance-variable": "DefaultWidth",
+								"value": "Self.Width"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "SelfSolid",
+							"sid": 759537179002648,
+							"parameters": {
+								"instance-variable": "DefaultHeight",
+								"value": "Self.Height"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Block",
+							"sid": 664390952458762,
+							"parameters": {
+								"child": "SelfSolid",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-o": false,
+								"transform-z-elevation": false,
+								"transform-visibility": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 783500250682843
+				}
+			]
+		},
+		{
+			"eventType": "variable",
+			"name": "AllowPlayerInput",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "This variable determines if the player can interact with the objects",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 584436785686665
+		},
+		{
+			"eventType": "comment",
+			"text": "The following block of code runs when a touch input is detected."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-nth-touch-start",
+					"objectClass": "Touch",
+					"sid": 702371877218848,
+					"parameters": {
+						"touch-number": "0"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 694982739855617,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Will only work if the player can input."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 650559287913145,
+							"parameters": {
+								"value": "AllowPlayerInput = 1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 458738079104963,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The default state of all objects is to be \"other\", that is, the object that is being collided with."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-all",
+									"objectClass": "System",
+									"sid": 128064658934880,
+									"parameters": {
+										"object": "Block"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 585057162256923,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 979805448880576,
+											"parameters": {
+												"object": "Block"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 715811537428163,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-children",
+													"objectClass": "Block",
+													"sid": 325981299081264,
+													"parameters": {
+														"child": "OtherSolid",
+														"which": "own"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "OtherSolid",
+													"sid": 242421708430082,
+													"parameters": {
+														"instance-variable": "Enabled",
+														"value": "true"
+													}
+												}
+											],
+											"sid": 634496836095105
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-children",
+													"objectClass": "Block",
+													"sid": 219888807825175,
+													"parameters": {
+														"child": "SelfSolid",
+														"which": "own"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "SelfSolid",
+													"sid": 364084725944948,
+													"parameters": {
+														"instance-variable": "Enabled",
+														"value": "false"
+													}
+												}
+											],
+											"sid": 893550715762435
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "But, the object actually being touched by the player is \"Self\", since it is the object that will be causing the collisions."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 588518714640377,
+									"parameters": {
+										"object": "Block"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "The object is being dragged."
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Block",
+									"sid": 937219491501261,
+									"parameters": {
+										"instance-variable": "Dragging",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Store the offset of the block position to touch position, to move the object relative to the touch, and not to its center."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Block",
+									"sid": 298867954786114,
+									"parameters": {
+										"instance-variable": "OffsetX",
+										"value": "Block.X - Touch.X"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Block",
+									"sid": 553514480410716,
+									"parameters": {
+										"instance-variable": "OffsetY",
+										"value": "Block.Y - Touch.Y"
+									}
+								}
+							],
+							"sid": 268619085913817,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Block",
+											"sid": 752059547875953,
+											"parameters": {
+												"child": "OtherSolid",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "OtherSolid",
+											"sid": 822105590410191,
+											"parameters": {
+												"instance-variable": "Enabled",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 824480078642435
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Block",
+											"sid": 870488564278153,
+											"parameters": {
+												"child": "SelfSolid",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "SelfSolid",
+											"sid": 788034078616758,
+											"parameters": {
+												"instance-variable": "Enabled",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 213957346275888,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the block is moving horizontally, decrease its collision box on the vertical, so that it does not collide with objects in the wrong axis."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 164598028604427,
+													"parameters": {
+														"value": "Block.HorizontalMovement = 1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-height",
+													"objectClass": "SelfSolid",
+													"sid": 542122131208079,
+													"parameters": {
+														"height": "Self.DefaultHeight - 16"
+													}
+												}
+											],
+											"sid": 982176783607623
+										},
+										{
+											"eventType": "comment",
+											"text": "Use the same logic for vertical movement."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 942503597716858
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 626522460542622,
+													"parameters": {
+														"value": "Block.VerticalMovement = 1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-width",
+													"objectClass": "SelfSolid",
+													"sid": 357399677284495,
+													"parameters": {
+														"width": "Self.DefaultWidth - 16"
+													}
+												}
+											],
+											"sid": 423728538183757
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Check if the object is being dragged."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "pick-by-comparison",
+					"objectClass": "System",
+					"sid": 194515813018398,
+					"parameters": {
+						"object": "Block",
+						"expression": "Block.Dragging",
+						"comparison": 0,
+						"value": "1"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 772855461111509,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-children",
+							"objectClass": "Block",
+							"sid": 668238936394008,
+							"parameters": {
+								"child": "SelfSolid",
+								"which": "own"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 418767079793279,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "PreviousPosition",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Store the block's previous position on the moving axis",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 821774842435656
+						},
+						{
+							"eventType": "comment",
+							"text": "Horizontal movement."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 425607431142381,
+									"parameters": {
+										"value": "Block.HorizontalMovement = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Update previous position."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 180551535520869,
+									"parameters": {
+										"variable": "PreviousPosition",
+										"value": "Block.X"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move the object in relation to touch position."
+								},
+								{
+									"id": "set-x",
+									"objectClass": "Block",
+									"sid": 274132781097924,
+									"parameters": {
+										"x": "Functions.MoveValueTowardsAnotherValue(Self.X, Touch.X + Self.OffsetX, Self.Width)"
+									}
+								}
+							],
+							"sid": 731956581881999,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the object collides with another one, reset it to the previous position and snap it back to the board grid."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "SelfSolid",
+											"sid": 608264359721344,
+											"parameters": {
+												"object": "OtherSolid"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 219603226348357,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for-each",
+													"objectClass": "System",
+													"sid": 323416888643736,
+													"parameters": {
+														"object": "OtherSolid"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 157572619866033,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 383977581721504,
+															"parameters": {
+																"value": "OtherSolid.Enabled = 1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-x",
+															"objectClass": "Block",
+															"sid": 126790700527144,
+															"parameters": {
+																"x": "PreviousPosition"
+															}
+														},
+														{
+															"callFunction": "SnapBlockToBoard",
+															"sid": 693616852924729,
+															"parameters": [
+																"Block.UID"
+															]
+														}
+													],
+													"sid": 839839584792986
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Vertical movement."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 123708559107233,
+									"parameters": {
+										"value": "Block.VerticalMovement = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Update previous position."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 467148550440442,
+									"parameters": {
+										"variable": "PreviousPosition",
+										"value": "Block.Y"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move the object in relation to touch position."
+								},
+								{
+									"id": "set-y",
+									"objectClass": "Block",
+									"sid": 377218402382724,
+									"parameters": {
+										"y": "Functions.MoveValueTowardsAnotherValue(Self.Y, Touch.Y + Self.OffsetY, Self.Height)"
+									}
+								}
+							],
+							"sid": 396988425358102,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the object collides with another one, reset it to the previous position and snap it back to the board grid."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "SelfSolid",
+											"sid": 562210902030672,
+											"parameters": {
+												"object": "OtherSolid"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 393961486657842,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for-each",
+													"objectClass": "System",
+													"sid": 720892948236370,
+													"parameters": {
+														"object": "OtherSolid"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 879983638498258,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 980203147358609,
+															"parameters": {
+																"value": "OtherSolid.Enabled = 1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-y",
+															"objectClass": "Block",
+															"sid": 436651355005372,
+															"parameters": {
+																"y": "PreviousPosition"
+															}
+														},
+														{
+															"callFunction": "SnapBlockToBoard",
+															"sid": 976491911195658,
+															"parameters": [
+																"Block.UID"
+															]
+														}
+													],
+													"sid": 563704208335968
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "The following block of code runs when the input is no longer detected."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-nth-touch-end",
+					"objectClass": "Touch",
+					"sid": 716768677901487,
+					"parameters": {
+						"touch-number": "0"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 301184432292762,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update block dragging status to false and snap it back to the board."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 338108170423452,
+							"parameters": {
+								"object": "Block",
+								"expression": "Block.Dragging",
+								"comparison": 0,
+								"value": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Block",
+							"sid": 599726950353077,
+							"parameters": {
+								"instance-variable": "Dragging",
+								"value": "false"
+							}
+						},
+						{
+							"callFunction": "SnapBlockToBoard",
+							"sid": 983907322834728,
+							"parameters": [
+								"Block.UID"
+							]
+						}
+					],
+					"sid": 945077072496419,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Restore block's collision to default state, which is being \"other\", since it's not being held by the player anymore."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Block",
+									"sid": 483225059407663,
+									"parameters": {
+										"child": "OtherSolid",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "OtherSolid",
+									"sid": 360293210466950,
+									"parameters": {
+										"instance-variable": "Enabled",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 477623357753961
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Block",
+									"sid": 578644973754779,
+									"parameters": {
+										"child": "SelfSolid",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "SelfSolid",
+									"sid": 257621912423755,
+									"parameters": {
+										"instance-variable": "Enabled",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 697709426655899,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Reset the collider size that was previously changed to avoid wrong collisions."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 512856984723580,
+											"parameters": {
+												"value": "Block.HorizontalMovement = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-height",
+											"objectClass": "SelfSolid",
+											"sid": 965769029632429,
+											"parameters": {
+												"height": "Self.DefaultHeight"
+											}
+										}
+									],
+									"sid": 570310408835260
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 778899431860184
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 242593135530580,
+											"parameters": {
+												"value": "Block.VerticalMovement = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "SelfSolid",
+											"sid": 585674995525814,
+											"parameters": {
+												"width": "Self.DefaultWidth"
+											}
+										}
+									],
+									"sid": 489871528816467
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "[b]Special case:[/b] check if the object release is the key and if it is on top of the lock. If so, the player wins the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 874737588801830,
+									"parameters": {
+										"value": "Block.AnimationName = \"Key\" & Block.X = Block.TargetX & Block.Y = Block.TargetY"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Disable player's inputs."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 134904551264409,
+									"parameters": {
+										"variable": "AllowPlayerInput",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Spawn victory smoke."
+								},
+								{
+									"id": "set-rate",
+									"objectClass": "SmokeParticles",
+									"sid": 601799955187222,
+									"parameters": {
+										"rate": "192"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Reset the game after some time."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "GameManager",
+									"sid": 119539907282406,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "4",
+										"type": "once",
+										"tag": "\"Reset\""
+									}
+								}
+							],
+							"sid": 286280909608238
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Reset time triggered."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 944258042775724,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Reset\""
+					}
+				}
+			],
+			"actions": [],
+			"sid": 423806592103559,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Reset board to the starting configuration."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-all",
+							"objectClass": "System",
+							"sid": 307868431044515,
+							"parameters": {
+								"object": "Block"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 115748356000367,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 516193447689387,
+									"parameters": {
+										"object": "Block"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "Block",
+									"sid": 302794441142601,
+									"parameters": {
+										"x": "Self.InitialX",
+										"y": "Self.InitialY"
+									}
+								}
+							],
+							"sid": 172658657005847
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Allow the player to input again and stop spawning victory smoke."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 443138161136211,
+							"parameters": {
+								"variable": "AllowPlayerInput",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-rate",
+							"objectClass": "SmokeParticles",
+							"sid": 907985614380025,
+							"parameters": {
+								"rate": "0"
+							}
+						}
+					],
+					"sid": 307527628825923
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Snap object to the closest available position in the board grid."
+		},
+		{
+			"eventType": "variable",
+			"name": "BoardMargin",
+			"type": "number",
+			"initialValue": "36",
+			"comment": "Delimits margins for the board",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 386571818363729
+		},
+		{
+			"functionName": "SnapBlockToBoard",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "BlockUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 834878330559113
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "pick-by-unique-id",
+					"objectClass": "Block",
+					"sid": 512141373775548,
+					"parameters": {
+						"unique-id": "BlockUID"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-position",
+					"objectClass": "Block",
+					"sid": 915575982004796,
+					"parameters": {
+						"x": "round((Self.X - BoardMargin) / 168) * 168 + BoardMargin",
+						"y": "round((Self.Y - BoardMargin) / 168) * 168 + BoardMargin"
+					}
+				}
+			],
+			"sid": 940734008620593
+		},
+		{
+			"eventType": "comment",
+			"text": "Gradually moves a value towards another value using a speed parameter."
+		},
+		{
+			"functionName": "MoveValueTowardsAnotherValue",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "number",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "CurrentValue",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 311660534934415
+				},
+				{
+					"name": "TargetValue",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 932803531428403
+				},
+				{
+					"name": "Speed",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 713548012109241
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 770978622524347,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The direction in which the current value needs to move at in order to reach the target value."
+				},
+				{
+					"eventType": "variable",
+					"name": "Direction",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 182207827240771
+				},
+				{
+					"eventType": "comment",
+					"text": "Calculate the direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 649252233080002,
+							"parameters": {
+								"variable": "Direction",
+								"value": "sign(TargetValue - CurrentValue )"
+							}
+						}
+					],
+					"sid": 126886796956283
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value is higher than the target value, use the target value as the minimum clamp parameter."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 608027677778267,
+							"parameters": {
+								"value": "CurrentValue > TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 625229497696416,
+							"parameters": {
+								"value": "clamp(CurrentValue + Direction * abs(Speed) * 60 * dt, TargetValue, Infinity)"
+							}
+						}
+					],
+					"sid": 256962239010658
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value is lower than the target value, use the target value as the maximum clamp parameter."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 826291037168790
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 139447072948855,
+							"parameters": {
+								"value": "CurrentValue < TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 917427799488565,
+							"parameters": {
+								"value": "clamp(CurrentValue + Direction * abs(Speed) * 60 * dt, -Infinity, TargetValue)"
+							}
+						}
+					],
+					"sid": 778596443037556
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value equals the target value, simply return the target value."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 681947213045836
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 100758111708339,
+							"parameters": {
+								"value": "CurrentValue = TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 138285081468138,
+							"parameters": {
+								"value": "TargetValue"
+							}
+						}
+					],
+					"sid": 444800457016305
+				}
+			]
+		}
+	],
+	"sid": 107655625514053
+}

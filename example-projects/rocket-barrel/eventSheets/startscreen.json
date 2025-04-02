@@ -1,0 +1,170 @@
+{
+	"name": "StartScreen",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Flash the initial message, so it calls the attention of the player more easily."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 569231309994413
+				}
+			],
+			"actions": [
+				{
+					"id": "flash",
+					"objectClass": "InitialMessage",
+					"sid": 102086182368038,
+					"behaviorType": "Flash",
+					"parameters": {
+						"on-time": "0.25",
+						"off-time": "0.25",
+						"duration": "Infinity"
+					}
+				}
+			],
+			"sid": 654884523370631
+		},
+		{
+			"eventType": "comment",
+			"text": "There needs to be a start screen because on mobile the player is controlled by the device orientation, which requires a permission prompt in some browsers. If the user proceeds with keyboard or gamepad input assume it is a desktop, so simply move the user to the game itself."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 497939376852373
+				}
+			],
+			"actions": [
+				{
+					"id": "go-to-layout",
+					"objectClass": "System",
+					"sid": 697330991916548,
+					"parameters": {
+						"layout": "MainLevel"
+					}
+				}
+			],
+			"sid": 271775124949413
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-button-pressed",
+					"objectClass": "Gamepad",
+					"sid": 501719373478042,
+					"parameters": {
+						"gamepad": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "go-to-layout",
+					"objectClass": "System",
+					"sid": 130428907211499,
+					"parameters": {
+						"layout": "MainLevel"
+					}
+				}
+			],
+			"sid": 350244887403306
+		},
+		{
+			"eventType": "comment",
+			"text": "If the user proceeds with a touch, assume this is a mobile device and orientation permission is required, so request the permission. NOTE: this must be done in a touch end trigger, not a touch start trigger.\nAlso request a wake lock using PlatformInfo, which prevents the screen turning off. This is useful if the user is controlling movement entirely by device orientation, since they won't be touching the screen, so there won't be any user input to stop the screen from going to sleep."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-end",
+					"objectClass": "Touch",
+					"sid": 179188412766223
+				}
+			],
+			"actions": [
+				{
+					"id": "request-wake-lock",
+					"objectClass": "PlatformInfo",
+					"sid": 120957776904787
+				},
+				{
+					"id": "request-permission",
+					"objectClass": "Touch",
+					"sid": 777580583058210,
+					"parameters": {
+						"type": "orientation"
+					}
+				}
+			],
+			"sid": 620936525511620
+		},
+		{
+			"eventType": "comment",
+			"text": "If the user grants permission, proceed to the game. Device orientation will now work."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-permission-granted",
+					"objectClass": "Touch",
+					"sid": 399651578845794,
+					"parameters": {
+						"type": "orientation"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "go-to-layout",
+					"objectClass": "System",
+					"sid": 971095083426859,
+					"parameters": {
+						"layout": "MainLevel"
+					}
+				}
+			],
+			"sid": 887739536210397
+		},
+		{
+			"eventType": "comment",
+			"text": "If the user denies permission, there is no way they can control the game, so there's no point sending them to the game. Instead display a message saying \"Permission denied\"."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-permission-denied",
+					"objectClass": "Touch",
+					"sid": 335025938964908,
+					"parameters": {
+						"type": "orientation"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation",
+					"objectClass": "InitialMessage",
+					"sid": 978117464602293,
+					"parameters": {
+						"animation": "\"PermissionDenied\"",
+						"from": "beginning"
+					}
+				}
+			],
+			"sid": 582201057256980
+		}
+	],
+	"sid": 600966599722187
+}

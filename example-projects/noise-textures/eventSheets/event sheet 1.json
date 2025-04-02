@@ -1,0 +1,401 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Start with the classic (perlin) noise option, and save a drawing canvas snapshot to kick off noise generation on startup."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 353613580546735
+				}
+			],
+			"actions": [
+				{
+					"id": "set-selection",
+					"objectClass": "TypeList",
+					"sid": 522512363073416,
+					"parameters": {
+						"index": "3"
+					}
+				},
+				{
+					"id": "save-snapshot",
+					"objectClass": "DrawingCanvas",
+					"sid": 830770098846580
+				}
+			],
+			"sid": 859454213787370
+		},
+		{
+			"eventType": "comment",
+			"text": "If either dropdown list is changed, save a drawing canvas snapshot again to regenerate noise."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-selection-changed",
+					"objectClass": "TypeList",
+					"sid": 186860072269722
+				},
+				{
+					"id": "on-selection-changed",
+					"objectClass": "OctavesList",
+					"sid": 283660093328812
+				}
+			],
+			"actions": [
+				{
+					"id": "save-snapshot",
+					"objectClass": "DrawingCanvas",
+					"sid": 855848919800019
+				}
+			],
+			"sid": 233918963094172,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "variable",
+			"name": "XIndex",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 738523393637340
+		},
+		{
+			"eventType": "variable",
+			"name": "YIndex",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 624515207154158
+		},
+		{
+			"eventType": "variable",
+			"name": "NoiseValue",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 241810235560498
+		},
+		{
+			"eventType": "variable",
+			"name": "SelectedIndex",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 425714315115037
+		},
+		{
+			"eventType": "comment",
+			"text": "When a drawing canvas snapshot has been taken, save the noise type and set the octaves to use before generating the noise."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-snapshot",
+					"objectClass": "DrawingCanvas",
+					"sid": 185185009683079
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 789148859552711,
+					"parameters": {
+						"variable": "SelectedIndex",
+						"value": "TypeList.SelectedIndex"
+					}
+				},
+				{
+					"id": "octaves",
+					"objectClass": "AdvancedRandom",
+					"sid": 161151737901939,
+					"parameters": {
+						"count": "int(OctavesList.SelectedText)"
+					}
+				}
+			],
+			"sid": 286021153811747,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Loop every pixel in the saved snapshot. Save the loop indices in global variables for use within the loop."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 530398282376681,
+							"parameters": {
+								"count": "DrawingCanvas.SnapshotWidth"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 792253073513624,
+							"parameters": {
+								"variable": "XIndex",
+								"value": "loopindex"
+							}
+						}
+					],
+					"sid": 384616357606084,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 888553414853353,
+									"parameters": {
+										"count": "DrawingCanvas.SnapshotHeight"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 602288320792535,
+									"parameters": {
+										"variable": "YIndex",
+										"value": "loopindex"
+									}
+								}
+							],
+							"sid": 224872399462857,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Generate a different kind of noise depending on the list selection. Note: not all kinds of noise make use of the octaves selection, so it won't always make a visible difference. Also the Advanced Random object returns numbers in the [0, 1] range, but the rgba() expression uses values in the 0-100 range, so multiply them by 100."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 126025888993969,
+											"parameters": {
+												"variable": "SelectedIndex",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 422610873602558,
+											"parameters": {
+												"variable": "NoiseValue",
+												"value": "random(0, 100)"
+											}
+										}
+									],
+									"sid": 738461030347973
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 260134659563565,
+											"parameters": {
+												"variable": "SelectedIndex",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 604931366584189,
+											"parameters": {
+												"variable": "NoiseValue",
+												"value": "AdvancedRandom.Billow2d(XIndex, YIndex) * 100"
+											}
+										}
+									],
+									"sid": 433354505448809
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 594551481724599,
+											"parameters": {
+												"variable": "SelectedIndex",
+												"comparison": 0,
+												"value": "2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 431590657137793,
+											"parameters": {
+												"variable": "NoiseValue",
+												"value": "AdvancedRandom.Cellular2d(XIndex, YIndex) * 100"
+											}
+										}
+									],
+									"sid": 992404568734323
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 548059579423063,
+											"parameters": {
+												"variable": "SelectedIndex",
+												"comparison": 0,
+												"value": "3"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 699079716033259,
+											"parameters": {
+												"variable": "NoiseValue",
+												"value": "AdvancedRandom.Classic2d(XIndex, YIndex) * 100"
+											}
+										}
+									],
+									"sid": 261767236603963
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 401174725785453,
+											"parameters": {
+												"variable": "SelectedIndex",
+												"comparison": 0,
+												"value": "4"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 213066233976744,
+											"parameters": {
+												"variable": "NoiseValue",
+												"value": "AdvancedRandom.Ridged2d(XIndex, YIndex) * 100"
+											}
+										}
+									],
+									"sid": 953417389569316
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 786048985683930,
+											"parameters": {
+												"variable": "SelectedIndex",
+												"comparison": 0,
+												"value": "5"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 174396964417847,
+											"parameters": {
+												"variable": "NoiseValue",
+												"value": "AdvancedRandom.Voronoi2d(XIndex, YIndex) * 100"
+											}
+										}
+									],
+									"sid": 986247589925459
+								},
+								{
+									"eventType": "comment",
+									"text": "Once a noise value has been generated, use it to set the current pixel in the snapshot."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "snapshot-set-pixel",
+											"objectClass": "DrawingCanvas",
+											"sid": 544348604414521,
+											"parameters": {
+												"x": "XIndex",
+												"y": "YIndex",
+												"color": "rgba(NoiseValue, NoiseValue, NoiseValue, 100)"
+											}
+										}
+									],
+									"sid": 216156007773361
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the loop has finished so every pixel has been updated, load the snapshot back to the drawing canvas so the result is displayed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "load-snapshot",
+							"objectClass": "DrawingCanvas",
+							"sid": 455974795408757
+						}
+					],
+					"sid": 607592277207833
+				}
+			]
+		}
+	],
+	"sid": 140535661663575
+}

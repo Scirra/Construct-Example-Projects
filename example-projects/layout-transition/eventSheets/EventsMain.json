@@ -1,0 +1,2652 @@
+{
+	"name": "EventsMain",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Global variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "transitionPlaying",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is a transition playing?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 566838450503704
+		},
+		{
+			"eventType": "variable",
+			"name": "meltReady",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Are melt transition's canvases ready?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 378103806480263
+		},
+		{
+			"eventType": "variable",
+			"name": "pixelateReady",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Are pixelate transition's canvases ready?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 860406119636207
+		},
+		{
+			"eventType": "variable",
+			"name": "tutorialSkipped",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Has the player skipped the tutorial?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 326660442880095
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tutorial",
+			"description": "Tutorial events.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If tutorial hasn't been skipped by the player, show it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 400043661063161
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 629570570290300,
+							"parameters": {
+								"variable": "tutorialSkipped"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-opacity",
+							"objectClass": "TutorialFader",
+							"sid": 625473531571664,
+							"parameters": {
+								"opacity": "85"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextTutorial",
+							"sid": 141091748928387,
+							"parameters": {
+								"opacity": "100"
+							}
+						}
+					],
+					"sid": 183791205696544
+				},
+				{
+					"eventType": "comment",
+					"text": "If the tutorial is up, wait for any input to continue."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 752610393657341
+						},
+						{
+							"id": "on-any-click",
+							"objectClass": "Mouse",
+							"sid": 389357505067301
+						}
+					],
+					"actions": [],
+					"sid": 693481307971029,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 892900534438759,
+									"parameters": {
+										"variable": "tutorialSkipped"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-any-playing",
+									"objectClass": "TutorialFader",
+									"sid": 417947646438636,
+									"behaviorType": "Tween",
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "TutorialFader",
+									"sid": 158853771730918,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"TutorialHide\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextTutorial",
+									"sid": 892747422765628,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"TutorialHide\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 745640145129931
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 246585831103613,
+									"parameters": {
+										"variable": "tutorialSkipped",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 284431401241482
+						}
+					],
+					"isOrBlock": true
+				}
+			],
+			"sid": 838321099662512
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "BG Movers",
+			"description": "Events that deal with background mover arrows.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Check if cursor is over a BGMover and if it can be pressed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 812262115704815,
+							"parameters": {
+								"object": "BGMover"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 954160868013161,
+							"parameters": {
+								"variable": "tutorialSkipped"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 242465685528256,
+							"parameters": {
+								"variable": "transitionPlaying"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 810635460977781,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move BG when player holds down left click on a BGMover."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "mouse-button-is-down",
+									"objectClass": "Mouse",
+									"sid": 397743565761831,
+									"parameters": {
+										"mouse-button": "left"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 327276290497942,
+									"parameters": {
+										"object": "AllBGs",
+										"expression": "AllBGs.ObjectTypeName = (LayoutName & \"_\" & BGMover.moveBG)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-image-offset-x",
+									"objectClass": "AllBGs",
+									"sid": 137536231734895,
+									"parameters": {
+										"offset-x": "Self.ImageOffsetX + BGMover.direction * 100 * dt"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "BGMover",
+									"sid": 868519814858243,
+									"parameters": {
+										"animation": "\"Down\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 579607021521393
+						},
+						{
+							"eventType": "comment",
+							"text": "If the mouse is not held down, just set the animation as Hover."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 531209830997514
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "BGMover",
+									"sid": 936293250755695,
+									"parameters": {
+										"animation": "\"Hover\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 594052245799394
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If the cursor is not over a BGMover, set the animation as Idle."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 129286781513816
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "BGMover",
+							"sid": 383239677254365,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 191378914082079
+				}
+			],
+			"sid": 429315327300971
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Misc",
+			"description": "Miscellaneous events.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Bring a text box with the name of the transition written."
+				},
+				{
+					"functionName": "showTransitionName",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "name",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 293013551653148
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "TextTransition",
+							"sid": 804042173555250,
+							"parameters": {
+								"text": "\"Playing \" & name & newline & \"transition\""
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTransition",
+							"sid": 682844882648471,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TTShow\"",
+								"property": "offsetX",
+								"end-value": "4",
+								"time": "0.25",
+								"ease": "easeoutback",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 270390782428366
+				},
+				{
+					"eventType": "comment",
+					"text": "Hide the transition name text box previously brought on-screen."
+				},
+				{
+					"functionName": "hideTransitionName",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTransition",
+							"sid": 474362404716282,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TTHide\"",
+								"property": "offsetX",
+								"end-value": "-96",
+								"time": "0.25",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 208085849169733
+				},
+				{
+					"eventType": "comment",
+					"text": "Control BGMovers on-screen visibility."
+				},
+				{
+					"functionName": "hideBGMovers",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "BGMover",
+							"sid": 279477900081623,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BGMover\"",
+								"property": "offsetX",
+								"end-value": "Self.X + Self.direction * 64",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 261207467368323
+				},
+				{
+					"functionName": "showBGMovers",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "BGMover",
+							"sid": 383025171862340,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BGMover\"",
+								"property": "offsetX",
+								"end-value": "Self.X - Self.direction * 64",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 436163330668399
+				},
+				{
+					"eventType": "comment",
+					"text": "Reset layers to their initial visibility states."
+				},
+				{
+					"functionName": "resetLayersVisibility",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 644733120472539,
+							"parameters": {
+								"layer": "\"LayFadeT\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 467941456270778,
+							"parameters": {
+								"layer": "\"LayDissolveT\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-opacity",
+							"objectClass": "System",
+							"sid": 536202030176137,
+							"parameters": {
+								"layer": "\"LayDissolveT\"",
+								"opacity": "100"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 296334001553072,
+							"parameters": {
+								"layer": "\"LayPixelateT\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 546906784406855,
+							"parameters": {
+								"layer": "\"LayCuboidTAux\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 502559137872469,
+							"parameters": {
+								"layer": "\"LayCuboidT\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 170437585017834,
+							"parameters": {
+								"layer": "\"LayGame\"",
+								"visibility": "visible"
+							}
+						}
+					],
+					"sid": 102641566853817
+				}
+			],
+			"sid": 165534562815485
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Transitions",
+			"description": "Transition events.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "1 - Fade",
+					"description": "Fade the current layout to black, load the next layout, and then fade it in smoothly.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "fromFadeTransition",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "Was this layout loaded from a fade transition?",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 483516306914261
+						},
+						{
+							"eventType": "comment",
+							"text": "Start transition."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 433530834264183,
+									"parameters": {
+										"key": 49
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 647903676459329,
+									"parameters": {
+										"variable": "transitionPlaying"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "TextTransition",
+									"sid": 543512132216851,
+									"parameters": {
+										"comparison": 0,
+										"x-co-ordinate": "-96"
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 780987373595508,
+									"parameters": {
+										"variable": "tutorialSkipped"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Hide BGMovers."
+								},
+								{
+									"callFunction": "hideBGMovers",
+									"sid": 428372621102559
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 535090066713445
+								},
+								{
+									"type": "comment",
+									"text": "Set transitionPlaying as true, so that the player can't start a new transition while this one is playing."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 960723810621039,
+									"parameters": {
+										"variable": "transitionPlaying",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show TextTransition with correct description."
+								},
+								{
+									"callFunction": "showTransitionName",
+									"sid": 598850999552043,
+									"parameters": [
+										"\"fade\""
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Fade out."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TransitionFade",
+									"sid": 170631880016876,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"TransitionFadeOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1.0",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Go to the next layout, which will know that the transition playing is Fade."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 752134714362597
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 521875836890173,
+									"parameters": {
+										"variable": "fromFadeTransition",
+										"value": "true"
+									}
+								},
+								{
+									"id": "go-to-layout-by-name",
+									"objectClass": "System",
+									"sid": 165351178330960,
+									"parameters": {
+										"layout": "LayoutName = \"LayoutB\" ? \"LayoutA\" : \"LayoutB\""
+									}
+								},
+								{
+									"callFunction": "resetLayersVisibility",
+									"sid": 397667936341133
+								}
+							],
+							"sid": 580854775424757
+						},
+						{
+							"eventType": "comment",
+							"text": "Finish transition."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 893230351655250
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 856895351335945,
+									"parameters": {
+										"variable": "fromFadeTransition"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Fade in."
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "TransitionFade",
+									"sid": 910874923478982,
+									"parameters": {
+										"opacity": "100"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TransitionFade",
+									"sid": 896672960598935,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"TransitionFadeOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "1.0",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set transitionPlaying and fromFadeTransition as false."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 195832084960336
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 850048211248299,
+									"parameters": {
+										"variable": "transitionPlaying",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 327683456292426,
+									"parameters": {
+										"variable": "fromFadeTransition",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide TextTransition."
+								},
+								{
+									"callFunction": "hideTransitionName",
+									"sid": 650659210131656
+								},
+								{
+									"type": "comment",
+									"text": "Show BGMovers."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 786335372428144
+								},
+								{
+									"callFunction": "showBGMovers",
+									"sid": 603699325818290
+								}
+							],
+							"sid": 251590584152667
+						}
+					],
+					"sid": 222044522700022
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "2 - Dissolve",
+					"description": "Smoothly transition between layouts by gradually decreasing the opacity of the current layout while simultaneously increasing the opacity of the next layout.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "fromDissolveTransition",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "Was this layout loaded from a dissolve transition?",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 133731545363441
+						},
+						{
+							"eventType": "comment",
+							"text": "Start transition."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 174081145028762,
+									"parameters": {
+										"key": 50
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 269868273411158,
+									"parameters": {
+										"variable": "transitionPlaying"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "TextTransition",
+									"sid": 268028685098127,
+									"parameters": {
+										"comparison": 0,
+										"x-co-ordinate": "-96"
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 769957997919524,
+									"parameters": {
+										"variable": "tutorialSkipped"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Hide BGMovers."
+								},
+								{
+									"callFunction": "hideBGMovers",
+									"sid": 221967863078972
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 407531924906309
+								},
+								{
+									"type": "comment",
+									"text": "Set transitionPlaying as true, so that the player can't start a new transition while this one is playing."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 552670390705118,
+									"parameters": {
+										"variable": "transitionPlaying",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Take snapshot and load it into the TransitionDissolve sprite."
+								},
+								{
+									"id": "snapshot-canvas",
+									"objectClass": "System",
+									"sid": 568697966711237,
+									"parameters": {
+										"format": "png",
+										"jpeg-quality": "75",
+										"x": "0",
+										"y": "0",
+										"width": "0",
+										"height": "0"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 394775306475737
+								},
+								{
+									"id": "load-image-from-url",
+									"objectClass": "TransitionDissolve",
+									"sid": 129573058452713,
+									"parameters": {
+										"uri": "CanvasSnapshot",
+										"size": "keep-current-size",
+										"cross-origin": "anonymous"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show TextTransition with correct description."
+								},
+								{
+									"callFunction": "showTransitionName",
+									"sid": 693390841923042,
+									"parameters": [
+										"\"dissolve\""
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Go to the next layout."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 702761809125193
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 567299359011740,
+									"parameters": {
+										"variable": "fromDissolveTransition",
+										"value": "true"
+									}
+								},
+								{
+									"id": "go-to-layout-by-name",
+									"objectClass": "System",
+									"sid": 710589914665379,
+									"parameters": {
+										"layout": "LayoutName = \"LayoutB\" ? \"LayoutA\" : \"LayoutB\""
+									}
+								},
+								{
+									"callFunction": "resetLayersVisibility",
+									"sid": 939958403842685
+								}
+							],
+							"sid": 624323821308400
+						},
+						{
+							"eventType": "comment",
+							"text": "Finish transition."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 368767028881775
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 160872265985711,
+									"parameters": {
+										"variable": "fromDissolveTransition"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Make LayDissolveT visible and set LayGame opacity as 0 to compose the dissolve effect."
+								},
+								{
+									"id": "set-layer-opacity",
+									"objectClass": "System",
+									"sid": 942697636135626,
+									"parameters": {
+										"layer": "\"LayGame\"",
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 944502711951351,
+									"parameters": {
+										"layer": "\"LayDissolveT\"",
+										"visibility": "visible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play dissolve transition."
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "TransitionManager",
+									"sid": 227899743123575,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DissolveLayerOpacity\"",
+										"start-value": "0",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set transitionPlaying and fromDissolveTransition as false."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 514159614680558
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 196708444074687,
+									"parameters": {
+										"variable": "transitionPlaying",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 367609350433216,
+									"parameters": {
+										"variable": "fromDissolveTransition",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide TextTransition."
+								},
+								{
+									"callFunction": "hideTransitionName",
+									"sid": 757571030184519
+								},
+								{
+									"type": "comment",
+									"text": "Show BGMovers."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 165240956973425
+								},
+								{
+									"callFunction": "showBGMovers",
+									"sid": 467480226121248
+								}
+							],
+							"sid": 632920325726132
+						},
+						{
+							"eventType": "comment",
+							"text": "Apply layer opacity according to dissolve transition tween."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "TransitionManager",
+									"sid": 490988072825151,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DissolveLayerOpacity\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-layer-opacity",
+									"objectClass": "System",
+									"sid": 480842695058810,
+									"parameters": {
+										"layer": "\"LayGame\"",
+										"opacity": "TransitionManager.Tween.Value(\"DissolveLayerOpacity\")"
+									}
+								},
+								{
+									"id": "set-layer-opacity",
+									"objectClass": "System",
+									"sid": 755164524704573,
+									"parameters": {
+										"layer": "\"LayDissolveT\"",
+										"opacity": "100 - TransitionManager.Tween.Value(\"DissolveLayerOpacity\")"
+									}
+								}
+							],
+							"sid": 877153268496687
+						}
+					],
+					"sid": 983216122071922
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "3 - Melt",
+					"description": "Classic DooM-style transition: The current layout melts away, revealing the next one.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "fromMeltTransition",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "Was this layout loaded from a melt transition?",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 159513773150488
+						},
+						{
+							"eventType": "comment",
+							"text": "Setup melt transition's canvases."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 492342421185182
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 955874510450827,
+									"parameters": {
+										"variable": "meltReady"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 461206484107036,
+									"parameters": {
+										"variable": "meltReady",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 860949679070948,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Create all melt transition's DrawingCanvases."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 213207597700907,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "0",
+												"end-index": "LayoutWidth - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 959741890007049,
+											"parameters": {
+												"object-to-create": "TransitionMeltDC",
+												"layer": "\"LayMeltT\"",
+												"x": "loopindex(\"i\")",
+												"y": "0",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										}
+									],
+									"sid": 448417490608538
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Start transition."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 160328871390360,
+									"parameters": {
+										"key": 51
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 227667776733139,
+									"parameters": {
+										"variable": "transitionPlaying"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "TextTransition",
+									"sid": 101426584784076,
+									"parameters": {
+										"comparison": 0,
+										"x-co-ordinate": "-96"
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 147037131217710,
+									"parameters": {
+										"variable": "tutorialSkipped"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Hide BGMovers."
+								},
+								{
+									"callFunction": "hideBGMovers",
+									"sid": 799033922753244
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 975630314065619
+								},
+								{
+									"type": "comment",
+									"text": "Set transitionPlaying as true, so that the player can't start a new transition while this one is playing."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 903394406367850,
+									"parameters": {
+										"variable": "transitionPlaying",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show TextTransition with correct description."
+								},
+								{
+									"callFunction": "showTransitionName",
+									"sid": 808015145231867,
+									"parameters": [
+										"\"melt\""
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Paste objects into the canvases."
+								},
+								{
+									"id": "paste-object",
+									"objectClass": "TransitionMeltDC",
+									"sid": 129519005636843,
+									"parameters": {
+										"object": "AllBGs",
+										"effects": "with-effects"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Go to the next layout."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 207659726476095
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 837857451781253,
+									"parameters": {
+										"variable": "fromMeltTransition",
+										"value": "true"
+									}
+								},
+								{
+									"id": "go-to-layout-by-name",
+									"objectClass": "System",
+									"sid": 780652698506751,
+									"parameters": {
+										"layout": "LayoutName = \"LayoutB\" ? \"LayoutA\" : \"LayoutB\""
+									}
+								},
+								{
+									"callFunction": "resetLayersVisibility",
+									"sid": 747497419400472
+								}
+							],
+							"sid": 600694665066617
+						},
+						{
+							"eventType": "comment",
+							"text": "Finish transition."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 861473410131704
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 804228021425918,
+									"parameters": {
+										"variable": "fromMeltTransition"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 516465881980702,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "smoothRandomTime",
+									"type": "number",
+									"initialValue": "3",
+									"comment": "Smoothed randomized timer to start a canvas movement",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 375095464703365
+								},
+								{
+									"eventType": "comment",
+									"text": "Play the melt effect."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 846986232510074,
+											"parameters": {
+												"object": "TransitionMeltDC"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 626521331156402,
+											"parameters": {
+												"variable": "smoothRandomTime",
+												"value": "min(max(smoothRandomTime + choose(-1, 0, 1), 0), 7)"
+											}
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "TransitionMeltDC",
+											"sid": 273684048399352,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "smoothRandomTime/10",
+												"type": "once",
+												"tag": "\"MeltNow\""
+											}
+										}
+									],
+									"sid": 545396809519391
+								},
+								{
+									"eventType": "comment",
+									"text": "Give controls back to the player and reset melt transition's canvases."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 730783651503686,
+											"parameters": {
+												"seconds": "2"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Reset melt transition's canvases."
+										},
+										{
+											"id": "clear-canvas",
+											"objectClass": "TransitionMeltDC",
+											"sid": 108952597408676,
+											"parameters": {
+												"color": "rgba(0, 0, 0, 0)"
+											}
+										},
+										{
+											"id": "set-position",
+											"objectClass": "TransitionMeltDC",
+											"sid": 415792622048332,
+											"parameters": {
+												"x": "Self.X",
+												"y": "0"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Set transitionPlaying and fromMeltTransition as false."
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 272083077351139
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 893745804981549,
+											"parameters": {
+												"variable": "transitionPlaying",
+												"value": "false"
+											}
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 489550720232446,
+											"parameters": {
+												"variable": "fromMeltTransition",
+												"value": "false"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Hide TextTransition."
+										},
+										{
+											"callFunction": "hideTransitionName",
+											"sid": 759917308183430
+										},
+										{
+											"type": "comment",
+											"text": "Show BGMovers."
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 299317487083451
+										},
+										{
+											"callFunction": "showBGMovers",
+											"sid": 646391510051662
+										}
+									],
+									"sid": 120352296522311
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Move melt canvas down."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-timer",
+									"objectClass": "TransitionMeltDC",
+									"sid": 999918691012585,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"MeltNow\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "move-to-position",
+									"objectClass": "TransitionMeltDC",
+									"sid": 836383335858246,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"x": "Self.X",
+										"y": "LayoutHeight",
+										"mode": "direct"
+									}
+								}
+							],
+							"sid": 867429715903742
+						}
+					],
+					"sid": 458948188235998
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "4 - Pixelate",
+					"description": "Chunks of pixels are removed from the current layout to review the next one.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "fromPixelateTransition",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "Was this layout loaded from a pixelate transition?",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 554601490307503
+						},
+						{
+							"eventType": "comment",
+							"text": "Create grid of canvases for the pixelate effect."
+						},
+						{
+							"functionName": "createPixelateCanvases",
+							"functionDescription": "",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-size",
+									"objectClass": "TransitionPixelateArr",
+									"sid": 531933338759393,
+									"parameters": {
+										"width": "1",
+										"height": "1",
+										"depth": "1"
+									}
+								},
+								{
+									"id": "clear",
+									"objectClass": "TransitionPixelateArr",
+									"sid": 650384396779222,
+									"parameters": {
+										"value": "0"
+									}
+								}
+							],
+							"sid": 959805913196962,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Create all pixelate transition's DrawingCanvases and add them to TransitionPixelateArr."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 188425464459501,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "0",
+												"end-index": "39"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 169099450281665,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for",
+													"objectClass": "System",
+													"sid": 637444957133031,
+													"parameters": {
+														"name": "\"j\"",
+														"start-index": "0",
+														"end-index": "19"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 166887796627269,
+													"parameters": {
+														"object-to-create": "TransitionPixelateDC",
+														"layer": "\"LayPixelateT\"",
+														"x": "loopindex(\"i\") * 8",
+														"y": "loopindex(\"j\") * 9",
+														"create-hierarchy": false,
+														"template-name": "\"\""
+													}
+												},
+												{
+													"id": "push",
+													"objectClass": "TransitionPixelateArr",
+													"sid": 186099983933942,
+													"parameters": {
+														"where": "back",
+														"value": "TransitionPixelateDC.UID",
+														"axis": "x"
+													}
+												}
+											],
+											"sid": 644004388465390
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Shuffle array, so that pixels are randomly removed from the screen."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "shuffle",
+											"objectClass": "TransitionPixelateArr",
+											"sid": 952311593817746,
+											"parameters": {
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 828509406420198
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Setup melt transition's canvases."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 528100907915213
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 402941629891732,
+									"parameters": {
+										"variable": "pixelateReady"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 458098962798229,
+									"parameters": {
+										"variable": "pixelateReady",
+										"value": "true"
+									}
+								},
+								{
+									"callFunction": "createPixelateCanvases",
+									"sid": 988271194789404
+								}
+							],
+							"sid": 883301720094555
+						},
+						{
+							"eventType": "comment",
+							"text": "Start transition."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 614285749399279,
+									"parameters": {
+										"key": 52
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 123635270418080,
+									"parameters": {
+										"variable": "transitionPlaying"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "TextTransition",
+									"sid": 292019521529184,
+									"parameters": {
+										"comparison": 0,
+										"x-co-ordinate": "-96"
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 164119816709078,
+									"parameters": {
+										"variable": "tutorialSkipped"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Hide BGMovers."
+								},
+								{
+									"callFunction": "hideBGMovers",
+									"sid": 527841027622724
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 783672634753803
+								},
+								{
+									"type": "comment",
+									"text": "Set transitionPlaying as true, so that the player can't start a new transition while this one is playing."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 117063278147180,
+									"parameters": {
+										"variable": "transitionPlaying",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show TextTransition with correct description."
+								},
+								{
+									"callFunction": "showTransitionName",
+									"sid": 509237510779631,
+									"parameters": [
+										"\"pixelate\""
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Paste objects into the canvases."
+								},
+								{
+									"id": "paste-object",
+									"objectClass": "TransitionPixelateDC",
+									"sid": 545327315108834,
+									"parameters": {
+										"object": "AllBGs",
+										"effects": "with-effects"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Go to the next layout."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 650002884332616
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 648630131388832,
+									"parameters": {
+										"variable": "fromPixelateTransition",
+										"value": "true"
+									}
+								},
+								{
+									"id": "go-to-layout-by-name",
+									"objectClass": "System",
+									"sid": 958249910466214,
+									"parameters": {
+										"layout": "LayoutName = \"LayoutB\" ? \"LayoutA\" : \"LayoutB\""
+									}
+								},
+								{
+									"callFunction": "resetLayersVisibility",
+									"sid": 495718938470679
+								}
+							],
+							"sid": 707552501643251
+						},
+						{
+							"eventType": "comment",
+							"text": "Finish transition."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 797603464917948
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 820021658726901,
+									"parameters": {
+										"variable": "fromPixelateTransition"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 985581232988907,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Play the pixelate effect."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 530113299118349,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "0",
+												"end-index": "TransitionPixelateArr.Width - 1"
+											}
+										},
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "TransitionPixelateDC",
+											"sid": 349645606802241,
+											"parameters": {
+												"unique-id": "TransitionPixelateArr.At(loopindex(\"i\"))"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 782005712447757,
+											"parameters": {
+												"seconds": "0.001 * loopindex(\"i\")"
+											}
+										},
+										{
+											"id": "destroy",
+											"objectClass": "TransitionPixelateDC",
+											"sid": 497041885651404
+										}
+									],
+									"sid": 524836102059307
+								},
+								{
+									"eventType": "comment",
+									"text": "Give controls back to the player and reset pixelate transition's canvases."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 304355749338038,
+											"parameters": {
+												"seconds": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Reset pixelate transition's canvases."
+										},
+										{
+											"callFunction": "createPixelateCanvases",
+											"sid": 790194442673861
+										},
+										{
+											"type": "comment",
+											"text": "Set transitionPlaying and fromPixelateTransition as false."
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 485143342218649
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 333988847677498,
+											"parameters": {
+												"variable": "transitionPlaying",
+												"value": "false"
+											}
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 154881005527590,
+											"parameters": {
+												"variable": "fromPixelateTransition",
+												"value": "false"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Hide TextTransition."
+										},
+										{
+											"callFunction": "hideTransitionName",
+											"sid": 735519194381258
+										},
+										{
+											"type": "comment",
+											"text": "Show BGMovers."
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 648089641665736
+										},
+										{
+											"callFunction": "showBGMovers",
+											"sid": 823435456024614
+										}
+									],
+									"sid": 540993040499013
+								}
+							]
+						}
+					],
+					"sid": 317683524161615
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "5 - Cuboid",
+					"description": "Zoom out the camera to reveal a cuboid with the current layout facing the camera. Rotate the cuboid to unveil the next layout on its adjacent face, then zoom in to complete the transition.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "fromCuboidTransition",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "Was this layout loaded from a cuboid transition?",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 147074300326406
+						},
+						{
+							"eventType": "comment",
+							"text": "Start transition."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 439945196733560,
+									"parameters": {
+										"key": 53
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 740754688050045,
+									"parameters": {
+										"variable": "transitionPlaying"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "TextTransition",
+									"sid": 921870950576004,
+									"parameters": {
+										"comparison": 0,
+										"x-co-ordinate": "-96"
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 591903881869088,
+									"parameters": {
+										"variable": "tutorialSkipped"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Hide BGMovers."
+								},
+								{
+									"callFunction": "hideBGMovers",
+									"sid": 280145823996206
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 747959971030123
+								},
+								{
+									"type": "comment",
+									"text": "Set transitionPlaying as true, so that the player can't start a new transition while this one is playing."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 783258377755804,
+									"parameters": {
+										"variable": "transitionPlaying",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Take snapshot."
+								},
+								{
+									"id": "snapshot-canvas",
+									"objectClass": "System",
+									"sid": 631320342991500,
+									"parameters": {
+										"format": "png",
+										"jpeg-quality": "75",
+										"x": "0",
+										"y": "0",
+										"width": "0",
+										"height": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Load it into SnapSpriteA, which will be the texture for the bottom face of the TransitionCuboid."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 870795926782964
+								},
+								{
+									"id": "load-image-from-url",
+									"objectClass": "SnapSpriteA",
+									"sid": 288619687370205,
+									"parameters": {
+										"uri": "CanvasSnapshot",
+										"size": "resize-to-image-size",
+										"cross-origin": "anonymous"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show TextTransition with correct description."
+								},
+								{
+									"callFunction": "showTransitionName",
+									"sid": 736392775993467,
+									"parameters": [
+										"\"cuboid\""
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Show Transition layer and make the camera look at the bottom face of TransitionCuboid."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 573828048019904
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 860611059377093,
+									"parameters": {
+										"layer": "\"LayCuboidT\"",
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "look-at-position",
+									"objectClass": "3DCamera",
+									"sid": 225141058646982,
+									"parameters": {
+										"cam-x": "160",
+										"cam-y": "467",
+										"cam-z": "602",
+										"look-x": "160",
+										"look-y": "90",
+										"look-z": "602",
+										"up-x": "0",
+										"up-y": "0",
+										"up-z": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move the camera to make the cube more visible."
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "TransitionManager",
+									"sid": 731045527148793,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"CuboidCameraMove\"",
+										"start-value": "467",
+										"end-value": "567",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Snapshot the TransitionCuboid and load it into TransitionCuboidAux, which will be used to cover the copying of sprites to the canvas in the next layout."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 481032609412342
+								},
+								{
+									"id": "snapshot-canvas",
+									"objectClass": "System",
+									"sid": 638157050684444,
+									"parameters": {
+										"format": "png",
+										"jpeg-quality": "75",
+										"x": "0",
+										"y": "0",
+										"width": "0",
+										"height": "0"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 291177944358311
+								},
+								{
+									"id": "load-image-from-url",
+									"objectClass": "TransitionCuboidAux",
+									"sid": 230863577052966,
+									"parameters": {
+										"uri": "CanvasSnapshot",
+										"size": "keep-current-size",
+										"cross-origin": "anonymous"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make only TransitionAux visible."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 628556125676096
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 341263170637140,
+									"parameters": {
+										"layer": "\"LayCuboidT\"",
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 647747285069465,
+									"parameters": {
+										"layer": "\"LayGame\"",
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 735342594197101,
+									"parameters": {
+										"layer": "\"LayCuboidTAux\"",
+										"visibility": "visible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Restore 2D camera."
+								},
+								{
+									"id": "restore-2d-camera",
+									"objectClass": "3DCamera",
+									"sid": 892891711080803
+								},
+								{
+									"type": "comment",
+									"text": "Go to the next layout, which will know that the transition playing is Cuboid."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 649017072676313,
+									"parameters": {
+										"variable": "fromCuboidTransition",
+										"value": "true"
+									}
+								},
+								{
+									"id": "go-to-layout-by-name",
+									"objectClass": "System",
+									"sid": 788370310217971,
+									"parameters": {
+										"layout": "LayoutName = \"LayoutB\" ? \"LayoutA\" : \"LayoutB\""
+									}
+								},
+								{
+									"callFunction": "resetLayersVisibility",
+									"sid": 232268407980862
+								}
+							],
+							"sid": 992299878835873
+						},
+						{
+							"eventType": "comment",
+							"text": "Finish transition."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 161238835320741
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 779676932343534,
+									"parameters": {
+										"variable": "fromCuboidTransition"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Keep only TransitionAux layer visible."
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 233551770084514,
+									"parameters": {
+										"layer": "\"LayGame\"",
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 554584505670198,
+									"parameters": {
+										"layer": "\"LayCuboidTAux\"",
+										"visibility": "visible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Copy AllBGs family to the DrawingCanvas."
+								},
+								{
+									"id": "paste-object",
+									"objectClass": "TransitionCuboidDC",
+									"sid": 744784504572381,
+									"parameters": {
+										"object": "AllBGs",
+										"effects": "with-effects"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Save DrawingCanvas image. This waiting step will be hidden by TransitionCuboidAux, which is still showing the TransitionCuboid."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 322473433881923
+								},
+								{
+									"id": "save-image",
+									"objectClass": "TransitionCuboidDC",
+									"sid": 645787638514702,
+									"parameters": {
+										"format": "png",
+										"jpeg-quality": "75",
+										"x": "0",
+										"y": "0",
+										"width": "0",
+										"height": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show Transition layer and correctly position the camera where it was in the other layout."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 253327086859753
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 903727389638161,
+									"parameters": {
+										"layer": "\"LayCuboidT\"",
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "look-at-position",
+									"objectClass": "3DCamera",
+									"sid": 594568843068992,
+									"parameters": {
+										"cam-x": "160",
+										"cam-y": "567",
+										"cam-z": "602",
+										"look-x": "160",
+										"look-y": "90",
+										"look-z": "602",
+										"up-x": "0",
+										"up-y": "0",
+										"up-z": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Load the image from DrawingCanvas into SnapSpriteB, which will be the texture for the right face of the TransitionCuboid."
+								},
+								{
+									"id": "load-image-from-url",
+									"objectClass": "SnapSpriteB",
+									"sid": 223448253378564,
+									"parameters": {
+										"uri": "TransitionCuboidDC.SavedImageURL",
+										"size": "resize-to-image-size",
+										"cross-origin": "anonymous"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 927400252543645
+								},
+								{
+									"type": "comment",
+									"text": "Rotate the TransitionCuboid. This is the actual \"transition\"."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TransitionCuboid",
+									"sid": 612683135465795,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"CuboidRotate\"",
+										"property": "offsetAngle",
+										"end-value": "90",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move the camera back to the zoomed-in position."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 297894247058416
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "TransitionManager",
+									"sid": 395503506654434,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"CuboidCameraMove\"",
+										"start-value": "567",
+										"end-value": "467",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide transition layer, show game layer and restore 2D camera."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 774687282825807
+								},
+								{
+									"id": "restore-2d-camera",
+									"objectClass": "3DCamera",
+									"sid": 752975531395024
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 182678907775498,
+									"parameters": {
+										"layer": "\"LayCuboidTAux\"",
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 916873451592378,
+									"parameters": {
+										"layer": "\"LayCuboidT\"",
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 703097458807311,
+									"parameters": {
+										"layer": "\"LayGame\"",
+										"visibility": "visible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Reset TransitionCuboid rotation."
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "TransitionCuboid",
+									"sid": 754402758062098,
+									"parameters": {
+										"angle": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set transitionPlaying and fromCuboidTransition as false."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 938760968016647,
+									"parameters": {
+										"variable": "transitionPlaying",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 824404558052185,
+									"parameters": {
+										"variable": "fromCuboidTransition",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide TextTransition."
+								},
+								{
+									"callFunction": "hideTransitionName",
+									"sid": 349070965191361
+								},
+								{
+									"type": "comment",
+									"text": "Show BGMovers."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 489037026479517
+								},
+								{
+									"callFunction": "showBGMovers",
+									"sid": 903928238831252
+								}
+							],
+							"sid": 294343664473083
+						},
+						{
+							"eventType": "comment",
+							"text": "Make camera follow CuboidCameraMove tween."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "TransitionManager",
+									"sid": 583595469114204,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"CuboidCameraMove\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "3DCamera",
+									"sid": 401280551134925,
+									"parameters": {
+										"x": "Self.CameraX",
+										"y": "TransitionManager.Tween.Value(\"CuboidCameraMove\")",
+										"z": "Self.CameraZ",
+										"which": "camera"
+									}
+								}
+							],
+							"sid": 818310468415406
+						}
+					],
+					"sid": 464841759225907
+				}
+			],
+			"sid": 169848706980227
+		}
+	],
+	"sid": 302649935848226
+}

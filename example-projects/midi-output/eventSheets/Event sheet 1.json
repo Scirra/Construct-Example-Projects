@@ -1,0 +1,596 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "MIDI access",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On startup, attempt to request MIDI access immediately. This may show a permission prompt on startup. If permission was previously allowed, then it means MIDI access can work immediately."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 425890297657324
+						}
+					],
+					"actions": [
+						{
+							"id": "request-midi-access",
+							"objectClass": "MIDI",
+							"sid": 204974742300238,
+							"parameters": {
+								"sysex": false,
+								"software": false
+							}
+						}
+					],
+					"sid": 395131676381618,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also display if MIDI is supported, and if it is enable the 'Request MIDI access' button for use in case permission is not yet approved."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-supported",
+									"objectClass": "MIDI",
+									"sid": 837515989085114
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "StatusText",
+									"sid": 434007596521941,
+									"parameters": {
+										"text": "\"MIDI is supported. Click [i]Request MIDI access[/i] to use MIDI output.\""
+									}
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "RequestMIDIAccess",
+									"sid": 770309086453679,
+									"parameters": {
+										"mode": "enabled"
+									}
+								}
+							],
+							"sid": 319462010742335
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 650367431902916
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "StatusText",
+									"sid": 557733770454888,
+									"parameters": {
+										"text": "\"MIDI is not supported. Try using Chrome or Edge\""
+									}
+								}
+							],
+							"sid": 189082912412699
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Request MIDI access with the associated button, in case requesting access on startup does not work. This is necessary before any MIDI devices can be used. This will show a permission prompt the first time it is used."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "RequestMIDIAccess",
+							"sid": 103647713592238
+						}
+					],
+					"actions": [
+						{
+							"id": "request-midi-access",
+							"objectClass": "MIDI",
+							"sid": 846844878560858,
+							"parameters": {
+								"sysex": false,
+								"software": false
+							}
+						}
+					],
+					"sid": 418578569485279
+				},
+				{
+					"eventType": "comment",
+					"text": "Display the outcome of the MIDI access request in the status text."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-request-access-success",
+							"objectClass": "MIDI",
+							"sid": 428446510611820
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 653914340723332,
+							"parameters": {
+								"text": "\"Requested access OK\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Once MIDI access is allowed then disable the 'Request MIDI access' button as it is no longer needed."
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "RequestMIDIAccess",
+							"sid": 832337273113489,
+							"parameters": {
+								"mode": "disabled"
+							}
+						}
+					],
+					"sid": 931205119118499
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-request-access-failed",
+							"objectClass": "MIDI",
+							"sid": 980026024888504
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 796646161018727,
+							"parameters": {
+								"text": "\"Requested access failed\""
+							}
+						}
+					],
+					"sid": 655610384934260
+				}
+			],
+			"sid": 284843700025403
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "MIDI devices",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "This boolean tracks whether 'On devices state changed' is triggering for the first time. In this case it then attempts to open the first device in the list, so that MIDI output works immediately with that device."
+				},
+				{
+					"eventType": "variable",
+					"name": "FirstDeviceStateChange",
+					"type": "boolean",
+					"initialValue": "true",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 927320290732207
+				},
+				{
+					"eventType": "comment",
+					"text": "'On devices state changed' triggers after requesting MIDI access with the initial list of available devices, but also later on if any new devices are connected or existing devices disconnected. Therefore in this trigger the InputsList dropdown is cleared and repopulated with the available outputs."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-devices-state-changed",
+							"objectClass": "MIDI",
+							"sid": 287992018015901
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "OutputsList",
+							"sid": 114874896280468,
+							"parameters": {
+								"mode": "enabled"
+							}
+						},
+						{
+							"id": "clear",
+							"objectClass": "OutputsList",
+							"sid": 170188142061430
+						}
+					],
+					"sid": 523191335786687,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 590160888657261,
+									"parameters": {
+										"count": "MIDI.OutputCount"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-item",
+									"objectClass": "OutputsList",
+									"sid": 831621952550963,
+									"parameters": {
+										"text": "MIDI.OutputNameAt(loopindex) & \" (\" & MIDI.OutputManufacturerAt(loopindex) & \") [\" & MIDI.OutputIDAt(loopindex) & \"]\""
+									}
+								}
+							],
+							"sid": 948834437634817
+						},
+						{
+							"eventType": "comment",
+							"text": "For the first time only, if any MIDI outputs are available, open the first device so we can immediately send MIDI output to it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 964709010458403,
+									"parameters": {
+										"variable": "FirstDeviceStateChange"
+									}
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 167012548709866,
+									"parameters": {
+										"first-value": "MIDI.InputCount",
+										"comparison": 4,
+										"second-value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 566985175920511,
+									"parameters": {
+										"variable": "FirstDeviceStateChange",
+										"value": "false"
+									}
+								},
+								{
+									"id": "open-device",
+									"objectClass": "MIDI",
+									"sid": 823024421019717,
+									"parameters": {
+										"type": "output",
+										"id": "MIDI.OutputIDAt(OutputsList.SelectedIndex)"
+									}
+								}
+							],
+							"sid": 134663495383115
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When multiple outputs are available, changing the output dropdown should change the output being used. Closing the output device with an empty string will close the last opened device (if any), and then it opens the currently selected device, ensuring that is now the only open device."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-selection-changed",
+							"objectClass": "OutputsList",
+							"sid": 223535878841842
+						}
+					],
+					"actions": [
+						{
+							"id": "close-device",
+							"objectClass": "MIDI",
+							"sid": 219315270127479,
+							"parameters": {
+								"type": "output",
+								"id": "\"\""
+							}
+						},
+						{
+							"id": "open-device",
+							"objectClass": "MIDI",
+							"sid": 122948858190664,
+							"parameters": {
+								"type": "output",
+								"id": "MIDI.OutputIDAt(OutputsList.SelectedIndex)"
+							}
+						}
+					],
+					"sid": 445076353257381
+				},
+				{
+					"eventType": "comment",
+					"text": "In the status text, show when any output device is opened, closed, or encounters an error."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-device-opened",
+							"objectClass": "MIDI",
+							"sid": 638655831075508,
+							"parameters": {
+								"type": "output"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 247344805655972,
+							"parameters": {
+								"text": "\"Output device [i]\" & MIDI.CurrentDeviceID & \"[/i] opened\""
+							}
+						}
+					],
+					"sid": 340435079524134
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-device-closed",
+							"objectClass": "MIDI",
+							"sid": 679350598522597,
+							"parameters": {
+								"type": "output"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 660695664483281,
+							"parameters": {
+								"text": "\"Output device [i]\" & MIDI.CurrentDeviceID & \"[/i] closed\""
+							}
+						}
+					],
+					"sid": 594939755543487
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-device-error",
+							"objectClass": "MIDI",
+							"sid": 838584554994344,
+							"parameters": {
+								"type": "output"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 366617792371346,
+							"parameters": {
+								"text": "\"Output device [i]\" & MIDI.CurrentDeviceID & \"[/i] error\""
+							}
+						}
+					],
+					"sid": 325124618522529
+				}
+			],
+			"sid": 921580861520346
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Note messages",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On startup, load the note lists for the arpeggios in to the array object. See the arpeggios.json project file for the note numbers."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 218230692708613
+						}
+					],
+					"actions": [
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 723821785770253,
+							"parameters": {
+								"tag": "\"arpeggios\"",
+								"file": "arpeggios.json"
+							}
+						}
+					],
+					"sid": 546213473779791
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 985758584472460,
+							"parameters": {
+								"tag": "\"arpeggios\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "Array",
+							"sid": 927023521578400,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						}
+					],
+					"sid": 214115081770415
+				},
+				{
+					"eventType": "comment",
+					"text": "When clicking the 'Play arpeggio' button, store local variables to help simplify playback: the root note as a number instead of a name (so offsets can be added to it), and the note interval in seconds (rather than milliseconds)."
+				},
+				{
+					"eventType": "variable",
+					"name": "RootNoteNumber",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 261128236900933
+				},
+				{
+					"eventType": "variable",
+					"name": "NoteInterval",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 710271504315949
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "PlayArpeggio",
+							"sid": 769526909290927
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 203133046407464,
+							"parameters": {
+								"variable": "RootNoteNumber",
+								"value": "MIDI.NoteNameToNumber(RootNoteList.SelectedText)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 216933780596268,
+							"parameters": {
+								"variable": "NoteInterval",
+								"value": "SpeedSlider.Value / 1000"
+							}
+						}
+					],
+					"sid": 108134845218660,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Then for each element on the Y axis in the array, schedule a note on message followed by a note off message."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 921565282405574,
+									"parameters": {
+										"count": "Array.Height"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "schedule-next-message",
+									"objectClass": "MIDI",
+									"sid": 271892303059879,
+									"parameters": {
+										"time": "loopindex * NoteInterval"
+									}
+								},
+								{
+									"id": "send-note-message",
+									"objectClass": "MIDI",
+									"sid": 311700290231068,
+									"parameters": {
+										"id": "\"\"",
+										"type": "note-on",
+										"note": "RootNoteNumber + Array.At(ScaleList.SelectedIndex, loopindex)",
+										"velocity": "100"
+									}
+								},
+								{
+									"id": "schedule-next-message",
+									"objectClass": "MIDI",
+									"sid": 700690275399835,
+									"parameters": {
+										"time": "loopindex * NoteInterval + NoteInterval"
+									}
+								},
+								{
+									"id": "send-note-message",
+									"objectClass": "MIDI",
+									"sid": 697877991822913,
+									"parameters": {
+										"id": "\"\"",
+										"type": "note-off",
+										"note": "RootNoteNumber + Array.At(ScaleList.SelectedIndex, loopindex)",
+										"velocity": "100"
+									}
+								}
+							],
+							"sid": 782586746310738
+						}
+					]
+				}
+			],
+			"sid": 959561784109934
+		}
+	],
+	"sid": 643697110238196
+}

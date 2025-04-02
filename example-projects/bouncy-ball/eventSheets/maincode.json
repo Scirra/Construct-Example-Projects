@@ -1,0 +1,1831 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How long it takes for the ball to move from cell to cell."
+		},
+		{
+			"eventType": "variable",
+			"name": "MOVEDURATION",
+			"type": "number",
+			"initialValue": "0.25",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 693582464639017
+		},
+		{
+			"eventType": "comment",
+			"text": "How large each block is."
+		},
+		{
+			"eventType": "variable",
+			"name": "BLOCKWIDTH",
+			"type": "number",
+			"initialValue": "18",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 655964080649592
+		},
+		{
+			"eventType": "comment",
+			"text": "How tall each block is."
+		},
+		{
+			"eventType": "variable",
+			"name": "BLOCKHEIGHT",
+			"type": "number",
+			"initialValue": "9",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 788123998030130
+		},
+		{
+			"eventType": "comment",
+			"text": "How high the ball will bounce from the ground after hitting it."
+		},
+		{
+			"eventType": "variable",
+			"name": "BOUNCEHEIGHT",
+			"type": "number",
+			"initialValue": "64",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 913224137692798
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the ball by adding it as a child of the cursor, so they always move together."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Ball",
+							"sid": 233150723107275
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "Ball",
+							"sid": 812095367892177,
+							"parameters": {
+								"object": "Cursor",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Cursor",
+							"sid": 295912563659438,
+							"parameters": {
+								"child": "Ball",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also perform the initial bounce movement."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Ball",
+							"sid": 285917247814763,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Bounce\"",
+								"property": "offsetY",
+								"end-value": "Self.Y - BOUNCEHEIGHT",
+								"time": "0.5",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes"
+							}
+						}
+					],
+					"sid": 623405820870984
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup all ground blocks by setting the animation frame to be the last one, so the player don't see them flashing when the game starts."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "GroundBlock",
+							"sid": 178285530871973
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation-frame",
+							"objectClass": "GroundBlock",
+							"sid": 387206367814810,
+							"parameters": {
+								"frame-number": "Self.AnimationFrameCount - 1"
+							}
+						}
+					],
+					"sid": 625233732483428
+				}
+			],
+			"sid": 452622218148566
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Move the player in one of the four available directions, but only if it's allowed to move and is not moving already."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Cursor",
+							"sid": 875081856961217,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Cursor",
+							"sid": 947433729125171,
+							"parameters": {
+								"instance-variable": "CanMove"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 354951706431788,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move left."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 202531529738885,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 724662728625024,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Cursor",
+									"sid": 439609387271487,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\"",
+										"property": "position",
+										"end-x": "Self.X - BLOCKWIDTH",
+										"end-y": "Self.Y - BLOCKHEIGHT",
+										"time": "MoveDuration",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 343217058228657,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move right."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 270261458807246,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 772288284235464,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Cursor",
+									"sid": 610313520429312,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\"",
+										"property": "position",
+										"end-x": "Self.X + BLOCKWIDTH",
+										"end-y": "Self.Y + BLOCKHEIGHT",
+										"time": "MoveDuration",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 395979720620164,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 610780204544895,
+									"parameters": {
+										"key": 38
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 316265278346682,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-up"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Cursor",
+									"sid": 905729326162917,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\"",
+										"property": "position",
+										"end-x": "Self.X + BLOCKWIDTH",
+										"end-y": "Self.Y - BLOCKHEIGHT",
+										"time": "MoveDuration",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 981652073204445,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move down."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 870764529408623,
+									"parameters": {
+										"key": 40
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 778998818118896,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-down"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Cursor",
+									"sid": 141120615229125,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\"",
+										"property": "position",
+										"end-x": "Self.X - BLOCKWIDTH",
+										"end-y": "Self.Y + BLOCKHEIGHT",
+										"time": "MoveDuration",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 589321666467392,
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the ball has finished its bouncing movement, check the ball surroundings and start a new cycle accordingly."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Ball",
+							"sid": 228161218852506,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Bounce\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 381349615787989,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If there's a ground block below the ball, display a bounce animation and lock movement temporarily."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Cursor",
+									"sid": 962230377172092,
+									"parameters": {
+										"object": "GroundBlock"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Ball",
+									"sid": 883726019324726,
+									"parameters": {
+										"animation": "\"Bounce\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Cursor",
+									"sid": 750380271930440,
+									"parameters": {
+										"instance-variable": "CanMove",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 273649804369951,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Spawn five debris, a smoke burst and a hit explosion to better show the impact the ball has caused in the ground block."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 429853049044922,
+											"parameters": {
+												"count": "5"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 897227842867489,
+											"parameters": {
+												"object-to-create": "Debri",
+												"layer": "\"Effects\"",
+												"x": "GroundBlock.X",
+												"y": "GroundBlock.Y",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Debri",
+											"sid": 539627250593657,
+											"parameters": {
+												"frame-number": "loopindex"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Randomize the angle of motion and speed of each debri."
+										},
+										{
+											"id": "set-angle-of-motion",
+											"objectClass": "Debri",
+											"sid": 429559815818062,
+											"behaviorType": "Bullet",
+											"parameters": {
+												"angle": "random(225, 315)"
+											}
+										},
+										{
+											"id": "set-speed",
+											"objectClass": "Debri",
+											"sid": 703137694465865,
+											"behaviorType": "Bullet",
+											"parameters": {
+												"speed": "random(64, 128)"
+											}
+										}
+									],
+									"sid": 128631330398853
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 640284226923819,
+											"parameters": {
+												"object-to-create": "SmokeBurst",
+												"layer": "\"Effects\"",
+												"x": "GroundBlock.X",
+												"y": "GroundBlock.Y",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 186427420074354,
+											"parameters": {
+												"object-to-create": "HitExplosion",
+												"layer": "\"Effects\"",
+												"x": "GroundBlock.X",
+												"y": "GroundBlock.Y",
+												"create-hierarchy": false
+											}
+										}
+									],
+									"sid": 992853717038354
+								},
+								{
+									"eventType": "comment",
+									"text": "It might be possible to overlap two ground blocks at once, so pick only the nearest one."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-nearestfurthest",
+											"objectClass": "GroundBlock",
+											"sid": 777755859821677,
+											"parameters": {
+												"which": "nearest",
+												"x": "Cursor.X",
+												"y": "Cursor.Y"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 432040501193651,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the ground block has some heath left, reduce it by one, start a new bounce animation and create a mask on top of the grid."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "GroundBlock",
+													"sid": 644422518520110,
+													"parameters": {
+														"instance-variable": "Heath",
+														"comparison": 4,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Reduce heath."
+												},
+												{
+													"id": "subtract-from-instvar",
+													"objectClass": "GroundBlock",
+													"sid": 856997918068302,
+													"parameters": {
+														"instance-variable": "Heath",
+														"value": "1"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Start bounce animation."
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "GroundBlock",
+													"sid": 388360449684539,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Bounce\"",
+														"property": "offsetY",
+														"end-value": "Self.Y + 2",
+														"time": "0.1",
+														"ease": "easeoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "yes"
+													}
+												},
+												{
+													"id": "start-animation",
+													"objectClass": "GroundBlock",
+													"sid": 340249155778126,
+													"parameters": {
+														"from": "beginning"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Create mask."
+												},
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 578097222272556,
+													"parameters": {
+														"object-to-create": "Mask",
+														"layer": "\"MaskedGrid\"",
+														"x": "GroundBlock.X",
+														"y": "GroundBlock.Y",
+														"create-hierarchy": false
+													}
+												},
+												{
+													"id": "set-animation",
+													"objectClass": "Mask",
+													"sid": 184221704715450,
+													"parameters": {
+														"animation": "\"Small\"",
+														"from": "beginning"
+													}
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "Mask",
+													"sid": 856095322938332,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"SelfDestroy\"",
+														"property": "size",
+														"end-x": "0",
+														"end-y": "0",
+														"time": "0.75",
+														"ease": "easeinsine",
+														"destroy-on-complete": "yes",
+														"loop": "no",
+														"ping-pong": "no"
+													}
+												}
+											],
+											"sid": 154459931982659
+										},
+										{
+											"eventType": "comment",
+											"text": "If even after reducing the ground's block heath, shake the screen for a moment."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "GroundBlock",
+													"sid": 671728340125827,
+													"parameters": {
+														"instance-variable": "Heath",
+														"comparison": 4,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "ShakeScreen",
+													"sid": 798663804474113,
+													"parameters": [
+														"8",
+														"0.25"
+													]
+												}
+											],
+											"sid": 621570492387896
+										},
+										{
+											"eventType": "comment",
+											"text": "However, if the ground's block heath is completely depleted, disable its collisions, prevent it from updating its Z order and make it fall."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "GroundBlock",
+													"sid": 935774937205429,
+													"parameters": {
+														"instance-variable": "Heath",
+														"comparison": 0,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Disable collisions."
+												},
+												{
+													"id": "set-collisions-enabled",
+													"objectClass": "GroundBlock",
+													"sid": 771171691057324,
+													"parameters": {
+														"collisions": "disabled"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Disable Z order."
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "GroundBlock",
+													"sid": 259925379423445,
+													"parameters": {
+														"instance-variable": "UpdateZOrder",
+														"value": "false"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Make it fall."
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "GroundBlock",
+													"sid": 164778688887242,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Fall\"",
+														"property": "offsetY",
+														"end-value": "Self.Y + 128",
+														"time": "2",
+														"ease": "easeinsine",
+														"destroy-on-complete": "yes",
+														"loop": "no",
+														"ping-pong": "no"
+													}
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "GroundBlock",
+													"sid": 336187494315606,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Rotate\"",
+														"property": "offsetAngle",
+														"end-value": "Self.Angle + random(-30, 30)",
+														"time": "2",
+														"ease": "easeinsine",
+														"destroy-on-complete": "yes",
+														"loop": "no",
+														"ping-pong": "no"
+													}
+												},
+												{
+													"id": "set-animation",
+													"objectClass": "GroundBlock",
+													"sid": 837619487504803,
+													"parameters": {
+														"animation": "\"BrokenBlock_\"&tokenat(Self.AnimationName, 1, \"_\")",
+														"from": "beginning"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Also shake the screen for a moment."
+												},
+												{
+													"callFunction": "ShakeScreen",
+													"sid": 698607400159755,
+													"parameters": [
+														"16",
+														"0.5"
+													]
+												}
+											],
+											"sid": 710680046108079,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "The total amount of remaining ground blocks in the level."
+												},
+												{
+													"eventType": "variable",
+													"name": "RemainingGroundBlocks",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 208244852379376
+												},
+												{
+													"eventType": "comment",
+													"text": "Reset the picking system by picking all ground blocks again."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-all",
+															"objectClass": "System",
+															"sid": 343927982815345,
+															"parameters": {
+																"object": "GroundBlock"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 994919882163671,
+													"children": [
+														{
+															"eventType": "comment",
+															"text": "Cycle through each ground block and check if they have their collision enabled."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "for-each",
+																	"objectClass": "System",
+																	"sid": 803929934442235,
+																	"parameters": {
+																		"object": "GroundBlock"
+																	}
+																}
+															],
+															"actions": [],
+															"sid": 542040060464002,
+															"children": [
+																{
+																	"eventType": "block",
+																	"conditions": [
+																		{
+																			"id": "collisions-enabled",
+																			"objectClass": "GroundBlock",
+																			"sid": 807079905049555
+																		}
+																	],
+																	"actions": [
+																		{
+																			"id": "add-to-eventvar",
+																			"objectClass": "System",
+																			"sid": 118666681925998,
+																			"parameters": {
+																				"variable": "RemainingGroundBlocks",
+																				"value": "1"
+																			}
+																		}
+																	],
+																	"sid": 613714882299675
+																}
+															]
+														}
+													]
+												},
+												{
+													"eventType": "comment",
+													"text": "If the there are no more active ground blocks in the level, unlock the teleporter."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-eventvar",
+															"objectClass": "System",
+															"sid": 510619946463975,
+															"parameters": {
+																"variable": "RemainingGroundBlocks",
+																"comparison": 0,
+																"value": "0"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-animation",
+															"objectClass": "Teleporter",
+															"sid": 209089820361786,
+															"parameters": {
+																"animation": "\"Enabled\"",
+																"from": "beginning"
+															}
+														}
+													],
+													"sid": 680812658377674
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "But, if there's a teleporter below the ball, destroy it and end the level by showing a sequence of visual effects."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 427747361672734
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Cursor",
+									"sid": 446739149250432,
+									"parameters": {
+										"object": "Teleporter"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 805874822870120,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-animation-playing",
+											"objectClass": "Teleporter",
+											"sid": 271988291784324,
+											"parameters": {
+												"animation": "\"Enabled\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Destroy cursor and ball, since they're in a container."
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Cursor",
+											"sid": 792858631093790
+										},
+										{
+											"type": "comment",
+											"text": "Create flash."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 529920918296201,
+											"parameters": {
+												"object-to-create": "Flash",
+												"layer": "\"Effects\"",
+												"x": "Teleporter.X",
+												"y": "Teleporter.Y",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Teleporter",
+											"sid": 723444993670424,
+											"parameters": {
+												"child": "Flash",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": false,
+												"transform-z-elevation": false,
+												"destroy-with-parent": false
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Create mask."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 374745270044109,
+											"parameters": {
+												"object-to-create": "Mask",
+												"layer": "\"MaskedGrid\"",
+												"x": "Teleporter.X",
+												"y": "Teleporter.Y",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "Mask",
+											"sid": 608111103041374,
+											"parameters": {
+												"animation": "\"Big\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Mask",
+											"sid": 971041801846862,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SelfDestroy\"",
+												"property": "size",
+												"end-x": "0",
+												"end-y": "0",
+												"time": "1.5",
+												"ease": "easeinsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Shake screen."
+										},
+										{
+											"callFunction": "ShakeScreen",
+											"sid": 805989622745857,
+											"parameters": [
+												"32",
+												"2"
+											]
+										}
+									],
+									"sid": 927817859142838
+								},
+								{
+									"eventType": "comment",
+									"text": "The teleporter only works if it's active, otherwise the level will be restarted."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 349565275208682
+										},
+										{
+											"id": "is-animation-playing",
+											"objectClass": "Teleporter",
+											"sid": 282692669656649,
+											"parameters": {
+												"animation": "\"Disabled\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "restart-layout",
+											"objectClass": "System",
+											"sid": 506389251411941
+										}
+									],
+									"sid": 444615874087193
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "At last, if there's neither a ground block or a teleporter below the ball, make the ball fall into the void."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 316419742938038
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Cursor",
+									"sid": 740094728228767,
+									"parameters": {
+										"object": "GroundBlock"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Cursor",
+									"sid": 183678335318070,
+									"parameters": {
+										"object": "Teleporter"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Cursor",
+									"sid": 794208231667449,
+									"parameters": {
+										"instance-variable": "CanMove",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Cursor",
+									"sid": 504910777967722,
+									"parameters": {
+										"instance-variable": "UpdateZOrder",
+										"value": "false"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Ball",
+									"sid": 719789481235091,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Fall\"",
+										"property": "offsetY",
+										"end-value": "Self.Y +128",
+										"time": "1",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 832653968440653
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the bounce animation is over, restart the bounce movement and revert the ball animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Ball",
+							"sid": 832369478040923,
+							"parameters": {
+								"animation": "\"Bounce\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Ball",
+							"sid": 664475992268848,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Bounce\"",
+								"property": "offsetY",
+								"end-value": "Self.Y - BOUNCEHEIGHT",
+								"time": "0.5",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Ball",
+							"sid": 710328892240779,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Cursor",
+							"sid": 992937451126321,
+							"parameters": {
+								"instance-variable": "CanMove",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 794845771068579
+				},
+				{
+					"eventType": "comment",
+					"text": "After the fall movement is complete, restart the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Ball",
+							"sid": 170094492470200,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 164763421710801
+						}
+					],
+					"sid": 171348890925265
+				}
+			],
+			"sid": 895939795016346
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "SmokeTrail",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Leave a trail of smoke behind the ball and adjust its Z order by using the cursor as a reference."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 736144720850342,
+							"parameters": {
+								"interval-seconds": "0.1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 458521370115310,
+							"parameters": {
+								"object-to-create": "SmokeTrail",
+								"layer": "\"World\"",
+								"x": "Ball.ImagePointX(\"Center\")",
+								"y": "Ball.ImagePointY(\"Center\")",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "SmokeTrail",
+							"sid": 218268197942249,
+							"parameters": {
+								"instance-variable": "ZOrder",
+								"value": "Cursor.ZOrder -1"
+							}
+						}
+					],
+					"sid": 648378868959998
+				}
+			],
+			"sid": 434931773905567
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Waves",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create a wave mask right after starting the game, so the player doesn't need to wait for too long to see the first one."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 182633025009346
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "CreateWave",
+							"sid": 838302381423063
+						}
+					],
+					"sid": 834449187749748
+				},
+				{
+					"eventType": "comment",
+					"text": "Create a wave mask every 3-5 seconds somewhere close to the ball, so the player can quickly see it coming."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 448778971803810,
+							"parameters": {
+								"interval-seconds": "random(3, 5)"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 564169359249543,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 920126537473102,
+									"parameters": {
+										"first-value": "Cursor.Count",
+										"comparison": 4,
+										"second-value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "CreateWave",
+									"sid": 656927242204688
+								}
+							],
+							"sid": 887580110464555
+						}
+					]
+				},
+				{
+					"functionName": "CreateWave",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Create the wave mask close to the player, but far enough so he can't see it being created."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 718814641793210,
+							"parameters": {
+								"object-to-create": "WaveMask",
+								"layer": "\"MaskedGrid\"",
+								"x": "Cursor.X + cos(63.516858387583476 + 180) * 192",
+								"y": "Cursor.Y + sin(63.516858387583476 + 180) * 192",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "WaveMask",
+							"sid": 381181233717901,
+							"parameters": {
+								"width": "64",
+								"height": "1024"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Point and move it in a very specific isometric angle, matching the grid on the ground."
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "WaveMask",
+							"sid": 381304601518553,
+							"parameters": {
+								"angle": "63.516858387583476"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "WaveMask",
+							"sid": 523614652992022,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\"",
+								"property": "position",
+								"end-x": "Self.X + cos(63.516858387583476) * 1024",
+								"end-y": "Self.Y + sin(63.516858387583476) * 1024",
+								"time": "20",
+								"ease": "default",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 130376532716428
+				}
+			],
+			"sid": 499159185035297
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ZOrder",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly update the Z order of each object, by using their own Z order image point as a reference."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 492105481441593
+						}
+					],
+					"actions": [],
+					"sid": 809900990996555,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 276927363749528,
+									"parameters": {
+										"object": "ZOrder"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 505022862355436,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "ZOrder",
+											"sid": 801990963975916,
+											"parameters": {
+												"instance-variable": "UpdateZOrder"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "ZOrder",
+											"sid": 415570653075892,
+											"parameters": {
+												"instance-variable": "ZOrder",
+												"value": "Self.ImagePointY(\"ZOrder\")"
+											}
+										}
+									],
+									"sid": 918788174267894
+								}
+							]
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "sort-z-order",
+									"objectClass": "System",
+									"sid": 380531040728849,
+									"parameters": {
+										"object": "ZOrder",
+										"instance-variable": {
+											"name": "ZOrder",
+											"objectClass": "ZOrder"
+										}
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also make sure the ball is always in front of the cursor."
+								},
+								{
+									"id": "move-to-object",
+									"objectClass": "Ball",
+									"sid": 559217999938748,
+									"parameters": {
+										"where": "in-front",
+										"object": "Cursor"
+									}
+								}
+							],
+							"sid": 811414471033232
+						}
+					]
+				}
+			],
+			"sid": 113031833625774
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the camera by instantly matching the cursor position when the game starts."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 266634605843247
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 350361848245229,
+							"parameters": {
+								"x": "Cursor.X",
+								"y": "Cursor.Y - 16"
+							}
+						}
+					],
+					"sid": 334140696152752
+				},
+				{
+					"eventType": "comment",
+					"text": "Start a tween animation that will be used as a reference to offset the camera position, creating a screen shake effect."
+				},
+				{
+					"functionName": "ShakeScreen",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Strength",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 913618066492040
+						},
+						{
+							"name": "ShakeDuration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 867417833112189
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 349432489953234,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\"",
+								"start-value": "Strength",
+								"end-value": "0",
+								"time": "ShakeDuration",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 164546177164498
+				},
+				{
+					"eventType": "variable",
+					"name": "CursorXBuffer",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 928922741450189
+				},
+				{
+					"eventType": "variable",
+					"name": "CursorYBuffer",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 644673978442965
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly store the cursor X and Y position, so it can be used even if it's destroyed at some point."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 178105851204346,
+							"parameters": {
+								"first-value": "Cursor.Count",
+								"comparison": 4,
+								"second-value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 542989224054226,
+							"parameters": {
+								"variable": "CursorXBuffer",
+								"value": "Cursor.X"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 628845427306877,
+							"parameters": {
+								"variable": "CursorYBuffer",
+								"value": "Cursor.Y"
+							}
+						}
+					],
+					"sid": 986271106899876
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly move the camera towards the cursor position, while also offsetting it if necessary."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 160661674917436
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 349211010915332,
+							"parameters": {
+								"x": "lerp(scrollx, CursorXBuffer + random(-GameManager.Tween.Value(\"ScreenShake\"), GameManager.Tween.Value(\"ScreenShake\")), 0.1 * 60 * dt)",
+								"y": "lerp(scrolly, CursorYBuffer - 16 + random(-GameManager.Tween.Value(\"ScreenShake\"), GameManager.Tween.Value(\"ScreenShake\")), 0.1 * 60 * dt)"
+							}
+						}
+					],
+					"sid": 489700463939560
+				}
+			],
+			"sid": 151366937694004
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "MemoryCleaner",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the animation of a particle related object is over, destroy it to prevent any sort of CPU or memory overload."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "SmokeTrail",
+							"sid": 199099904433696,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "SmokeTrail",
+							"sid": 974285682911098
+						}
+					],
+					"sid": 496683121672140
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "HitExplosion",
+							"sid": 543768415758035,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "HitExplosion",
+							"sid": 596273171563918
+						}
+					],
+					"sid": 942334966760048
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "SmokeBurst",
+							"sid": 669848709515917,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "SmokeBurst",
+							"sid": 979119243934659
+						}
+					],
+					"sid": 161261758017340
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Flash",
+							"sid": 783222269354389,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Flash",
+							"sid": 510679038366711
+						}
+					],
+					"sid": 899672469135925
+				}
+			],
+			"sid": 755246443473183
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Restart the game, for testing purposes."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 382120486261280,
+							"parameters": {
+								"key": 82
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 320554659859374
+						}
+					],
+					"sid": 682360917389001
+				}
+			],
+			"sid": 618558007286729
+		}
+	],
+	"sid": 283224112925102
+}

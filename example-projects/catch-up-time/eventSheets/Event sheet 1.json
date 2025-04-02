@@ -1,0 +1,482 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "Score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The number of times a ball collided with the star.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 644668791324794
+		},
+		{
+			"eventType": "variable",
+			"name": "SuspendWallClockTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The wall clock time at the last suspend.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 931378167153416
+		},
+		{
+			"eventType": "variable",
+			"name": "IsCatchingUp",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "True if running in fast-forward mode.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 473092591956239
+		},
+		{
+			"eventType": "variable",
+			"name": "CatchUpFromGameTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The game time upon resume (to calculate progress).",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 876306206545586
+		},
+		{
+			"eventType": "comment",
+			"text": "Normally when the window is minimized or otherwise goes in to the background, the project is suspended. This completely pauses it and so no events or JavaScript code is run. This helps save system resources, especially battery life, since if apps were still active in the background they would continue to use up battery power. Often this is enforced by the browser or operating system, so there is no way to keep the project running in the background. When the app resumes (when restored to the foreground), the project normally continues from where it was suspended."
+		},
+		{
+			"eventType": "comment",
+			"text": "This project demonstrates how the project can be run in \"fast forward\" when resumed. This means it simulates the amount of time passing that would have passed had the app kept running. So long as catch-up is brief, it means the project acts as if it had really kept running the whole time the app was in the background, while still preserving the battery life savings of being suspended while in the background."
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Catch-up",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the app is suspended, save the \"wall clock\" (real-world) time. This is not actually used in this example, but means that in the [i]On resumed[/i] trigger, you can calculate the number of seconds the app was suspended for with [code]wallclocktime - SuspendWallClockTime[/code]. This is another useful way to simulate time passing: something like a countdown timer or build timer could just be skipped ahead by that amount of time, allowing for an instant catch-up. However this example does not make use of that - it runs the project in fast-forward to simulate the project actually running for that whole time. This is slower but allows for accurate simulation of unpredictable events like the ball sprites colliding with the star.\nNote that while suspended, the wall clock time continues to increase, but in-game time (the [i]time[/i] expression) does not change as the project is paused."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-suspend",
+							"objectClass": "System",
+							"sid": 351662482811420
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 540937069247754,
+							"parameters": {
+								"variable": "SuspendWallClockTime",
+								"value": "wallclocktime"
+							}
+						}
+					],
+					"sid": 793079112698885
+				},
+				{
+					"eventType": "comment",
+					"text": "When the app resumes, the wall clock time will have advanced, but the game time will not have advanced. The goal is to then advance the game time to catch up with the wall clock time. In order to run the project in fast-forward, it sets the framerate mode to [i]Unlimited (ticks only)[/i]. This means it runs the project logic as fast as possible, but without drawing every frame, as that would only slow down the catch-up. Then it sets the minimum and maximum delta-time to 1 / 30 - about 33ms, its value as if the project were running at 30 FPS. So the project could run at something like 1000 FPS, and be simulating time passing over 30x faster than real-time, as each frame is advancing time by about 33ms.\n[b]Note:[/b] this approach assumes the game time and wall clock time stay in sync. They do providing the time scale remains at 1. If you change the time scale then it is not correct to always try to make the game time catch up to the wall clock time - instead you should use a different approach such as using the calculation [code]wallclocktime - SuspendWallClockTime[/code] as the amount of game time to catch up."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-resume",
+							"objectClass": "System",
+							"sid": 124476709949468
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 799318417423086,
+							"parameters": {
+								"variable": "IsCatchingUp",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Save the game time on resume, which is used to calculate the catch-up progress."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 980037452000763,
+							"parameters": {
+								"variable": "CatchUpFromGameTime",
+								"value": "time"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Force delta-time to act as if it's 30 FPS, so it runs in fast-forward. Note the lower the effective framerate here, the faster catch-up will be, as the fewer frames need to be run, which is why catch-up is done at 30 FPS instead of the typical 60 FPS display rate. However at too low a framerate things like collisions might start skipping or reacting incorrectly. It depends on the project - try to choose the lowest framerate that is reliable."
+						},
+						{
+							"id": "set-min-max-dt",
+							"objectClass": "System",
+							"sid": 371765868387941,
+							"parameters": {
+								"minimum-dt": "1 / 30",
+								"maximum-dt": "1 / 30"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Switch to unlimited framerate mode to run frames as fast as possible. Note you can disable this action to leave the framerate mode as v-synced for catch-up to more easily see how catch-up works: as most displays run at 60 Hz, it will catch up at 2x speed."
+						},
+						{
+							"id": "set-framerate-mode",
+							"objectClass": "System",
+							"sid": 328746177644496,
+							"parameters": {
+								"framerate-mode": "unlimited-tick"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show the catch-up layer during catch-up, as it indicates what is happening and shows the catch-up progress. This layer is semitransparent, but you might want to make it opaque to hide the fast-forward activity behind it."
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 199514498869194,
+							"parameters": {
+								"layer": "\"Catch-up\"",
+								"visibility": "visible"
+							}
+						}
+					],
+					"sid": 341078397424198
+				},
+				{
+					"eventType": "comment",
+					"text": "While catching up, if the game time reaches the wall clock time, then we're fully caught-up. In that case hide the catch-up layer and restore to the default V-synced framerate mode, and the default delta-time minimum/maximum. After this the project will continue to run at its normal speed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 935871719131905,
+							"parameters": {
+								"variable": "IsCatchingUp"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 520279991618574,
+							"parameters": {
+								"first-value": "time",
+								"comparison": 5,
+								"second-value": "wallclocktime"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 746154330668540,
+							"parameters": {
+								"variable": "IsCatchingUp",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 153613907622606,
+							"parameters": {
+								"layer": "\"Catch-up\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-framerate-mode",
+							"objectClass": "System",
+							"sid": 890914780169338,
+							"parameters": {
+								"framerate-mode": "vsync"
+							}
+						},
+						{
+							"id": "set-min-max-dt",
+							"objectClass": "System",
+							"sid": 567640119481705,
+							"parameters": {
+								"minimum-dt": "0",
+								"maximum-dt": "1 / 30"
+							}
+						}
+					],
+					"sid": 695002112943512
+				},
+				{
+					"eventType": "comment",
+					"text": "While catching up, calculate the catch-up progress based on where the current game time is between the game time upon resuming and the wall clock time (that the game time is aiming to catch up with). Note that the wall clock time is a moving target - it continues to increase while still catching up! So long as the catch-up can run faster than real time, it should successfully catch up.\nIf your project catches up too slowly, consider the following approaches for a faster catch-up:\n[item] Reduce the framerate used for catch-up\n[item] Disable non-essential groups/events that don't need to run during catch-up (i.e. make a special \"fast mode\" only used for catch-up)\n[item] Limit the amount of time that it will catch up (which also creates an incentive to regularly check the app)\n[item] Use a different approach based on just calculating the time passed while suspended (e.g. skipping ahead countdown timers or build timers) rather than using fast-forward\n[item] Fake it! Produce estimated or random results, perhaps also based on the time passed while suspended."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 695564288134230,
+							"parameters": {
+								"variable": "IsCatchingUp"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "CatchUpProgress",
+							"sid": 478899264319870,
+							"parameters": {
+								"text": "\"Progress: \" & round(100 * (time - CatchUpFromGameTime) / (wallclocktime - CatchUpFromGameTime)) & \"%\""
+							}
+						}
+					],
+					"sid": 602043889287783
+				}
+			],
+			"sid": 203865135876231
+		},
+		{
+			"eventType": "comment",
+			"text": "The game logic involves just bouncing some sprites around and counting collisions, solely to demonstrate something unpredictable happening over time, so the result of the catch-up process can be observed."
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game logic",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Start every ball moving at a random angle."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 649861446347940
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "Ball",
+							"sid": 112132515569685,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "random(360)"
+							}
+						}
+					],
+					"sid": 704976104657301
+				},
+				{
+					"eventType": "comment",
+					"text": "Every 10 seconds, pick a random ball and change it to move at a random angle again. This is to ensure things don't get stuck, or end up bouncing back and forth on the same line, as hours of time passes."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 263826764332222,
+							"parameters": {
+								"interval-seconds": "10"
+							}
+						},
+						{
+							"id": "pick-random-instance",
+							"objectClass": "System",
+							"sid": 400925867002252,
+							"parameters": {
+								"object": "Ball"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "Ball",
+							"sid": 897348071752660,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "random(360)"
+							}
+						}
+					],
+					"sid": 635726476759616
+				},
+				{
+					"eventType": "comment",
+					"text": "When a ball collides with the star, add 1 to the score and make the star flash to indicate the event."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Ball",
+							"sid": 463092987362102,
+							"parameters": {
+								"object": "Star"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 246860304381203,
+							"parameters": {
+								"variable": "Score",
+								"value": "1"
+							}
+						},
+						{
+							"id": "flash",
+							"objectClass": "Star",
+							"sid": 213259010298456,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.1",
+								"off-time": "0.1",
+								"duration": "1.0"
+							}
+						}
+					],
+					"sid": 537507789246872
+				},
+				{
+					"eventType": "comment",
+					"text": "Display the current score, and the current time as hours/minutes/seconds (using the Data object for the calculation). Also display the framerate (FPS) as it can show how fast the game is running in fast-forward."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 262419226495761
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "ScoreText",
+							"sid": 173689879178955,
+							"parameters": {
+								"text": "\"Score: \" & Score & newline &\n\"Time: \" & Date.ToTimerHours(time * 1000) & \"h \" & Date.ToTimerMinutes(time * 1000) & \"m \" & Date.ToTimerSeconds(time * 1000) & \"s\" & newline & \"FPS: \" & fps"
+							}
+						}
+					],
+					"sid": 155456116074925
+				}
+			],
+			"sid": 559680396321351
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Misc",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "For testing purposes only, use the 1 and 2 buttons on the keyboard to switch in to catch-up mode (running in fast-forward with unlimited framerate mode with time passing as if running at 30 FPS) and back to normal v-synced mode. This lets you see how fast the project can run in fast-forward mode."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 636769124992935,
+							"parameters": {
+								"key": 49
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-framerate-mode",
+							"objectClass": "System",
+							"sid": 619692559422495,
+							"parameters": {
+								"framerate-mode": "unlimited-tick"
+							}
+						},
+						{
+							"id": "set-min-max-dt",
+							"objectClass": "System",
+							"sid": 780163322097366,
+							"parameters": {
+								"minimum-dt": "1 / 30",
+								"maximum-dt": "1 / 30"
+							}
+						}
+					],
+					"sid": 405804824369880
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 428937081937044,
+							"parameters": {
+								"key": 50
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-framerate-mode",
+							"objectClass": "System",
+							"sid": 770279653878257,
+							"parameters": {
+								"framerate-mode": "vsync"
+							}
+						},
+						{
+							"id": "set-min-max-dt",
+							"objectClass": "System",
+							"sid": 121803475870804,
+							"parameters": {
+								"minimum-dt": "0",
+								"maximum-dt": "1 / 30"
+							}
+						}
+					],
+					"sid": 840186385216521
+				}
+			],
+			"sid": 574466885496575
+		}
+	],
+	"sid": 879634466041789
+}

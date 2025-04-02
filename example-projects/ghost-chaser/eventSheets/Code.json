@@ -1,0 +1,2300 @@
+{
+	"name": "Code",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios\n\nSpecial thanks to \"Huminaatio\" on https://freesound.org/people/Huminaatio/ for providing the rain ambience."
+		},
+		{
+			"eventType": "variable",
+			"name": "GameStatus",
+			"type": "string",
+			"initialValue": "Playing",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": false,
+			"sid": 862607370400788
+		},
+		{
+			"eventType": "variable",
+			"name": "AudioStatus",
+			"type": "string",
+			"initialValue": "WaitingSetup",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": false,
+			"sid": 484439088185990
+		},
+		{
+			"eventType": "variable",
+			"name": "CaptureStatus",
+			"type": "string",
+			"initialValue": "WaitingSetup",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 666335601759178
+		},
+		{
+			"eventType": "variable",
+			"name": "PingCount",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 252724365026637
+		},
+		{
+			"eventType": "comment",
+			"text": "Which level the player is currently playing."
+		},
+		{
+			"eventType": "variable",
+			"name": "Level",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": false,
+			"sid": 140972662953239
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the game mechanics and load the world around the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 420770074689894
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Add the walls as an obstacle for the ghost, so it blocks his line of sight."
+						},
+						{
+							"id": "add-obstacle",
+							"objectClass": "GhostCollision",
+							"sid": 198722824467968,
+							"behaviorType": "LineOfSight",
+							"parameters": {
+								"obstacle": "WallShape"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make the player object the listener for the audio plugin, so the 3D audio can function properly."
+						},
+						{
+							"id": "set-listener-object",
+							"objectClass": "Audio",
+							"sid": 378868107410294,
+							"parameters": {
+								"object": "PlayerCollision"
+							}
+						},
+						{
+							"id": "set-listener-z",
+							"objectClass": "Audio",
+							"sid": 327941267707039,
+							"parameters": {
+								"z": "3DCamera.CameraZ"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Reset the low-pass filter for when the audio source isn't visible for the player."
+						},
+						{
+							"id": "remove-all-effects",
+							"objectClass": "Audio",
+							"sid": 681104038208127,
+							"parameters": {
+								"tag": "\"SonarPing\""
+							}
+						},
+						{
+							"id": "add-filter-effect",
+							"objectClass": "Audio",
+							"sid": 205830306350305,
+							"parameters": {
+								"tag": "\"SonarPing\"",
+								"type": "low-pass",
+								"frequency": "350",
+								"detune": "0",
+								"q": "1",
+								"gain": "0",
+								"mix": "100"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Play a fade out animation."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "Fade",
+							"sid": 310159620522350,
+							"parameters": {
+								"x": "0",
+								"y": "0"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fade",
+							"sid": 220366266566905,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move the ceiling to the correct position."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "Ceiling",
+							"sid": 153800401478157,
+							"parameters": {
+								"x": "0",
+								"y": "0"
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Ceiling",
+							"sid": 534032726842973,
+							"parameters": {
+								"z": "64"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update the camera information."
+						},
+						{
+							"callFunction": "UpdateCameraInformation",
+							"sid": 814354384156554
+						},
+						{
+							"type": "comment",
+							"text": "Reset all relevant global variables to their default value."
+						},
+						{
+							"id": "reset-eventvar",
+							"objectClass": "System",
+							"sid": 906098402853810,
+							"parameters": {
+								"variable": "GameStatus"
+							}
+						},
+						{
+							"id": "reset-eventvar",
+							"objectClass": "System",
+							"sid": 114981303712552,
+							"parameters": {
+								"variable": "AudioStatus"
+							}
+						},
+						{
+							"id": "reset-eventvar",
+							"objectClass": "System",
+							"sid": 887698109663698,
+							"parameters": {
+								"variable": "CaptureStatus"
+							}
+						},
+						{
+							"id": "reset-eventvar",
+							"objectClass": "System",
+							"sid": 475967364345128,
+							"parameters": {
+								"variable": "PingCount"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Reset level to minus one, and immediately load the next level to start the game."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 816605122286544,
+							"parameters": {
+								"variable": "Level",
+								"value": "-1"
+							}
+						},
+						{
+							"callFunction": "NextLevel",
+							"sid": 166189963157193
+						},
+						{
+							"type": "comment",
+							"text": "Start to play a rain ambience to create an appropriate mood."
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 489028523579312,
+							"parameters": {
+								"audio-file": "RainAmbience",
+								"loop": "looping",
+								"volume": "-24",
+								"stereo-pan": "0",
+								"tag-optional": "\"RainAmbience\""
+							}
+						}
+					],
+					"sid": 243160774291326,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Loop through every tile in the tilemap, and generate the walls and bookshelves accordingly. "
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 412159252595512,
+									"parameters": {
+										"name": "\"X\"",
+										"start-index": "0",
+										"end-index": "World.MapDisplayWidth - 1"
+									}
+								},
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 529983100132929,
+									"parameters": {
+										"name": "\"Y\"",
+										"start-index": "0",
+										"end-index": "World.MapDisplayHeight - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 303232999750579,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the tile index is zero, create a wall."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 933934444067749,
+											"parameters": {
+												"value": "World.TileAt(loopindex(\"X\"), loopindex(\"Y\")) = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 134706229836166,
+											"parameters": {
+												"object-to-create": "WallShape",
+												"layer": "\"World\"",
+												"x": "World.TileToPositionX(loopindex(\"X\"))",
+												"y": "World.TileToPositionY(loopindex(\"Y\"))",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update the textures for the wall."
+										},
+										{
+											"id": "set-face-object",
+											"objectClass": "WallShape",
+											"sid": 682955246052436,
+											"parameters": {
+												"face": "left",
+												"object": "WallTexture"
+											}
+										},
+										{
+											"id": "set-face-object",
+											"objectClass": "WallShape",
+											"sid": 361554484098578,
+											"parameters": {
+												"face": "right",
+												"object": "WallTexture"
+											}
+										},
+										{
+											"id": "set-face-object",
+											"objectClass": "WallShape",
+											"sid": 693275346677359,
+											"parameters": {
+												"face": "top",
+												"object": "WallTexture"
+											}
+										},
+										{
+											"id": "set-face-object",
+											"objectClass": "WallShape",
+											"sid": 777837407424597,
+											"parameters": {
+												"face": "bottom",
+												"object": "WallTexture"
+											}
+										}
+									],
+									"sid": 787562252420337
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the tile index is one, create a bookshelf."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 478128646022574
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 136600723676263,
+											"parameters": {
+												"value": "World.TileAt(loopindex(\"X\"), loopindex(\"Y\")) = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 992730711821177,
+											"parameters": {
+												"object-to-create": "WallShape",
+												"layer": "\"World\"",
+												"x": "World.TileToPositionX(loopindex(\"X\"))",
+												"y": "World.TileToPositionY(loopindex(\"Y\"))",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update the textures for the bookshelf."
+										},
+										{
+											"id": "set-face-object",
+											"objectClass": "WallShape",
+											"sid": 255359447039891,
+											"parameters": {
+												"face": "left",
+												"object": "BooksTexture"
+											}
+										},
+										{
+											"id": "set-face-object",
+											"objectClass": "WallShape",
+											"sid": 246829346336568,
+											"parameters": {
+												"face": "right",
+												"object": "BooksTexture"
+											}
+										},
+										{
+											"id": "set-face-object",
+											"objectClass": "WallShape",
+											"sid": 400836259745654,
+											"parameters": {
+												"face": "top",
+												"object": "BooksTexture"
+											}
+										},
+										{
+											"id": "set-face-object",
+											"objectClass": "WallShape",
+											"sid": 891187966515794,
+											"parameters": {
+												"face": "bottom",
+												"object": "BooksTexture"
+											}
+										}
+									],
+									"sid": 948106756661631
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 778204435225832
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Handles any mouse click from the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-click",
+							"objectClass": "Mouse",
+							"sid": 993727718982162
+						}
+					],
+					"actions": [],
+					"sid": 269606989974517,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the cursor is locked and the game status is set to \"Playing\", play a sonar ping sound effect."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "has-pointer-lock",
+									"objectClass": "Mouse",
+									"sid": 804245034301579
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 330950916403200,
+									"parameters": {
+										"value": "GameStatus = \"Playing\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "play-at-position-by-name",
+									"objectClass": "Audio",
+									"sid": 325865069579700,
+									"parameters": {
+										"folder": "sounds",
+										"audio-file-name": "\"SonarPing\"",
+										"loop": "not-looping",
+										"volume": "-6",
+										"x": "GhostCollision.X",
+										"y": "GhostCollision.Y",
+										"z": "GhostCollision.ZElevation",
+										"angle": "0",
+										"inner-angle": "360",
+										"outer-angle": "360",
+										"outer-gain": "0",
+										"tag-optional": "\"SonarPing\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Restart the click animation."
+								},
+								{
+									"id": "start-animation",
+									"objectClass": "RightHand",
+									"sid": 982788615380829,
+									"parameters": {
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Increase the ping count by one."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 146144455574781,
+									"parameters": {
+										"variable": "PingCount",
+										"value": "PingCount + 1"
+									}
+								}
+							],
+							"sid": 607652288822001,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Once the player has pinged the ghost three times, remove the instructions from the HUD."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 307449351759996,
+											"parameters": {
+												"value": "PingCount = 3"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "SetText",
+											"sid": 558429246956266,
+											"parameters": [
+												"\"Hint\"",
+												"\"Self\"",
+												true,
+												"0.5"
+											]
+										}
+									],
+									"sid": 748538447844627
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the cursor isn't locked, request it to be locked."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "has-pointer-lock",
+									"objectClass": "Mouse",
+									"sid": 560587397766207,
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "request-pointer-lock",
+									"objectClass": "Mouse",
+									"sid": 526850024889963
+								}
+							],
+							"sid": 872917041837926
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Whether or not the player is trying to move left."
+				},
+				{
+					"eventType": "variable",
+					"name": "MoveLeft",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 215719586067245
+				},
+				{
+					"eventType": "comment",
+					"text": "Whether or not the player is trying to move right."
+				},
+				{
+					"eventType": "variable",
+					"name": "MoveRight",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 381294409736591
+				},
+				{
+					"eventType": "comment",
+					"text": "Whether or not the player is trying to move up."
+				},
+				{
+					"eventType": "variable",
+					"name": "MoveUp",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 516979661874267
+				},
+				{
+					"eventType": "comment",
+					"text": "Whether or not the player is trying to move down."
+				},
+				{
+					"eventType": "variable",
+					"name": "MoveDown",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 564225841879782
+				},
+				{
+					"eventType": "comment",
+					"text": "Reset all movement variables back to zero."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 642987423961169
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 355096917090388,
+							"parameters": {
+								"variable": "MoveLeft",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 597977814446276,
+							"parameters": {
+								"variable": "MoveRight",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 669066578973923,
+							"parameters": {
+								"variable": "MoveUp",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 825982524190988,
+							"parameters": {
+								"variable": "MoveDown",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 621830636323996
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is pressing A, set the move left variable to one."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 955158434840644,
+							"parameters": {
+								"key": 65
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 301412057543280,
+							"parameters": {
+								"variable": "MoveLeft",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 278369450215919
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is pressing D, set the move right variable to one."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 988576645306416,
+							"parameters": {
+								"key": 68
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 498384550790418,
+							"parameters": {
+								"variable": "MoveRight",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 591084634680545
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is pressing W, set the move up variable to one."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 992707306544684,
+							"parameters": {
+								"key": 87
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 958275060454024,
+							"parameters": {
+								"variable": "MoveUp",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 408363236088632
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is pressing S, set the move down variable to one."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 619593900581462,
+							"parameters": {
+								"key": 83
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 525848900499382,
+							"parameters": {
+								"variable": "MoveDown",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 105343658060775
+				},
+				{
+					"eventType": "comment",
+					"text": "To which direction the player is trying to move to horizontally."
+				},
+				{
+					"eventType": "variable",
+					"name": "HorizontalAxis",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 313336795600764
+				},
+				{
+					"eventType": "comment",
+					"text": "To which direction the player is trying to move to vertically."
+				},
+				{
+					"eventType": "variable",
+					"name": "VerticalAxis",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 424553592785244
+				},
+				{
+					"eventType": "comment",
+					"text": "A general angle based on both horizontal and vertical axis."
+				},
+				{
+					"eventType": "variable",
+					"name": "AxisAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 987735028156100
+				},
+				{
+					"eventType": "comment",
+					"text": "Calculate the general direction at which the player is trying to move to."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 355004541324986
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 931919568979068,
+							"parameters": {
+								"variable": "HorizontalAxis",
+								"value": "MoveRight - MoveLeft"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 741710502376103,
+							"parameters": {
+								"variable": "VerticalAxis",
+								"value": "MoveDown - MoveUp"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 518750866297927,
+							"parameters": {
+								"variable": "AxisAngle",
+								"value": "angle(0, 0, HorizontalAxis, VerticalAxis)"
+							}
+						}
+					],
+					"sid": 340717740614447
+				},
+				{
+					"eventType": "comment",
+					"text": "The final angle of motion for the player."
+				},
+				{
+					"eventType": "variable",
+					"name": "MovementAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 626036912760317
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is trying to move to any direction and the game status is set to \"Playing\", calculate the player's movement angle."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 426841065163243,
+							"parameters": {
+								"value": "HorizontalAxis <> 0 | VerticalAxis <> 0"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 901785770200140,
+							"parameters": {
+								"value": "GameStatus = \"Playing\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 509700096434969,
+							"parameters": {
+								"variable": "MovementAngle",
+								"value": "PlayerCollision.LookingAngleX + AxisAngle + 90"
+							}
+						}
+					],
+					"sid": 844808983984888,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move the player along the X axis."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-x",
+									"objectClass": "PlayerCollision",
+									"sid": 526452617104708,
+									"parameters": {
+										"x": "Self.X + cos(MovementAngle) * 2 * 60 * dt"
+									}
+								}
+							],
+							"sid": 435485693208817,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the player is overlapping any wall, move it back until it's no longer doing so."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "PlayerCollision",
+											"sid": 230112843551891,
+											"parameters": {
+												"object": "WallShape"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 739644546955835,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "while",
+													"objectClass": "System",
+													"sid": 861589625888355
+												},
+												{
+													"id": "is-overlapping-another-object",
+													"objectClass": "PlayerCollision",
+													"sid": 834885940395143,
+													"parameters": {
+														"object": "WallShape"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-x",
+													"objectClass": "PlayerCollision",
+													"sid": 972172082797024,
+													"parameters": {
+														"x": "Self.X + cos(MovementAngle + 180) * 0.1"
+													}
+												}
+											],
+											"sid": 200433538659297
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player along the Y axis."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-y",
+									"objectClass": "PlayerCollision",
+									"sid": 656641430361744,
+									"parameters": {
+										"y": "Self.Y + sin(MovementAngle) * 2 * 60 * dt"
+									}
+								}
+							],
+							"sid": 515306148060557,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the player is overlapping any wall, move it back until it's no longer doing so."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "PlayerCollision",
+											"sid": 150662221129680,
+											"parameters": {
+												"object": "WallShape"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 803023021585248,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "while",
+													"objectClass": "System",
+													"sid": 801217053829668
+												},
+												{
+													"id": "is-overlapping-another-object",
+													"objectClass": "PlayerCollision",
+													"sid": 106367401969564,
+													"parameters": {
+														"object": "WallShape"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-y",
+													"objectClass": "PlayerCollision",
+													"sid": 471991002657227,
+													"parameters": {
+														"y": "Self.Y + sin(MovementAngle + 180) * 0.1"
+													}
+												}
+											],
+											"sid": 311518491294370
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Play a random footstep sound effect every 0.5 seconds."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 751908199976905,
+									"parameters": {
+										"interval-seconds": "0.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "play-by-name",
+									"objectClass": "Audio",
+									"sid": 107322344790996,
+									"parameters": {
+										"folder": "sounds",
+										"audio-file-name": "\"Footstep00\" & choose(1, 2, 3)",
+										"loop": "not-looping",
+										"volume": "-18",
+										"stereo-pan": "0",
+										"tag-optional": "\"Footstep\""
+									}
+								}
+							],
+							"sid": 881983398756803
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player is overlapping the instructions trigger, destroy it and remove the instructions from the HUD."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerCollision",
+									"sid": 646961043372483,
+									"parameters": {
+										"object": "InstructionsTrigger"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "InstructionsTrigger",
+									"sid": 370500541399648
+								},
+								{
+									"callFunction": "SetText",
+									"sid": 988461618994797,
+									"parameters": [
+										"\"Instructions\"",
+										"\"Self\"",
+										true,
+										"0.5"
+									]
+								}
+							],
+							"sid": 344086607456113
+						},
+						{
+							"eventType": "comment",
+							"text": "Update the camera information."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"callFunction": "UpdateCameraInformation",
+									"sid": 554484983742374
+								}
+							],
+							"sid": 581995077461441
+						}
+					]
+				}
+			],
+			"sid": 822663980248951
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player moves the mouse while the cursor is locked, and the game status is set to \"Playing\", update the looking angle variables."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-movement",
+							"objectClass": "Mouse",
+							"sid": 182585469779966
+						},
+						{
+							"id": "has-pointer-lock",
+							"objectClass": "Mouse",
+							"sid": 191647019078953
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 418768379815296,
+							"parameters": {
+								"value": "GameStatus = \"Playing\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "PlayerCollision",
+							"sid": 228781052316811,
+							"parameters": {
+								"instance-variable": "LookingAngleX",
+								"value": "Self.LookingAngleX + Mouse.MovementX * 0.1"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "PlayerCollision",
+							"sid": 128823571086878,
+							"parameters": {
+								"instance-variable": "LookingAngleY",
+								"value": "clamp(Self.LookingAngleY - Mouse.MovementY * 0.075, -32, 32)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update the camera information."
+						},
+						{
+							"callFunction": "UpdateCameraInformation",
+							"sid": 487005415993858
+						}
+					],
+					"sid": 155257429120756
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the camera information by making it follow the player."
+				},
+				{
+					"functionName": "UpdateCameraInformation",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 292416989774724,
+							"parameters": {
+								"cam-x": "PlayerCollision.X",
+								"cam-y": "PlayerCollision.Y",
+								"cam-z": "PlayerCollision.ZElevation + 32",
+								"look-x": "PlayerCollision.X + cos(PlayerCollision.LookingAngleX) * 32",
+								"look-y": "PlayerCollision.Y + sin(PlayerCollision.LookingAngleX) * 32",
+								"look-z": "PlayerCollision.ZElevation + 32 + PlayerCollision.LookingAngleY",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"id": "set-listener-orientation",
+							"objectClass": "Audio",
+							"sid": 543519941920678,
+							"parameters": {
+								"forwardX": "3DCamera.ForwardX",
+								"forwardY": "3DCamera.ForwardY",
+								"forwardZ": "3DCamera.ForwardZ",
+								"upX": "3DCamera.UpX",
+								"upY": "3DCamera.UpY",
+								"upZ": "3DCamera.UpZ"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Rotate the ghost towards the camera, so it's always clearly visible."
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "GhostShape",
+							"sid": 670799330178661,
+							"parameters": {
+								"angle": "PlayerCollision.LookingAngleX + 180"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Cast a ray between the ghost and the player, to check if they've a line of sight."
+						},
+						{
+							"id": "cast-ray",
+							"objectClass": "GhostCollision",
+							"sid": 659996825666596,
+							"behaviorType": "LineOfSight",
+							"parameters": {
+								"from-x": "Self.X",
+								"from-y": "Self.Y",
+								"to-x": "PlayerCollision.X",
+								"to-y": "PlayerCollision.Y",
+								"use-collision-cells": true
+							}
+						}
+					],
+					"sid": 185741366095863,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the ghost doesn't have a line of sight with the player, set the audio state to \"Muffled\" and enable the low-pass filter."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "ray-intersected",
+									"objectClass": "GhostCollision",
+									"sid": 367197396946014,
+									"behaviorType": "LineOfSight"
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 144205067157880,
+									"parameters": {
+										"value": "AudioStatus <> \"Muffled\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 638970453630406,
+									"parameters": {
+										"variable": "AudioStatus",
+										"value": "\"Muffled\""
+									}
+								},
+								{
+									"id": "set-effect-parameter",
+									"objectClass": "Audio",
+									"sid": 346209110254765,
+									"parameters": {
+										"tag": "\"SonarPing\"",
+										"index": "0",
+										"parameter": "mix",
+										"value": "50",
+										"ramp": "linear",
+										"time": "0.25"
+									}
+								}
+							],
+							"sid": 369237439710880
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the ghost does have a line of sight with the player, set the audio state to \"Clear\" and disable the low-pass filter."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 392077231464206
+								},
+								{
+									"id": "ray-intersected",
+									"objectClass": "GhostCollision",
+									"sid": 459377934145509,
+									"behaviorType": "LineOfSight",
+									"isInverted": true
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 159786088116646,
+									"parameters": {
+										"value": "AudioStatus <> \"Clear\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 420068650578309,
+									"parameters": {
+										"variable": "AudioStatus",
+										"value": "\"Clear\""
+									}
+								},
+								{
+									"id": "set-effect-parameter",
+									"objectClass": "Audio",
+									"sid": 704374248947689,
+									"parameters": {
+										"tag": "\"SonarPing\"",
+										"index": "0",
+										"parameter": "mix",
+										"value": "0",
+										"ramp": "linear",
+										"time": "0.25"
+									}
+								}
+							],
+							"sid": 768397239012824
+						}
+					]
+				}
+			],
+			"sid": 977495684680561
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Objective",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How long it takes for a ghost to be captured."
+				},
+				{
+					"eventType": "variable",
+					"name": "TIMETOCAPTURE",
+					"type": "number",
+					"initialValue": "3",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 706469788754886
+				},
+				{
+					"eventType": "comment",
+					"text": "How close the player needs to be to a ghost in order to capture it."
+				},
+				{
+					"eventType": "variable",
+					"name": "DISTANCETOCAPTURE",
+					"type": "number",
+					"initialValue": "32",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 329888411836364
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is close enough to the ghost, start to capture it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 710650299137660,
+							"parameters": {
+								"value": "distance(PlayerCollision.X, PlayerCollision.Y, GhostCollision.X, GhostCollision.Y) <= DISTANCETOCAPTURE"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 777109860341291,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the capture status isn't set to \"Capturing\", set it to \"Capturing\"."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 439361615677850,
+									"parameters": {
+										"value": "CaptureStatus <> \"Capturing\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 143665049058342,
+									"parameters": {
+										"variable": "CaptureStatus",
+										"value": "\"Capturing\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make the relevant HUD elements visible."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "ProgressBar",
+									"sid": 519680902051572,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Loaded",
+									"sid": 489200775087382,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Unloaded",
+									"sid": 660807235521156,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"callFunction": "SetText",
+									"sid": 670988519271978,
+									"parameters": [
+										"\"Status\"",
+										"\"CAPTURING GHOST\"",
+										false,
+										"0"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Make the ghost visible."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "GhostShape",
+									"sid": 124450557976336,
+									"parameters": {
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 430650851064645
+						},
+						{
+							"eventType": "comment",
+							"text": "The player's sine value, but normalized to a range between zero and one, which is easily usable in a lerp expression."
+						},
+						{
+							"eventType": "variable",
+							"name": "NormalizedSine",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 750895598264325
+						},
+						{
+							"eventType": "comment",
+							"text": "The minimum amount of screen brightness during the capture process."
+						},
+						{
+							"eventType": "variable",
+							"name": "MINBRIGHTNESS",
+							"type": "number",
+							"initialValue": "127",
+							"comment": "",
+							"isStatic": true,
+							"isConstant": true,
+							"sid": 703027272553406
+						},
+						{
+							"eventType": "comment",
+							"text": "The maximum amount of screen brightness during the capture process."
+						},
+						{
+							"eventType": "variable",
+							"name": "MAXBRIGHTNESS",
+							"type": "number",
+							"initialValue": "191",
+							"comment": "",
+							"isStatic": true,
+							"isConstant": true,
+							"sid": 962646584667972
+						},
+						{
+							"eventType": "comment",
+							"text": "If the capture status is set to \"Capturing\", proceed with the capture process."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 139539779526125,
+									"parameters": {
+										"value": "CaptureStatus = \"Capturing\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Increase the capture progress over time."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "GhostCollision",
+									"sid": 695956632418860,
+									"parameters": {
+										"instance-variable": "CaptureProgress",
+										"value": "clamp(Self.CaptureProgress + dt, 0, TIMETOCAPTURE)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Normalize the since value and store it in a local variable."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 817065627901370,
+									"parameters": {
+										"variable": "NormalizedSine",
+										"value": "(PlayerCollision.Sine.Value + 1) / 2"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Change the camera's field of view to create a screen shake effect."
+								},
+								{
+									"id": "set-field-of-view",
+									"objectClass": "3DCamera",
+									"sid": 614844570079754,
+									"parameters": {
+										"fov": "60 + lerp(-2, 2, NormalizedSine)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Update the loading bar size to match the capture progress."
+								},
+								{
+									"id": "set-width",
+									"objectClass": "Loaded",
+									"sid": 302291994202910,
+									"parameters": {
+										"width": "round(unlerp(0, TIMETOCAPTURE, GhostCollision.CaptureProgress) * 10) * 6"
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "Unloaded",
+									"sid": 117530276013587,
+									"parameters": {
+										"width": "10 * 6 - round(unlerp(0, TIMETOCAPTURE, GhostCollision.CaptureProgress) * 10) * 6"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Change the ghost's opacity to create a flashing effect."
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "GhostShape",
+									"sid": 945246511910467,
+									"parameters": {
+										"opacity": "round(lerp(1, 0, NormalizedSine)) * 100"
+									}
+								}
+							],
+							"sid": 791069139991458,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Start the vacuum cleaner sound effect."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "trigger-once-while-true",
+											"objectClass": "System",
+											"sid": 286746325100699
+										}
+									],
+									"actions": [
+										{
+											"id": "play",
+											"objectClass": "Audio",
+											"sid": 354101121426154,
+											"parameters": {
+												"audio-file": "VacuumCleaner",
+												"loop": "not-looping",
+												"volume": "-6",
+												"stereo-pan": "0",
+												"tag-optional": "\"VacuumCleaner\""
+											}
+										}
+									],
+									"sid": 820289008606792
+								},
+								{
+									"eventType": "comment",
+									"text": "Once the capture progress has reached its maximum value, load the next level."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 334884065814495,
+											"parameters": {
+												"value": "GhostCollision.CaptureProgress = TIMETOCAPTURE"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "NextLevel",
+											"sid": 641487048805993
+										}
+									],
+									"sid": 891586711572284
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the player isn't close enough to the ghost, pause the capturing process."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 337149846709835
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 486720667149680,
+							"parameters": {
+								"value": "distance(PlayerCollision.X, PlayerCollision.Y, GhostCollision.X, GhostCollision.Y) > DISTANCETOCAPTURE"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 251906823528865,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the capture status isn't set to \"Searching\", set it to \"Searching\"."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 541369395116449,
+									"parameters": {
+										"value": "CaptureStatus <> \"Searching\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 421892530149149,
+									"parameters": {
+										"variable": "CaptureStatus",
+										"value": "\"Searching\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Reset the camera's field of view back to 60 degrees."
+								},
+								{
+									"id": "set-field-of-view",
+									"objectClass": "3DCamera",
+									"sid": 657749958569662,
+									"parameters": {
+										"fov": "60"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make the relevant HUD elements invisible."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "ProgressBar",
+									"sid": 373585754377892,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Loaded",
+									"sid": 639143452549143,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Unloaded",
+									"sid": 799235606447223,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"callFunction": "SetText",
+									"sid": 271755898716184,
+									"parameters": [
+										"\"Status\"",
+										"\"\"",
+										false,
+										"0"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Make the ghost invisible."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "GhostShape",
+									"sid": 132347010187360,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Reset the ghost's opacity back to 100."
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "GhostShape",
+									"sid": 515298488591599,
+									"parameters": {
+										"opacity": "100"
+									}
+								}
+							],
+							"sid": 515980468045496
+						},
+						{
+							"eventType": "comment",
+							"text": "Stop the vacuum cleaner sound effect."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "trigger-once-while-true",
+									"objectClass": "System",
+									"sid": 443477278563544
+								}
+							],
+							"actions": [
+								{
+									"id": "fade-volume",
+									"objectClass": "Audio",
+									"sid": 526632639770336,
+									"parameters": {
+										"tag": "\"VacuumCleaner\"",
+										"db": "-56",
+										"duration": "0.5",
+										"ending": "stop"
+									}
+								}
+							],
+							"sid": 396764087726870
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Load the next level."
+				},
+				{
+					"functionName": "NextLevel",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Increase the level by one."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 898499869230188,
+							"parameters": {
+								"variable": "Level",
+								"value": "clamp(Level + 1, 0, GhostSpawn.Count)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Reset the capture progress back to zero."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "GhostCollision",
+							"sid": 101988766693155,
+							"parameters": {
+								"instance-variable": "CaptureProgress",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 328407022052223,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the level equal to the ghost spawn count, it's game over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 638625264855857,
+									"parameters": {
+										"value": "Level = GhostSpawn.Count"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 421283676960930,
+									"parameters": {
+										"variable": "GameStatus",
+										"value": "\"GameOver\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move the ghost to a far away position, so the player doesn't see it anymore."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "GhostCollision",
+									"sid": 456118243327214,
+									"parameters": {
+										"x": "- LayoutWidth",
+										"y": "- LayoutHeight"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "GhostCollision",
+									"sid": 448265078865545,
+									"parameters": {
+										"angle": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play a fade in animation."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fade",
+									"sid": 771661372451024,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeIn\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Once the fade animation is over, wait 0.25 seconds and display a \"Mission accomplished!\" message in the middle of the screen."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 141378427391206
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 437742244498701,
+									"parameters": {
+										"seconds": "0.25"
+									}
+								},
+								{
+									"callFunction": "SetText",
+									"sid": 559286291249593,
+									"parameters": [
+										"\"Victory\"",
+										"\"Mission accomplished!\"",
+										true,
+										"2.75"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Stop the rain ambience."
+								},
+								{
+									"id": "fade-volume",
+									"objectClass": "Audio",
+									"sid": 359088708412348,
+									"parameters": {
+										"tag": "\"RainAmbience\"",
+										"db": "-56",
+										"duration": "1",
+										"ending": "stop"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Wait a few more seconds and restart the game."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 929927965979460,
+									"parameters": {
+										"seconds": "3"
+									}
+								},
+								{
+									"id": "restart-layout",
+									"objectClass": "System",
+									"sid": 573765532395649
+								}
+							],
+							"sid": 835553842597279
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the level is lower than the ghost spawn count, move the ghost to its next position."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 419935103627001
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 888974911422637,
+									"parameters": {
+										"value": "Level < GhostSpawn.Count"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 535993779673437,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 723548052378355,
+											"parameters": {
+												"object": "GhostSpawn",
+												"expression": "GhostSpawn.LevelIndex = Level"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "GhostCollision",
+											"sid": 376477559630177,
+											"parameters": {
+												"x": "GhostSpawn.X",
+												"y": "GhostSpawn.Y"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "GhostCollision",
+											"sid": 982607344777098,
+											"parameters": {
+												"angle": "GhostSpawn.Angle + 180"
+											}
+										}
+									],
+									"sid": 660008303993899
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 831905029739282
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Text",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Set the text of a specific text object, based on a custom ID."
+				},
+				{
+					"functionName": "SetText",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "TextID",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 567201746235187
+						},
+						{
+							"name": "Text",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 262544026214898
+						},
+						{
+							"name": "Flash",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 186063583995535
+						},
+						{
+							"name": "Duration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 805897370634660
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 347017801251991,
+							"parameters": {
+								"object": "Text",
+								"expression": "Text.ID = TextID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "Text",
+							"sid": 431078363737308,
+							"parameters": {
+								"text": "Text = \"Self\" ? Text.Text : Text"
+							}
+						}
+					],
+					"sid": 126501331510097,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the flash parameter is set to one, make the text flash for a specific amount of time."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 255760703966081,
+									"parameters": {
+										"value": "Flash =1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "flash",
+									"objectClass": "Text",
+									"sid": 918064489868612,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.05",
+										"off-time": "0.05",
+										"duration": "Duration = 0 ? Infinity : abs(Duration)"
+									}
+								}
+							],
+							"sid": 337317795665550
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the flash animation has ended, destroy the text object."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-flash-ended",
+							"objectClass": "Text",
+							"sid": 182796441368818,
+							"behaviorType": "Flash"
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Text",
+							"sid": 230867723474479
+						}
+					],
+					"sid": 694897728348747
+				}
+			],
+			"sid": 992540641617836
+		}
+	],
+	"sid": 409372191873063
+}

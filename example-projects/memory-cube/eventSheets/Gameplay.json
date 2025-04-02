@@ -1,0 +1,1582 @@
+{
+	"name": "Gameplay",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Disable the player input, preventing it from interacting with the game."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 241542689873134
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "SetPlayerInput",
+					"sid": 179917648901579,
+					"parameters": [
+						false
+					]
+				}
+			],
+			"sid": 940751021752904
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly update the camera position with subtle sinusoidal wave movement."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 357710649289695
+				}
+			],
+			"actions": [
+				{
+					"id": "look-at-position",
+					"objectClass": "3DCamera",
+					"sid": 601618246421520,
+					"parameters": {
+						"cam-x": "320 + 96",
+						"cam-y": "320 + 96",
+						"cam-z": "96",
+						"look-x": "320 + cos(time * 50) * 2",
+						"look-y": "320 + sin(time * 50) * 2",
+						"look-z": "-16",
+						"up-x": "0",
+						"up-y": "0",
+						"up-z": "1"
+					}
+				}
+			],
+			"sid": 415385546734218
+		},
+		{
+			"eventType": "comment",
+			"text": "The angle at which the grid is moving towards."
+		},
+		{
+			"eventType": "variable",
+			"name": "GridAngleOfMotion",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 409449754582228
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the grid moves."
+		},
+		{
+			"eventType": "variable",
+			"name": "GRIDMOVEMENTSPEED",
+			"type": "number",
+			"initialValue": "0.5",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 928483269960298
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly update the grid angle of motion by making it turn left in small increments."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 624580139284077
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 351536171986123,
+					"parameters": {
+						"variable": "GridAngleOfMotion",
+						"value": "(GridAngleOfMotion - 0.1 * 60 * dt) % 360"
+					}
+				}
+			],
+			"sid": 670019988352494,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Scroll the grid based on its angle of motion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 655498522257837,
+							"parameters": {
+								"object": "Grid"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Grid",
+							"sid": 779795748728944,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX +  cos(GridAngleOfMotion) * GRIDMOVEMENTSPEED * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Grid",
+							"sid": 719682947953194,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + sin(GridAngleOfMotion) * GRIDMOVEMENTSPEED * 60 * dt"
+							}
+						}
+					],
+					"sid": 688141084840107
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Use the specified area to spawn a 3D particle every 0.1 seconds, enhacing the sci-fi environment."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 566630794494124,
+					"parameters": {
+						"interval-seconds": "0.1"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 542268832583301,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "A random factor that's used to determine how far and how fast each particle will move."
+				},
+				{
+					"eventType": "variable",
+					"name": "RandomFactor",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 734795204089183
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-random-instance",
+							"objectClass": "System",
+							"sid": 641947071928080,
+							"parameters": {
+								"object": "Area"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Generate a random factor."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 180860503398447,
+							"parameters": {
+								"variable": "RandomFactor",
+								"value": "random(1, 2)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create a particle."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 527632018392465,
+							"parameters": {
+								"object-to-create": "Particle",
+								"layer": "\"World\"",
+								"x": "Area.X",
+								"y": "Area.Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update the particle Z elevation and randomize its position based on the size of the parent area."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "Particle",
+							"sid": 291897296685099,
+							"parameters": {
+								"x": "random(Area.BBoxLeft + Self.Width / 2, Area.BBoxRight - Self.Width / 2)",
+								"y": "random(Area.BBoxTop + Self.Width / 2, Area.BBoxBottom - Self.Width / 2)"
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Particle",
+							"sid": 396749181422191,
+							"parameters": {
+								"z": "Area.ZElevation"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make the particle move up and fade out at the same time."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Particle",
+							"sid": 418558546663607,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveUp\"",
+								"property": "offsetZElevation",
+								"end-value": "Self.ZElevation + RandomFactor * 192",
+								"time": "RandomFactor",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Particle",
+							"sid": 792095760436554,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "size",
+								"end-x": "0",
+								"end-y": "0",
+								"time": "RandomFactor",
+								"ease": "easeinsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 114100745041246
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "On any touch, hide the tutorial text if necessary."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-start",
+					"objectClass": "Touch",
+					"sid": 668984711679963
+				}
+			],
+			"actions": [],
+			"sid": 336695618513953,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 617705001081820,
+							"parameters": {
+								"object": "TutorialText",
+								"expression": "TutorialText.Alive",
+								"comparison": 0,
+								"value": "1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 486372565982384,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the tutorial text is found, reset the CPU array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 784970232318380,
+									"parameters": {
+										"value": "TutorialText.PickedCount > 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "ResetCPUArray",
+									"sid": 644843683139243
+								}
+							],
+							"sid": 486295955905732,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Make the tutorial text disappear."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 706773574422443,
+											"parameters": {
+												"object": "TutorialText"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "TutorialText",
+											"sid": 963134061396327,
+											"parameters": {
+												"instance-variable": "Alive",
+												"value": "false"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "TutorialText",
+											"sid": 258636074989861,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"FadeOut\"",
+												"property": "offsetY",
+												"end-value": "Self.Y + sign(Self.Direction) * Self.Height",
+												"time": "0.5",
+												"ease": "easeinsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 854318558327727
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Reset the CPU array by emptying it and filling it with three random entries."
+		},
+		{
+			"functionName": "ResetCPUArray",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-size",
+					"objectClass": "CPUArray",
+					"sid": 673973668805144,
+					"parameters": {
+						"width": "0",
+						"height": "1",
+						"depth": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Also reset the player score."
+				},
+				{
+					"callFunction": "ResetPlayerScore",
+					"sid": 488157878452104
+				}
+			],
+			"sid": 790272888384797,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Add three random entries to the CPU array."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 414363599492296,
+							"parameters": {
+								"count": "3"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddRandomEntryToCPUArray",
+							"sid": 968209668546828
+						}
+					],
+					"sid": 456241715707877
+				},
+				{
+					"eventType": "comment",
+					"text": "Preview the CPU array."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "PreviewCPUArray",
+							"sid": 511843028029359
+						}
+					],
+					"sid": 723205383719089
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Expand the CPU array by adding a random entry to it."
+		},
+		{
+			"functionName": "AddRandomEntryToCPUArray",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "push",
+					"objectClass": "CPUArray",
+					"sid": 852866718535877,
+					"parameters": {
+						"where": "back",
+						"value": "choose(0, 1, 2, 3)",
+						"axis": "x"
+					}
+				}
+			],
+			"sid": 178680513275961
+		},
+		{
+			"eventType": "comment",
+			"text": "The current index being previewed from the CPU array."
+		},
+		{
+			"eventType": "variable",
+			"name": "CurrentIndex",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 727743510141570
+		},
+		{
+			"eventType": "comment",
+			"text": "Preview the content from the CPU array."
+		},
+		{
+			"functionName": "PreviewCPUArray",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Reset the current index back to zero, so the content from the array is shown from the beginning. "
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 925794105070857,
+					"parameters": {
+						"variable": "CurrentIndex",
+						"value": "0"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Wait a second before starting the preview."
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "GameManager",
+					"sid": 687865222490350,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "1",
+						"type": "once",
+						"tag": "\"StartCPUArrayPreview\""
+					}
+				}
+			],
+			"sid": 388826222374568
+		},
+		{
+			"eventType": "comment",
+			"text": "The amount of time between each push during a preview."
+		},
+		{
+			"eventType": "variable",
+			"name": "COOLDOWNBETWEENPUSHES",
+			"type": "number",
+			"initialValue": "0.1",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 634379817267125
+		},
+		{
+			"eventType": "comment",
+			"text": "Evaluate the first entry and start a regular timer to eventually evaluate the other ones."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 510629939615534,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"StartCPUArrayPreview\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "EvaluateNextEntry",
+					"sid": 929365645408670
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "GameManager",
+					"sid": 434196134377351,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "PUSHTIME + COOLDOWNBETWEENPUSHES",
+						"type": "regular",
+						"tag": "\"PreviewNextIndex\""
+					}
+				}
+			],
+			"sid": 992265648050068
+		},
+		{
+			"eventType": "comment",
+			"text": "Evaluate the next entry."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 531111590857823,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"PreviewNextIndex\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "EvaluateNextEntry",
+					"sid": 675072551826364
+				}
+			],
+			"sid": 621007621972409
+		},
+		{
+			"eventType": "comment",
+			"text": "Evaluate the next entry during a CPU array preview."
+		},
+		{
+			"functionName": "EvaluateNextEntry",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 350876859962587,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the current index isn't the last one in the CPU array, flash the related button and increase the current index."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 219299155090866,
+							"parameters": {
+								"value": " CurrentIndex < CPUArray.Width"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 741729852476429,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 510724026447592,
+									"parameters": {
+										"object": "Button",
+										"expression": "Button.Index",
+										"comparison": 0,
+										"value": "CPUArray.At(CurrentIndex)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "FlashButton",
+									"sid": 753996253326634,
+									"parameters": [
+										"Button.Index"
+									]
+								}
+							],
+							"sid": 700450286177930
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 952801708034043,
+									"parameters": {
+										"variable": "CurrentIndex",
+										"value": "clamp(CurrentIndex + 1, 0, CPUArray.Width)"
+									}
+								}
+							],
+							"sid": 166360202820833
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the current index is the last in the CPU array, stop the preview timer and reset the player array."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 698651650769693
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 120786170712300,
+							"parameters": {
+								"value": " CurrentIndex = CPUArray.Width"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "stop-timer",
+							"objectClass": "GameManager",
+							"sid": 670858770310296,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"PreviewNextIndex\""
+							}
+						},
+						{
+							"callFunction": "ResetPlayerArray",
+							"sid": 254328915204714
+						}
+					],
+					"sid": 557583122629385
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "How long it takes for a button to reach its minimum Z elevation."
+		},
+		{
+			"eventType": "variable",
+			"name": "PUSHTIME",
+			"type": "number",
+			"initialValue": "0.15",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 434823148298627
+		},
+		{
+			"eventType": "comment",
+			"text": "Flash a button based on its index number."
+		},
+		{
+			"functionName": "FlashButton",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "ButtonIndex",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 614323585997788
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "pick-by-comparison",
+					"objectClass": "System",
+					"sid": 782565732196955,
+					"parameters": {
+						"object": "Button",
+						"expression": "Button.Index",
+						"comparison": 0,
+						"value": "ButtonIndex"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Stop the current push animation if necessary and start a new one."
+				},
+				{
+					"id": "stop-tweens",
+					"objectClass": "Button",
+					"sid": 429835415974873,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Push\""
+					}
+				},
+				{
+					"id": "set-z-elevation",
+					"objectClass": "Button",
+					"sid": 910783998456755,
+					"parameters": {
+						"z": "4"
+					}
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Button",
+					"sid": 331380163100982,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Push\"",
+						"property": "offsetZElevation",
+						"end-value": "4 -1",
+						"time": "PUSHTIME / 2",
+						"ease": "easeoutsine",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "yes",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Change the button animation from idle to flash."
+				},
+				{
+					"id": "set-animation",
+					"objectClass": "Button",
+					"sid": 757431128929736,
+					"parameters": {
+						"animation": "\"Flash\"&Self.Index",
+						"from": "beginning"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Stop the current reset animation timer if necessary and start a new one."
+				},
+				{
+					"id": "stop-tweens",
+					"objectClass": "Button",
+					"sid": 306073013384796,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"ResetAnimation\""
+					}
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "Button",
+					"sid": 152998558163185,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "PUSHTIME",
+						"type": "once",
+						"tag": "\"ResetAnimation\""
+					}
+				}
+			],
+			"sid": 685370866261238
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the reset animation timer is over, change the button animation from flash to idle."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "Button",
+					"sid": 448747155345729,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"ResetAnimation\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation",
+					"objectClass": "Button",
+					"sid": 835716450416606,
+					"parameters": {
+						"animation": "\"Idle\"&Self.Index",
+						"from": "beginning"
+					}
+				}
+			],
+			"sid": 848857380294406
+		},
+		{
+			"eventType": "comment",
+			"text": "Reset the player array by emptying it."
+		},
+		{
+			"functionName": "ResetPlayerArray",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-size",
+					"objectClass": "PlayerArray",
+					"sid": 288636282426268,
+					"parameters": {
+						"width": "0",
+						"height": "1",
+						"depth": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Also disable the player input."
+				},
+				{
+					"callFunction": "SetPlayerInput",
+					"sid": 857661029115308,
+					"parameters": [
+						true
+					]
+				}
+			],
+			"sid": 737969767007742
+		},
+		{
+			"eventType": "comment",
+			"text": "How long the game takes to change states."
+		},
+		{
+			"eventType": "variable",
+			"name": "COOLDOWNBETWEENSTATES",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 146754839144606
+		},
+		{
+			"eventType": "comment",
+			"text": "If a button is pressed, add its index to the player array."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 243866203247833,
+					"parameters": {
+						"object": "Button"
+					}
+				},
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 340910550810604,
+					"parameters": {
+						"value": "AllowPlayerInput = 1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "push",
+					"objectClass": "PlayerArray",
+					"sid": 224236711080447,
+					"parameters": {
+						"where": "back",
+						"value": "Button.Index",
+						"axis": "x"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Also flash the button as a visual feedback for the player."
+				},
+				{
+					"callFunction": "FlashButton",
+					"sid": 111750395178963,
+					"parameters": [
+						"Button.Index"
+					]
+				}
+			],
+			"sid": 209438337196222,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Whether or not there's something wrong in the player array in comparison with the CPU array."
+				},
+				{
+					"eventType": "variable",
+					"name": "Wrong",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 781018626570057
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player array and the CPU array have the same amount of entries, compare them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 501028303290652,
+							"parameters": {
+								"value": "PlayerArray.Width = CPUArray.Width"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 129472856279836,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Loop through all entries to look for errors."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 191054767637709,
+									"parameters": {
+										"count": "PlayerArray.Width"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 948623371053176,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the current entry is correct, don't do anything."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 272141180841479,
+											"parameters": {
+												"value": "PlayerArray.At(loopindex) = CPUArray.At(loopindex)"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 173205679100168
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the current entry is wrong, set the wrong boolean to true."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 390265094865181
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 901458612832083,
+											"parameters": {
+												"value": "PlayerArray.At(loopindex) <> CPUArray.At(loopindex)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 332085211179375,
+											"parameters": {
+												"variable": "Wrong",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 416995522456232
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If there's anything wrong between both arrays, display a sad face and wait before restarting the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 223305527503184,
+									"parameters": {
+										"value": "Wrong = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "SetPlayerInput",
+									"sid": 942096283003940,
+									"parameters": [
+										false
+									]
+								},
+								{
+									"callFunction": "DisplayText",
+									"sid": 627117473968354,
+									"parameters": [
+										"\":(\""
+									]
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "GameManager",
+									"sid": 699047580179015,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "COOLDOWNBETWEENSTATES",
+										"type": "once",
+										"tag": "\"Wrong\""
+									}
+								}
+							],
+							"sid": 918302362708917
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if there's nothing wrong between both array, display a happy face and wait before continuing with the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 265010413996215
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 222893686689018,
+									"parameters": {
+										"value": "Wrong = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "SetPlayerInput",
+									"sid": 205576398154422,
+									"parameters": [
+										false
+									]
+								},
+								{
+									"callFunction": "DisplayText",
+									"sid": 265475105412413,
+									"parameters": [
+										"\":)\""
+									]
+								},
+								{
+									"callFunction": "IncreasePlayerScore",
+									"sid": 787546053407099
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "GameManager",
+									"sid": 547835264139599,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "COOLDOWNBETWEENSTATES",
+										"type": "once",
+										"tag": "\"Correct\""
+									}
+								}
+							],
+							"sid": 695587911374405
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the wrong timer is over, reset the CPU array."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 689683255539936,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Wrong\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "ResetCPUArray",
+					"sid": 689315980976394
+				}
+			],
+			"sid": 646907203601917
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the correct timer is over, add a random entry to the CPU array and preview it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 101844194600498,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Correct\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "AddRandomEntryToCPUArray",
+					"sid": 868743264471912
+				},
+				{
+					"callFunction": "PreviewCPUArray",
+					"sid": 895228836862914
+				}
+			],
+			"sid": 720962069374790
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player is allowed to interact with the game."
+		},
+		{
+			"eventType": "variable",
+			"name": "AllowPlayerInput",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 771066988071054
+		},
+		{
+			"eventType": "comment",
+			"text": "Set the player input either enabled or disabled."
+		},
+		{
+			"functionName": "SetPlayerInput",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "Enabled",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"sid": 110440144677627
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 246982281480176,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Enable the player input, allowing it to interact with the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 404505439019363,
+							"parameters": {
+								"value": "Enabled = 1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 458205426683361,
+							"parameters": {
+								"variable": "AllowPlayerInput",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 631742896897681
+				},
+				{
+					"eventType": "comment",
+					"text": "Disable the player input, preventing it from interacting with the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 465313945231818
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 732983977658678,
+							"parameters": {
+								"value": "Enabled = 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 384228827571355,
+							"parameters": {
+								"variable": "AllowPlayerInput",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 632515009697867
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Display a specific text using the monitor screen in the center of the level."
+		},
+		{
+			"functionName": "DisplayText",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "Text",
+					"type": "string",
+					"initialValue": "",
+					"comment": "",
+					"sid": 957668981368200
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "DisplayText",
+					"sid": 955432861193593,
+					"parameters": {
+						"text": "Text"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Also make the new text flash for 0.5 seconds."
+				},
+				{
+					"id": "stop-flashing",
+					"objectClass": "DisplayText",
+					"sid": 539646954036170,
+					"behaviorType": "Flash"
+				},
+				{
+					"id": "flash",
+					"objectClass": "DisplayText",
+					"sid": 993026392732203,
+					"behaviorType": "Flash",
+					"parameters": {
+						"on-time": "0.05",
+						"off-time": "0.05",
+						"duration": "0.5"
+					}
+				}
+			],
+			"sid": 757012457342235
+		},
+		{
+			"eventType": "comment",
+			"text": "How many points the player was able to get."
+		},
+		{
+			"eventType": "variable",
+			"name": "Score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 225556949016010
+		},
+		{
+			"eventType": "comment",
+			"text": "Reset the player score back to zero."
+		},
+		{
+			"functionName": "ResetPlayerScore",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 662455696969361,
+					"parameters": {
+						"variable": "Score",
+						"value": "0"
+					}
+				},
+				{
+					"callFunction": "UpdatePlayerScore",
+					"sid": 962803904908520
+				},
+				{
+					"type": "comment",
+					"text": "Also erase everything from the monitor screen in the center of the level."
+				},
+				{
+					"callFunction": "DisplayText",
+					"sid": 928143604836759,
+					"parameters": [
+						"\"\""
+					]
+				}
+			],
+			"sid": 205473106448734
+		},
+		{
+			"eventType": "comment",
+			"text": "Increase the player score by one."
+		},
+		{
+			"functionName": "IncreasePlayerScore",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 734737261147597,
+					"parameters": {
+						"variable": "Score",
+						"value": "Score + 1"
+					}
+				},
+				{
+					"callFunction": "UpdatePlayerScore",
+					"sid": 745380692624414
+				}
+			],
+			"sid": 624884087667389
+		},
+		{
+			"eventType": "comment",
+			"text": "Update the monitor screen in the center of the level with the current player score."
+		},
+		{
+			"functionName": "UpdatePlayerScore",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "ScoreText",
+					"sid": 505958281811161,
+					"parameters": {
+						"text": "zeropad(Score, 4)"
+					}
+				},
+				{
+					"id": "stop-flashing",
+					"objectClass": "ScoreText",
+					"sid": 935760326017855,
+					"behaviorType": "Flash"
+				},
+				{
+					"id": "flash",
+					"objectClass": "ScoreText",
+					"sid": 883670938246237,
+					"behaviorType": "Flash",
+					"parameters": {
+						"on-time": "0.05",
+						"off-time": "0.05",
+						"duration": "0.5"
+					}
+				}
+			],
+			"sid": 989305364019445
+		}
+	],
+	"sid": 658056550806661
+}

@@ -1,0 +1,2839 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Assets used : Top Down Shooter pack kenney.nl - https://kenney.nl/assets/topdown-shooter"
+		},
+		{
+			"eventType": "comment",
+			"text": "References :\n\n[b]Plugin[/b]\n[item]Sprite - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/sprite\n[item]DrawingCanvas - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/drawing-canvas\n[item]Text - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/text\n\n[b][i]Behavior[/i][/b]\n[item]TileMovement - https://www.construct.net/en/make-games/manuals/construct-3/behavior-reference/tile-movement\n[item]Timer - https://www.construct.net/en/make-games/manuals/construct-3/behavior-reference/timer\n[item]Pathfinding - https://www.construct.net/en/make-games/manuals/construct-3/behavior-reference/pathfinding\n[item]LineOfSight - https://www.construct.net/en/make-games/manuals/construct-3/behavior-reference/line-of-sight\n\n[u]System[/u]\n[item]Functions - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/events/functions\n[item]Expressions (maths) - https://www.construct.net/en/make-games/manuals/construct-3/system-reference/system-expressions#internalH1Link3",
+			"background-color": [
+				0.7450980392156863,
+				0.996078431372549,
+				0.8431372549019608,
+				1
+			]
+		},
+		{
+			"eventType": "variable",
+			"name": "inGame",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 260475388686693
+		},
+		{
+			"eventType": "comment",
+			"text": "Player controls [b]char[/b] thanks to the default controls of its own [i][b]TileMovement[/b][/i] behavior.\n\nMultiple [b]guard[/b] instances travel their own patrol [b]waypoint[/b] network.\nEach [b]guard[/b] instance has its own [i]state[/i] instance variable.\nThe value of this instance variables help setting a logical state where the instance acts a certain way, according to certain rules specific to when this instance is in this state.\n\nWhen a [b]guard[/b] sees [b]char[/b] (thanks to the [i][b]LineOfSight[/b][/i] behavior) they switch their \"patrol\" [i]state[/i] instance variable value to \"aggro\".\nThey switch from using the [i][b]TileMovement[/b][/i] behavior for their patrolling movement to the [i][b]PathFinding[/b][/i] behavior for their chasing movement.\nThey find and move along a path to the position where they last saw [b]char[/b].\nArrived there, they check whether they see [b]char[/b] (and then another \"chase\" sequence starts) or not.\nIf they don't see it, a path is calculated to the next [b]waypoint[/b] they are supposed to patrol. Their [i]state[/i] value switches to \"back\".\nOnce arrived \"back\" they switch back to regular \"patrol\".\n\nList of [b]guard[/b] states :\n[item]\"patrol\" - [b]guard[/b] will travel from a [b]waypoint[/b] to another, according to the values of instance variables from the [b]waypoint[/b] and the [b]guard[/b] object (numbers that will identify the order in which [b]guard[/b] is supposed to reach through all the [b]waypoint[/b] instances for its own course).\n[item]\"aggro\" - [b]guard[/b] has seen [b]char[/b], tries to find a path to the position with the [i][b]PathFinding[/b][/i] behavior. (On path found [i]state[/i] changes to \"chase\", on failure to find path, [i]state[/i] reverts to \"patrol\")\n[item]\"chase\" - [b]guard[/b] has found a path to the position of [b]char[/b] it is currently moving to this position.\n[item]\"search\" - [b]guard[/b] has reached the last seen position of [b]char[/b]. [b]guard[/b] moves on itself in hope to see [b]char[/b]. If [b]guard[/b] sees char, it goes into a new chase sequence. If it doesn't when the [i][b]Timer[/b][/i] \"guardSearch\" triggers (1 second) then it switches [i]state[/i] to \"back\". \n[item]\"back\" - [b]guard[/b] moves along a calculated a path to go back to the next [b]waypoint[/b] it should patrol. \n",
+			"background-color": [
+				0.7686274509803922,
+				0.8862745098039215,
+				0.996078431372549,
+				1
+			]
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 396778213520656
+				}
+			],
+			"actions": [
+				{
+					"id": "set-position",
+					"objectClass": "txtCaught",
+					"sid": 253335853429928,
+					"parameters": {
+						"x": "ViewportWidth(0)/2",
+						"y": "ViewportHeight(0)/2"
+					}
+				},
+				{
+					"id": "set-position",
+					"objectClass": "txtWin",
+					"sid": 581253393456586,
+					"parameters": {
+						"x": "ViewportWidth(0)/2",
+						"y": "ViewportHeight(0)/2"
+					}
+				},
+				{
+					"id": "set-position",
+					"objectClass": "txtRestart",
+					"sid": 338906231334487,
+					"parameters": {
+						"x": "ViewportWidth(0)/2",
+						"y": "672"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "waypoint",
+					"sid": 194855010004245,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				}
+			],
+			"sid": 150668240164764,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "on start of layout, for each [b]guard[/b], check the max number of [b]waypoint[/b] instances which [i]IDGuard[/i] correspond to [b]guard[/b].[i]id[/i]"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 729463469983454,
+							"parameters": {
+								"object": "guard"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "waypoint",
+							"sid": 109199780878058,
+							"parameters": {
+								"instance-variable": "IDGuard",
+								"comparison": 0,
+								"value": "guard.ID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "position [b]guardIcon[/b] and pin it to [b]guard[/b], set it invisible"
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "guard",
+							"sid": 976032851192553,
+							"parameters": {
+								"instance-variable": "waypointMax",
+								"value": "waypoint.PickedCount"
+							}
+						},
+						{
+							"id": "set-position",
+							"objectClass": "guardIcon",
+							"sid": 670199510655491,
+							"parameters": {
+								"x": "guard.X",
+								"y": "guard.Y - 48"
+							}
+						},
+						{
+							"id": "pin-to-object-properties",
+							"objectClass": "guardIcon",
+							"sid": 781945027002701,
+							"behaviorType": "Pin",
+							"parameters": {
+								"pin-to": "guard",
+								"x": true,
+								"y": true,
+								"angle": false,
+								"width-type": "no",
+								"height-type": "no",
+								"z": false
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "guardIcon",
+							"sid": 556706434497497,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 465565598105685
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "[b]char[/b] movement\nAccording to the current movement, set [b]char[/b] angle",
+			"background-color": [
+				0.7450980392156863,
+				0.8862745098039215,
+				0.996078431372549,
+				1
+			]
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-moving-direction",
+					"objectClass": "char",
+					"sid": 937643017941819,
+					"behaviorType": "TileMovement",
+					"parameters": {
+						"direction": "right"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "char",
+					"sid": 559557467801323,
+					"parameters": {
+						"angle": "0"
+					}
+				}
+			],
+			"sid": 358469343837970
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-moving-direction",
+					"objectClass": "char",
+					"sid": 135165716428891,
+					"behaviorType": "TileMovement",
+					"parameters": {
+						"direction": "down"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "char",
+					"sid": 138850886610754,
+					"parameters": {
+						"angle": "90"
+					}
+				}
+			],
+			"sid": 601132547328664
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-moving-direction",
+					"objectClass": "char",
+					"sid": 904021479530829,
+					"behaviorType": "TileMovement",
+					"parameters": {
+						"direction": "left"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "char",
+					"sid": 306366405549592,
+					"parameters": {
+						"angle": "180"
+					}
+				}
+			],
+			"sid": 439498538228482
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-moving-direction",
+					"objectClass": "char",
+					"sid": 674324854401199,
+					"behaviorType": "TileMovement",
+					"parameters": {
+						"direction": "up"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "char",
+					"sid": 498224914100241,
+					"parameters": {
+						"angle": "270"
+					}
+				}
+			],
+			"sid": 519971459975979
+		},
+		{
+			"eventType": "comment",
+			"text": "[b]guard[/b] movement and states",
+			"background-color": [
+				0.7450980392156863,
+				0.8862745098039215,
+				0.996078431372549,
+				1
+			]
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "guard",
+					"sid": 174729546565915,
+					"parameters": {
+						"instance-variable": "state",
+						"comparison": 0,
+						"value": "\"patrol\""
+					}
+				},
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 384777443369103,
+					"parameters": {
+						"object": "guard"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 107774042313633,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-calculating-path",
+							"objectClass": "guard",
+							"sid": 499629398484339,
+							"behaviorType": "Pathfinding",
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "log",
+							"objectClass": "Browser",
+							"sid": 529430157524542,
+							"parameters": {
+								"type": "log",
+								"message": "\"patrol\""
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "guard",
+							"sid": 917708735000432,
+							"parameters": {
+								"angle": "guard.dir"
+							}
+						}
+					],
+					"sid": 130463841799378
+				},
+				{
+					"eventType": "comment",
+					"text": "When [b]guard[/b] is in the middle of a [b]waypoint[/b] of its course"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "guard",
+							"sid": 870646905655460,
+							"parameters": {
+								"object": "waypoint"
+							}
+						},
+						{
+							"id": "compare-x",
+							"objectClass": "guard",
+							"sid": 255672174616337,
+							"parameters": {
+								"comparison": 5,
+								"x-co-ordinate": "waypoint.X - 16"
+							}
+						},
+						{
+							"id": "compare-x",
+							"objectClass": "guard",
+							"sid": 766727242854955,
+							"parameters": {
+								"comparison": 3,
+								"x-co-ordinate": "waypoint.X + 16"
+							}
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "guard",
+							"sid": 372698140856121,
+							"parameters": {
+								"comparison": 5,
+								"y-co-ordinate": "waypoint.Y - 16"
+							}
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "guard",
+							"sid": 595719507812802,
+							"parameters": {
+								"comparison": 3,
+								"y-co-ordinate": "waypoint.Y + 16"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "waypoint",
+							"sid": 337965751713598,
+							"parameters": {
+								"instance-variable": "IDGuard",
+								"comparison": 0,
+								"value": "guard.ID"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 974739423845512,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "[b]waypoint[/b] is the next planned waypoint for the guard to go through"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "waypoint",
+									"sid": 434412671847268,
+									"parameters": {
+										"instance-variable": "ID",
+										"comparison": 0,
+										"value": "guard.nxtWaypointID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-grid-position",
+									"objectClass": "guard",
+									"sid": 752428017036392,
+									"behaviorType": "TileMovement",
+									"parameters": {
+										"x": "waypoint.TileMovement.GridX",
+										"y": "waypoint.TileMovement.GridY",
+										"instant": "animate"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "guard",
+									"sid": 778380187219235,
+									"parameters": {
+										"instance-variable": "dir",
+										"value": "waypoint.dir"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "guard",
+									"sid": 966394943001222,
+									"parameters": {
+										"instance-variable": "curWaypointID",
+										"value": "waypoint.ID"
+									}
+								}
+							],
+							"sid": 386533240492854,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "if the next [b]waypoint[/b] is not the last one of the course, set [b]guard[/b].[i]nxtWaypointID[/i] to the value of [b]guard[/b].[i]curWaypointID[/i] + 1"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "guard",
+											"sid": 916998023653755,
+											"parameters": {
+												"instance-variable": "curWaypointID",
+												"comparison": 2,
+												"value": "guard.waypointMax - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "guard",
+											"sid": 557055525006133,
+											"parameters": {
+												"instance-variable": "nxtWaypointID",
+												"value": "guard.curWaypointID + 1"
+											}
+										}
+									],
+									"sid": 448317872356493
+								},
+								{
+									"eventType": "comment",
+									"text": "else, set [b]guard[/b].[i]nxtWaypointID[/i] to the value 0 in order to start the course from the first [b]waypoint[/b] and close the patrol course"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 482482468952681
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "guard",
+											"sid": 917458792443645,
+											"parameters": {
+												"instance-variable": "nxtWaypointID",
+												"value": "0"
+											}
+										}
+									],
+									"sid": 895804051616551
+								},
+								{
+									"eventType": "comment",
+									"text": "set the current tile movement to the position, in the grid of the next [b]waypoint[/b] to reach"
+								},
+								{
+									"eventType": "comment",
+									"text": "[i]Note[/i] - The system condition \"Pick all\" allows to forget about the currently picked [b]waypoint[/b] (the one [b]guard[/b] is overlapping, as per conditions in event 9) and use events to make a new pick (next [b]waypoint[/b])"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-all",
+											"objectClass": "System",
+											"sid": 499007917458266,
+											"parameters": {
+												"object": "waypoint"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "waypoint",
+											"sid": 912667940893071,
+											"parameters": {
+												"instance-variable": "IDGuard",
+												"comparison": 0,
+												"value": "guard.ID"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "waypoint",
+											"sid": 413972239894260,
+											"parameters": {
+												"instance-variable": "ID",
+												"comparison": 0,
+												"value": "guard.nxtWaypointID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-grid-position",
+											"objectClass": "guard",
+											"sid": 326846289037611,
+											"behaviorType": "TileMovement",
+											"parameters": {
+												"x": "waypoint.TileMovement.GridX",
+												"y": "waypoint.TileMovement.GridY",
+												"instant": "animate"
+											}
+										}
+									],
+									"sid": 548910761880920
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "[b]guard[/b] \"sees\" [b]char[/b] (through the LineOfSight behavior)\nwhen [b]guard[/b] is not calculating a pathfinding path and the game is not over ([i]inGame[/i] is true)",
+			"background-color": [
+				0.7450980392156863,
+				0.8862745098039215,
+				0.996078431372549,
+				1
+			]
+		},
+		{
+			"eventType": "variable",
+			"name": "gX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 394610382885700
+		},
+		{
+			"eventType": "variable",
+			"name": "gY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 524643654985274
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "has-los-to-object",
+					"objectClass": "guard",
+					"sid": 570444238699144,
+					"behaviorType": "LineOfSight",
+					"parameters": {
+						"object": "char",
+						"image-point": "0"
+					}
+				},
+				{
+					"id": "is-calculating-path",
+					"objectClass": "guard",
+					"sid": 389547261242498,
+					"behaviorType": "Pathfinding",
+					"isInverted": true
+				},
+				{
+					"id": "compare-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 952880305077875,
+					"parameters": {
+						"variable": "inGame"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "setAggro",
+					"sid": 637109133466520,
+					"parameters": [
+						"guard.UID",
+						"1"
+					]
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 323993989538556,
+					"parameters": {
+						"variable": "gX",
+						"value": "guard.X"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 642658677474487,
+					"parameters": {
+						"variable": "gY",
+						"value": "guard.Y"
+					}
+				}
+			],
+			"sid": 294967029483046,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "\"propagates\" aggro to other [b]guards[/b] in a 512 pixels radius from the current [b]guard[/b]"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-all",
+							"objectClass": "System",
+							"sid": 263094150930829,
+							"parameters": {
+								"object": "guard"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 503117433165395,
+							"parameters": {
+								"object": "guard"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 755682637900542,
+							"parameters": {
+								"first-value": "distance(gX,gY,guard.X,guard.Y)",
+								"comparison": 3,
+								"second-value": "512"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "setAggro",
+							"sid": 864250729054950,
+							"parameters": [
+								"guard.UID",
+								"0.5"
+							]
+						}
+					],
+					"sid": 737771679264026
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "function that changes the [i]state[/i] of a given [b]guard[/b] and set the duration of the \"surprise\" period before the [b]guard[/b] starts \"chase\""
+		},
+		{
+			"functionName": "setAggro",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "guardUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 630086928843158
+				},
+				{
+					"name": "duration",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 346424311181053
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 905203648099233,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "guard",
+							"sid": 403992384021848,
+							"parameters": {
+								"unique-id": "guardUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Deactivate [b][i]TileMovement[/i][/b] and activate [b][i]Pathfinding[/i][/b]"
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "guard",
+							"sid": 536532785807298,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"set": "enabled"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "guard",
+							"sid": 292252129593322,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "display the appropriate frame and set [b]guardIcon[/b] visible"
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "guardIcon",
+							"sid": 992084014570676,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "guardIcon",
+							"sid": 833400720429053,
+							"parameters": {
+								"visibility": "visible"
+							}
+						}
+					],
+					"sid": 476770787485668,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "[b]guard[/b] is currently patrolling from [b]waypoints[/b] in its course"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "guard",
+									"sid": 155143624677127,
+									"parameters": {
+										"instance-variable": "state",
+										"comparison": 0,
+										"value": "\"patrol\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "log",
+									"objectClass": "Browser",
+									"sid": 196303382253467,
+									"parameters": {
+										"type": "log",
+										"message": "\"patrol to aggro\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "guard",
+									"sid": 423998148786235,
+									"parameters": {
+										"instance-variable": "state",
+										"value": "\"aggro\""
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "guard",
+									"sid": 403930071438370,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "duration",
+										"type": "once",
+										"tag": "\"guardAggro\""
+									}
+								}
+							],
+							"sid": 744839176343215
+						},
+						{
+							"eventType": "comment",
+							"text": "[b]guard[/b] is currently searching after a chase. We stop the [b][i]timer[/i][/b] \"guardSearch\" that otherwise could trigger and modify the state to an expected state as the [b]guard[/b] will be chasing [b]char[/b] by the end of \"guardAggro\""
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "guard",
+									"sid": 528725625103096,
+									"parameters": {
+										"instance-variable": "state",
+										"comparison": 0,
+										"value": "\"search\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "log",
+									"objectClass": "Browser",
+									"sid": 922749637132256,
+									"parameters": {
+										"type": "log",
+										"message": "\"search to aggro\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "guard",
+									"sid": 331173394335979,
+									"parameters": {
+										"instance-variable": "state",
+										"value": "\"aggro\""
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "guard",
+									"sid": 750064808675212,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "duration",
+										"type": "once",
+										"tag": "\"guardAggro\""
+									}
+								},
+								{
+									"id": "stop-timer",
+									"objectClass": "guard",
+									"sid": 511776096060113,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"guardSearch\""
+									}
+								}
+							],
+							"sid": 698720889909448
+						},
+						{
+							"eventType": "comment",
+							"text": "[b]guard[/b] was making its way back to the next [b]waypoint[/b] to patrol when they saw [b]char[/b]"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "guard",
+									"sid": 246099725025298,
+									"parameters": {
+										"instance-variable": "state",
+										"comparison": 0,
+										"value": "\"back\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "log",
+									"objectClass": "Browser",
+									"sid": 862810522480382,
+									"parameters": {
+										"type": "log",
+										"message": "\"back to aggro\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "guard",
+									"sid": 600460876473742,
+									"parameters": {
+										"instance-variable": "state",
+										"value": "\"aggro\""
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "guard",
+									"sid": 144727665270209,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "duration",
+										"type": "once",
+										"tag": "\"guardAggro\""
+									}
+								}
+							],
+							"sid": 988709537667455
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "after a moment of \"surprise\" when seeing [b]char[/b], changes the frame and visibility of [b]guardIcon[/b] and start calculating a path ([i][b]Pathfinding[/b][/i]) to [b]char[/b]"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "guard",
+					"sid": 541134813511494,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"guardAggro\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "guardIcon",
+					"sid": 326033137835207,
+					"parameters": {
+						"visibility": "visible"
+					}
+				},
+				{
+					"id": "set-animation-frame",
+					"objectClass": "guardIcon",
+					"sid": 816126916632671,
+					"parameters": {
+						"frame-number": "0"
+					}
+				},
+				{
+					"id": "find-path",
+					"objectClass": "guard",
+					"sid": 755982991403269,
+					"behaviorType": "Pathfinding",
+					"parameters": {
+						"x": "char.X",
+						"y": "char.Y"
+					}
+				}
+			],
+			"sid": 990264665554191
+		},
+		{
+			"eventType": "comment",
+			"text": "define a specific radius around [b]guard[/b] in which they will \"feel\" [b]char[/b] if they are at the appropriate distance.\nSets aggro to [b]guard[/b]"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 174144349923518,
+					"parameters": {
+						"object": "guard"
+					}
+				},
+				{
+					"id": "compare-two-values",
+					"objectClass": "System",
+					"sid": 549459788822215,
+					"parameters": {
+						"first-value": "distance(guard.X,guard.Y,char.X,char.Y)",
+						"comparison": 3,
+						"second-value": "guard.LineOfSight.Range/2"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "setAggro",
+					"sid": 306310752439399,
+					"parameters": [
+						"guard.UID",
+						"0.25"
+					]
+				}
+			],
+			"sid": 444597583090319
+		},
+		{
+			"eventType": "comment",
+			"text": "when a path that was being calculated has been found",
+			"background-color": [
+				0.7686274509803922,
+				0.8862745098039215,
+				0.996078431372549,
+				1
+			]
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-path-found",
+					"objectClass": "guard",
+					"sid": 351905501850133,
+					"behaviorType": "Pathfinding"
+				}
+			],
+			"actions": [],
+			"sid": 682089108920814,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "[b]guard[/b] is now set to \"chase\" [b]char[/b], displaying the appropriate frame for [b]guard[/b] and [b]guardIcon[/b]"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "guard",
+							"sid": 942830081428574,
+							"parameters": {
+								"instance-variable": "state",
+								"comparison": 0,
+								"value": "\"aggro\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "log",
+							"objectClass": "Browser",
+							"sid": 244231165055458,
+							"parameters": {
+								"type": "log",
+								"message": "\"aggro to chase\""
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "guard",
+							"sid": 121718226859412,
+							"parameters": {
+								"instance-variable": "state",
+								"value": "\"chase\""
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "guard",
+							"sid": 516923469368949,
+							"parameters": {
+								"frame-number": "1"
+							}
+						},
+						{
+							"id": "move-along-path",
+							"objectClass": "guard",
+							"sid": 475793287623592,
+							"behaviorType": "Pathfinding"
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "guardIcon",
+							"sid": 888573350286323,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "guardIcon",
+							"sid": 524052458036803,
+							"parameters": {
+								"frame-number": "0"
+							}
+						}
+					],
+					"sid": 391335254599579
+				},
+				{
+					"eventType": "comment",
+					"text": "[b]guardIcon[/b] is hidden, [b]guard[/b] moves along the path to reach the next [b]waypoint[/b] in its patrol course"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "guard",
+							"sid": 787841501275092,
+							"parameters": {
+								"instance-variable": "state",
+								"comparison": 0,
+								"value": "\"back\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "log",
+							"objectClass": "Browser",
+							"sid": 578411405148112,
+							"parameters": {
+								"type": "log",
+								"message": "\"back set to move\""
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "guardIcon",
+							"sid": 354896769430242,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "move-along-path",
+							"objectClass": "guard",
+							"sid": 226236576668453,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"sid": 929716554586875
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "[b]guard[/b] saw [b]char[/b] but no chasing path can be found, reverts to [i]state[/i] \"back\" in order to go back to the next [b]waypoint[/b] to go through"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-failed-to-find-path",
+					"objectClass": "guard",
+					"sid": 482458040325249,
+					"behaviorType": "Pathfinding"
+				},
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "guard",
+					"sid": 114728101594407,
+					"parameters": {
+						"instance-variable": "state",
+						"comparison": 0,
+						"value": "\"aggro\""
+					}
+				},
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "waypoint",
+					"sid": 778857356938335,
+					"parameters": {
+						"instance-variable": "IDGuard",
+						"comparison": 0,
+						"value": "guard.ID"
+					}
+				},
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "waypoint",
+					"sid": 151563360944476,
+					"parameters": {
+						"instance-variable": "ID",
+						"comparison": 0,
+						"value": "guard.nxtWaypointID"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "log",
+					"objectClass": "Browser",
+					"sid": 768493134980874,
+					"parameters": {
+						"type": "log",
+						"message": "\"aggro to back\""
+					}
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "guard",
+					"sid": 864921430390187,
+					"parameters": {
+						"instance-variable": "state",
+						"value": "\"back\""
+					}
+				},
+				{
+					"id": "find-path",
+					"objectClass": "guard",
+					"sid": 942051503249371,
+					"behaviorType": "Pathfinding",
+					"parameters": {
+						"x": "waypoint.X",
+						"y": "waypoint.Y"
+					}
+				}
+			],
+			"sid": 753023407984553
+		},
+		{
+			"eventType": "comment",
+			"text": "[b]guard[/b]'s \"chase\" ended, it arrived to its destination, set [i]state[/i] to \"search\" and display [b]guard[/b] and [b]guardIcon[/b]'s frames accordingly"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-arrived",
+					"objectClass": "guard",
+					"sid": 111199412079492,
+					"behaviorType": "Pathfinding"
+				},
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "guard",
+					"sid": 954386392261957,
+					"parameters": {
+						"instance-variable": "state",
+						"comparison": 0,
+						"value": "\"chase\""
+					}
+				},
+				{
+					"id": "is-calculating-path",
+					"objectClass": "guard",
+					"sid": 242327174373546,
+					"behaviorType": "Pathfinding",
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "guard",
+					"sid": 967189341590369,
+					"parameters": {
+						"instance-variable": "state",
+						"value": "\"search\""
+					}
+				},
+				{
+					"id": "set-animation-frame",
+					"objectClass": "guard",
+					"sid": 841041399222164,
+					"parameters": {
+						"frame-number": "0"
+					}
+				},
+				{
+					"id": "set-animation-frame",
+					"objectClass": "guardIcon",
+					"sid": 835616114700116,
+					"parameters": {
+						"frame-number": "1"
+					}
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "guard",
+					"sid": 382216967034874,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "1.0",
+						"type": "once",
+						"tag": "\"guardSearch\""
+					}
+				}
+			],
+			"sid": 781791019371686
+		},
+		{
+			"eventType": "comment",
+			"text": "\"search\"; move [b]guard[/b] on itself (360°) for the duration of [i][b]timer[/b][/i] \"guardSearch\""
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "guard",
+					"sid": 737049103869980,
+					"parameters": {
+						"instance-variable": "state",
+						"comparison": 0,
+						"value": "\"search\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "rotate-clockwise",
+					"objectClass": "guard",
+					"sid": 344687720125233,
+					"parameters": {
+						"degrees": "360*dt"
+					}
+				}
+			],
+			"sid": 911391686670191
+		},
+		{
+			"eventType": "comment",
+			"text": "[b]guard[/b] has been \"looking around\" ([i]state[/i] \"search\") and did not see [b]char[/b]"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "guard",
+					"sid": 878313736919109,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"guardSearch\""
+					}
+				}
+			],
+			"actions": [],
+			"sid": 190144994914333,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "[b]guard[/b] is set to \"back\" and will be calculating a path to the next [b]waypoint[/b] in its patrol course"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "waypoint",
+							"sid": 465083794371289,
+							"parameters": {
+								"instance-variable": "IDGuard",
+								"comparison": 0,
+								"value": "guard.ID"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "waypoint",
+							"sid": 161644238940136,
+							"parameters": {
+								"instance-variable": "ID",
+								"comparison": 0,
+								"value": "guard.nxtWaypointID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "log",
+							"objectClass": "Browser",
+							"sid": 833326619016790,
+							"parameters": {
+								"type": "log",
+								"message": "\"guard has looked around - Can't see char anymore - search to back\""
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "guard",
+							"sid": 764312442495240,
+							"parameters": {
+								"instance-variable": "state",
+								"value": "\"back\""
+							}
+						},
+						{
+							"id": "find-path",
+							"objectClass": "guard",
+							"sid": 132213272339299,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"x": "waypoint.X",
+								"y": "waypoint.Y"
+							}
+						}
+					],
+					"sid": 753100020642881
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "[b]guard[/b] has been moving along a path on its way \"back\" to the next [b]waypoint[/b] in its course. Set [i]state[/i] to \"patrol\""
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-arrived",
+					"objectClass": "guard",
+					"sid": 784555568544462,
+					"behaviorType": "Pathfinding"
+				},
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "guard",
+					"sid": 382423034896799,
+					"parameters": {
+						"instance-variable": "state",
+						"comparison": 0,
+						"value": "\"back\""
+					}
+				},
+				{
+					"id": "is-calculating-path",
+					"objectClass": "guard",
+					"sid": 863033155133308,
+					"behaviorType": "Pathfinding",
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "log",
+					"objectClass": "Browser",
+					"sid": 249582528753644,
+					"parameters": {
+						"type": "log",
+						"message": "\"back to patrol - PF arrived\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "hide [b]guardIcon[/b]"
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "guardIcon",
+					"sid": 476182119025237,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "guard",
+					"sid": 194282102020236,
+					"parameters": {
+						"instance-variable": "state",
+						"value": "\"patrol\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "activate [i][b]TileMovement[/b][/i]\ndeactivate [i][b]Pathfinding[/b][/i]"
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "guard",
+					"sid": 415106185593899,
+					"behaviorType": "TileMovement",
+					"parameters": {
+						"state": "enabled"
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "guard",
+					"sid": 469089037681924,
+					"behaviorType": "Pathfinding",
+					"parameters": {
+						"set": "disabled"
+					}
+				}
+			],
+			"sid": 373256580072359
+		},
+		{
+			"eventType": "comment",
+			"text": "[b]guard[/b] [b]visionCone[/b]",
+			"background-color": [
+				0.7450980392156863,
+				0.8862745098039215,
+				0.996078431372549,
+				1
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "function that will draw the vision cone for the given [b]guard[/b], in [b]visionCone[/b] (a [b]DrawingCanvas[/b] object)"
+		},
+		{
+			"functionName": "drawCone",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "guardUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 895045888862342
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 231519793525369,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The idea here is, to draw a cone (in yellow/brown/red color, accordingly to the current state of given [b]guard[/b]\nThen, for each [b]wall[/b] that is overlapping this drawn cone, remove the area of [b]wall[/b] as well as the projected line of sight, to let the player know if [b]char[/b] can be seen or not.\n\nIn order to determine the \"area of sight\" to remove, we loop through each [b]wall[/b]. The four points that compose its shape are ordered by distance from [b]guard[/b] (closer distance to further distance).\nThen we know we can draw a poly composed by the points of the [b]wall[/b] and projected points at the angle sight."
+				},
+				{
+					"eventType": "variable",
+					"name": "lengthMod",
+					"type": "number",
+					"initialValue": "64",
+					"comment": "additional length in order to make sure the \"removed\" area of vision clears any trace of the drawn cone",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 114384401712563
+				},
+				{
+					"eventType": "comment",
+					"text": "Pick [b]guard[/b] by the passed parameter [i]guardUID[/i]"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "guard",
+							"sid": 873317551601586,
+							"parameters": {
+								"unique-id": "guardUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "set a reference point being half of the width and half of the height of [b]visionCone[/b] ([b]DrawingCanvas[/b] object)"
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "visionCone",
+							"sid": 362844376551933,
+							"parameters": {
+								"instance-variable": "midX",
+								"value": "visionCone.Width/2"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "visionCone",
+							"sid": 529453380350674,
+							"parameters": {
+								"instance-variable": "midY",
+								"value": "visionCone.Height/2"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "position [b]visionCone[/b] so its middle is where [b]guard[/b] is (origin of the vision cone)"
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "visionCone",
+							"sid": 361328668090795,
+							"parameters": {
+								"object": "guard",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "move-to-object",
+							"objectClass": "visionCone",
+							"sid": 348865681208661,
+							"parameters": {
+								"where": "behind",
+								"object": "guard"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "clear the canvas of [b]visionCone[/b] reset any system of polygon points, add a point at [i]midX[/i], [i]midY[/i]"
+						},
+						{
+							"id": "clear-canvas",
+							"objectClass": "visionCone",
+							"sid": 442167956419919,
+							"parameters": {
+								"color": "rgba(0, 0, 0, 0)"
+							}
+						},
+						{
+							"id": "reset-poly",
+							"objectClass": "visionCone",
+							"sid": 820117412403021
+						},
+						{
+							"id": "add-poly-point",
+							"objectClass": "visionCone",
+							"sid": 443596560935900,
+							"parameters": {
+								"x": "visionCone.midX",
+								"y": "visionCone.midY"
+							}
+						}
+					],
+					"sid": 433567127129996,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "the angle of the cone relies on the value [b]guard[/b].[i][b]LineOfSight[/b][/i].[i]ConeOfView[/i]. We take half of that value and draw a cone around the current angle of [b]guard[/b]"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 751120220409226,
+									"parameters": {
+										"name": "\"points\"",
+										"start-index": "(guard.LineOfSight.ConeOfView/2)*-1",
+										"end-index": "guard.LineOfSight.ConeOfView/2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "[b]guard[/b].[b][i]LineOfSight[/i][/b].[i]Range[/i] determine the \"length\" of the vision cone.\nDue to the specifics coordinates of the [b]DrawingCanvas[/b] we use [b]visionCone[/b].[i]midX[/i] and .[i]midY[/i] as a starting point where to position the next polygon point from."
+								},
+								{
+									"id": "add-poly-point",
+									"objectClass": "visionCone",
+									"sid": 380888650416908,
+									"parameters": {
+										"x": "visionCone.midX + cos(guard.Angle + loopindex(\"points\")) * guard.LineOfSight.Range",
+										"y": "visionCone.midY + sin(guard.Angle + loopindex(\"points\")) * guard.LineOfSight.Range"
+									}
+								}
+							],
+							"sid": 201531717245585
+						},
+						{
+							"eventType": "comment",
+							"text": "fill the color and outline accordingly to [b]guard[/b].[i]state[/i]"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "guard",
+									"sid": 313770060083015,
+									"parameters": {
+										"instance-variable": "state",
+										"comparison": 0,
+										"value": "\"patrol\""
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "guard",
+									"sid": 464924926094401,
+									"parameters": {
+										"instance-variable": "state",
+										"comparison": 0,
+										"value": "\"back\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "fill-poly",
+									"objectClass": "visionCone",
+									"sid": 283009163736766,
+									"parameters": {
+										"color": "rgba(100,100, 0, 75)"
+									}
+								},
+								{
+									"id": "line-poly",
+									"objectClass": "visionCone",
+									"sid": 610122141910369,
+									"parameters": {
+										"color": "rgba(100, 100, 0, 100)",
+										"line-thickness": "1",
+										"line-cap": "square"
+									}
+								}
+							],
+							"sid": 923786200665666,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "guard",
+									"sid": 842811467505989,
+									"parameters": {
+										"instance-variable": "state",
+										"comparison": 0,
+										"value": "\"search\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "fill-poly",
+									"objectClass": "visionCone",
+									"sid": 601523902703747,
+									"parameters": {
+										"color": "rgba(50,50, 0, 75)"
+									}
+								},
+								{
+									"id": "line-poly",
+									"objectClass": "visionCone",
+									"sid": 780240730107520,
+									"parameters": {
+										"color": "rgba(50, 50, 0, 100)",
+										"line-thickness": "1",
+										"line-cap": "square"
+									}
+								}
+							],
+							"sid": 188942590136165
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "guard",
+									"sid": 238182942924845,
+									"parameters": {
+										"instance-variable": "state",
+										"comparison": 1,
+										"value": "\"patrol\""
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "guard",
+									"sid": 392531344430032,
+									"parameters": {
+										"instance-variable": "state",
+										"comparison": 1,
+										"value": "\"back\""
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "guard",
+									"sid": 920254492685853,
+									"parameters": {
+										"instance-variable": "state",
+										"comparison": 1,
+										"value": "\"search\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "fill-poly",
+									"objectClass": "visionCone",
+									"sid": 256737751867941,
+									"parameters": {
+										"color": "rgba(100,0, 0, 75)"
+									}
+								},
+								{
+									"id": "line-poly",
+									"objectClass": "visionCone",
+									"sid": 871663205122515,
+									"parameters": {
+										"color": "rgba(100, 0, 0, 100)",
+										"line-thickness": "1",
+										"line-cap": "square"
+									}
+								}
+							],
+							"sid": 268585594546468
+						},
+						{
+							"eventType": "comment",
+							"text": "for each [b]wall[/b] that is overlapping [b]visionCone[/b], and that is at an appropriate distance from [b]guard[/b] (no need to draw polygons for [b]walls[/b] which are too far away and not actually within the cone of vision we did draw previously)"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "wall",
+									"sid": 120220063597655,
+									"parameters": {
+										"object": "visionCone"
+									}
+								},
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 554879401214381,
+									"parameters": {
+										"object": "wall"
+									}
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 937369328305661,
+									"parameters": {
+										"first-value": "distance(wall.X,wall.Y,guard.X,guard.Y)",
+										"comparison": 3,
+										"second-value": "guard.LineOfSight.Range + lengthMod"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "reset-poly",
+									"objectClass": "visionCone",
+									"sid": 460563640355998,
+									"disabled": true
+								},
+								{
+									"id": "clear-rect",
+									"objectClass": "visionCone",
+									"sid": 783393568484747,
+									"disabled": true,
+									"parameters": {
+										"left": "(wall.X - wall.Width/2) - (visionCone.x - visionCone.Width/2)",
+										"top": "(wall.Y - wall.Height/2) - (visionCone.Y - visionCone.Height/2)",
+										"right": "(wall.X + wall.Width/2) - (visionCone.x - visionCone.Width/2)",
+										"bottom": "(wall.Y + wall.Height/2) - (visionCone.Y - visionCone.Height/2)",
+										"color": "rgba(0, 0, 0, 0)"
+									}
+								}
+							],
+							"sid": 754697269424681,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "We use arrays to temporary store and sort the distance between each points of [b]wall[/b] and [b]guard[/b]"
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-size",
+											"objectClass": "aPoints",
+											"sid": 558579197767949,
+											"parameters": {
+												"width": "4",
+												"height": "1",
+												"depth": "1"
+											}
+										},
+										{
+											"id": "clear",
+											"objectClass": "aPoints",
+											"sid": 420649827600245,
+											"parameters": {
+												"value": "0"
+											}
+										},
+										{
+											"id": "set-at-x",
+											"objectClass": "aPoints",
+											"sid": 226093314037226,
+											"parameters": {
+												"x": "0",
+												"value": "abs(distance(wall.BBoxLeft,wall.BBoxTop,guard.X, guard.Y))"
+											}
+										},
+										{
+											"id": "set-at-x",
+											"objectClass": "aPoints",
+											"sid": 117197383986388,
+											"parameters": {
+												"x": "1",
+												"value": "abs(distance(wall.BBoxRight,wall.BBoxTop,guard.X, guard.Y))"
+											}
+										},
+										{
+											"id": "set-at-x",
+											"objectClass": "aPoints",
+											"sid": 859785900283605,
+											"parameters": {
+												"x": "2",
+												"value": "abs(distance(wall.BBoxRight,wall.BBoxBottom,guard.X, guard.Y))"
+											}
+										},
+										{
+											"id": "set-at-x",
+											"objectClass": "aPoints",
+											"sid": 511853315184499,
+											"parameters": {
+												"x": "3",
+												"value": "abs(distance(wall.BBoxLeft,wall.BBoxBottom,guard.X, guard.Y))"
+											}
+										},
+										{
+											"id": "set-size",
+											"objectClass": "aOrder",
+											"sid": 745391732014361,
+											"parameters": {
+												"width": "4",
+												"height": "1",
+												"depth": "1"
+											}
+										},
+										{
+											"id": "clear",
+											"objectClass": "aOrder",
+											"sid": 135578673792692,
+											"parameters": {
+												"value": "0"
+											}
+										}
+									],
+									"sid": 662830076460596,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "[b]aOrder[/b] array is filled with the values from [b]aPoints[/b].\n[b]aPoints[/b] will keep the values for now, [b]aOrder[/b] will be used to sort the values and determine the order in which to draw the polygon"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for-each-element",
+													"objectClass": "aOrder",
+													"sid": 134705017874572,
+													"parameters": {
+														"axes": "x"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-at-x",
+													"objectClass": "aOrder",
+													"sid": 326192974158123,
+													"parameters": {
+														"x": "aOrder.CurX",
+														"value": "aPoints.At(aOrder.CurX)"
+													}
+												}
+											],
+											"sid": 392764680996766
+										},
+										{
+											"eventType": "comment",
+											"text": "sort [b]aOrder[/b] from closer (smaller) to farthest (bigger) distance\n(event 48)"
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"callFunction": "sortOrder",
+													"sid": 528102425143063
+												}
+											],
+											"sid": 761628750360534,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "in [b]aOrder[/b] replace with corresponding index from [b]aPoints[/b]"
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "for-each-element",
+															"objectClass": "aOrder",
+															"sid": 848101193882357,
+															"parameters": {
+																"axes": "x"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 813904746300148,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "for-each-element",
+																	"objectClass": "aPoints",
+																	"sid": 554948608380576,
+																	"parameters": {
+																		"axes": "x"
+																	}
+																}
+															],
+															"actions": [],
+															"sid": 481438237789057,
+															"children": [
+																{
+																	"eventType": "block",
+																	"conditions": [
+																		{
+																			"id": "compare-at-x",
+																			"objectClass": "aPoints",
+																			"sid": 690939402773378,
+																			"parameters": {
+																				"x": "aPoints.CurX",
+																				"comparison": 0,
+																				"value": "aOrder.At(aOrder.CurX)"
+																			}
+																		}
+																	],
+																	"actions": [
+																		{
+																			"id": "set-at-x",
+																			"objectClass": "aOrder",
+																			"sid": 933234823383812,
+																			"parameters": {
+																				"x": "aOrder.CurX",
+																				"value": "aPoints.CurX"
+																			}
+																		},
+																		{
+																			"type": "comment",
+																			"text": "changing the current distance value in [b]aPoints[/b] to prevent duplicates indexes in [b]aOrder[/b]"
+																		},
+																		{
+																			"id": "set-at-x",
+																			"objectClass": "aPoints",
+																			"sid": 690359649306082,
+																			"parameters": {
+																				"x": "aPoints.CurX",
+																				"value": "-99"
+																			}
+																		}
+																	],
+																	"sid": 530287587178246
+																}
+															]
+														}
+													]
+												},
+												{
+													"eventType": "comment",
+													"text": "Change the value in [b]aPoints[/b] with actual X and Y positions of the points of [b]wall[/b]"
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "set-size",
+															"objectClass": "aPoints",
+															"sid": 457877542517433,
+															"parameters": {
+																"width": "4",
+																"height": "2",
+																"depth": "1"
+															}
+														},
+														{
+															"id": "clear",
+															"objectClass": "aPoints",
+															"sid": 903301247883375,
+															"parameters": {
+																"value": "0"
+															}
+														},
+														{
+															"id": "set-at-xy",
+															"objectClass": "aPoints",
+															"sid": 864987704298903,
+															"parameters": {
+																"x": "0",
+																"y": "0",
+																"value": "wall.BBoxLeft"
+															}
+														},
+														{
+															"id": "set-at-xy",
+															"objectClass": "aPoints",
+															"sid": 165679148149478,
+															"parameters": {
+																"x": "0",
+																"y": "1",
+																"value": "wall.BBoxTop"
+															}
+														},
+														{
+															"id": "set-at-xy",
+															"objectClass": "aPoints",
+															"sid": 547016774268480,
+															"parameters": {
+																"x": "1",
+																"y": "0",
+																"value": "wall.BBoxRight"
+															}
+														},
+														{
+															"id": "set-at-xy",
+															"objectClass": "aPoints",
+															"sid": 818043355922582,
+															"parameters": {
+																"x": "1",
+																"y": "1",
+																"value": "wall.BBoxTop"
+															}
+														},
+														{
+															"id": "set-at-xy",
+															"objectClass": "aPoints",
+															"sid": 915007510522046,
+															"parameters": {
+																"x": "2",
+																"y": "0",
+																"value": "wall.BBoxRight"
+															}
+														},
+														{
+															"id": "set-at-xy",
+															"objectClass": "aPoints",
+															"sid": 953028596465860,
+															"parameters": {
+																"x": "2",
+																"y": "1",
+																"value": "wall.BBoxBottom"
+															}
+														},
+														{
+															"id": "set-at-xy",
+															"objectClass": "aPoints",
+															"sid": 436335228553663,
+															"parameters": {
+																"x": "3",
+																"y": "0",
+																"value": "wall.BBoxLeft"
+															}
+														},
+														{
+															"id": "set-at-xy",
+															"objectClass": "aPoints",
+															"sid": 536200492203611,
+															"parameters": {
+																"x": "3",
+																"y": "1",
+																"value": "wall.BBoxBottom"
+															}
+														}
+													],
+													"sid": 746549244490765
+												},
+												{
+													"eventType": "comment",
+													"text": "Make sure the \"exterior\" points of [b]wall[/b] are currently in the vision cone of [b]guard[/b]"
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "is-between-angles",
+															"objectClass": "System",
+															"sid": 126257145457106,
+															"parameters": {
+																"angle": "angle(guard.X, guard.Y, aPoints.At(Functions.getOrder(1),0), aPoints.At(Functions.getOrder(1),1))",
+																"first-angle": "guard.Angle - (guard.LineOfSight.ConeOfView) / 2",
+																"second-angle": "guard.Angle + (guard.LineOfSight.ConeOfView) / 2"
+															}
+														},
+														{
+															"id": "is-between-angles",
+															"objectClass": "System",
+															"sid": 195912949234935,
+															"parameters": {
+																"angle": "angle(guard.X, guard.Y, aPoints.At(Functions.getOrder(2),0), aPoints.At(Functions.getOrder(2),1))",
+																"first-angle": "guard.Angle - (guard.LineOfSight.ConeOfView) / 2",
+																"second-angle": "guard.Angle + (guard.LineOfSight.ConeOfView) / 2"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 395809946408973,
+													"children": [
+														{
+															"eventType": "comment",
+															"text": "if [b]wall[/b] is not at the exact X or Y of [b]guard[/b] (not exactly on top, to the right, at the bottom, or left from [b]guard[/b]), place polygon points in that order :\nPoint 0 (first point/index in [b]aPoints[/b], closer point to [b]guard[/b]\nPoint 1 \nProjected point 1 (a projection from the point on [b]wall[/b] up to [b]guard[/b].[i][b]LineOfSight[/b][/i].Range + [i]lengthMod[/i])\nProjected point 2 (a projection from the point on [b]wall[/b] up to [b]guard[/b].[i][b]LineOfSight[/b][/i].Range + [i]lengthMod[/i])\nPoint 2"
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "compare-x",
+																	"objectClass": "wall",
+																	"sid": 498385253128664,
+																	"parameters": {
+																		"comparison": 1,
+																		"x-co-ordinate": "guard.X"
+																	}
+																},
+																{
+																	"id": "compare-y",
+																	"objectClass": "wall",
+																	"sid": 261239216556576,
+																	"parameters": {
+																		"comparison": 1,
+																		"y-co-ordinate": "guard.Y"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"type": "comment",
+																	"text": "as we are in a \"for each\" loop, make sure to reset the polygon each new iteration"
+																},
+																{
+																	"id": "reset-poly",
+																	"objectClass": "visionCone",
+																	"sid": 783352592190363
+																},
+																{
+																	"type": "comment",
+																	"text": "For every point, [b]visionCone[/b].[i]BBox...[/i] is removed accordingly to respect the specific coordinates of [b]DrawingCanvas[/b]. This position the point according to layout coordinates, yet starting in a 0,0 plane, represented by [b]visionCone[/b]"
+																},
+																{
+																	"id": "add-poly-point",
+																	"objectClass": "visionCone",
+																	"sid": 446457315019160,
+																	"parameters": {
+																		"x": "aPoints.At(Functions.getOrder(0),0)  - visionCone.BBoxLeft",
+																		"y": "aPoints.At(Functions.getOrder(0),1) - visionCone.BBoxTop"
+																	}
+																},
+																{
+																	"id": "add-poly-point",
+																	"objectClass": "visionCone",
+																	"sid": 718461619373593,
+																	"parameters": {
+																		"x": "aPoints.At(Functions.getOrder(1),0)  - visionCone.BBoxLeft",
+																		"y": "aPoints.At(Functions.getOrder(1),1) - visionCone.BBoxTop"
+																	}
+																},
+																{
+																	"id": "add-poly-point",
+																	"objectClass": "visionCone",
+																	"sid": 463021296062770,
+																	"parameters": {
+																		"x": "visionCone.midX + cos(angle(guard.X, guard.Y, aPoints.At(Functions.getOrder(1),0), aPoints.At(Functions.getOrder(1),1))) * (guard.LineOfSight.Range + lengthMod)",
+																		"y": "visionCone.midY + sin(angle(guard.X, guard.Y, aPoints.At(Functions.getOrder(1),0), aPoints.At(Functions.getOrder(1),1))) * (guard.LineOfSight.Range + lengthMod)"
+																	}
+																},
+																{
+																	"id": "add-poly-point",
+																	"objectClass": "visionCone",
+																	"sid": 479983684657604,
+																	"parameters": {
+																		"x": "visionCone.midX + cos(angle(guard.X, guard.Y, aPoints.At(Functions.getOrder(2),0), aPoints.At(Functions.getOrder(2),1))) * (guard.LineOfSight.Range + lengthMod)",
+																		"y": "visionCone.midY + sin(angle(guard.X, guard.Y, aPoints.At(Functions.getOrder(2),0), aPoints.At(Functions.getOrder(2),1))) * (guard.LineOfSight.Range + lengthMod)"
+																	}
+																},
+																{
+																	"id": "add-poly-point",
+																	"objectClass": "visionCone",
+																	"sid": 573572545141303,
+																	"parameters": {
+																		"x": "aPoints.At(Functions.getOrder(2),0)  - visionCone.BBoxLeft",
+																		"y": "aPoints.At(Functions.getOrder(2),1) - visionCone.BBoxTop"
+																	}
+																},
+																{
+																	"type": "comment",
+																	"text": "For debug purposes, if you want the various polygons outline to be drawn"
+																},
+																{
+																	"id": "line-poly",
+																	"objectClass": "visionCone",
+																	"sid": 390586427670287,
+																	"disabled": true,
+																	"parameters": {
+																		"color": "rgba(100, 0, 0, 85)",
+																		"line-thickness": "1",
+																		"line-cap": "butt"
+																	}
+																},
+																{
+																	"type": "comment",
+																	"text": "Using the drawing blend mode \"Source out\" and a polygon of black color, with a transparent Alpha does the job of \"removing\" the polygon from the already drawn vision cone"
+																},
+																{
+																	"id": "set-drawing-blend",
+																	"objectClass": "visionCone",
+																	"sid": 403214964523601,
+																	"parameters": {
+																		"blend-mode": "source-out"
+																	}
+																},
+																{
+																	"id": "fill-poly",
+																	"objectClass": "visionCone",
+																	"sid": 296555653098163,
+																	"parameters": {
+																		"color": "rgba(0, 0, 0, 0)"
+																	}
+																}
+															],
+															"sid": 251618249694651
+														},
+														{
+															"eventType": "comment",
+															"text": "Else,\n[b]wall[/b] is at the exact X or Y of [b]guard[/b] (exactly on top, to the right, at the bottom, or left from [b]guard[/b]), place polygon points in that order :\nPoint 0 (first point/index in [b]aPoints[/b], closer point to [b]guard[/b]\nPoint 1 \nProjected point 1 (a projection from the point on [b]wall[/b] up to [b]guard[/b].[i][b]LineOfSight[/b][/i].Range + [i]lengthMod[/i])\nProjected point 0 (a projection from the point on [b]wall[/b] up to [b]guard[/b].[i][b]LineOfSight[/b][/i].Range + [i]lengthMod[/i])\n\nThe seen \"face\" of [b]wall[/b] gives a special 4 points polygon"
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "else",
+																	"objectClass": "System",
+																	"sid": 125790618500509
+																}
+															],
+															"actions": [
+																{
+																	"id": "reset-poly",
+																	"objectClass": "visionCone",
+																	"sid": 390369372360599
+																},
+																{
+																	"id": "add-poly-point",
+																	"objectClass": "visionCone",
+																	"sid": 877868131104478,
+																	"parameters": {
+																		"x": "aPoints.At(Functions.getOrder(0),0)  - visionCone.BBoxLeft",
+																		"y": "aPoints.At(Functions.getOrder(0),1)  - visionCone.BBoxTop"
+																	}
+																},
+																{
+																	"id": "add-poly-point",
+																	"objectClass": "visionCone",
+																	"sid": 491641704372471,
+																	"parameters": {
+																		"x": "aPoints.At(Functions.getOrder(1),0)  - visionCone.BBoxLeft",
+																		"y": "aPoints.At(Functions.getOrder(1),1) - visionCone.BBoxTop"
+																	}
+																},
+																{
+																	"id": "add-poly-point",
+																	"objectClass": "visionCone",
+																	"sid": 509214833294425,
+																	"parameters": {
+																		"x": "visionCone.midX + cos(angle(guard.X, guard.Y, aPoints.At(Functions.getOrder(1),0), aPoints.At(Functions.getOrder(1),1))) * (guard.LineOfSight.Range + lengthMod)",
+																		"y": "visionCone.midY + sin(angle(guard.X, guard.Y, aPoints.At(Functions.getOrder(1),0), aPoints.At(Functions.getOrder(1),1))) * (guard.LineOfSight.Range + lengthMod)"
+																	}
+																},
+																{
+																	"id": "add-poly-point",
+																	"objectClass": "visionCone",
+																	"sid": 707487733358176,
+																	"parameters": {
+																		"x": "visionCone.midX + cos(angle(guard.X, guard.Y, aPoints.At(Functions.getOrder(0),0), aPoints.At(Functions.getOrder(0),1))) * (guard.LineOfSight.Range + lengthMod)",
+																		"y": "visionCone.midY + sin(angle(guard.X, guard.Y, aPoints.At(Functions.getOrder(0),0), aPoints.At(Functions.getOrder(0),1))) * (guard.LineOfSight.Range + lengthMod)"
+																	}
+																},
+																{
+																	"id": "line-poly",
+																	"objectClass": "visionCone",
+																	"sid": 134104410833748,
+																	"disabled": true,
+																	"parameters": {
+																		"color": "rgba(0, 100, 100, 100)",
+																		"line-thickness": "1",
+																		"line-cap": "butt"
+																	}
+																},
+																{
+																	"id": "set-drawing-blend",
+																	"objectClass": "visionCone",
+																	"sid": 488413293641073,
+																	"parameters": {
+																		"blend-mode": "source-out"
+																	}
+																},
+																{
+																	"id": "fill-poly",
+																	"objectClass": "visionCone",
+																	"sid": 566856106029350,
+																	"parameters": {
+																		"color": "rgba(100, 100, 0, 0)"
+																	}
+																}
+															],
+															"sid": 171534921185247
+														}
+													],
+													"isOrBlock": true
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "\"each tick\", and for each [b]guard[/b], draw the vision cone"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 921618820569814,
+					"parameters": {
+						"object": "guard"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "drawCone",
+					"sid": 755512557429168,
+					"parameters": [
+						"guard.UID"
+					]
+				}
+			],
+			"sid": 266009904125010
+		},
+		{
+			"eventType": "comment",
+			"text": "function that helps ordering the points of [b]wall[/b] according to their distance from [b]guard[/b] closest to farthest"
+		},
+		{
+			"functionName": "sortOrder",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 948559288703526,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "t",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 854658371399166
+				},
+				{
+					"eventType": "variable",
+					"name": "switch",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 163732523916624
+				},
+				{
+					"eventType": "comment",
+					"text": "if the next value in [b]aOrder[/b] is smaller than the current value, switch their position"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 572645386104441,
+							"parameters": {
+								"name": "\"idx\"",
+								"start-index": "0",
+								"end-index": "2"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 299528057172331,
+							"parameters": {
+								"first-value": "aOrder.At(loopindex+1)",
+								"comparison": 2,
+								"second-value": "aOrder.At(loopindex)"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 847102133290848,
+							"parameters": {
+								"variable": "t",
+								"value": "aOrder.At(loopindex)"
+							}
+						},
+						{
+							"id": "set-at-x",
+							"objectClass": "aOrder",
+							"sid": 878833869027340,
+							"parameters": {
+								"x": "loopindex",
+								"value": "aOrder.At(loopindex+1)"
+							}
+						},
+						{
+							"id": "set-at-x",
+							"objectClass": "aOrder",
+							"sid": 412158311610746,
+							"parameters": {
+								"x": "loopindex+1",
+								"value": "t"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 324779857261707,
+							"parameters": {
+								"variable": "switch",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 268319838386764
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 887013569156115,
+							"parameters": {
+								"variable": "switch"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "a switch occured, so we may have to run another pass of ordering on the array (if the value that was switched is actually smaller than the value in the index before it, yet the loop already went through that value)\nCall the function again to have a new pass of ordering"
+						},
+						{
+							"callFunction": "sortOrder",
+							"sid": 924379131027434
+						}
+					],
+					"sid": 305547191037380
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "function that returns the current index of the point according to the \"point order\" when drawing the polygon"
+		},
+		{
+			"functionName": "getOrder",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "number",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "order",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 589989384190430
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-function-return-value",
+					"objectClass": "Functions",
+					"sid": 877380871382134,
+					"parameters": {
+						"value": "aOrder.At(order)"
+					}
+				}
+			],
+			"sid": 142781514208688
+		},
+		{
+			"eventType": "comment",
+			"text": "collisions"
+		},
+		{
+			"eventType": "comment",
+			"text": "game over, [b]char[/b] went over [b]goal[/b], player won"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "char",
+					"sid": 950716250961070,
+					"parameters": {
+						"object": "goal"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-ignoring-input",
+					"objectClass": "char",
+					"sid": 667287433134126,
+					"behaviorType": "TileMovement",
+					"parameters": {
+						"input": "start-ignoring"
+					}
+				},
+				{
+					"id": "set-grid-position",
+					"objectClass": "char",
+					"sid": 357272924630210,
+					"behaviorType": "TileMovement",
+					"parameters": {
+						"x": "goal.TileMovement.GridX",
+						"y": "goal.TileMovement.GridY",
+						"instant": "animate"
+					}
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 137064980169401,
+					"parameters": {
+						"variable": "inGame",
+						"value": "false"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "txtWin",
+					"sid": 374358974574456,
+					"parameters": {
+						"visibility": "visible"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "txtRestart",
+					"sid": 366909848401970,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 372112926510047
+		},
+		{
+			"eventType": "comment",
+			"text": "game over, [b]guard[/b] caught [b]char[/b], player lost"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "guard",
+					"sid": 586540017840411,
+					"parameters": {
+						"object": "char"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-ignoring-input",
+					"objectClass": "char",
+					"sid": 821426738735722,
+					"behaviorType": "TileMovement",
+					"parameters": {
+						"input": "start-ignoring"
+					}
+				},
+				{
+					"id": "set-speed",
+					"objectClass": "char",
+					"sid": 468844136473076,
+					"behaviorType": "TileMovement",
+					"parameters": {
+						"x": "0",
+						"y": "0"
+					}
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 399562576384588,
+					"parameters": {
+						"variable": "inGame",
+						"value": "false"
+					}
+				},
+				{
+					"id": "stop",
+					"objectClass": "guard",
+					"sid": 621534997493634,
+					"behaviorType": "Pathfinding"
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "txtCaught",
+					"sid": 159983080299967,
+					"parameters": {
+						"visibility": "visible"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "txtRestart",
+					"sid": 776453275829172,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 737280288403788
+		},
+		{
+			"eventType": "comment",
+			"text": "every tick, move all [b]guards[/b], [b]guardIcon[/b] and [b]char[/b] to the top of the layer"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 433278721744927
+				}
+			],
+			"actions": [
+				{
+					"id": "move-to-top",
+					"objectClass": "guard",
+					"sid": 368302409406210
+				},
+				{
+					"id": "move-to-top",
+					"objectClass": "guardIcon",
+					"sid": 853869605467869
+				},
+				{
+					"id": "move-to-top",
+					"objectClass": "char",
+					"sid": 932925992392507
+				}
+			],
+			"sid": 927763014993462
+		}
+	],
+	"sid": 244837430782963
+}

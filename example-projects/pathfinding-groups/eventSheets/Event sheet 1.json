@@ -1,0 +1,336 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Pathfinding",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the screen is touched (or clicked, since the Touch object is set to also use mouse input), pathfind to the touch position. If the 'Use path groups' checkbox is ticked, then start and end a path group around the pathfinding, which will cause the paths to be spread out."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-touch-start",
+							"objectClass": "Touch",
+							"sid": 2977940857470323
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Node",
+							"sid": 1797812276938263
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Line",
+							"sid": 198059483475823
+						}
+					],
+					"sid": 9766800121163788,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-checked",
+									"objectClass": "UsePathGroupsCheckbox",
+									"sid": 645785910944384
+								}
+							],
+							"actions": [
+								{
+									"id": "start-path-group",
+									"objectClass": "Sprite",
+									"sid": 163191070528058,
+									"behaviorType": "Pathfinding",
+									"parameters": {
+										"base-cost": "5",
+										"cell-spread": "1",
+										"max-workers": "1"
+									}
+								}
+							],
+							"sid": 796490248462158
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "find-path",
+									"objectClass": "Sprite",
+									"sid": 762357755666713,
+									"behaviorType": "Pathfinding",
+									"parameters": {
+										"x": "Touch.X",
+										"y": "Touch.Y"
+									}
+								}
+							],
+							"sid": 666889926884805
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-checked",
+									"objectClass": "UsePathGroupsCheckbox",
+									"sid": 220828073962678
+								}
+							],
+							"actions": [
+								{
+									"id": "end-path-group",
+									"objectClass": "Sprite",
+									"sid": 351114767976884,
+									"behaviorType": "Pathfinding"
+								}
+							],
+							"sid": 406967269890040
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Flash to indicate an unreachable destination (such as the top-right box)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-failed-to-find-path",
+							"objectClass": "Sprite",
+							"sid": 729902328924434,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [
+						{
+							"id": "flash",
+							"objectClass": "Sprite",
+							"sid": 9304405670385382,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.05",
+								"off-time": "0.05",
+								"duration": "0.5"
+							}
+						}
+					],
+					"sid": 4225237402035403
+				},
+				{
+					"eventType": "comment",
+					"text": "Make sure the player appears above path indicators"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 1327535203236587
+						}
+					],
+					"actions": [
+						{
+							"id": "move-to-top",
+							"objectClass": "Sprite",
+							"sid": 5016612266080283
+						}
+					],
+					"sid": 1217110151597039
+				}
+			],
+			"sid": 3412666145764976
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Show path",
+			"description": "Events to show the blue arrows indicating the pathfinding nodes to follow.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When a path found, start by creating a line from the object to the first path node."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-path-found",
+							"objectClass": "Sprite",
+							"sid": 649590533225407,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 372267184491470,
+							"parameters": {
+								"object-to-create": "Line",
+								"layer": "\"Game\"",
+								"x": "Sprite.X",
+								"y": "Sprite.Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "Line",
+							"sid": 882634963140003,
+							"parameters": {
+								"x": "Sprite.Pathfinding.NodeXAt(0)",
+								"y": "Sprite.Pathfinding.NodeYAt(0)"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "Line",
+							"sid": 988902290442328,
+							"parameters": {
+								"width": "distance(Self.X, Self.Y, Sprite.Pathfinding.NodeXAt(0), Sprite.Pathfinding.NodeYAt(0))"
+							}
+						}
+					],
+					"sid": 9602215225672562,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Repeat for each node in the path: create a node object, and for all but the last node, create a line to the next node."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 2065684187630157,
+									"parameters": {
+										"count": "Sprite.Pathfinding.NodeCount"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 6843340981585857,
+									"parameters": {
+										"object-to-create": "Node",
+										"layer": "\"Game\"",
+										"x": "Sprite.Pathfinding.NodeXAt(loopindex)",
+										"y": "Sprite.Pathfinding.NodeYAt(loopindex)",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								}
+							],
+							"sid": 6686151694393371,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If it's the last node, change the animation frame to show it's the end."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 7430534411497511,
+											"parameters": {
+												"first-value": "LoopIndex",
+												"comparison": 0,
+												"second-value": "Sprite.Pathfinding.NodeCount - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Node",
+											"sid": 8414953164794385,
+											"parameters": {
+												"frame-number": "1"
+											}
+										}
+									],
+									"sid": 8682638963243606
+								},
+								{
+									"eventType": "comment",
+									"text": "Otherwise point it to the next node."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 283844379274865
+										}
+									],
+									"actions": [
+										{
+											"id": "set-angle-toward-position",
+											"objectClass": "Node",
+											"sid": 9607351022824604,
+											"parameters": {
+												"x": "Sprite.Pathfinding.NodeXAt(loopindex + 1)",
+												"y": "Sprite.Pathfinding.NodeYAt(loopindex + 1)"
+											}
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 695431455064513,
+											"parameters": {
+												"object-to-create": "Line",
+												"layer": "\"Game\"",
+												"x": "Node.X",
+												"y": "Node.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Line",
+											"sid": 390709553653882,
+											"parameters": {
+												"angle": "Node.Angle"
+											}
+										},
+										{
+											"id": "set-width",
+											"objectClass": "Line",
+											"sid": 544853072505625,
+											"parameters": {
+												"width": "distance(Self.X, Self.Y, Sprite.Pathfinding.NodeXAt(loopindex + 1), Sprite.Pathfinding.NodeYAt(loopindex + 1))"
+											}
+										}
+									],
+									"sid": 3350626275324999
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 6512343625152745
+		}
+	],
+	"sid": 607713619740987
+}

@@ -1,0 +1,267 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "On startup, set up following."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 977783981391453
+				}
+			],
+			"actions": [
+				{
+					"id": "follow-object",
+					"objectClass": "PlayerFollower",
+					"sid": 970494805904946,
+					"behaviorType": "Follow",
+					"parameters": {
+						"object": "Player"
+					}
+				},
+				{
+					"id": "set-property-interpolation",
+					"objectClass": "PlayerFollower",
+					"sid": 452420746476703,
+					"behaviorType": "Follow",
+					"parameters": {
+						"property": "width",
+						"interpolation": "step"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Also add a custom property named \"hue\" to follow."
+				},
+				{
+					"id": "start-following-custom-property",
+					"objectClass": "PlayerFollower",
+					"sid": 601063224924564,
+					"behaviorType": "Follow",
+					"parameters": {
+						"custom-property": "\"hue\"",
+						"interpolation": "linear"
+					}
+				}
+			],
+			"sid": 786528110132615
+		},
+		{
+			"eventType": "comment",
+			"text": "Every 1 second, change the player's AdjustHSL effect to a random hue, so there is something visible for the Follow behavior to track. (Note the value is stored in an instance variable, as effect parameters cannot be directly retrieved.)"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 818894539824091,
+					"parameters": {
+						"interval-seconds": "1.0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Player",
+					"sid": 679118911219537,
+					"parameters": {
+						"instance-variable": "Hue",
+						"value": "random(0, 100)"
+					}
+				},
+				{
+					"id": "set-effect-parameter",
+					"objectClass": "Player",
+					"sid": 536434452793029,
+					"parameters": {
+						"effect": "\"AdjustHSL\"",
+						"parameter-index": "0",
+						"value": "Self.Hue"
+					}
+				}
+			],
+			"sid": 972015524716140
+		},
+		{
+			"eventType": "comment",
+			"text": "Every tick, use 'Set custom property value' to set the current value of the custom property, which is then remembered in the Follow behavior's saved history. Then also set the AdjustHSL effect parameter to the current delayed value of the custom property, which is read from history at the same point the Follow behavior is showing."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 859582186941000
+				}
+			],
+			"actions": [
+				{
+					"id": "set-custom-property-value",
+					"objectClass": "PlayerFollower",
+					"sid": 817606190234104,
+					"behaviorType": "Follow",
+					"parameters": {
+						"custom-property": "\"hue\"",
+						"value": "Player.Hue"
+					}
+				},
+				{
+					"id": "set-effect-parameter",
+					"objectClass": "PlayerFollower",
+					"sid": 109309511279607,
+					"parameters": {
+						"effect": "\"AdjustHSL\"",
+						"parameter-index": "0",
+						"value": "PlayerFollower.Follow.DelayedCustomPropertyValue(\"hue\")"
+					}
+				}
+			],
+			"sid": 363530601955959
+		},
+		{
+			"eventType": "comment",
+			"text": "Use arrow keys to control mirror."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 990325142148106,
+					"parameters": {
+						"key": 37
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-mirrored",
+					"objectClass": "Player",
+					"sid": 867578427763047,
+					"parameters": {
+						"state": "mirrored"
+					}
+				}
+			],
+			"sid": 354016492374030
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 345556771432232,
+					"parameters": {
+						"key": 39
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-mirrored",
+					"objectClass": "Player",
+					"sid": 627206170611745,
+					"parameters": {
+						"state": "not-mirrored"
+					}
+				}
+			],
+			"sid": 570136483788225
+		},
+		{
+			"eventType": "comment",
+			"text": "Show follow data state with opacity."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "has-follow-data",
+					"objectClass": "PlayerFollower",
+					"sid": 850029561259685,
+					"behaviorType": "Follow"
+				}
+			],
+			"actions": [
+				{
+					"id": "set-opacity",
+					"objectClass": "PlayerFollower",
+					"sid": 289085542871448,
+					"parameters": {
+						"opacity": "100"
+					}
+				}
+			],
+			"sid": 154045607314894
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 531807796435459
+				}
+			],
+			"actions": [
+				{
+					"id": "set-opacity",
+					"objectClass": "PlayerFollower",
+					"sid": 408839422911816,
+					"parameters": {
+						"opacity": "33"
+					}
+				}
+			],
+			"sid": 380297722546053
+		},
+		{
+			"eventType": "comment",
+			"text": "Reset if player falls off the layout."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-y",
+					"objectClass": "Player",
+					"sid": 294219479731327,
+					"parameters": {
+						"comparison": 4,
+						"y-co-ordinate": "LayoutHeight"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-position",
+					"objectClass": "Player",
+					"sid": 347474155454396,
+					"parameters": {
+						"x": "82",
+						"y": "490"
+					}
+				},
+				{
+					"id": "clear-history",
+					"objectClass": "PlayerFollower",
+					"sid": 462903251648773,
+					"behaviorType": "Follow"
+				}
+			],
+			"sid": 470666320557328
+		}
+	],
+	"sid": 274306019501097
+}

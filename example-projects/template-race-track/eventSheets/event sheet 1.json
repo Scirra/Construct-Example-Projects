@@ -1,0 +1,1729 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Art used from the Racing pack from Kenney.nl\nhttps://kenney.nl/assets/racing-pack"
+		},
+		{
+			"eventType": "variable",
+			"name": "NumberAICars",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "Number of AI cars",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 891446739664271
+		},
+		{
+			"eventType": "variable",
+			"name": "curLap",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Number of the current lap",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 221151978431586
+		},
+		{
+			"eventType": "variable",
+			"name": "numLaps",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "Total number of laps to do to end the race",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 472078240600251
+		},
+		{
+			"eventType": "variable",
+			"name": "countdown",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "Start of race countdown",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 520838097964275
+		},
+		{
+			"eventType": "comment",
+			"text": "We're making a game where you are controlling the car with the arrow keys (basic controls of the car behaviour) and have the player race over 3 laps.\nThere are also a couple of automated car to race along.\n\nThe player's times for laps are displayed each turn. All the car's times are being counted though if you want to use those.",
+			"background-color": [
+				1,
+				1,
+				1,
+				1
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "If you wish to make a different track/add checkpoints, be sure that the instance variable \"ID\" values contains the correct order through which the car must go through them.\nIf you want to add more AI cars, be sure that their Default controls property is set to false, use different ID value for each of them, modify the value of NumberAICars accordingly. Also add a new instance of txtPos with the same ID as the car you have added.\nThe AI cars are aiming at the origin point of Waypoint instances. Be sure to place them (with a unique appropriate ID value) where they will help guide the AI cars in your track."
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Startup & countdown",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "We start with initialising the size of the arrays that track positions and timing."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 772377273862090
+						}
+					],
+					"actions": [
+						{
+							"id": "set-size",
+							"objectClass": "aEndPositions",
+							"sid": 689755770440349,
+							"parameters": {
+								"width": "0",
+								"height": "1",
+								"depth": "1"
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "aCheckpoints",
+							"sid": 522177804727764,
+							"parameters": {
+								"width": "NumberAICars+1",
+								"height": "CheckPoint.Count",
+								"depth": "1"
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "aTimes",
+							"sid": 945163206153097,
+							"parameters": {
+								"width": "NumberAICars+1",
+								"height": "NumLaps + 1",
+								"depth": "1"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "txtLapInfo",
+							"sid": 919361748796728,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1.0",
+								"type": "regular",
+								"tag": "\"countdown\""
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "txtCountDown",
+							"sid": 859322157459195,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtCountDown",
+							"sid": 473081731761154,
+							"parameters": {
+								"text": "countdown"
+							}
+						},
+						{
+							"id": "set-ignoring-input",
+							"objectClass": "Car",
+							"sid": 245036649609598,
+							"behaviorType": "Car",
+							"parameters": {
+								"input": "start-ignoring"
+							}
+						}
+					],
+					"sid": 279392942751731,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "And have our reference start time for each car."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 753880935245884,
+									"parameters": {
+										"name": "\"cars\"",
+										"start-index": "0",
+										"end-index": "NumberAICars+1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-at-xy",
+									"objectClass": "aTimes",
+									"sid": 594214556002630,
+									"parameters": {
+										"x": "loopindex",
+										"y": "0",
+										"value": "wallclocktime"
+									}
+								}
+							],
+							"sid": 354953802754358
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "txtLapInfo",
+							"sid": 408518488198757,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"countdown\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "subtract-from-eventvar",
+							"objectClass": "System",
+							"sid": 907286530653492,
+							"parameters": {
+								"variable": "countdown",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "txtCountDown",
+							"sid": 755965921718436,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtCountDown",
+							"sid": 746486412595460,
+							"parameters": {
+								"text": "countdown"
+							}
+						}
+					],
+					"sid": 166959081986857,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 629122113770301,
+									"parameters": {
+										"variable": "countdown",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "txtCountDown",
+									"sid": 783479560624699,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Car",
+									"sid": 855841883367829,
+									"parameters": {
+										"instance-variable": "Racing",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-ignoring-input",
+									"objectClass": "Car",
+									"sid": 920068758047153,
+									"behaviorType": "Car",
+									"parameters": {
+										"input": "stop-ignoring"
+									}
+								},
+								{
+									"id": "stop-timer",
+									"objectClass": "txtLapInfo",
+									"sid": 417069112914577,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"countdown\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Car",
+									"sid": 118106477862874,
+									"parameters": {
+										"instance-variable": "endPos",
+										"value": "0"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "hlPos",
+									"sid": 294436301156968,
+									"parameters": {
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 771406137579878
+						}
+					]
+				}
+			],
+			"sid": 944334214635882
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "General",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Every tick, we want to zoom in/zoom out according to the speed of the player's car, to provide a bit more \"view\" of the track.\nWe also indicate its speed and the current lap the player is in."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Car",
+							"sid": 133425959836620,
+							"parameters": {
+								"instance-variable": "AI"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 802988753384844,
+							"parameters": {
+								"layer": "\"Background\"",
+								"scale": "clamp(1.0 - Car.Car.Speed/1000,0.75,1)"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 763278207519057,
+							"parameters": {
+								"layer": "\"Track\"",
+								"scale": "clamp(1.0 - Car.Car.Speed/1000,0.75,1)"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 979309248000921,
+							"parameters": {
+								"layer": "\"Cars\"",
+								"scale": "clamp(1.0 - Car.Car.Speed/1000,0.75,1)"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 352837448578198,
+							"parameters": {
+								"layer": "\"HUD\"",
+								"scale": "1"
+							}
+						},
+						{
+							"id": "scroll-to-object",
+							"objectClass": "System",
+							"sid": 811314664462595,
+							"parameters": {
+								"object": "Car"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtInfos",
+							"sid": 612073333891630,
+							"parameters": {
+								"text": "\"Speed : \" & int(Car.Car.Speed) & newline & \"Lap \" & Car.curLap & \"/\" & NumLaps"
+							}
+						}
+					],
+					"sid": 585039710805383
+				}
+			],
+			"sid": 518685493665421
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Finish line",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When a car collides with the finish line..."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Car",
+							"sid": 907047938783761,
+							"parameters": {
+								"object": "FinishLine"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 400845811529861,
+							"parameters": {
+								"object": "Car"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 482497817636472,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "... if the car went through all the checkpoints, we reset the current array counting the checkpoints ..."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 708551481215790,
+									"parameters": {
+										"first-value": "Functions.checkCP(Car.ID)",
+										"comparison": 0,
+										"second-value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "resetCP",
+									"sid": 244811605937008,
+									"parameters": [
+										"Car.ID"
+									]
+								}
+							],
+							"sid": 780609025932764,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "... if the current lap is inferior to the max number of laps. \n\nWe save the current time to have the lap time\nWe add 1 to the current lap number for the car and set its current Checkpoint ID to 0"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Car",
+											"sid": 630484566669896,
+											"parameters": {
+												"instance-variable": "curLap",
+												"comparison": 2,
+												"value": "numLaps"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-instvar",
+											"objectClass": "Car",
+											"sid": 371955216876045,
+											"parameters": {
+												"instance-variable": "curLap",
+												"value": "1"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Car",
+											"sid": 224125024210854,
+											"parameters": {
+												"instance-variable": "curCP",
+												"value": "0"
+											}
+										},
+										{
+											"id": "set-at-xy",
+											"objectClass": "aTimes",
+											"sid": 616916396501834,
+											"parameters": {
+												"x": "Car.ID",
+												"y": "Car.curLap",
+												"value": "wallclocktime"
+											}
+										}
+									],
+									"sid": 630909150492712,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If it is the player's car we display its time"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "Car",
+													"sid": 245758898590157,
+													"parameters": {
+														"instance-variable": "AI"
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"id": "set-visible",
+													"objectClass": "txtLapInfo",
+													"sid": 954645993879773,
+													"parameters": {
+														"visibility": "visible"
+													}
+												},
+												{
+													"id": "set-text",
+													"objectClass": "txtLapInfo",
+													"sid": 559886571705760,
+													"parameters": {
+														"text": "\"Lap time : \" & aTimes.At(Car.ID,Car.curLap) - aTimes.At(Car.ID,Car.curLap-1) "
+													}
+												},
+												{
+													"id": "start-timer",
+													"objectClass": "txtLapInfo",
+													"sid": 304168076466876,
+													"behaviorType": "Timer",
+													"parameters": {
+														"duration": "1.5",
+														"type": "once",
+														"tag": "\"Hide\""
+													}
+												}
+											],
+											"sid": 942718400483073,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "From the second lap to the third lap, we display the time difference from a lap to another"
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "Car",
+															"sid": 894486061865442,
+															"parameters": {
+																"instance-variable": "curLap",
+																"comparison": 4,
+																"value": "2"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "append-text",
+															"objectClass": "txtLapInfo",
+															"sid": 468001469765031,
+															"parameters": {
+																"text": "newline & \"Difference : \" &(aTimes.At(Car.ID,Car.curLap) - aTimes.At(Car.ID,Car.curLap-1)) - (aTimes.At(Car.ID,Car.curLap-1) - aTimes.At(Car.ID,Car.curLap-2))"
+															}
+														}
+													],
+													"sid": 432604436021057
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "... otherwise this is the end of the race.\n\nWe save the current time, we block the car inputs"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 159590379760674
+										},
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 314136038044537,
+											"parameters": {
+												"object": "Car"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-at-xy",
+											"objectClass": "aTimes",
+											"sid": 486576165107058,
+											"parameters": {
+												"x": "Car.ID",
+												"y": "Car.curLap+1",
+												"value": "wallclocktime"
+											}
+										},
+										{
+											"id": "set-ignoring-input",
+											"objectClass": "Car",
+											"sid": 384405448865535,
+											"behaviorType": "Car",
+											"parameters": {
+												"input": "start-ignoring"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Car",
+											"sid": 274610448657892,
+											"parameters": {
+												"instance-variable": "Racing",
+												"value": "false"
+											}
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Car",
+											"sid": 296866759876490,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.65",
+												"type": "once",
+												"tag": "\"stopCar\""
+											}
+										},
+										{
+											"id": "push",
+											"objectClass": "aEndPositions",
+											"sid": 945209963224230,
+											"parameters": {
+												"where": "back",
+												"value": "Car.UID",
+												"axis": "x"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Car",
+											"sid": 824520443151651,
+											"parameters": {
+												"instance-variable": "endPos",
+												"value": "aEndPositions.width"
+											}
+										}
+									],
+									"sid": 779970765913811,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If it is the player's car we display the total time and position."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "Car",
+													"sid": 435156827859029,
+													"parameters": {
+														"instance-variable": "AI"
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"id": "set-visible",
+													"objectClass": "txtLapInfo",
+													"sid": 155485024705624,
+													"parameters": {
+														"visibility": "visible"
+													}
+												},
+												{
+													"id": "set-text",
+													"objectClass": "txtLapInfo",
+													"sid": 519175221965729,
+													"parameters": {
+														"text": "\"Race over\" & newline  & \"Total time : \" &  aTimes.At(Car.ID,Car.curLap) - aTimes.At(Car.ID,1) &newline & \"You finished in position N°\" & Car.endPos & newline & \"Press F5 to start over\""
+													}
+												}
+											],
+											"sid": 822290585068493
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "... the first time we get in collision with the finish line, on start of the race, we just set \"curLap\" to 1 ..."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Car",
+									"sid": 747287946314761,
+									"parameters": {
+										"instance-variable": "curLap",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Car",
+									"sid": 373057930682848,
+									"parameters": {
+										"instance-variable": "curLap",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 546478284585520
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-timer-running",
+							"objectClass": "Car",
+							"sid": 891113849862286,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"stopCar\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Car",
+							"sid": 576862402574459,
+							"behaviorType": "Car",
+							"parameters": {
+								"control": "brake"
+							}
+						}
+					],
+					"sid": 446582664688097
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Car",
+							"sid": 805179429841604,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"stopCar\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "stop",
+							"objectClass": "Car",
+							"sid": 559915499476401,
+							"behaviorType": "Car"
+						}
+					],
+					"sid": 318860401245219
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "txtLapInfo",
+							"sid": 622200387284510,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Hide\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "txtLapInfo",
+							"sid": 806937287264592,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 536795998865281
+				}
+			],
+			"sid": 767970894428744
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Checkpoints",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When a car collides with a checkpoint...\n\nWe cross this checkpoint (ID) as passed in the aCheckpoint array for this car.ID."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Car",
+							"sid": 246010927728535,
+							"parameters": {
+								"object": "CheckPoint"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "CheckPoint",
+							"sid": 140936448010966,
+							"parameters": {
+								"instance-variable": "ID",
+								"comparison": 5,
+								"value": "Car.curCP"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-at-xy",
+							"objectClass": "aCheckpoints",
+							"sid": 657419937436653,
+							"parameters": {
+								"x": "Car.ID",
+								"y": "CheckPoint.ID",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Car",
+							"sid": 565321240367304,
+							"parameters": {
+								"instance-variable": "curCP",
+								"value": "CheckPoint.ID"
+							}
+						}
+					],
+					"sid": 699936757720675
+				},
+				{
+					"eventType": "comment",
+					"text": "Checkpoint system",
+					"background-color": [
+						0.5019607843137255,
+						1,
+						1,
+						1
+					]
+				},
+				{
+					"functionName": "checkCP",
+					"functionDescription": "Automatically converted from 'checkCP'",
+					"functionCategory": "",
+					"functionReturnType": "any",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "arrX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 976216515347314
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 907973133099921,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "This function is there to return 1 if all the cells contain 1 (the car went through all the checkpoints)"
+						},
+						{
+							"eventType": "variable",
+							"name": "total",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 190042041275286
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 656654366189147,
+									"parameters": {
+										"name": "\"cp\"",
+										"start-index": "0",
+										"end-index": "CheckPoint.Count - 1"
+									}
+								},
+								{
+									"id": "compare-at-xy",
+									"objectClass": "aCheckpoints",
+									"sid": 281433379771720,
+									"parameters": {
+										"x": "arrX",
+										"y": "loopindex",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 996896815236711,
+									"parameters": {
+										"variable": "total",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 494827108267471
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 144037639428420,
+									"parameters": {
+										"variable": "total",
+										"comparison": 0,
+										"value": "CheckPoint.Count"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 975544646296222,
+									"parameters": {
+										"value": "1"
+									}
+								}
+							],
+							"sid": 828298401798570
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise it returns 0"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 580171370087538
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 993751538424139,
+									"parameters": {
+										"value": "0"
+									}
+								}
+							],
+							"sid": 214881747898060
+						}
+					]
+				},
+				{
+					"functionName": "resetCP",
+					"functionDescription": "Automatically converted from 'resetCP'",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "arrX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 967336249849814
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 435926898641634,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Put all the cells of the aCheckpoint value for the current passed Car.ID to 0"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 791549344319187,
+									"parameters": {
+										"name": "\"cp\"",
+										"start-index": "0",
+										"end-index": "CheckPoint.Count - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-at-xy",
+									"objectClass": "aCheckpoints",
+									"sid": 868027624727945,
+									"parameters": {
+										"x": "arrX",
+										"y": "loopindex",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 720294662510339
+						}
+					]
+				}
+			],
+			"sid": 719180322557199
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "AI",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "For each AI car we make them accelerate and set their direction towards the next waypoint "
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Car",
+							"sid": 372068181057168,
+							"parameters": {
+								"instance-variable": "AI"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 712681574974146,
+							"parameters": {
+								"object": "Car"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Car",
+							"sid": 151433752907540,
+							"parameters": {
+								"instance-variable": "Racing"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Car",
+							"sid": 112894137970372,
+							"behaviorType": "Car",
+							"parameters": {
+								"control": "accelerate"
+							}
+						},
+						{
+							"callFunction": "setDirAngle",
+							"sid": 753999414930789,
+							"parameters": [
+								"Car.UID"
+							]
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Car",
+							"sid": 965973835833108,
+							"parameters": {
+								"angle": "anglelerp(car.Car.MovingAngle,Car.dirAngle, dt*6)"
+							}
+						}
+					],
+					"sid": 209067757206043
+				},
+				{
+					"eventType": "comment",
+					"text": "This function helps determining the angle the car needs to rotate towards in order to point in the direction of the next waypoint"
+				},
+				{
+					"functionName": "setDirAngle",
+					"functionDescription": "Automatically converted from 'setDirAngle'",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "carUid",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 610766774591883
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 504421744182984,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Car",
+									"sid": 916220532685812,
+									"parameters": {
+										"unique-id": "carUid"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Waypoint",
+									"sid": 263171406891058,
+									"parameters": {
+										"instance-variable": "ID",
+										"comparison": 0,
+										"value": "Car.Waypoint"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Car",
+									"sid": 903380756848161,
+									"parameters": {
+										"instance-variable": "dirAngle",
+										"value": "angle(Car.X,Car.Y,Waypoint.X,Waypoint.Y)"
+									}
+								}
+							],
+							"sid": 447462949375253
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When a car collides with a waypoint, it's Waypoint value is set to the next Waypoint"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Car",
+							"sid": 477758977759808,
+							"parameters": {
+								"object": "Waypoint"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Car",
+							"sid": 332727691259615,
+							"parameters": {
+								"instance-variable": "AI"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 405588294294682,
+							"parameters": {
+								"object": "Car"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Waypoint",
+							"sid": 679809135159618,
+							"parameters": {
+								"instance-variable": "ID",
+								"comparison": 0,
+								"value": "Car.Waypoint"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-instvar",
+							"objectClass": "Car",
+							"sid": 937483725924384,
+							"parameters": {
+								"instance-variable": "wayPoint",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 783506612740933,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the car has reached the last waypoint before the finish line, we \"reset\" in order to point towards an existing and valid waypoint, the first of the lap, the one of ID 0"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Car",
+									"sid": 597562132883065,
+									"parameters": {
+										"instance-variable": "wayPoint",
+										"comparison": 5,
+										"value": "Waypoint.Count"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Car",
+									"sid": 693901437041374,
+									"parameters": {
+										"instance-variable": "wayPoint",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 492457565519587
+						}
+					]
+				}
+			],
+			"sid": 637339240324445
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Rankings",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "This function allows us to set the current positions in the race."
+				},
+				{
+					"functionName": "setPositions",
+					"functionDescription": "Automatically converted from 'setPositions'",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Car",
+							"sid": 927977520144976,
+							"parameters": {
+								"instance-variable": "Pos",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "aPositions",
+							"sid": 105537784522080,
+							"parameters": {
+								"width": "0",
+								"height": "1",
+								"depth": "1"
+							}
+						}
+					],
+					"sid": 813722359316944,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "We have reversed loops (from X down to 0) going through the laps and checkpoints.\n"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 158188796555967,
+									"parameters": {
+										"name": "\"laps\"",
+										"start-index": "numLaps",
+										"end-index": "1"
+									}
+								},
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 793727528943503,
+									"parameters": {
+										"name": "\"cp\"",
+										"start-index": "CheckPoint.Count-1",
+										"end-index": "-1"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Car",
+									"sid": 875356744739387,
+									"parameters": {
+										"instance-variable": "curLap",
+										"comparison": 0,
+										"value": "loopindex(\"laps\")"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Car",
+									"sid": 176693271850379,
+									"parameters": {
+										"instance-variable": "curCP",
+										"comparison": 0,
+										"value": "loopindex(\"cp\")"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 439444863040960,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "We want to pick the car that has the highest lap number and is closest to the checkpoint with the highest ID in that lap. \nWe may have several cars in the same lap and going towards the same checkpoint, we sort them out."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 351289704108058,
+											"parameters": {
+												"object": "Car"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 998733600514938,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "We set Pos to true so we know we already have position for this car and it won't be picked again in our current loops' iterations.\nThe cpDist value acts in order to order cars in the same lap and heading towards the same checkpoint."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "CheckPoint",
+													"sid": 221099952314669,
+													"parameters": {
+														"instance-variable": "ID",
+														"comparison": 0,
+														"value": "loopindex(\"cp\")+1"
+													}
+												},
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "Car",
+													"sid": 908317513648841,
+													"parameters": {
+														"instance-variable": "Pos"
+													},
+													"isInverted": true
+												},
+												{
+													"id": "pick-nearestfurthest",
+													"objectClass": "Car",
+													"sid": 119721148226756,
+													"parameters": {
+														"which": "nearest",
+														"x": "CheckPoint.X",
+														"y": "CheckPoint.Y"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "Car",
+													"sid": 835442155686406,
+													"parameters": {
+														"instance-variable": "Pos",
+														"value": "true"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Car",
+													"sid": 176447980005350,
+													"parameters": {
+														"instance-variable": "cpDist",
+														"value": "distance(CheckPoint.X,CheckPoint.Y,Car.X,Car.Y)"
+													}
+												}
+											],
+											"sid": 384962713814825
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Once all previous loops' iterations are done, we order the currently picked cars (event 30) according to their cpDist value.\n"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each-ordered",
+											"objectClass": "System",
+											"sid": 357693455190070,
+											"parameters": {
+												"object": "Car",
+												"expression": "Car.cpDist",
+												"order": "ascending"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "aPositions",
+											"sid": 463978740401550,
+											"parameters": {
+												"where": "back",
+												"value": "Car.UID",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 366274962794311
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "This function allows us to display the current rankings in the race"
+				},
+				{
+					"functionName": "displayPositions",
+					"functionDescription": "Automatically converted from 'displayPositions'",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "txtRankings",
+							"sid": 900207162529533,
+							"parameters": {
+								"text": "\"\""
+							}
+						}
+					],
+					"sid": 673129668913615,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The array aPositions was set in \"setPositions\" and we go through it, from top to bottom knowing this gives us the rankings from first to last.\nWe do place the txtPos instance related to the car."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-element",
+									"objectClass": "aPositions",
+									"sid": 370444325340411,
+									"parameters": {
+										"axes": "x"
+									}
+								},
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Car",
+									"sid": 975954650585256,
+									"parameters": {
+										"unique-id": "aPositions.At(aPositions.CurX)"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "txtPos",
+									"sid": 624109605404535,
+									"parameters": {
+										"instance-variable": "ID",
+										"comparison": 0,
+										"value": "Car.ID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "txtPos",
+									"sid": 709288173605739,
+									"parameters": {
+										"x": "Car.X - 24",
+										"y": "Car.Y - 64"
+									}
+								},
+								{
+									"id": "move-to-top",
+									"objectClass": "txtPos",
+									"sid": 100178342328463
+								}
+							],
+							"sid": 954951549883238,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the car is in race, we display the position in the related txtPos instance.\nFor debug we can add some informations in the txtRankings object. You can hide this object if you wish or use it to provide clearer informations to the player (it is currently using the 0 based IDs of the various objects and arrays) "
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Car",
+											"sid": 121599157876336,
+											"parameters": {
+												"instance-variable": "Racing"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "txtPos",
+											"sid": 734258873536374,
+											"parameters": {
+												"text": "aPositions.CurX+1"
+											}
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "txtPos",
+											"sid": 922207143826717,
+											"parameters": {
+												"visibility": "visible"
+											}
+										},
+										{
+											"id": "append-text",
+											"objectClass": "txtRankings",
+											"sid": 476735196135759,
+											"parameters": {
+												"text": "aPositions.curX & \" - Car \" & Car.ID & \" lap: \" & Car.curLap & \" cp: \" & Car.curCP & newline"
+											}
+										}
+									],
+									"sid": 616522316156613
+								},
+								{
+									"eventType": "comment",
+									"text": "If the car has finished the race, we display instead its finishing position as it is not \"counted\" anymore in setPositions."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 567450511108568
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Car",
+											"sid": 540474423140783,
+											"parameters": {
+												"instance-variable": "endPos",
+												"comparison": 1,
+												"value": "-99"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "txtPos",
+											"sid": 494697938633084,
+											"parameters": {
+												"text": "Car.endPos"
+											}
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "txtPos",
+											"sid": 587203910232232,
+											"parameters": {
+												"visibility": "visible"
+											}
+										}
+									],
+									"sid": 137606658061669
+								},
+								{
+									"eventType": "comment",
+									"text": "For the player car we also display a \"highlight\" object"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Car",
+											"sid": 790076103436236,
+											"parameters": {
+												"instance-variable": "AI"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "hlPos",
+											"sid": 916332131719593,
+											"parameters": {
+												"object": "txtPos",
+												"image-point-optional": "0"
+											}
+										},
+										{
+											"id": "move-to-object",
+											"objectClass": "hlPos",
+											"sid": 141628584133232,
+											"parameters": {
+												"where": "behind",
+												"object": "hlPos"
+											}
+										}
+									],
+									"sid": 897709946543584
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Every tick we check the rankings and display them"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 356119890069484
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "setPositions",
+							"sid": 548157546783279
+						},
+						{
+							"callFunction": "displayPositions",
+							"sid": 643246481766995
+						}
+					],
+					"sid": 501156497838451
+				}
+			],
+			"sid": 280629503811283
+		}
+	],
+	"sid": 804210711640908
+}

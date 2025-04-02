@@ -1,0 +1,793 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "[h1]Quad issue performance test[/h1]\nThis performance test measures how many sprites can be drawn at 30 FPS. The sprites are very small to minimise the fill rate on the GPU. So this essentially tests how fast the CPU can issue draw calls. Each sprite issues a \"quad\" to be drawn, hence the name of the test. Note despite drawing a lot of content, it really is a CPU performance test, not a GPU performance test."
+		},
+		{
+			"eventType": "variable",
+			"name": "State",
+			"type": "string",
+			"initialValue": "creating",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 991741081353531
+		},
+		{
+			"eventType": "variable",
+			"name": "MinCount",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Minimum number of sprites that can be handled",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 328563037424799
+		},
+		{
+			"eventType": "variable",
+			"name": "MaxCount",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Maximum number of sprites that can be handled",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 426390210538191
+		},
+		{
+			"eventType": "variable",
+			"name": "TargetCount",
+			"type": "number",
+			"initialValue": "128",
+			"comment": "Next aim to create this many sprites",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 313770024750214
+		},
+		{
+			"eventType": "variable",
+			"name": "WaitedTicks",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Tick count while waiting",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 172918550492359
+		},
+		{
+			"eventType": "variable",
+			"name": "WAITTICKSCOUNT",
+			"type": "number",
+			"initialValue": "15",
+			"comment": "Number of ticks in waiting phase",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 702818843941097
+		},
+		{
+			"eventType": "variable",
+			"name": "MeasuredDtSum",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 394268420059319
+		},
+		{
+			"eventType": "variable",
+			"name": "MeasuredDtTicks",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 861162493889508
+		},
+		{
+			"eventType": "variable",
+			"name": "MEASURETICKSCOUNT",
+			"type": "number",
+			"initialValue": "30",
+			"comment": "Number of ticks in measuring phase",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 806903969366194
+		},
+		{
+			"eventType": "variable",
+			"name": "TARGETDT",
+			"type": "number",
+			"initialValue": "0.0333333",
+			"comment": "Target dt value (~30 FPS)",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 394887626754209
+		},
+		{
+			"eventType": "variable",
+			"name": "LastMeasuredDt",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Result of last measurement phase",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 537449241020388
+		},
+		{
+			"eventType": "comment",
+			"text": "By default the C2 runtime caps delta-time to 1/30 (i.e. a minimum framerate of 30 FPS). To disable this capping, set a minimum framerate of 1."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 960180495320626
+				}
+			],
+			"actions": [
+				{
+					"id": "set-minimum-framerate",
+					"objectClass": "System",
+					"sid": 972463471231895,
+					"parameters": {
+						"minimum-fps": "1"
+					}
+				}
+			],
+			"sid": 185656249800356
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 647554198824642
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 871249109680507,
+					"parameters": {
+						"text": "\"Testing quad issue - \" & Sprite.Count & \" sprites - \" & fps & \" FPS - \" & renderer & \" - \" & round(cpuutilisation * 100) & \"% CPU - \" & round(gpuutilisation * 100) & \"% GPU - \" & State"
+					}
+				}
+			],
+			"sid": 146144234209667
+		},
+		{
+			"eventType": "comment",
+			"text": "Phase 1: create or destroy as many sprites as necessary to reach TargetCount. Then move on to waiting phase."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 138595571052850,
+					"parameters": {
+						"variable": "State",
+						"comparison": 0,
+						"value": "\"creating\""
+					}
+				}
+			],
+			"actions": [],
+			"sid": 849369709694943,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Need to create sprites"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 287390909567489,
+							"parameters": {
+								"variable": "TargetCount",
+								"comparison": 4,
+								"value": "Sprite.Count"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 569348040871243,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 247887361584228,
+									"parameters": {
+										"count": "TargetCount - Sprite.Count"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 130811591963604,
+									"parameters": {
+										"object-to-create": "Sprite",
+										"layer": "0",
+										"x": "random(ViewportLeft(0) + 16, ViewportRight(0) - 16)",
+										"y": "random(ViewportTop(0) + 56, ViewportBottom(0) - 16)"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Sprite",
+									"sid": 686124104140815,
+									"parameters": {
+										"width": "4",
+										"height": "4"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Sprite",
+									"sid": 410258868534323,
+									"parameters": {
+										"angle": "random(360)"
+									}
+								}
+							],
+							"sid": 179631875906120
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Need to destroy sprites"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 531390568324701
+						}
+					],
+					"actions": [],
+					"sid": 301141510350180,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 142166382286470,
+									"parameters": {
+										"count": "Sprite.Count - TargetCount"
+									}
+								},
+								{
+									"id": "pick-random-instance",
+									"objectClass": "System",
+									"sid": 748805395972098,
+									"parameters": {
+										"object": "Sprite"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Sprite",
+									"sid": 293596421739760
+								}
+							],
+							"sid": 665915093319187
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "End of creating phase (this only lasts one tick); move to waiting phase."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 389868094064163,
+							"parameters": {
+								"variable": "State",
+								"value": "\"waiting\""
+							}
+						}
+					],
+					"sid": 663682982044175
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Phase 2: wait for a few ticks to ensure performance warms up to the new sprite count (basically just to avoid any performance spikes/effects affecting measurements immediately after creating thousands of sprites)"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 694411891785197,
+					"parameters": {
+						"variable": "State",
+						"comparison": 0,
+						"value": "\"waiting\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 729094935720718,
+					"parameters": {
+						"variable": "WaitedTicks",
+						"value": "1"
+					}
+				}
+			],
+			"sid": 735840397082416,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Waited long enough: move to measurement phase."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 312292371924568,
+							"parameters": {
+								"variable": "WaitedTicks",
+								"comparison": 5,
+								"value": "WAITTICKSCOUNT"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 723199588579683,
+							"parameters": {
+								"variable": "State",
+								"value": "\"measuring\""
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 225929787348914,
+							"parameters": {
+								"variable": "WaitedTicks",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 165951108627887
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Phase 3: measure the average dt over a number of ticks. Based on the result, adjust the TargetCount to home in on the exact sprite count that matches dt."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 357812972875876,
+					"parameters": {
+						"variable": "State",
+						"comparison": 0,
+						"value": "\"measuring\""
+					}
+				}
+			],
+			"actions": [],
+			"sid": 929383486413948,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Still measuring: add another dt value."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 119486260230570,
+							"parameters": {
+								"variable": "MeasuredDtTicks",
+								"comparison": 2,
+								"value": "MEASURETICKSCOUNT"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 991802178842505,
+							"parameters": {
+								"variable": "MeasuredDtTicks",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 645939843444791,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The C2 runtime sets dt to 0 when it measures over 0.5, in order to pause games that are in the background (where the browser may still tick them once a second). If this happens in the test, log a dt value of 0.5, since we know it must have been at least that long for the tick. Although this means the real dt measurement was not used, this is high enough to send the test working back the other way towards the target dt."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 785596669088450,
+									"parameters": {
+										"first-value": "dt",
+										"comparison": 0,
+										"second-value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 867338141133512,
+									"parameters": {
+										"variable": "MeasuredDtSum",
+										"value": "0.5"
+									}
+								}
+							],
+							"sid": 905027470859779
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 405201662071509
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 138813480912378,
+									"parameters": {
+										"variable": "MeasuredDtSum",
+										"value": "dt"
+									}
+								}
+							],
+							"sid": 906810835964306
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Measured enough ticks: calculate the average dt value over the measurement period."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 608238145698202
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 404754803604935,
+							"parameters": {
+								"variable": "LastMeasuredDt",
+								"value": "MeasuredDtSum / MeasuredDtTicks"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 175333298734352,
+							"parameters": {
+								"variable": "MeasuredDtSum",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 964675584060356,
+							"parameters": {
+								"variable": "MeasuredDtTicks",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 479152850586248,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The last measured dt was under (faster than) the target dt. Increase the minimum sprite count that can be handled, and create more sprites."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 888743556611435,
+									"parameters": {
+										"variable": "LastMeasuredDt",
+										"comparison": 3,
+										"value": "TARGETDT"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 371898600260354,
+									"parameters": {
+										"variable": "MinCount",
+										"value": "max(MinCount, Sprite.Count)"
+									}
+								}
+							],
+							"sid": 455917897380149,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If we don't have a maximum count yet, simply keep going - double the target count (but max out at 4096 sprites at a time since creation is pretty slow)"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 874392951380964,
+											"parameters": {
+												"variable": "MaxCount",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 362086553348011,
+											"parameters": {
+												"variable": "TargetCount",
+												"value": "min(TargetCount * 2, TargetCount + 4096)"
+											}
+										}
+									],
+									"sid": 553434134263534
+								},
+								{
+									"eventType": "comment",
+									"text": "If the maximum count is known, aim for half way between the minimum and maximum. This is effectively a binary search for the right sprite count."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 934131125701324
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 912234899269378,
+											"parameters": {
+												"variable": "TargetCount",
+												"value": "round((MinCount + MaxCount) / 2)"
+											}
+										}
+									],
+									"sid": 472388377874327
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "The last dt was over (slower than) the target dt. We need to aim for fewer sprites."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 111267870988377
+								}
+							],
+							"actions": [],
+							"sid": 591979219598568,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If we don't have a maximum sprite count measurement yet, use this value."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 698286831829438,
+											"parameters": {
+												"variable": "MaxCount",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 300476081239921,
+											"parameters": {
+												"variable": "MaxCount",
+												"value": "Sprite.Count"
+											}
+										}
+									],
+									"sid": 196814729421921
+								},
+								{
+									"eventType": "comment",
+									"text": "Otherwise possibly reduce the maximum count that can be handled."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 876127116181074
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 503709227984814,
+											"parameters": {
+												"variable": "MaxCount",
+												"value": "min(MaxCount, Sprite.Count)"
+											}
+										}
+									],
+									"sid": 138350030160001
+								},
+								{
+									"eventType": "comment",
+									"text": "Now we definitely have a max count, aim for half way between the minimum and maximum."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 385333879686413,
+											"parameters": {
+												"variable": "TargetCount",
+												"value": "round((MinCount + MaxCount) / 2)"
+											}
+										}
+									],
+									"sid": 630380907735159
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the minimum and maximum have reached within 1 of each other, consider the test finished."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 605225386223521,
+									"parameters": {
+										"first-value": "abs(MinCount - MaxCount)",
+										"comparison": 3,
+										"second-value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 283289239816251,
+									"parameters": {
+										"variable": "State",
+										"value": "\"done\""
+									}
+								}
+							],
+							"sid": 976844712767019
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise go back to the creating phase, which will cycle back to measurement again."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 956854179519338
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 714618781340099,
+									"parameters": {
+										"variable": "State",
+										"value": "\"creating\""
+									}
+								}
+							],
+							"sid": 926626914974490
+						}
+					]
+				}
+			]
+		}
+	],
+	"sid": 509417000699531
+}

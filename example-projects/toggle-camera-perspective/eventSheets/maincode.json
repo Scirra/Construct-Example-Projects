@@ -1,0 +1,1647 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Move the camera away from the player, so it can be later smoothly moved back to it, creating a quite cinematographic effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 898951453381206
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 226037944001688,
+							"parameters": {
+								"cam-x": "PlayerCollision.X",
+								"cam-y": "LayoutHeight",
+								"cam-z": "128",
+								"look-x": "PlayerCollision.X",
+								"look-y": "PlayerCollision.Y",
+								"look-z": "8",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 270334586614291
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the player by making it completely flat, imitating a normal billboard."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "PlayerBillboard",
+							"sid": 553217039673188
+						}
+					],
+					"actions": [
+						{
+							"id": "set-width",
+							"objectClass": "PlayerBillboard",
+							"sid": 787764547705203,
+							"parameters": {
+								"width": "0"
+							}
+						}
+					],
+					"sid": 671018757479942
+				}
+			],
+			"sid": 544960320432595
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the game is running in first person mode."
+		},
+		{
+			"eventType": "variable",
+			"name": "IsFirstPerson",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 408443253094043
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "CameraPerspective",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Toggle between the first and third person modes, but only if the player isn't moving."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 786066129895745,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 543543676162487,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 991403303782971,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-moving",
+									"objectClass": "PlayerCollision",
+									"sid": 856915224962314,
+									"behaviorType": "8Direction",
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "toggle-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 675130595424962,
+									"parameters": {
+										"variable": "IsFirstPerson"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also reset the fade effect, creating a easier looking transition between both modes."
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "Fade",
+									"sid": 680350495799707,
+									"parameters": {
+										"opacity": "100"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fade",
+									"sid": 529554857820134,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeOut\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 185679563536932,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the tutorial text is on screen, destroy it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 839159083486577,
+											"parameters": {
+												"first-value": "Tutorial.Count",
+												"comparison": 4,
+												"second-value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Tutorial",
+											"sid": 109477801220659
+										}
+									],
+									"sid": 476573237272154
+								},
+								{
+									"eventType": "comment",
+									"text": "Enable the camera related objects while in first person mode."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 789041226538822,
+											"parameters": {
+												"variable": "IsFirstPerson"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-visible",
+											"objectClass": "CameraOverlay",
+											"sid": 242754990228209,
+											"parameters": {
+												"visibility": "visible"
+											}
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "RecordingTime",
+											"sid": 316271642009948,
+											"parameters": {
+												"visibility": "visible"
+											}
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "DepthOfFieldMask",
+											"sid": 324846508632385,
+											"parameters": {
+												"visibility": "visible"
+											}
+										}
+									],
+									"sid": 401931222792525
+								},
+								{
+									"eventType": "comment",
+									"text": "Disable the camera related objects while in third person mode."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 748496120420404
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 879086003659189,
+											"parameters": {
+												"variable": "IsFirstPerson"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-visible",
+											"objectClass": "CameraOverlay",
+											"sid": 792329339171510,
+											"parameters": {
+												"visibility": "invisible"
+											}
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "RecordingTime",
+											"sid": 783253846029255,
+											"parameters": {
+												"visibility": "invisible"
+											}
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "DepthOfFieldMask",
+											"sid": 830857369595945,
+											"parameters": {
+												"visibility": "invisible"
+											}
+										}
+									],
+									"sid": 265285944828664
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				}
+			],
+			"sid": 157023771667604
+		},
+		{
+			"eventType": "comment",
+			"text": "Camera angle in relation to the player position."
+		},
+		{
+			"eventType": "variable",
+			"name": "CameraAngle",
+			"type": "number",
+			"initialValue": "270",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 906060481006598
+		},
+		{
+			"eventType": "comment",
+			"text": "Distance between the camera position and the playerposition."
+		},
+		{
+			"eventType": "variable",
+			"name": "CAMERADISTANCE",
+			"type": "number",
+			"initialValue": "256",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 608776135798089
+		},
+		{
+			"eventType": "comment",
+			"text": "Minimum camera rotation speed."
+		},
+		{
+			"eventType": "variable",
+			"name": "MINSPEED",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 841083678816140
+		},
+		{
+			"eventType": "comment",
+			"text": "Max camera rotation speed."
+		},
+		{
+			"eventType": "variable",
+			"name": "MAXSPEED",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 891096482016958
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the rotation speed is being increased."
+		},
+		{
+			"eventType": "variable",
+			"name": "IncreaseSpeed",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 507406229009876
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether the camera is rotating clockwise or counter-clockwise."
+		},
+		{
+			"eventType": "variable",
+			"name": "DirectionBuffer",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 115981232206700
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the camera is rotating."
+		},
+		{
+			"eventType": "variable",
+			"name": "RotationSpeed",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 172126155407816
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the first person mode is enabled, move the camera towards the exact position of the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 646279446635416,
+							"parameters": {
+								"variable": "IsFirstPerson"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 111413822070105,
+							"parameters": {
+								"cam-x": "PlayerCollision.X",
+								"cam-y": "PlayerCollision.Y",
+								"cam-z": "PlayerCollision.ZElevation + 12",
+								"look-x": "PlayerCollision.X + cos(CameraAngle) * 16",
+								"look-y": "PlayerCollision.Y + sin(CameraAngle) * 16",
+								"look-z": "PlayerCollision.ZElevation + 12",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 395823256172880,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also disable the player billboard visibility, so it doesn't block the view."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "trigger-once-while-true",
+									"objectClass": "System",
+									"sid": 940438850300895
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "PlayerBillboard",
+									"sid": 770986010529548,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								}
+							],
+							"sid": 288858978691820
+						},
+						{
+							"eventType": "comment",
+							"text": "Rotate the camera left."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 443771399095568,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 791891022133384,
+									"parameters": {
+										"gamepad": "0",
+										"button": "left-shoulder-button"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RotateCamera",
+									"sid": 438708332325822,
+									"parameters": [
+										"-0.5"
+									]
+								}
+							],
+							"sid": 902054048635907,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Rotate the camera right."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 423073876692442,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 600085657827345,
+									"parameters": {
+										"gamepad": "0",
+										"button": "right-shoulder-button"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RotateCamera",
+									"sid": 523933767153295,
+									"parameters": [
+										"0.5"
+									]
+								}
+							],
+							"sid": 845102125381074,
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the first person mode isn't enabled, move the camera away from the player, so it can be seen in third person."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 197197784603748
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 241607437812109,
+							"parameters": {
+								"variable": "IsFirstPerson"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 184592294083475,
+							"parameters": {
+								"cam-x": "lerp(3DCamera.CameraX, PlayerCollision.X + cos(CameraAngle + 180) * CAMERADISTANCE, 0.1 * 60 * dt)",
+								"cam-y": "lerp(3DCamera.CameraY, PlayerCollision.Y + sin(CameraAngle + 180) * CAMERADISTANCE, 0.1 * 60 *  dt)",
+								"cam-z": "128",
+								"look-x": "PlayerCollision.X",
+								"look-y": "PlayerCollision.Y",
+								"look-z": "8",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Constantly make player point towards the camera, so it's always visible."
+						},
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "PlayerBillboard",
+							"sid": 951980968831814,
+							"parameters": {
+								"x": "3DCamera.CameraX",
+								"y": "3DCamera.CameraY"
+							}
+						}
+					],
+					"sid": 170285441954417,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also enable the player visibility back again."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "trigger-once-while-true",
+									"objectClass": "System",
+									"sid": 973629995932925
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "PlayerBillboard",
+									"sid": 110195181092875,
+									"parameters": {
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 134360251998828
+						},
+						{
+							"eventType": "comment",
+							"text": "Whether or not the input left is being pressed."
+						},
+						{
+							"eventType": "variable",
+							"name": "InputLeft",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 789390015304784
+						},
+						{
+							"eventType": "comment",
+							"text": "Whether or not the input right is being pressed."
+						},
+						{
+							"eventType": "variable",
+							"name": "InputRight",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 497452213823197
+						},
+						{
+							"eventType": "comment",
+							"text": "Whether or not the input up is being pressed."
+						},
+						{
+							"eventType": "variable",
+							"name": "InputUp",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 434315066879209
+						},
+						{
+							"eventType": "comment",
+							"text": "Whether or not the input down is being pressed."
+						},
+						{
+							"eventType": "variable",
+							"name": "InputDown",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 417789150500322
+						},
+						{
+							"eventType": "comment",
+							"text": "Rotate the camera counter-clockwise."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 728613629461602,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 297502457796195,
+									"parameters": {
+										"gamepad": "0",
+										"button": "left-shoulder-button"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RotateCamera",
+									"sid": 903131959459053,
+									"parameters": [
+										"-1"
+									]
+								}
+							],
+							"sid": 131456314729226,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Rotate the camera clockwise."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 632689018976358,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 652840759163392,
+									"parameters": {
+										"gamepad": "0",
+										"button": "right-shoulder-button"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RotateCamera",
+									"sid": 697022503944902,
+									"parameters": [
+										"1"
+									]
+								}
+							],
+							"sid": 762205815931277,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Toggle the input left variable."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 950086231580117,
+									"parameters": {
+										"key": 65
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 646866101684833,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 897406671455170,
+									"parameters": {
+										"variable": "InputLeft",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 710100629560309,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 100481399946300
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 868143499768926,
+									"parameters": {
+										"key": 65
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 713079059166304,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 832753198830985,
+									"parameters": {
+										"variable": "InputLeft",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 410510887083688
+						},
+						{
+							"eventType": "comment",
+							"text": "Toggle the input right variable."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 427973743900410,
+									"parameters": {
+										"key": 68
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 250892977869813,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 336126648855560,
+									"parameters": {
+										"variable": "InputRight",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 248520850512763,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 415759744860733
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 124097485398906,
+									"parameters": {
+										"key": 68
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 461342755578557,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 386949117656208,
+									"parameters": {
+										"variable": "InputRight",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 433650776416611
+						},
+						{
+							"eventType": "comment",
+							"text": "Toggle the input up variable."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 720594457131170,
+									"parameters": {
+										"key": 87
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 681437064389074,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-up"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 689765635268378,
+									"parameters": {
+										"variable": "InputUp",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 157708481435813,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 642917950060556
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 680836378920572,
+									"parameters": {
+										"key": 87
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 253210303080874,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-up"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 234877550554315,
+									"parameters": {
+										"variable": "InputUp",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 709669260393564
+						},
+						{
+							"eventType": "comment",
+							"text": "Toggle the input down variable."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 106237343178773,
+									"parameters": {
+										"key": 83
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 206188428904617,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-down"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 751059122479652,
+									"parameters": {
+										"variable": "InputDown",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 325725552966876,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 832046303332698
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 368431135139914,
+									"parameters": {
+										"key": 83
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 588998895560139,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-down"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 105064470672105,
+									"parameters": {
+										"variable": "InputDown",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 171915969766454
+						},
+						{
+							"eventType": "comment",
+							"text": "If there's any input from the player, move it based on which keys are currently being pressed."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 595474336267757,
+									"parameters": {
+										"value": "InputRight - InputLeft <> 0 | InputDown - InputUp <> 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-deceleration",
+									"objectClass": "PlayerCollision",
+									"sid": 778725960747991,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"deceleration": "0"
+									}
+								},
+								{
+									"callFunction": "MoveAtAngle",
+									"sid": 327182711041506,
+									"parameters": [
+										"angle(0, 0, (InputRight - InputLeft), (InputDown- InputUp)) + 90"
+									]
+								}
+							],
+							"sid": 461087401927359
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if there's no input from the player, stop it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 967414466840083
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 312501441419938,
+									"parameters": {
+										"value": "InputRight - InputLeft = 0 & InputDown - InputUp = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-deceleration",
+									"objectClass": "PlayerCollision",
+									"sid": 203839913966560,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"deceleration": "Infinity"
+									}
+								}
+							],
+							"sid": 444964698202471
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player is moving left or right, make the billboard match such direction by changing its width."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 619448702839556,
+									"parameters": {
+										"first-value": "InputRight - InputLeft",
+										"comparison": 1,
+										"second-value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-height",
+									"objectClass": "PlayerBillboard",
+									"sid": 920521227969015,
+									"parameters": {
+										"height": "(InputRight - InputLeft ) * 32"
+									}
+								}
+							],
+							"sid": 295934742260721
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Rotate the camera by allowing it to increase the base rotation speed."
+				},
+				{
+					"functionName": "RotateCamera",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Magnitude",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 656656680285727
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 946917546975357,
+							"parameters": {
+								"variable": "IncreaseSpeed",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 103846532376206,
+							"parameters": {
+								"variable": "DirectionBuffer",
+								"value": "Magnitude"
+							}
+						}
+					],
+					"sid": 944078172657470
+				},
+				{
+					"eventType": "comment",
+					"text": "Increase the rotation speed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 879375408904412,
+							"parameters": {
+								"variable": "IncreaseSpeed"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 484314148619057,
+							"parameters": {
+								"variable": "IncreaseSpeed",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 862920518620033,
+							"parameters": {
+								"variable": "RotationSpeed",
+								"value": "clamp(RotationSpeed + 0.25 * 60 * dt, MINSPEED, MAXSPEED)"
+							}
+						}
+					],
+					"sid": 989871964313631
+				},
+				{
+					"eventType": "comment",
+					"text": "Decrease the rotation speed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 475886913964479
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 322932938484416,
+							"parameters": {
+								"variable": "IncreaseSpeed"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 368966901828522,
+							"parameters": {
+								"variable": "RotationSpeed",
+								"value": "clamp(RotationSpeed - 0.25 * 60 * dt, MINSPEED, MAXSPEED)"
+							}
+						}
+					],
+					"sid": 219239289957865
+				},
+				{
+					"eventType": "comment",
+					"text": "If the rotation speed is higher than zero, apply it to the camera."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 724922709282781,
+							"parameters": {
+								"variable": "RotationSpeed",
+								"comparison": 4,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 252506710039256,
+							"parameters": {
+								"variable": "CameraAngle",
+								"value": "CameraAngle + ((RotationSpeed * DirectionBuffer) * 60 * dt)"
+							}
+						}
+					],
+					"sid": 107714033502349
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the player at a specific angle. The angle between the player and the camera is also taken in consideration."
+				},
+				{
+					"functionName": "MoveAtAngle",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "OffsetAngle",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 599807511595588
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-vector-x",
+							"objectClass": "PlayerCollision",
+							"sid": 168763411760576,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"vector-x": "cos(CameraAngle + OffsetAngle) * PlayerCollision.8Direction.MaxSpeed"
+							}
+						},
+						{
+							"id": "set-vector-y",
+							"objectClass": "PlayerCollision",
+							"sid": 305867996296947,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"vector-y": "sin(CameraAngle + OffsetAngle) * PlayerCollision.8Direction.MaxSpeed"
+							}
+						}
+					],
+					"sid": 127032738824359
+				}
+			],
+			"sid": 156654050574379
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Animations",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Change the player animation depending on its current movement speed. If the player is moving faster than 16px per second, set its animation to \"Walk\", otherwise set it to \"Idle\"."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-speed",
+							"objectClass": "PlayerCollision",
+							"sid": 701825930378668,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"comparison": 5,
+								"speed": "16"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerAnimations",
+							"sid": 641969526013142,
+							"parameters": {
+								"animation": "\"Walk\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 577149227002701
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 233483596028373
+						},
+						{
+							"id": "compare-speed",
+							"objectClass": "PlayerCollision",
+							"sid": 319999904997331,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"comparison": 2,
+								"speed": "16"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerAnimations",
+							"sid": 546873091811877,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 378578787104574
+				}
+			],
+			"sid": 146708963998941
+		},
+		{
+			"eventType": "comment",
+			"text": "How dense the water mesh will be."
+		},
+		{
+			"eventType": "variable",
+			"name": "MESHSIZE",
+			"type": "number",
+			"initialValue": "32",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 952679141221514
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast each vertex will be distorted."
+		},
+		{
+			"eventType": "variable",
+			"name": "DISTORTIONSPEED",
+			"type": "number",
+			"initialValue": "4",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 203161977183520
+		},
+		{
+			"eventType": "comment",
+			"text": "How hard each vertex will be distorted."
+		},
+		{
+			"eventType": "variable",
+			"name": "DISTORTIONSTRENGTH",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 111489926422294
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Water",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the water by creating a mesh of equal proportions on both horizontal and vertical axis."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 992179965907376
+						}
+					],
+					"actions": [
+						{
+							"id": "set-mesh-size",
+							"objectClass": "Water",
+							"sid": 833025305495893,
+							"parameters": {
+								"cols": "MeshSize",
+								"rows": "MeshSize"
+							}
+						}
+					],
+					"sid": 497219409189085
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the water by scrolling its texture and changing the Z elevation of each vertex in with a wave pattern, creating a very convincing sea look."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 918609454381647
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Water",
+							"sid": 270434772084663,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + 0.25 * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Water",
+							"sid": 265004712388173,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + 0.25 * 60 * dt"
+							}
+						}
+					],
+					"sid": 731564239131541,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 536777512314329,
+									"parameters": {
+										"name": "\"X\"",
+										"start-index": "0",
+										"end-index": "MeshSize - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 230335237040235,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 128717314084796,
+											"parameters": {
+												"name": "\"Y\"",
+												"start-index": "0",
+												"end-index": "MeshSize - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-mesh-point",
+											"objectClass": "Water",
+											"sid": 938007686726293,
+											"parameters": {
+												"col": "loopindex(\"X\")",
+												"row": "loopindex(\"Y\")",
+												"mode": "relative",
+												"posx": "0",
+												"posy": "0",
+												"z-elevation": "(2 + cos(time * DISTORTIONSPEED * ((loopindex(\"X\") + loopindex(\"Y\"))))) * DISTORTIONSTRENGTH",
+												"texx": "0",
+												"texy": "0"
+											}
+										}
+									],
+									"sid": 449109952526197
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 592493056376844
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "CameraOverlay",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly update the time on the camera overlay timer. The \"zeropad()\" system expression is used to achieve the \"00:00:00\" format."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 896533778253297
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "RecordingTime",
+							"sid": 997489646264564,
+							"parameters": {
+								"text": "zeropad(int(time/60/60% 60),2) & \":\"& zeropad(int(time/60% 60),2) & \":\" & zeropad(int(time%60),2)"
+							}
+						}
+					],
+					"sid": 790155208889806
+				}
+			],
+			"sid": 968414917654672
+		}
+	],
+	"sid": 532679102703632
+}

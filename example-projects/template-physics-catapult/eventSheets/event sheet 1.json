@@ -1,0 +1,209 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "IsAiming",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 337788128828608
+		},
+		{
+			"eventType": "comment",
+			"text": "On startup we need to increase the quality of the physics processing from 8 & 3 iterations to 12 & 8, otherwise sometimes the towers fall down by themselves.  This can make the game run slower, but is necessary for it to be stable."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 8740644491687165
+				}
+			],
+			"actions": [
+				{
+					"id": "set-stepping-iterations",
+					"objectClass": "Pig",
+					"sid": 5051370292830944,
+					"behaviorType": "Physics",
+					"parameters": {
+						"velocity-iterations": "12",
+						"position-iterations": "8"
+					}
+				}
+			],
+			"sid": 5373348372094565
+		},
+		{
+			"eventType": "comment",
+			"text": "While aiming, set the pig by the catapult block."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 197823643859712,
+					"parameters": {
+						"variable": "IsAiming"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-position-to-another-object",
+					"objectClass": "Pig",
+					"sid": 4089711715513128,
+					"parameters": {
+						"object": "CatapultBlock",
+						"image-point-optional": "0"
+					}
+				},
+				{
+					"id": "scroll-to-object",
+					"objectClass": "System",
+					"sid": 1884423435613384,
+					"parameters": {
+						"object": "CatapultBlock"
+					}
+				}
+			],
+			"sid": 7113483593624973,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "While touching in the aiming stage, position and angle the pig to show the aim."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-in-touch",
+							"objectClass": "Touch",
+							"sid": 4612583821947545
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle",
+							"objectClass": "Pig",
+							"sid": 7674445030767906,
+							"parameters": {
+								"angle": "angle(Touch.X, Touch.Y, CatapultBlock.X, CatapultBlock.Y)"
+							}
+						},
+						{
+							"id": "move-at-angle",
+							"objectClass": "Pig",
+							"sid": 8116340838173058,
+							"parameters": {
+								"angle": "Self.Angle + 180",
+								"distance": "min(distance(Touch.X, Touch.Y, CatapultBlock.X, CatapultBlock.Y) / 3, 45)"
+							}
+						}
+					],
+					"sid": 5084569446190209
+				},
+				{
+					"eventType": "comment",
+					"text": "When releasing in the aiming stage, set IsAiming to 0 (so the pig is no longer positioned according to aim) then apply an impulse proportional to the aim."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-touch-end",
+							"objectClass": "Touch",
+							"sid": 5862580797813219
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 670012107212517,
+							"parameters": {
+								"variable": "IsAiming",
+								"value": "false"
+							}
+						},
+						{
+							"id": "apply-impulse-at-angle",
+							"objectClass": "Pig",
+							"sid": 6111433530557027,
+							"behaviorType": "Physics",
+							"parameters": {
+								"impulse": "distance(Self.X, Self.Y, CatapultBlock.X, CatapultBlock.Y) / 4.5",
+								"angle": "Self.Angle",
+								"image-point": "0"
+							}
+						}
+					],
+					"sid": 28366515603001
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "If IsAiming is not 1 (the pig has been fired), scroll to the pig."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 9436656589855964
+				}
+			],
+			"actions": [
+				{
+					"id": "scroll-to-object",
+					"objectClass": "System",
+					"sid": 273595749995992,
+					"parameters": {
+						"object": "Pig"
+					}
+				}
+			],
+			"sid": 8625199523158687
+		},
+		{
+			"eventType": "comment",
+			"text": "Restart when pressing the restart button."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "RestartButton",
+					"sid": 395606485133550
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 428497323265413,
+					"parameters": {
+						"variable": "IsAiming",
+						"value": "true"
+					}
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 871702768502857
+				}
+			],
+			"sid": 678943913673312
+		}
+	],
+	"sid": 490706598650577
+}

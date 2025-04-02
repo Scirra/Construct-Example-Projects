@@ -1,0 +1,1020 @@
+{
+	"name": "GameplayCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Huge thanks to @Skymen75 for helping us with this template."
+		},
+		{
+			"eventType": "comment",
+			"text": "How long it takes for the player to move to another cell."
+		},
+		{
+			"eventType": "variable",
+			"name": "MOVETIME",
+			"type": "number",
+			"initialValue": "0.25",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 224396982167644
+		},
+		{
+			"eventType": "comment",
+			"text": "How long it takes for the player to turn."
+		},
+		{
+			"eventType": "variable",
+			"name": "TURNTIME",
+			"type": "number",
+			"initialValue": "0.25",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 214017488921114
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 918209583751757
+						}
+					],
+					"actions": [],
+					"sid": 103263356840701,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Create a 3D cube for each wall in the map and store the wall UID inside a local variable in the 3D cube, so it's possible to reference the 3D cube later."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 494972131297749,
+									"parameters": {
+										"object": "WallMap"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 262310403279566,
+									"parameters": {
+										"object-to-create": "Wall3D",
+										"layer": "\"3DWorld\"",
+										"x": "WallMap.X",
+										"y": "WallMap.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Wall3D",
+									"sid": 241941154479332,
+									"parameters": {
+										"instance-variable": "WallMapUID",
+										"value": "WallMap.UID"
+									}
+								}
+							],
+							"sid": 891248747553978
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly adjust the amount of black in each wall, based on the distance between the wall itself and the player, creating a dark fog effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 981423311870658
+						}
+					],
+					"actions": [],
+					"sid": 391344459176039,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "BlackColor",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 929131215582158
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 254969200294241,
+									"parameters": {
+										"object": "Wall3D"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 847238295937309,
+									"parameters": {
+										"variable": "BlackColor",
+										"value": "clamp(512 - distance(PlayerMap.X, PlayerMap.Y, Wall3D.X, Wall3D.Y) * 4, 0, 255)"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "Wall3D",
+									"sid": 265272709254848,
+									"parameters": {
+										"color": "rgbEx255(BlackColor, BlackColor, BlackColor)"
+									}
+								}
+							],
+							"sid": 127379140263961
+						}
+					]
+				}
+			],
+			"sid": 819123625148060
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Only allow the player to move or turn if he's currently standing still."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerMap",
+							"sid": 996382792218618,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Turn\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerMap",
+							"sid": 593043246752811,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 751510943445601,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Turn the player left by changing its angle."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 285652708631893,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 286246385636871,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerMap",
+									"sid": 790870761601108,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Turn\"",
+										"property": "offsetAngle",
+										"end-value": "Self.Angle - 90",
+										"time": "TURNTIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make the blur mask visible, so the environment is horizontally blurred, enhancing the feeling of fast motion."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "BlurMask",
+									"sid": 478835052756031,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move the hand left slightly."
+								},
+								{
+									"callFunction": "OffsetHand",
+									"sid": 678799513601268,
+									"parameters": [
+										"-16",
+										"0"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Scroll the sky texture, so it look like it's tied to environment, even though it's just a static image."
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "SkyTexture",
+									"sid": 988438243388760,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Offset\"",
+										"start-value": "SkyTexture.ImageOffsetX",
+										"end-value": "SkyTexture.ImageOffsetX + 320",
+										"time": "TURNTIME",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Slightly tilt the camera left."
+								},
+								{
+									"callFunction": "TiltCamera",
+									"sid": 939000266397484,
+									"parameters": [
+										"-5"
+									]
+								}
+							],
+							"sid": 502616730739575,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Turn the player right by changing its angle."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 535330251451065,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 688435447586596,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerMap",
+									"sid": 862747260731878,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Turn\"",
+										"property": "offsetAngle",
+										"end-value": "Self.Angle + 90",
+										"time": "TURNTIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make the blur mask visible, so the environment is horizontally blurred, enhancing the feeling of fast motion."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "BlurMask",
+									"sid": 129420473403514,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move the hand right slightly."
+								},
+								{
+									"callFunction": "OffsetHand",
+									"sid": 333803570069765,
+									"parameters": [
+										"16",
+										"0"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Scroll the sky texture, so it look like it's tied to environment, even though it's just a static image."
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "SkyTexture",
+									"sid": 867822198696235,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Offset\"",
+										"start-value": "SkyTexture.ImageOffsetX",
+										"end-value": "SkyTexture.ImageOffsetX - 320",
+										"time": "TURNTIME",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Slightly tilt the camera right."
+								},
+								{
+									"callFunction": "TiltCamera",
+									"sid": 231290818948167,
+									"parameters": [
+										"5"
+									]
+								}
+							],
+							"sid": 270057906933567,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player forward, but only if there's no wall in front of it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 554756279573129,
+									"parameters": {
+										"key": 38
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 581456923323135,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-up"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 423619073682922,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-at-offset",
+											"objectClass": "PlayerMap",
+											"sid": 567972798697551,
+											"parameters": {
+												"object": "WallMap",
+												"offset-x": "cos(Self.Angle) * 16",
+												"offset-y": "sin(Self.Angle) * 16"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-two-properties",
+											"objectClass": "PlayerMap",
+											"sid": 154579571319441,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Move\"",
+												"property": "position",
+												"end-x": "Self.X + cos(Self.Angle) * 16",
+												"end-y": "Self.Y + sin(Self.Angle) * 16",
+												"time": "MOVETIME",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move the hand up slightly."
+										},
+										{
+											"callFunction": "OffsetHand",
+											"sid": 380378369756236,
+											"parameters": [
+												"0",
+												"-8"
+											]
+										}
+									],
+									"sid": 328410110008890
+								}
+							],
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player backwards, but only if there's no wall behind it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 651538069033157,
+									"parameters": {
+										"key": 40
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 607108910715114,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-down"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 116061385989782,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-at-offset",
+											"objectClass": "PlayerMap",
+											"sid": 170692047563652,
+											"parameters": {
+												"object": "WallMap",
+												"offset-x": "cos(Self.Angle + 180) * 16",
+												"offset-y": "sin(Self.Angle + 180) * 16"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-two-properties",
+											"objectClass": "PlayerMap",
+											"sid": 748758190444398,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Move\"",
+												"property": "position",
+												"end-x": "Self.X + cos(Self.Angle + 180) * 16",
+												"end-y": "Self.Y + sin(Self.Angle + 180) * 16",
+												"time": "MOVETIME",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move the hand up slightly."
+										},
+										{
+											"callFunction": "OffsetHand",
+											"sid": 233318282295439,
+											"parameters": [
+												"0",
+												"-8"
+											]
+										}
+									],
+									"sid": 565664712217851
+								}
+							],
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Offset the hand position based on a X and Y parameters."
+				},
+				{
+					"functionName": "OffsetHand",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "OffsetX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 646855610355407
+						},
+						{
+							"name": "OffsetY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 165374420145317
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-two-properties",
+							"objectClass": "PlayerHand",
+							"sid": 567127565595032,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Offset\"",
+								"property": "position",
+								"end-x": "Self.X + OffsetX",
+								"end-y": "Self.Y + OffsetY",
+								"time": "MOVETIME / 2",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes"
+							}
+						}
+					],
+					"sid": 110187893070827
+				},
+				{
+					"eventType": "comment",
+					"text": "Tilt the camera left or right based on a specific angle, which can be used to define how intense the tilt will be."
+				},
+				{
+					"functionName": "TiltCamera",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "TiltAngle",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 222818646557025
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 230779234737296,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TiltCamera\"",
+								"start-value": "0",
+								"end-value": "TiltAngle",
+								"time": "TURNTIME / 2",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes"
+							}
+						}
+					],
+					"sid": 841166906863845
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "GameManager",
+							"sid": 428947384255583,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TiltCamera\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layer-angle",
+							"objectClass": "System",
+							"sid": 332821816330566,
+							"parameters": {
+								"layer": "\"3DWorld\"",
+								"angle": "GameManager.Tween.Value(\"TiltCamera\")"
+							}
+						}
+					],
+					"sid": 102084513992924
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player is done turning, round its angle to avoid undesired floating values like \"89.99999999999999\"."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerMap",
+							"sid": 634527301640458,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Turn\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle",
+							"objectClass": "PlayerMap",
+							"sid": 906622626099772,
+							"parameters": {
+								"angle": "round(Self.Angle)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also disable the blur mask."
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "BlurMask",
+							"sid": 874639318476870,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 820587519625244
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player is done moving, round its position to avoid undesired floating value like \"63.99999999999999\"."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerMap",
+							"sid": 251200213907880,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "PlayerMap",
+							"sid": 851760557784440,
+							"parameters": {
+								"x": "round(Self.X)",
+								"y": "round(Self.Y)"
+							}
+						}
+					],
+					"sid": 618838820889611
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the sky texture offset while the \"Offset\" tag is being played."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "SkyTexture",
+							"sid": 969044473324672,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Offset\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "SkyTexture",
+							"sid": 109371549863158,
+							"parameters": {
+								"offset-x": "Self.Tween.Value(\"Offset\")"
+							}
+						}
+					],
+					"sid": 298452058476879
+				}
+			],
+			"sid": 471481611390198
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly set the 3D camera to match the player position in the 2D world, but with slightly higher Z value, so its head is above the floor level."
+				},
+				{
+					"eventType": "variable",
+					"name": "HEADZ",
+					"type": "number",
+					"initialValue": "4",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 844719111897068
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 241239945894995
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 621193508050007,
+							"parameters": {
+								"cam-x": "PlayerMap.X",
+								"cam-y": "PlayerMap.Y",
+								"cam-z": "HEADZ",
+								"look-x": "PlayerMap.X + cos(PlayerMap.Angle) * 16",
+								"look-y": "PlayerMap.Y + sin(PlayerMap.Angle) * 16",
+								"look-z": "HEADZ",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 566849660135750
+				}
+			],
+			"sid": 651300120523050
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Map",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Toggle the map visibility on and off."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 272664084450473,
+							"parameters": {
+								"key": 90
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 721807704488758,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 430976993908214,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "layer-is-visible",
+									"objectClass": "System",
+									"sid": 309353956439524,
+									"parameters": {
+										"layer": "\"Map\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 703811128531274,
+									"parameters": {
+										"layer": "\"Map\"",
+										"visibility": "invisible"
+									}
+								}
+							],
+							"sid": 774519477629468
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 489871062447840
+								},
+								{
+									"id": "layer-is-visible",
+									"objectClass": "System",
+									"sid": 590491652085645,
+									"parameters": {
+										"layer": "\"Map\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 687828259774500,
+									"parameters": {
+										"layer": "\"Map\"",
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 416193138491793
+						}
+					],
+					"isOrBlock": true
+				}
+			],
+			"sid": 164841955468905
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Restart the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 671497182599717,
+							"parameters": {
+								"key": 82
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 835647920718157,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 351333340633101
+						}
+					],
+					"sid": 965704990208401,
+					"isOrBlock": true
+				}
+			],
+			"sid": 922458004169721
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Spell",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly update the pixellate effect in the spell layer, so it matches the canvas resolution independently of how large the game windows is."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 785570253276482
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layer-effect-parameter",
+							"objectClass": "System",
+							"sid": 424406498878807,
+							"parameters": {
+								"layer": "\"Fire\"",
+								"effect": "\"Pixellate\"",
+								"parameter-index": "0",
+								"value": "(PlatformInfo.CanvasDeviceWidth / OriginalViewportWidth) * LayerScale(\"Fire\")"
+							}
+						}
+					],
+					"sid": 879242454199003
+				}
+			],
+			"sid": 298657958655902
+		}
+	],
+	"sid": 809539442519183
+}

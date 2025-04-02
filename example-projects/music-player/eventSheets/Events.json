@@ -1,0 +1,2055 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nTwitter: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Global variables"
+		},
+		{
+			"eventType": "variable",
+			"name": "currentIndex",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Current music index selected",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 601559324753960
+		},
+		{
+			"eventType": "variable",
+			"name": "currentPlaying",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the player currently playing a song?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 834264229512777
+		},
+		{
+			"eventType": "variable",
+			"name": "nMusicAvailable",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "Number of music tracks available",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 272504165108767
+		},
+		{
+			"eventType": "variable",
+			"name": "volumeLevel",
+			"type": "number",
+			"initialValue": "80",
+			"comment": "Volume level",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 372168903085550
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Functions",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Convert from sound volume scale to dB"
+				},
+				{
+					"functionName": "scale2dB",
+					"functionDescription": "Convert from sound volume scale to db",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "par_scale",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Scale value",
+							"sid": 135692602455916
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "The formula below was adapted from the discussion at [u]https://www.construct.net/en/forum/construct-2/general-discussion-17/why-db-unit-audio-volume-74534[/u]"
+						},
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 896565141478027,
+							"parameters": {
+								"value": "(par_scale = 0) ? -999 : (-log10(100/par_scale) * 33.2)"
+							}
+						}
+					],
+					"sid": 960791257579123
+				},
+				{
+					"eventType": "comment",
+					"text": "Play currently selected music"
+				},
+				{
+					"functionName": "playMusic",
+					"functionDescription": "Play currently selected music",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 154415535359897,
+							"parameters": {
+								"object": "TextMusicName",
+								"expression": "TextMusicName.musicSlot = currentIndex"
+							}
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 574107178541161,
+							"parameters": {
+								"object": "Button",
+								"expression": "Button.TemplateName = \"PlayPause\""
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 512473354484569,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 175624018653194,
+							"parameters": {
+								"variable": "currentPlaying",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Button",
+							"sid": 120782861564452,
+							"parameters": {
+								"animation": "\"Pause\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "play-by-name",
+							"objectClass": "Audio",
+							"sid": 266938888243904,
+							"parameters": {
+								"folder": "sounds",
+								"audio-file-name": "TextMusicName.Text",
+								"loop": "not-looping",
+								"volume": "0",
+								"stereo-pan": "0",
+								"tag-optional": "\"music\""
+							}
+						},
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 231925177131191,
+							"parameters": {
+								"tag": "\"music\"",
+								"db": "Functions.scale2dB(volumeLevel)"
+							}
+						}
+					],
+					"sid": 610880181829422
+				},
+				{
+					"eventType": "comment",
+					"text": "Change current music"
+				},
+				{
+					"functionName": "changeMusic",
+					"functionDescription": "Change current music",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 822394014615647,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If there is a music playing already (not paused), stop it and immediately start playing the new one"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-tag-playing",
+									"objectClass": "Audio",
+									"sid": 197023011219077,
+									"parameters": {
+										"tag": "\"music\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "stop",
+									"objectClass": "Audio",
+									"sid": 161368679760833,
+									"parameters": {
+										"tag": "\"music\""
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 779795592787379,
+									"parameters": {
+										"seconds": "0.1"
+									}
+								},
+								{
+									"callFunction": "playMusic",
+									"sid": 540594648582685
+								}
+							],
+							"sid": 385440763668569
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, just stop the current music (which is on pause)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 550926431977688
+								}
+							],
+							"actions": [
+								{
+									"id": "stop",
+									"objectClass": "Audio",
+									"sid": 333374178139079,
+									"parameters": {
+										"tag": "\"music\""
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 421856048405663,
+									"parameters": {
+										"variable": "currentPlaying",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 536849911228964
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Highlight the music name textbox that corresponds to currentIndex"
+				},
+				{
+					"functionName": "highlightMusicText",
+					"functionDescription": "Highlight the music name textbox that corresponds to currentIndex",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 705084911714657,
+							"parameters": {
+								"object": "TextMusicName"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-font-color",
+							"objectClass": "TextMusicName",
+							"sid": 949376474768706,
+							"parameters": {
+								"color": "Self.musicSlot = currentIndex ? rgba255(33, 204, 26, 255) : rgba255(16, 105, 12, 255)"
+							}
+						}
+					],
+					"sid": 892332867479736
+				}
+			],
+			"sid": 129244347160553
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 209842449857179
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Setup music array"
+						},
+						{
+							"id": "push",
+							"objectClass": "ArrayMusicNames",
+							"sid": 285474123672430,
+							"parameters": {
+								"where": "back",
+								"value": "\"BugBoogie.webm\"",
+								"axis": "x"
+							}
+						},
+						{
+							"id": "push",
+							"objectClass": "ArrayMusicNames",
+							"sid": 392150701845897,
+							"parameters": {
+								"where": "back",
+								"value": "\"EpicArpg.webm\"",
+								"axis": "x"
+							}
+						},
+						{
+							"id": "push",
+							"objectClass": "ArrayMusicNames",
+							"sid": 501100138119008,
+							"parameters": {
+								"where": "back",
+								"value": "\"RhythmSquare.webm\"",
+								"axis": "x"
+							}
+						},
+						{
+							"id": "push",
+							"objectClass": "ArrayMusicNames",
+							"sid": 181095063596135,
+							"parameters": {
+								"where": "back",
+								"value": "\"\"",
+								"axis": "x"
+							}
+						},
+						{
+							"id": "push",
+							"objectClass": "ArrayMusicNames",
+							"sid": 365263329890868,
+							"parameters": {
+								"where": "back",
+								"value": "\"\"",
+								"axis": "x"
+							}
+						},
+						{
+							"id": "push",
+							"objectClass": "ArrayMusicNames",
+							"sid": 637665279098223,
+							"parameters": {
+								"where": "back",
+								"value": "\"\"",
+								"axis": "x"
+							}
+						},
+						{
+							"id": "push",
+							"objectClass": "ArrayMusicNames",
+							"sid": 210274659590634,
+							"parameters": {
+								"where": "back",
+								"value": "\"\"",
+								"axis": "x"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start audio analyzer effect"
+						},
+						{
+							"id": "add-analyser-effect",
+							"objectClass": "Audio",
+							"sid": 730185805409461,
+							"parameters": {
+								"tag": "\"music\"",
+								"fft-size": "64",
+								"smoothing": "0.75"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Highlight the first music"
+						},
+						{
+							"callFunction": "highlightMusicText",
+							"sid": 471680901914004
+						}
+					],
+					"sid": 376144981653712
+				}
+			],
+			"sid": 574582667933586
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Buttons",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Music play/pause"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 912690309969947,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Button"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 789851455506641,
+							"parameters": {
+								"value": "Button.TemplateName = \"PlayPause\""
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 374169590490991,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 279168891498174,
+							"parameters": {
+								"value": "nMusicAvailable > 0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 267527060302832,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player is currently playing a music"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 778019603174584,
+									"parameters": {
+										"variable": "currentPlaying"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 328867042779339,
+									"parameters": {
+										"object": "Button",
+										"expression": "Button.TemplateName = \"PlayPause\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 243620206206600,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the music is not paused, pause it and change play button animation to reflect the new state"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-tag-playing",
+											"objectClass": "Audio",
+											"sid": 618652724525176,
+											"parameters": {
+												"tag": "\"music\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "Button",
+											"sid": 926741704380692,
+											"parameters": {
+												"animation": "\"Play\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-paused",
+											"objectClass": "Audio",
+											"sid": 698665551140496,
+											"parameters": {
+												"tag": "\"music\"",
+												"state": "pause"
+											}
+										}
+									],
+									"sid": 365569527361882
+								},
+								{
+									"eventType": "comment",
+									"text": "Else, if the music is paused, resume it and change play button animation accordingly"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 644008951808018
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "Button",
+											"sid": 597517419753689,
+											"parameters": {
+												"animation": "\"Pause\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-paused",
+											"objectClass": "Audio",
+											"sid": 535307273582738,
+											"parameters": {
+												"tag": "\"music\"",
+												"state": "resume"
+											}
+										}
+									],
+									"sid": 362813055308096
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, completely stop any playing music and start playing currently selected (but not yet playing) music"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 721449111920677
+								}
+							],
+							"actions": [
+								{
+									"id": "stop",
+									"objectClass": "Audio",
+									"sid": 473867257673032,
+									"parameters": {
+										"tag": "\"music\""
+									}
+								},
+								{
+									"callFunction": "playMusic",
+									"sid": 762176125854795
+								}
+							],
+							"sid": 412975982351665
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Stop music"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 400219742150025,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Button"
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 539945390857203,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 761607362521680,
+							"parameters": {
+								"value": "Button.TemplateName = \"Stop\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "stop",
+							"objectClass": "Audio",
+							"sid": 513299328471485,
+							"parameters": {
+								"tag": "\"music\""
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 198202624840345,
+							"parameters": {
+								"variable": "currentPlaying",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 354382149101116
+				},
+				{
+					"eventType": "comment",
+					"text": "Change music"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 487153257389154,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Button"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 429471225076359,
+							"parameters": {
+								"value": "Button.TemplateName = \"Previous\""
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 770023853892537,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 963821299234450,
+							"parameters": {
+								"value": "nMusicAvailable > 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Go to previous music (if exists). Cycle to the last one if current is the first on the list."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 509823330701834,
+							"parameters": {
+								"variable": "currentIndex",
+								"value": "currentIndex > 0 ? currentIndex - 1 : nMusicAvailable - 1"
+							}
+						},
+						{
+							"callFunction": "highlightMusicText",
+							"sid": 365382206098061
+						},
+						{
+							"callFunction": "changeMusic",
+							"sid": 379914970872189
+						}
+					],
+					"sid": 493700275787765
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 768342708784793,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Button"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 859207102597684,
+							"parameters": {
+								"value": "Button.TemplateName = \"Next\""
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 997473775345241,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 331655294353019,
+							"parameters": {
+								"value": "nMusicAvailable > 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Go to next music (if exists). Cycle to the first one if current is the last on the list."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 949105662703278,
+							"parameters": {
+								"variable": "currentIndex",
+								"value": "(currentIndex + 1) % (nMusicAvailable)"
+							}
+						},
+						{
+							"callFunction": "highlightMusicText",
+							"sid": 612942245057787
+						},
+						{
+							"callFunction": "changeMusic",
+							"sid": 169095989328268
+						}
+					],
+					"sid": 229895962936307
+				},
+				{
+					"eventType": "comment",
+					"text": "Change music by clicking directly on the textbox"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 918014381201824,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "TextMusicName"
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 239007754706453,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 927668998819928,
+							"parameters": {
+								"value": "nMusicAvailable > 0"
+							}
+						},
+						{
+							"id": "compare-text",
+							"objectClass": "TextMusicName",
+							"sid": 526086784007426,
+							"parameters": {
+								"text-to-compare": "\"\"",
+								"case-sensitivity": "ignore-case"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-visible",
+							"objectClass": "AnalyzerBG",
+							"sid": 989121863315793,
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Go directly to the clicked music"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 378286479416585,
+							"parameters": {
+								"variable": "currentIndex",
+								"value": "TextMusicName.musicSlot"
+							}
+						},
+						{
+							"callFunction": "highlightMusicText",
+							"sid": 447445294619118
+						},
+						{
+							"callFunction": "changeMusic",
+							"sid": 118511641037707
+						}
+					],
+					"sid": 507168338760673
+				}
+			],
+			"sid": 115237952392200
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Volume Buttons",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Decrease volume"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 699796954877065,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Button"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 478815807435641,
+							"parameters": {
+								"value": "Button.TemplateName = \"VolumeDecrease\""
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 819671275490748,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 711837068197003,
+							"parameters": {
+								"variable": "volumeLevel",
+								"value": "max(volumeLevel - 10, 0)"
+							}
+						},
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 633434748595705,
+							"parameters": {
+								"tag": "\"music\"",
+								"db": "Functions.scale2dB(volumeLevel)"
+							}
+						}
+					],
+					"sid": 995624940090247
+				},
+				{
+					"eventType": "comment",
+					"text": "Increase Volume"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 317807452680266,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Button"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 138034718448997,
+							"parameters": {
+								"value": "Button.TemplateName = \"VolumeIncrease\""
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 788953813615572,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 995580457476046,
+							"parameters": {
+								"variable": "volumeLevel",
+								"value": "min(volumeLevel + 10, 100)"
+							}
+						},
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 635029999679473,
+							"parameters": {
+								"tag": "\"music\"",
+								"db": "Functions.scale2dB(volumeLevel)"
+							}
+						}
+					],
+					"sid": 721724776450316
+				}
+			],
+			"sid": 134118166056304
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Filesystem Buttons",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Delete currently selected music"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 807041302139564,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Button"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 131381559342020,
+							"parameters": {
+								"value": "Button.TemplateName = \"Delete\""
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 879742276775935,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-at-x",
+							"objectClass": "ArrayMusicNames",
+							"sid": 341958132351102,
+							"parameters": {
+								"x": "currentIndex",
+								"comparison": 1,
+								"value": "\"\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Stop the music"
+						},
+						{
+							"id": "stop",
+							"objectClass": "Audio",
+							"sid": 273079320433265,
+							"parameters": {
+								"tag": "\"music\""
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 615670152150503,
+							"parameters": {
+								"variable": "currentPlaying",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 631415114772249,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Readjust the list by moving every music the comes after the deleted one down one position"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 500001685697577,
+									"parameters": {
+										"count": "nMusicAvailable"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 969520160805068,
+									"parameters": {
+										"object": "TextMusicName",
+										"expression": "TextMusicName.musicSlot = loopindex"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 817855020142610,
+									"parameters": {
+										"value": "loopindex >= currentIndex"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-at-x",
+									"objectClass": "ArrayMusicNames",
+									"sid": 982770157719698,
+									"parameters": {
+										"x": "loopindex",
+										"value": "Self.At(loopindex + 1)"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextMusicName",
+									"sid": 519748282627351,
+									"parameters": {
+										"text": "ArrayMusicNames.At(loopindex)"
+									}
+								}
+							],
+							"sid": 212269441388608
+						},
+						{
+							"eventType": "comment",
+							"text": "Reduce the number of available music tracks by 1"
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 828619303293319,
+									"parameters": {
+										"variable": "nMusicAvailable",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 621812988252627
+						},
+						{
+							"eventType": "comment",
+							"text": "If the deleted music was the last one and there is still at least one track left, move the cursor one position down"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 908949477494988,
+									"parameters": {
+										"value": "nMusicAvailable > 0 &  currentIndex > nMusicAvailable - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 717719015181372,
+									"parameters": {
+										"variable": "currentIndex",
+										"value": "1"
+									}
+								},
+								{
+									"callFunction": "highlightMusicText",
+									"sid": 928986324190102
+								}
+							],
+							"sid": 196677453988413
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Add music"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 940489143356107,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Button"
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 558350174144169,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 752391929966762,
+							"parameters": {
+								"value": "Button.TemplateName = \"Add\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Stop currently playing music"
+						},
+						{
+							"id": "stop",
+							"objectClass": "Audio",
+							"sid": 582458334091047,
+							"parameters": {
+								"tag": "\"music\""
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 698287952560982,
+							"parameters": {
+								"variable": "currentPlaying",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 816704537345271,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If there is still music slots available, show file picker dialog"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 913208768132901,
+									"parameters": {
+										"value": "nMusicAvailable < 6"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-accept-type",
+									"objectClass": "FileSystem",
+									"sid": 816464423630605,
+									"parameters": {
+										"mime-type": "\"audio/mpeg\"",
+										"file-extensions": "\".mp3\"",
+										"description": "\"MP3 file\""
+									}
+								},
+								{
+									"id": "add-accept-type",
+									"objectClass": "FileSystem",
+									"sid": 384686653731157,
+									"parameters": {
+										"mime-type": "\"audio/webm\"",
+										"file-extensions": "\".webm\"",
+										"description": "\"WEBM file\""
+									}
+								},
+								{
+									"id": "add-accept-type",
+									"objectClass": "FileSystem",
+									"sid": 681986322103879,
+									"parameters": {
+										"mime-type": "\"audio/ogg\"",
+										"file-extensions": "\".ogg\"",
+										"description": "\"WEBM file\""
+									}
+								},
+								{
+									"id": "show-open-file-picker",
+									"objectClass": "FileSystem",
+									"sid": 521247381459234,
+									"parameters": {
+										"picker-tag": "\"MusicPicker\"",
+										"show-accept-all": false,
+										"multiple": false,
+										"id": "\"\"",
+										"start-in": "default"
+									}
+								}
+							],
+							"sid": 229764543510258
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, show an error message"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 691965868495116
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextError",
+									"sid": 444226551719349,
+									"parameters": {
+										"text": "\"Music slots full\""
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextError",
+									"sid": 224490005031448,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ErrorOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeoutquint",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "yes",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 999397000092196
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When the file has been picked, read it to a binary data"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-picker-complete",
+							"objectClass": "FileSystem",
+							"sid": 546666921690667,
+							"parameters": {
+								"picker-tag": "\"MusicPicker\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "read-binary-file",
+							"objectClass": "FileSystem",
+							"sid": 434075689087838,
+							"parameters": {
+								"picker-tag": "\"MusicPicker\"",
+								"folder-path": "\"\"",
+								"file-tag": "\"MusicFile\"",
+								"data": "BinaryData"
+							}
+						}
+					],
+					"sid": 714904548653252
+				},
+				{
+					"eventType": "comment",
+					"text": "When the file has been fully read, add it to the Audio object, update track list and highlight the newly added music track. Finally, start playing it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-file-operation-complete",
+							"objectClass": "FileSystem",
+							"sid": 101573312040509,
+							"parameters": {
+								"file-tag": "\"MusicFile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-remote-url",
+							"objectClass": "Audio",
+							"sid": 479565173750793,
+							"parameters": {
+								"url": "BinaryData.GetURL",
+								"type": "\"\"",
+								"name": "FileSystem.FileNameAt(0)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 880521048534243,
+							"parameters": {
+								"variable": "currentIndex",
+								"value": "nMusicAvailable"
+							}
+						},
+						{
+							"callFunction": "highlightMusicText",
+							"sid": 542388308293823
+						}
+					],
+					"sid": 458704905971114,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 580518875528608,
+									"parameters": {
+										"object": "TextMusicName",
+										"expression": "TextMusicName.musicSlot = nMusicAvailable"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextMusicName",
+									"sid": 259877184435815,
+									"parameters": {
+										"text": "FileSystem.FileNameAt(0)"
+									}
+								},
+								{
+									"id": "set-at-x",
+									"objectClass": "ArrayMusicNames",
+									"sid": 131818339637614,
+									"parameters": {
+										"x": "nMusicAvailable",
+										"value": "FileSystem.FileNameAt(0)"
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 149705927808800,
+									"parameters": {
+										"variable": "nMusicAvailable",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 133309943374210
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"callFunction": "playMusic",
+									"sid": 124701441060620
+								}
+							],
+							"sid": 136375127885376
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Treat FileSystem errors by showing error messages to the user"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-picker-error",
+							"objectClass": "FileSystem",
+							"sid": 523291625789487,
+							"parameters": {
+								"picker-tag": "\"MusicPicker\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "TextError",
+							"sid": 442461373959273,
+							"parameters": {
+								"text": "\"No valid file picked\""
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextError",
+							"sid": 842729342308188,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "1",
+								"ease": "easeoutquint",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 207327273016669
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-file-operation-error",
+							"objectClass": "FileSystem",
+							"sid": 516160101862418,
+							"parameters": {
+								"file-tag": "\"MusicFile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "TextError",
+							"sid": 541797503160573,
+							"parameters": {
+								"text": "\"Could not load file\""
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextError",
+							"sid": 796512433650150,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "1",
+								"ease": "easeoutquint",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 904846156084071
+				}
+			],
+			"sid": 421217429305118
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Audio Analyzer Button",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Show/Hide audio analyzer"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 893311028924700,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Button"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 275803258355248,
+							"parameters": {
+								"value": "Button.TemplateName = \"Analyzer\""
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 652586171501770,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "AnalyzerBG",
+							"sid": 837500190637743,
+							"parameters": {
+								"visibility": "toggle"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "AnalyzerBin",
+							"sid": 481841140760801,
+							"parameters": {
+								"visibility": "toggle"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Button",
+							"sid": 594493841047384,
+							"parameters": {
+								"animation": "Self.AnimationName = \"Analyzer\" ? \"List\" : \"Analyzer\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 122022102442035
+				}
+			],
+			"sid": 450166105412595
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Seeker",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Seek time"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-movement",
+							"objectClass": "Mouse",
+							"sid": 810671479343008
+						},
+						{
+							"id": "mouse-button-is-down",
+							"objectClass": "Mouse",
+							"sid": 428154935683621,
+							"parameters": {
+								"mouse-button": "left"
+							}
+						},
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 340343587849688,
+							"parameters": {
+								"object": "MusicProgressBar"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Simulated drag action"
+						},
+						{
+							"id": "seek-to",
+							"objectClass": "Audio",
+							"sid": 816782821054790,
+							"parameters": {
+								"tag": "\"music\"",
+								"position": "(Mouse.X - MusicProgressBar.X)/MusicProgressBar.Width * Audio.Duration(\"music\")"
+							}
+						}
+					],
+					"sid": 665267565512951
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 325581791654535,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "MusicProgressBar"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Click action"
+						},
+						{
+							"id": "seek-to",
+							"objectClass": "Audio",
+							"sid": 792869911365114,
+							"parameters": {
+								"tag": "\"music\"",
+								"position": "(Mouse.X - MusicProgressBar.X)/MusicProgressBar.Width * Audio.Duration(\"music\")"
+							}
+						}
+					],
+					"sid": 334570108826507
+				}
+			],
+			"sid": 693248423454255
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Updatables",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update buttons highlight status"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 989675820405683,
+							"parameters": {
+								"object": "Button"
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "TextError",
+							"sid": 252476547446580,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ErrorOpacity\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 662504999846848,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Fully bright"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "mouse-button-is-down",
+									"objectClass": "Mouse",
+									"sid": 489594442097132,
+									"parameters": {
+										"mouse-button": "left"
+									}
+								},
+								{
+									"id": "cursor-is-over-object",
+									"objectClass": "Mouse",
+									"sid": 762803218805144,
+									"parameters": {
+										"object": "Button"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Button",
+									"sid": 945104810786587,
+									"parameters": {
+										"frame-number": "2"
+									}
+								}
+							],
+							"sid": 176621473874089
+						},
+						{
+							"eventType": "comment",
+							"text": "Half bright"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 735526908100478
+								},
+								{
+									"id": "cursor-is-over-object",
+									"objectClass": "Mouse",
+									"sid": 998864272777528,
+									"parameters": {
+										"object": "Button"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Button",
+									"sid": 236201513123212,
+									"parameters": {
+										"frame-number": "1"
+									}
+								}
+							],
+							"sid": 579214646930910
+						},
+						{
+							"eventType": "comment",
+							"text": "Dim"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 336923394491017
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Button",
+									"sid": 682538628302805,
+									"parameters": {
+										"frame-number": "0"
+									}
+								}
+							],
+							"sid": 139843104130475
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Update music progress and volume"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 392500396855061
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Progress bar"
+						},
+						{
+							"id": "set-width",
+							"objectClass": "MusicProgress",
+							"sid": 311058365013405,
+							"parameters": {
+								"width": "MusicProgressBar.Width * Audio.PlaybackTime(\"music\")/Audio.Duration(\"music\")"
+							}
+						},
+						{
+							"id": "set-position",
+							"objectClass": "MusicProgressDragger",
+							"sid": 762983115310455,
+							"parameters": {
+								"x": "MusicProgress.X + MusicProgress.Width",
+								"y": "MusicProgress.Y"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Volume"
+						},
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 996487865889343,
+							"parameters": {
+								"tag": "\"music\"",
+								"db": "Functions.scale2dB(volumeLevel)"
+							}
+						}
+					],
+					"sid": 913065866297230
+				},
+				{
+					"eventType": "comment",
+					"text": "Update Play button animation when the music stops"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 686270184015452,
+							"parameters": {
+								"variable": "currentPlaying"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 378895678417176,
+							"parameters": {
+								"object": "Button",
+								"expression": "Button.TemplateName = \"PlayPause\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Button",
+							"sid": 567139105072352,
+							"parameters": {
+								"animation": "\"Play\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 828205648801291
+				},
+				{
+					"eventType": "comment",
+					"text": "Update audio analyzer"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 504584624922832
+						}
+					],
+					"actions": [
+						{
+							"id": "set-height",
+							"objectClass": "AnalyzerBin",
+							"sid": 505775802731632,
+							"parameters": {
+								"height": "min(max(800 + Audio.AnalyserFreqBinAt(\"music\", 0, Self.binNumber) * 7, 0), 689)"
+							}
+						}
+					],
+					"sid": 858275474575794
+				},
+				{
+					"eventType": "comment",
+					"text": "Update currently playing music when it ends"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-ended",
+							"objectClass": "Audio",
+							"sid": 457704808558379,
+							"parameters": {
+								"tag": "\"music\""
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 250565839552384,
+							"parameters": {
+								"value": "Audio.Duration(\"music\") > 0 & Audio.PlaybackTime(\"music\") > Audio.Duration(\"music\") - 1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 591287760332925,
+							"parameters": {
+								"variable": "currentIndex",
+								"value": "(currentIndex + 1) % (nMusicAvailable)"
+							}
+						},
+						{
+							"callFunction": "highlightMusicText",
+							"sid": 394795273430363
+						},
+						{
+							"callFunction": "playMusic",
+							"sid": 256835669259894
+						}
+					],
+					"sid": 323680376770128
+				}
+			],
+			"sid": 132079383875644
+		}
+	],
+	"sid": 448731178170851
+}

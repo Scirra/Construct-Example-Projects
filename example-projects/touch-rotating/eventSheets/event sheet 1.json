@@ -1,0 +1,474 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "TouchPanID",
+			"type": "number",
+			"initialValue": "-1",
+			"comment": "ID of the touch using to pan",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 1230510640560827
+		},
+		{
+			"eventType": "variable",
+			"name": "TouchAngleID",
+			"type": "number",
+			"initialValue": "-1",
+			"comment": "ID of second touch using to rotate",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 4643179619956066
+		},
+		{
+			"eventType": "variable",
+			"name": "TouchLastX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Initial X position of touch (for pan)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 5784126775226514
+		},
+		{
+			"eventType": "variable",
+			"name": "TouchLastY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Initial Y position of touch (for pan)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 4462469493279042
+		},
+		{
+			"eventType": "variable",
+			"name": "TouchStartAngle",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Initial angle of touches (for rotate)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 3423384495792539
+		},
+		{
+			"eventType": "variable",
+			"name": "InitialAngle",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Initial scale of layout (for rotate)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 3824474410479846
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-start",
+					"objectClass": "Touch",
+					"sid": 1358802375792862
+				}
+			],
+			"actions": [],
+			"sid": 2758026465730803,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the user touches, and we're not already panning with a different touch, store the touch ID and the position of the touch. Note we get the position of the touch from a separate layer which has a parallax of 0, otherwise panning the view would alter the reported touch position, resulting in confusing feedback loops."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 760842567554795,
+							"parameters": {
+								"variable": "TouchPanID",
+								"comparison": 0,
+								"value": "-1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 6114902426785022,
+							"parameters": {
+								"variable": "TouchLastX",
+								"value": "Touch.X(\"UI\")"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 8223965341698254,
+							"parameters": {
+								"variable": "TouchLastY",
+								"value": "Touch.Y(\"UI\")"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 659279506720811,
+							"parameters": {
+								"variable": "TouchPanID",
+								"value": "Touch.TouchID"
+							}
+						}
+					],
+					"sid": 717294142161451
+				},
+				{
+					"eventType": "comment",
+					"text": "Otherwise if we're already panning with a touch, this must be a second touch. Use this second touch to rotate the display. We need to remember the starting angle of the touches, as well as the starting layout angle, in order to calculate the new rotation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 3431874274627839
+						},
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 4139461714622786,
+							"parameters": {
+								"variable": "TouchAngleID",
+								"comparison": 0,
+								"value": "-1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 1428997739403267,
+							"parameters": {
+								"variable": "TouchAngleID",
+								"value": "Touch.TouchID"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 3117904265240802,
+							"parameters": {
+								"variable": "TouchStartAngle",
+								"value": "angle(Touch.AbsoluteXForID(TouchPanID), Touch.AbsoluteYForID(TouchPanID), Touch.AbsoluteXForID(TouchAngleID), Touch.AbsoluteYForID(TouchAngleID))"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 8228213557672643,
+							"parameters": {
+								"variable": "InitialAngle",
+								"value": "LayoutAngle"
+							}
+						}
+					],
+					"sid": 4098442913654768
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "While we have a touch to pan with, and we're not rotating, offset the scroll position by the change in position of the touch. This makes the view scroll with the touch."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 5870689638011144,
+					"parameters": {
+						"variable": "TouchPanID",
+						"comparison": 1,
+						"value": "-1"
+					}
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 6788904042704479,
+					"parameters": {
+						"variable": "TouchAngleID",
+						"comparison": 0,
+						"value": "-1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "scroll-to-position",
+					"objectClass": "System",
+					"sid": 9145582716145406,
+					"parameters": {
+						"x": "scrollx - (Touch.X(\"UI\") - TouchLastX) / LayoutScale",
+						"y": "scrolly - (Touch.Y(\"UI\") - TouchLastY) / LayoutScale"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 9039935865694574,
+					"parameters": {
+						"variable": "TouchLastX",
+						"value": "Touch.X(\"UI\")"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 2232703787438953,
+					"parameters": {
+						"variable": "TouchLastY",
+						"value": "Touch.Y(\"UI\")"
+					}
+				}
+			],
+			"sid": 4941782270580781
+		},
+		{
+			"eventType": "comment",
+			"text": "If there is a second touch we're rotating with, adjust the layout angle based on the angle between the touches."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 229636673851178,
+					"parameters": {
+						"variable": "TouchAngleID",
+						"comparison": 1,
+						"value": "-1"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 8744966022886563,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "TouchCurrentAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "The current angle of the touches (for rotating)",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 9733510104223284
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 3212067715072864,
+							"parameters": {
+								"variable": "TouchCurrentAngle",
+								"value": "angle(Touch.AbsoluteXForID(TouchPanID), Touch.AbsoluteYForID(TouchPanID), Touch.AbsoluteXForID(TouchAngleID), Touch.AbsoluteYForID(TouchAngleID))"
+							}
+						},
+						{
+							"id": "set-layout-angle",
+							"objectClass": "System",
+							"sid": 3719752028254012,
+							"parameters": {
+								"angle": "InitialAngle - (TouchCurrentAngle - TouchStartAngle)"
+							}
+						}
+					],
+					"sid": 1853820362689571
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When the touch we are panning or rotating with ends, reset the stored touch ID so we stop the action."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-end",
+					"objectClass": "Touch",
+					"sid": 480219321906777
+				}
+			],
+			"actions": [],
+			"sid": 1848958852897267,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If we stop the first (panning) touch while rotating, make the second (rotating) touch become the new panning touch."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 5587444593436808,
+							"parameters": {
+								"variable": "TouchPanID",
+								"comparison": 0,
+								"value": "Touch.TouchID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 7834167967098645,
+							"parameters": {
+								"variable": "TouchPanID",
+								"value": "-1"
+							}
+						}
+					],
+					"sid": 5957948121193646,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 6021203512422406,
+									"parameters": {
+										"variable": "TouchAngleID",
+										"comparison": 1,
+										"value": "-1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 715825450768966,
+									"parameters": {
+										"variable": "TouchPanID",
+										"value": "TouchAngleID"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 1965472339360149,
+									"parameters": {
+										"variable": "TouchAngleID",
+										"value": "-1"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 3192180798815368,
+									"parameters": {
+										"variable": "TouchLastX",
+										"value": "Touch.XForID(TouchPanID, \"UI\")"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 4079643292645087,
+									"parameters": {
+										"variable": "TouchLastY",
+										"value": "Touch.YForID(TouchPanID, \"UI\")"
+									}
+								}
+							],
+							"sid": 9274456801273224
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 4715562545880318,
+							"parameters": {
+								"variable": "TouchAngleID",
+								"comparison": 0,
+								"value": "Touch.TouchID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 9543698713768956,
+							"parameters": {
+								"variable": "TouchAngleID",
+								"value": "-1"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 4351736987319497,
+							"parameters": {
+								"variable": "TouchLastX",
+								"value": "Touch.XForID(TouchPanID, \"UI\")"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 6372147853421454,
+							"parameters": {
+								"variable": "TouchLastY",
+								"value": "Touch.YForID(TouchPanID, \"UI\")"
+							}
+						}
+					],
+					"sid": 5295777269439014
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Display the touch IDs being used to pan or rotate."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 7446131909475579
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 7126028645005045,
+					"parameters": {
+						"text": "\"Panning with touch ID: \" & TouchPanID & newline & \"Rotating with touch ID: \" & TouchAngleID"
+					}
+				}
+			],
+			"sid": 5515730018016006
+		}
+	],
+	"sid": 521751616589745
+}

@@ -1,0 +1,436 @@
+{
+	"name": "Code",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup the scene to be visualized."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 100294337348772
+				}
+			],
+			"actions": [],
+			"sid": 731810996722979,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Loop through each card piece and move them to the card holder, taking their Y offset into consideration."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 482702562864604,
+							"parameters": {
+								"object": "CardPieces"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "CardPieces",
+							"sid": 357605696204128,
+							"parameters": {
+								"x": "CardHolder.X",
+								"y": "CardHolder.Y + CardPieces.YOffset"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Add the card pieces as children of the card holder, so they follow it."
+						},
+						{
+							"id": "add-child",
+							"objectClass": "CardHolder",
+							"sid": 537523652644450,
+							"parameters": {
+								"child": "CardPieces",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": true,
+								"transform-o": false,
+								"transform-z-elevation": false,
+								"transform-visibility": false,
+								"destroy-with-parent": false
+							}
+						}
+					],
+					"sid": 786896481305928
+				},
+				{
+					"eventType": "comment",
+					"text": "Point the camera towards the center of the card."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 532540176408017,
+							"parameters": {
+								"cam-x": "CardHolder.X",
+								"cam-y": "CardHolder.Y + 1440",
+								"cam-z": "1040 / 2",
+								"look-x": "CardHolder.X",
+								"look-y": "CardHolder.Y",
+								"look-z": "1040 / 2",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 764117220816005
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the texture will scroll."
+		},
+		{
+			"eventType": "variable",
+			"name": "SCROLLINGSPEED",
+			"type": "number",
+			"initialValue": "20",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 691115363788009
+		},
+		{
+			"eventType": "comment",
+			"text": "The angle in which the texture will scroll towards."
+		},
+		{
+			"eventType": "variable",
+			"name": "SCROLLINGANGLE",
+			"type": "number",
+			"initialValue": "90",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 431747558696019
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly scrolls the light streaks texture based on the scrolling speed and scrolling angle parameters."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 527953859752702
+				}
+			],
+			"actions": [
+				{
+					"id": "set-image-offset-x",
+					"objectClass": "LightStreaks",
+					"sid": 575136189846833,
+					"parameters": {
+						"offset-x": "Self.ImageOffsetX + cos(ScrollingAngle) * 60 * dt * ScrollingSpeed"
+					}
+				},
+				{
+					"id": "set-image-offset-y",
+					"objectClass": "LightStreaks",
+					"sid": 502097122838639,
+					"parameters": {
+						"offset-y": "Self.ImageOffsetY + sin(ScrollingAngle) * 60 * dt * ScrollingSpeed"
+					}
+				}
+			],
+			"sid": 405624834967729
+		},
+		{
+			"eventType": "comment",
+			"text": "The X and Y canvas ratio, extracted from the platform info plugin. These values are used to calculate the exact position of the particle spawner independently of the screen resolution."
+		},
+		{
+			"eventType": "variable",
+			"name": "CanvasXRatio",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 231991517114253
+		},
+		{
+			"eventType": "variable",
+			"name": "CanvasYRatio",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 618976922892555
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 859378860499747
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Constantly calculate and store the canvas ratio values."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 907995471875056,
+					"parameters": {
+						"variable": "CanvasXRatio",
+						"value": "PlatformInfo.CanvasCssWidth / OriginalViewportWidth"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 971782363182651,
+					"parameters": {
+						"variable": "CanvasYRatio",
+						"value": "PlatformInfo.CanvasCssHeight / OriginalViewportHeight"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Calculate the 2D coordinates for the particle spawner 3D image point using the layer to canvas system expression."
+				},
+				{
+					"id": "set-position",
+					"objectClass": "ParticleSpawner",
+					"sid": 534872101111261,
+					"parameters": {
+						"x": "3DCamera.LayerToCanvasX(\"CardCharacterTexture\", CardCharacter.FaceImagePointX(5, \"Particles\"), CardCharacter.FaceImagePointY(5, \"Particles\"), CardCharacter.ZElevation + CardCharacter.FaceImagePointZ(5, \"Particles\")) / CanvasXRatio",
+						"y": "3DCamera.LayerToCanvasY(\"CardCharacterTexture\", CardCharacter.FaceImagePointX(5, \"Particles\"), CardCharacter.FaceImagePointY(5, \"Particles\"), CardCharacter.ZElevation + CardCharacter.FaceImagePointZ(5, \"Particles\")) / CanvasYRatio"
+					}
+				}
+			],
+			"sid": 635284833053333
+		},
+		{
+			"eventType": "comment",
+			"text": "Spawn a glowing particle every 0.1 seconds."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 788008382176757,
+					"parameters": {
+						"interval-seconds": "0.1"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 664764071268523,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How large and tall each particle will be."
+				},
+				{
+					"eventType": "variable",
+					"name": "RandomSize",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 438040871158616
+				},
+				{
+					"eventType": "comment",
+					"text": "The angle in which the particle will move towards initially, creating a circle shaped spawn system."
+				},
+				{
+					"eventType": "variable",
+					"name": "RandomAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 947420308897021
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Calculate the random values."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 640181241593453,
+							"parameters": {
+								"variable": "RandomSize",
+								"value": "random(16, 40)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 492346035126765,
+							"parameters": {
+								"variable": "RandomAngle",
+								"value": "random(0, 360)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create a particle using the random value and attach it to the particle spawner."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 922983850109251,
+							"parameters": {
+								"object-to-create": "Particle",
+								"layer": "\"Particles\"",
+								"x": "ParticleSpawner.X + cos(RandomAngle) * random(0, 32 + 16)",
+								"y": "ParticleSpawner.Y + sin(RandomAngle) * random(0, 24 + 16)",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "ParticleSpawner",
+							"sid": 463226585551482,
+							"parameters": {
+								"child": "Particle",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-o": false,
+								"transform-z-elevation": false,
+								"transform-visibility": false,
+								"destroy-with-parent": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Adjust the particle properties, like size, angle and opacity."
+						},
+						{
+							"id": "set-size",
+							"objectClass": "Particle",
+							"sid": 220759924463280,
+							"parameters": {
+								"width": "RandomSize",
+								"height": "RandomSize"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Particle",
+							"sid": 703742814877665,
+							"parameters": {
+								"angle": "random(0, 360)"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "Particle",
+							"sid": 109202681533983,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Animate the particle properties, so it fades in, move and fades out."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Particle",
+							"sid": 474553274833094,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeIn\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "random(0.1, 0.2)",
+								"ease": "noease",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Particle",
+							"sid": 477133630524473,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\"",
+								"property": "position",
+								"end-x": "Self.X",
+								"end-y": "Self.Y + random(-8, -16)",
+								"time": "1",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Particle",
+							"sid": 579453821799948,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "size",
+								"end-x": "0",
+								"end-y": "0",
+								"time": "random(0.5, 1)",
+								"ease": "easeinsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 724168469102160
+				}
+			]
+		}
+	],
+	"sid": 467537046300505
+}

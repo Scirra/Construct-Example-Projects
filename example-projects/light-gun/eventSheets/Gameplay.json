@@ -1,0 +1,2132 @@
+{
+	"name": "Gameplay",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "The current shooting spot index."
+		},
+		{
+			"eventType": "variable",
+			"name": "CurrentShootingSpot",
+			"type": "number",
+			"initialValue": "-1",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 786828073153236
+		},
+		{
+			"eventType": "comment",
+			"text": "How tall the player is."
+		},
+		{
+			"eventType": "variable",
+			"name": "CameraHeight",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 176370205101688
+		},
+		{
+			"eventType": "comment",
+			"text": "Perform a general setup, so the scene looks rights."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 734173910134516
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Align the camera with the player."
+				},
+				{
+					"id": "look-at-position",
+					"objectClass": "3DCamera",
+					"sid": 345816186701879,
+					"parameters": {
+						"cam-x": "Player.X",
+						"cam-y": "Player.Y",
+						"cam-z": "Player.ZElevation + CameraHeight",
+						"look-x": "Player.X + cos(Player.Angle) * 512",
+						"look-y": "Player.Y + sin(Player.Angle) * 512",
+						"look-z": "Player.ZElevation + CameraHeight",
+						"up-x": "0",
+						"up-y": "0",
+						"up-z": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Move the ceiling to the correct position. It's initially place in a far away place, so it doesn't obstruct the in-editor view."
+				},
+				{
+					"id": "set-position",
+					"objectClass": "Ceiling",
+					"sid": 591891171282658,
+					"parameters": {
+						"x": "0",
+						"y": "0"
+					}
+				},
+				{
+					"id": "set-z-elevation",
+					"objectClass": "Ceiling",
+					"sid": 161194840571473,
+					"parameters": {
+						"z": "32"
+					}
+				}
+			],
+			"sid": 740986025109048,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create a wall object on top of each marked tile in the tilemap."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 496271129647909,
+							"parameters": {
+								"name": "\"X\"",
+								"start-index": "0",
+								"end-index": "round(Tilemap.Width / 8 - 1) "
+							}
+						},
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 897108145222486,
+							"parameters": {
+								"name": "\"Y\"",
+								"start-index": "0",
+								"end-index": "round(Tilemap.Height / 8 - 1) "
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 883326312483789,
+							"parameters": {
+								"value": "Tilemap.TileAt(loopindex(\"X\"), loopindex(\"Y\")) = 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 347488867056916,
+							"parameters": {
+								"object-to-create": "Wall",
+								"layer": "\"World\"",
+								"x": "Tilemap.TileToPositionX(loopindex(\"X\"))",
+								"y": "Tilemap.TileToPositionY(loopindex(\"Y\"))",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						}
+					],
+					"sid": 606181364331407
+				},
+				{
+					"eventType": "comment",
+					"text": "Create a texture bank for each zombie model, allowing them to display different animations."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 370176258113603,
+							"parameters": {
+								"object": "ZombieModel"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 493451891808320,
+							"parameters": {
+								"object-to-create": "ZombieTextures",
+								"layer": "\"World\"",
+								"x": "ZombieModel.X",
+								"y": "ZombieModel.Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-face-object",
+							"objectClass": "ZombieModel",
+							"sid": 592461308141548,
+							"parameters": {
+								"face": "right",
+								"object": "ZombieTextures"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "ZombieModel",
+							"sid": 689368683309474,
+							"parameters": {
+								"child": "ZombieTextures",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-o": false,
+								"transform-z-elevation": false,
+								"transform-visibility": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 484770342762650
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Start the game when enter is pressed."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 878519256250951,
+					"parameters": {
+						"key": 13
+					}
+				},
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 941281076322186,
+					"parameters": {
+						"value": "CurrentShootingSpot = -1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "GoToNextShootingSpot",
+					"sid": 646647740446990
+				},
+				{
+					"type": "comment",
+					"text": "Also remove the tutorial text from the screen."
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Text",
+					"sid": 513916515631815,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"SlideOut\"",
+						"property": "offsetX",
+						"end-value": "Self.X - OriginalViewportWidth",
+						"time": "0.5",
+						"ease": "easeinsine",
+						"destroy-on-complete": "yes",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				}
+			],
+			"sid": 135150613021733
+		},
+		{
+			"eventType": "comment",
+			"text": "Move the player to the next shooting spot, by using the path finding behavior."
+		},
+		{
+			"functionName": "GoToNextShootingSpot",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 429638935755601,
+					"parameters": {
+						"variable": "CurrentShootingSpot",
+						"value": "CurrentShootingSpot + 1"
+					}
+				}
+			],
+			"sid": 610150486670017,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 223166959663324,
+							"parameters": {
+								"object": "ShootingSpot",
+								"expression": "ShootingSpot.Index",
+								"comparison": 0,
+								"value": "CurrentShootingSpot"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "find-path",
+							"objectClass": "Player",
+							"sid": 434273538598328,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"x": "ShootingSpot.X",
+								"y": "ShootingSpot.Y"
+							}
+						}
+					],
+					"sid": 556380853318837
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once a path is found, move the player along the path."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-path-found",
+					"objectClass": "Player",
+					"sid": 527756728733221,
+					"behaviorType": "Pathfinding"
+				}
+			],
+			"actions": [
+				{
+					"id": "move-along-path",
+					"objectClass": "Player",
+					"sid": 925392231769512,
+					"behaviorType": "Pathfinding"
+				}
+			],
+			"sid": 249322713738274
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player gets close enough to a door while moving a long a path, trigger the door and open it for the player."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-moving-along-path",
+					"objectClass": "Player",
+					"sid": 214990372902686,
+					"behaviorType": "Pathfinding"
+				}
+			],
+			"actions": [],
+			"sid": 489313775928520,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 883205331226226,
+							"parameters": {
+								"object": "Door",
+								"expression": "distance(Door.X, Door.Y, Player.X, Player.Y)",
+								"comparison": 3,
+								"value": "40"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 425883072916128,
+							"parameters": {
+								"object": "Door"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 264834618731705,
+							"parameters": {
+								"value": "Door.Triggered = 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Door",
+							"sid": 592086922887058,
+							"parameters": {
+								"instance-variable": "Triggered",
+								"value": "true"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Door",
+							"sid": 618610863178900,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Slide\"",
+								"property": "position",
+								"end-x": "Self.X + cos(Self.Angle + 90) * 23",
+								"end-y": "Self.Y + sin(Self.Angle + 90) * 23",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 210574642218843
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the player arrives at its destination, set its angle to match the one from the shooting spot."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-arrived",
+					"objectClass": "Player",
+					"sid": 779713288496404,
+					"behaviorType": "Pathfinding"
+				}
+			],
+			"actions": [],
+			"sid": 141890099419364,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 638678925852758,
+							"parameters": {
+								"object": "ShootingSpot",
+								"expression": "ShootingSpot.Index",
+								"comparison": 0,
+								"value": "CurrentShootingSpot"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle",
+							"objectClass": "Player",
+							"sid": 695879343792100,
+							"parameters": {
+								"angle": "ShootingSpot.Angle"
+							}
+						}
+					],
+					"sid": 819993072905301
+				},
+				{
+					"eventType": "comment",
+					"text": "Also activate every nearby zombies."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "ActivateNearbyZombies",
+							"sid": 275473759088322
+						}
+					],
+					"sid": 515215449157626
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly update the camera position and angle to match the ones from the player."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 875047401558124
+				}
+			],
+			"actions": [
+				{
+					"id": "look-at-position",
+					"objectClass": "3DCamera",
+					"sid": 479551176782500,
+					"parameters": {
+						"cam-x": "Player.X",
+						"cam-y": "Player.Y",
+						"cam-z": "Player.ZElevation + CameraHeight",
+						"look-x": "lerp(3DCamera.LookX, Player.X + cos(Player.Angle) * 512, 0.05 * 60 * dt)",
+						"look-y": "lerp(3DCamera.LookY, Player.Y + sin(Player.Angle) * 512, 0.05 * 60 * dt)",
+						"look-z": "Player.ZElevation + CameraHeight",
+						"up-x": "0",
+						"up-y": "0",
+						"up-z": "1"
+					}
+				}
+			],
+			"sid": 369347039665385
+		},
+		{
+			"eventType": "comment",
+			"text": "The default coordinates for the reload magazine."
+		},
+		{
+			"eventType": "variable",
+			"name": "ReloadMagazineDefaultX",
+			"type": "number",
+			"initialValue": "154",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 339382657329757
+		},
+		{
+			"eventType": "variable",
+			"name": "ReloadMagazineDefaultY",
+			"type": "number",
+			"initialValue": "73",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 570553647711776
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the the reload magazine is dropped, check how it should behave."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-drop",
+					"objectClass": "ReloadMagazine",
+					"sid": 536616077948634,
+					"behaviorType": "DragDrop"
+				}
+			],
+			"actions": [],
+			"sid": 878416358794891,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the reload magazine is overlapping the current magazine, reload the pistol."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "ReloadMagazine",
+							"sid": 485236868511670,
+							"parameters": {
+								"object": "CurrentMagazine"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Pistol",
+							"sid": 900649583035494,
+							"parameters": {
+								"animation": "\"Reloading\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 910887681598833,
+							"parameters": {
+								"variable": "PistolSafety",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also temporarily remove the reload magazine from the screen, so the player can't reload the pistol while it's already being reloaded."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "ReloadMagazine",
+							"sid": 761678309341545,
+							"parameters": {
+								"x": "- Self.ImageWidth",
+								"y": "- Self.ImageHeight"
+							}
+						}
+					],
+					"sid": 732129943251033
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the reload magazine isn't overlapping the current magazine, then simply send it back to its default position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 155611980755691
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "ReloadMagazine",
+							"sid": 447832498191433,
+							"parameters": {
+								"object": "CurrentMagazine"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "ReloadMagazine",
+							"sid": 558219634647151,
+							"parameters": {
+								"x": "ReloadMagazineDefaultX",
+								"y": "ReloadMagazineDefaultY"
+							}
+						}
+					],
+					"sid": 299548693597588
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the reload animation is over, update the pistol's properties."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-animation-finished",
+					"objectClass": "Pistol",
+					"sid": 707019340524875,
+					"parameters": {
+						"animation": "\"Reloading\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Set the pistol ammo back to eight and update the ammo counter."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 679865777627452,
+					"parameters": {
+						"variable": "CurrentAmmo",
+						"value": "8"
+					}
+				},
+				{
+					"callFunction": "UpdateAmmoCounter",
+					"sid": 417607501402299
+				},
+				{
+					"type": "comment",
+					"text": "Reset it back to the aiming animation and disable the pistol safety, allowing the player fire again.."
+				},
+				{
+					"id": "set-animation",
+					"objectClass": "Pistol",
+					"sid": 271665253283134,
+					"parameters": {
+						"animation": "\"Aiming\"",
+						"from": "beginning"
+					}
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 225133913974282,
+					"parameters": {
+						"variable": "PistolSafety",
+						"value": "false"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Move the reload magazine back to its default position."
+				},
+				{
+					"id": "set-position",
+					"objectClass": "ReloadMagazine",
+					"sid": 530627442163189,
+					"parameters": {
+						"x": "ReloadMagazineDefaultX",
+						"y": "ReloadMagazineDefaultY"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Hide the reload warning message."
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "ReloadWarning",
+					"sid": 957549380358936,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				}
+			],
+			"sid": 942323045860132
+		},
+		{
+			"eventType": "comment",
+			"text": "How many bullets the pistol has left in the magazine."
+		},
+		{
+			"eventType": "variable",
+			"name": "CurrentAmmo",
+			"type": "number",
+			"initialValue": "8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 748583414383998
+		},
+		{
+			"eventType": "comment",
+			"text": "Update the ammo counter based on the amount of bullets left in the magazine."
+		},
+		{
+			"functionName": "UpdateAmmoCounter",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-width",
+					"objectClass": "AmmoCounter",
+					"sid": 702677803850227,
+					"parameters": {
+						"width": "5 * CurrentAmmo"
+					}
+				}
+			],
+			"sid": 241857827202371
+		},
+		{
+			"eventType": "comment",
+			"text": "The X and Y canvas ratio, extracted from the platform info plugin. These values are used to calculate the exact position of the mouse independently of the screen resolution."
+		},
+		{
+			"eventType": "variable",
+			"name": "CanvasRatioX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 601368973927713
+		},
+		{
+			"eventType": "variable",
+			"name": "CanvasRatioY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 511522443449154
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly calculate and store the canvas ratio values."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 659647966165709
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 426803673321891,
+					"parameters": {
+						"variable": "CanvasRatioX",
+						"value": "PlatformInfo.CanvasCssWidth / OriginalViewportWidth"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 867891769244811,
+					"parameters": {
+						"variable": "CanvasRatioY",
+						"value": "PlatformInfo.CanvasCssHeight / OriginalViewportHeight"
+					}
+				}
+			],
+			"sid": 187550874456948
+		},
+		{
+			"eventType": "comment",
+			"text": "Activate every nearby zombie."
+		},
+		{
+			"functionName": "ActivateNearbyZombies",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 297666854820417,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How many zombies are currently nearby the player."
+				},
+				{
+					"eventType": "variable",
+					"name": "NearbyZombieCount",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 793803272582090
+				},
+				{
+					"eventType": "comment",
+					"text": "Pick only the zombies that have the same index as the current shooting spot."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 780643685239350,
+							"parameters": {
+								"object": "ZombieModel",
+								"expression": "ZombieModel.GroupIndex",
+								"comparison": 0,
+								"value": "CurrentShootingSpot"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 884135936978618,
+							"parameters": {
+								"variable": "NearbyZombieCount",
+								"value": "ZombieModel.PickedCount"
+							}
+						}
+					],
+					"sid": 573415930526011,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Setup the picked zombies, so they can be shot by the player."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 819776875703849,
+									"parameters": {
+										"object": "ZombieModel"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create a hit box and store the zombie UID in a local variable."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 877990073373562,
+									"parameters": {
+										"object-to-create": "HitBox",
+										"layer": "\"UserInterface\"",
+										"x": "0",
+										"y": "0",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "HitBox",
+									"sid": 361766074935303,
+									"parameters": {
+										"instance-variable": "ZombieUID",
+										"value": "ZombieModel.UID"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Allow the zombie to follow the player."
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "ZombieModel",
+									"sid": 842103391082189,
+									"parameters": {
+										"instance-variable": "SeekPlayer",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Increase the amount of zombies lefts in the area."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 572006711441432,
+									"parameters": {
+										"variable": "ZombiesLeft",
+										"value": "clamp(ZombiesLeft + 1, 0, Infinity)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Update each active zombie, so the hit box is properly placed on top of it."
+								},
+								{
+									"callFunction": "UpdateActiveZombie",
+									"sid": 334995421971835,
+									"parameters": [
+										"HitBox.UID",
+										false
+									]
+								}
+							],
+							"sid": 417169844213971,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Display the walking animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "ZombieModel",
+											"sid": 298443608552872,
+											"parameters": {
+												"child": "ZombieTextures",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "ZombieTextures",
+											"sid": 807517506192066,
+											"parameters": {
+												"animation": "\"Seeking\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 689869926646884
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If there's no zombies nearby, then the game is over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 115474262678565,
+							"parameters": {
+								"value": "NearbyZombieCount = 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Restart the game after three seconds."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 346426695054751,
+							"parameters": {
+								"seconds": "3"
+							}
+						},
+						{
+							"callFunction": "GameOver",
+							"sid": 114583826883928
+						}
+					],
+					"sid": 505804951127513
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly update zombies that are currently seeking the player (active zombies)."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "pick-by-comparison",
+					"objectClass": "System",
+					"sid": 619340526500720,
+					"parameters": {
+						"object": "ZombieModel",
+						"expression": "ZombieModel.SeekPlayer",
+						"comparison": 0,
+						"value": "1"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 664121021743386,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 158545038355260,
+							"parameters": {
+								"object": "ZombieModel"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 974547864974314,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 516543576265667,
+									"parameters": {
+										"object": "HitBox",
+										"expression": "HitBox.ZombieUID",
+										"comparison": 0,
+										"value": "ZombieModel.UID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "UpdateActiveZombie",
+									"sid": 607793782214286,
+									"parameters": [
+										"HitBox.UID",
+										true
+									]
+								}
+							],
+							"sid": 325073058619859
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Update an active zombie, by making them look at the player and walk towards it."
+		},
+		{
+			"functionName": "UpdateActiveZombie",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "HitBoxUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 660683411860911
+				},
+				{
+					"name": "MoveZombieTowardsPlayer",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"sid": 101142558765661
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "pick-by-unique-id",
+					"objectClass": "HitBox",
+					"sid": 490616038537865,
+					"parameters": {
+						"unique-id": "HitBoxUID"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 291890661725400,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The X and Y coordinate of the top left part of the zombie's hit box."
+				},
+				{
+					"eventType": "variable",
+					"name": "2DTopLeftX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 938814659089816
+				},
+				{
+					"eventType": "variable",
+					"name": "2DTopLeftY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 685847724577377
+				},
+				{
+					"eventType": "comment",
+					"text": "The X and Y coordinate of the bottom right part of the zombie's hit box."
+				},
+				{
+					"eventType": "variable",
+					"name": "2DBottomRightX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 269318419106624
+				},
+				{
+					"eventType": "variable",
+					"name": "2DBottomRightY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 368083657446895
+				},
+				{
+					"eventType": "comment",
+					"text": "Pick the respective zombie model."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "ZombieModel",
+							"sid": 807747942039082,
+							"parameters": {
+								"unique-id": "HitBox.ZombieUID"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 505187005261747,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Rotate and move it towards the player position."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 643753305749765,
+									"parameters": {
+										"value": "MoveZombieTowardsPlayer = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-angle-toward-position",
+									"objectClass": "ZombieModel",
+									"sid": 606935941149714,
+									"parameters": {
+										"x": "Player.X",
+										"y": "Player.Y"
+									}
+								},
+								{
+									"id": "move-at-angle",
+									"objectClass": "ZombieModel",
+									"sid": 686452669548904,
+									"parameters": {
+										"angle": "angle(Self.X, Self.Y, Player.X, Player.Y)",
+										"distance": "0.15 * 60 * dt"
+									}
+								}
+							],
+							"sid": 126327836301737,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "The distance at which a zombie can kill the player."
+								},
+								{
+									"eventType": "variable",
+									"name": "ZombieLethalDistance",
+									"type": "number",
+									"initialValue": "8",
+									"comment": "",
+									"isStatic": true,
+									"isConstant": true,
+									"sid": 709275444158452
+								},
+								{
+									"eventType": "comment",
+									"text": "If the zombie gets too close to the player, restart the game."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 180969496980579,
+											"parameters": {
+												"value": "distance(ZombieModel.X, ZombieModel.Y, Player.X, Player.Y) <= ZombieLethalDistance"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "GameOver",
+											"sid": 297791045210455
+										}
+									],
+									"sid": 401861288792798
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Calculate the 2D coordinates for both top left and bottom right 3D image points using the layer to canvas system expression."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Calculate top left."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 937350384034324,
+									"parameters": {
+										"variable": "2DTopLeftX",
+										"value": "3DCamera.LayerToCanvasX(0, ZombieModel.FaceImagePointX(3, \"TopLeft\"), ZombieModel.FaceImagePointY(3, \"TopLeft\"), ZombieModel.FaceImagePointZ(3, \"TopLeft\")) / CanvasRatioX"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 970242857697571,
+									"parameters": {
+										"variable": "2DTopLeftY",
+										"value": "3DCamera.LayerToCanvasY(0, ZombieModel.FaceImagePointX(3, \"TopLeft\"), ZombieModel.FaceImagePointY(3, \"TopLeft\"), ZombieModel.FaceImagePointZ(3, \"TopLeft\")) / CanvasRatioY"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Calculate bottom right."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 473727867070222,
+									"parameters": {
+										"variable": "2DBottomRightX",
+										"value": "3DCamera.LayerToCanvasX(0, ZombieModel.FaceImagePointX(3, \"BottomRight\"), ZombieModel.FaceImagePointY(3, \"BottomRight\"), ZombieModel.FaceImagePointZ(3, \"BottomRight\")) / CanvasRatioX"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 513805364655868,
+									"parameters": {
+										"variable": "2DBottomRightY",
+										"value": "3DCamera.LayerToCanvasY(0, ZombieModel.FaceImagePointX(3, \"BottomRight\"), ZombieModel.FaceImagePointY(3, \"BottomRight\"), ZombieModel.FaceImagePointZ(3, \"BottomRight\")) / CanvasRatioY"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Update the position and size of the respective hit box by using the recently acquired values, making the hit box match the zombie model."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "HitBox",
+									"sid": 988333474313449,
+									"parameters": {
+										"x": "2DTopLeftX",
+										"y": "2DTopLeftY"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "HitBox",
+									"sid": 921326308446136,
+									"parameters": {
+										"width": "distance(2DTopLeftX, 0, 2DBottomRightX,  0)",
+										"height": "distance(0, 2DTopLeftY, 0,  2DBottomRightY)"
+									}
+								}
+							],
+							"sid": 843145388027642
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "How many zombies are left in the current area."
+		},
+		{
+			"eventType": "variable",
+			"name": "ZombiesLeft",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 610560789639409
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player is allowed to fire the pistol."
+		},
+		{
+			"eventType": "variable",
+			"name": "PistolSafety",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 459291145965219
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the pistol is done shooting, reset it back to the aiming animation."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-animation-finished",
+					"objectClass": "Pistol",
+					"sid": 612084617222598,
+					"parameters": {
+						"animation": "\"Shooting\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation",
+					"objectClass": "Pistol",
+					"sid": 116935850401169,
+					"parameters": {
+						"animation": "\"Aiming\"",
+						"from": "beginning"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Also disable the pistol safety, allowing the player fire again."
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 870395461958195,
+					"parameters": {
+						"variable": "PistolSafety",
+						"value": "false"
+					}
+				}
+			],
+			"sid": 622895487442857
+		},
+		{
+			"eventType": "comment",
+			"text": "Fire the pistol towards the mouse position."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-click",
+					"objectClass": "Mouse",
+					"sid": 833213165101653,
+					"parameters": {
+						"mouse-button": "left",
+						"click-type": "clicked"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 392760367153392,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Whether or not a zombie was hit."
+				},
+				{
+					"eventType": "variable",
+					"name": "HitZombie",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 390288882145863
+				},
+				{
+					"eventType": "comment",
+					"text": "Only allow the pistol to fire if its safety is disabled, if there's enough ammo in the magazine, if the current shooting spot is valid and if the mouse position is outside the reload magazine bounding box."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 771711711652072,
+							"parameters": {
+								"value": "PistolSafety = 0 & CurrentAmmo >= 1 & CurrentShootingSpot >= 0 & Mouse.AbsoluteX / CanvasRatioX < ReloadMagazine.BBoxLeft | Mouse.AbsoluteX / CanvasRatioX > ReloadMagazine.BBoxRight | Mouse.AbsoluteY / CanvasRatioY < ReloadMagazine.BBoxTop | Mouse.AbsoluteY / CanvasRatioY > ReloadMagazine.BBoxBottom"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Reduce the amount of ammo left in the magazine by one and update the ammo counter.."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 766525104502851,
+							"parameters": {
+								"variable": "CurrentAmmo",
+								"value": "clamp(CurrentAmmo - 1, 0, 8)"
+							}
+						},
+						{
+							"callFunction": "UpdateAmmoCounter",
+							"sid": 282251782925113
+						},
+						{
+							"type": "comment",
+							"text": "Display the shooting animation and turn on the pistol safety."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Pistol",
+							"sid": 628485718695137,
+							"parameters": {
+								"animation": "\"Shooting\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 870951931309750,
+							"parameters": {
+								"variable": "PistolSafety",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create a bullet shell behind the pistol, using slightly randomized properties."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 879842705605705,
+							"parameters": {
+								"object-to-create": "BulletShell",
+								"layer": "\"UserInterface\"",
+								"x": "Pistol.ImagePointX(\"BulletChamber\")",
+								"y": "Pistol.ImagePointY(\"BulletChamber\")",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "BulletShell",
+							"sid": 383506483287831,
+							"parameters": {
+								"angle": "30"
+							}
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "BulletShell",
+							"sid": 785104929298122,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "325 + random(-15, 15)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make the yellow flash visible for a very short amount of time."
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "YellowFlash",
+							"sid": 710523000257545,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "YellowFlash",
+							"sid": 954644096031341,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.1",
+								"type": "once",
+								"tag": "\"Flash\""
+							}
+						}
+					],
+					"sid": 708716576698485,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Check if the mouse is on top of any hit box."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-ordered",
+									"objectClass": "System",
+									"sid": 554892345311382,
+									"parameters": {
+										"object": "HitBox",
+										"expression": "HitBox.X",
+										"order": "ascending"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 502007890486054,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If it's, then deal damage to every zombie below it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 298785037299034,
+											"parameters": {
+												"value": "Mouse.AbsoluteX / CanvasRatioX >= HitBox.BBoxLeft & Mouse.AbsoluteX / CanvasRatioX <= HitBox.BBoxRight & Mouse.AbsoluteY / CanvasRatioY >= HitBox.BBoxTop & Mouse.AbsoluteY / CanvasRatioY <= HitBox.BBoxBottom"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "DealDamageToZombie",
+											"sid": 410241357327834,
+											"parameters": [
+												"HitBox.UID"
+											]
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 628624120658070,
+											"parameters": {
+												"variable": "HitZombie",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 416641485847754,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 866857405692678,
+													"parameters": {
+														"value": "ZombiesLeft = 0"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 521389708531305,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 695933767169289,
+															"parameters": {
+																"value": "CurrentShootingSpot < ShootingSpot.Count - 1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "GoToNextShootingSpot",
+															"sid": 437073956814348
+														}
+													],
+													"sid": 747059397262270
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the there's no more ammo left in the magazine, display the reload warning message from the start."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 862099139511362,
+									"parameters": {
+										"value": "CurrentAmmo = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "ReloadWarning",
+									"sid": 500772018900321,
+									"parameters": {
+										"frame-number": "0"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "ReloadWarning",
+									"sid": 377061858081572,
+									"parameters": {
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 328153857866595
+						},
+						{
+							"eventType": "comment",
+							"text": "If the bullet hits a zombie, display a small blood splash."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 370823865076128,
+									"parameters": {
+										"value": "HitZombie = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 390675782919734,
+									"parameters": {
+										"object-to-create": "Hit",
+										"layer": "\"UserInterface\"",
+										"x": "Mouse.AbsoluteX / CanvasRatioX",
+										"y": "Mouse.AbsoluteY / CanvasRatioY",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "Hit",
+									"sid": 130377927090663,
+									"parameters": {
+										"animation": "\"Blood\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "move-to-bottom",
+									"objectClass": "Hit",
+									"sid": 779521052912057
+								}
+							],
+							"sid": 132419764730705
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the bullet hits a wall, display a small set of sparks."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 921987347359469
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 821771900997674,
+									"parameters": {
+										"value": "HitZombie = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 600059152771102,
+									"parameters": {
+										"object-to-create": "Hit",
+										"layer": "\"UserInterface\"",
+										"x": "Mouse.AbsoluteX / CanvasRatioX",
+										"y": "Mouse.AbsoluteY / CanvasRatioY",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "Hit",
+									"sid": 133819108157961,
+									"parameters": {
+										"animation": "\"Spark\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "move-to-bottom",
+									"objectClass": "Hit",
+									"sid": 492126937361595
+								}
+							],
+							"sid": 231158260605002
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the hit animation is over, destroy it to prevent an unnecessary sprite accumulation."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-animation-finished",
+					"objectClass": "Hit",
+					"sid": 470582285298458
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Hit",
+					"sid": 943086161998145
+				}
+			],
+			"sid": 618816064748764
+		},
+		{
+			"eventType": "comment",
+			"text": "Disable the yellow flash."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "YellowFlash",
+					"sid": 454118757977187,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Flash\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "YellowFlash",
+					"sid": 443068002516450,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				}
+			],
+			"sid": 854200886933044
+		},
+		{
+			"eventType": "comment",
+			"text": "Deal damage to a specific zombie."
+		},
+		{
+			"functionName": "DealDamageToZombie",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "HitBoxUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 796994786210177
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "pick-by-unique-id",
+					"objectClass": "HitBox",
+					"sid": 986543029860026,
+					"parameters": {
+						"unique-id": "HitBoxUID"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Reduce the zombie's health by one."
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "HitBox",
+					"sid": 680109522085817,
+					"parameters": {
+						"instance-variable": "Health",
+						"value": "clamp(Self.Health - 1, 0, Infinity)"
+					}
+				}
+			],
+			"sid": 787968636167291,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the zombie's health reaches zero, kill it immediately."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 217826163652492,
+							"parameters": {
+								"value": "HitBox.Health = 0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 238106175992463,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Destroy the hit box, so it can't be shot again."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "ZombieModel",
+									"sid": 971576844330195,
+									"parameters": {
+										"unique-id": "HitBox.ZombieUID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "HitBox",
+									"sid": 124897609674688
+								}
+							],
+							"sid": 303602392837814,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Display the death animaiton."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "ZombieModel",
+											"sid": 710597420808475,
+											"parameters": {
+												"child": "ZombieTextures",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "ZombieTextures",
+											"sid": 949136251282813,
+											"parameters": {
+												"animation": "\"Dying\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 572483990117834
+								},
+								{
+									"eventType": "comment",
+									"text": "Prevent it from keep following the player and reduce the amount of zombies left in the area."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "ZombieModel",
+											"sid": 987587013761829,
+											"parameters": {
+												"instance-variable": "SeekPlayer",
+												"value": "false"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 738695791127425,
+											"parameters": {
+												"variable": "ZombiesLeft",
+												"value": "clamp(ZombiesLeft - 1, 0, Infinity)"
+											}
+										}
+									],
+									"sid": 231856778212414
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Reset every important global variable and restart the layout."
+		},
+		{
+			"functionName": "GameOver",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 164123157840621,
+					"parameters": {
+						"variable": "CurrentShootingSpot",
+						"value": "-1"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 478287355495902,
+					"parameters": {
+						"variable": "CurrentAmmo",
+						"value": "8"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 789711814934012,
+					"parameters": {
+						"variable": "CanvasRatioX",
+						"value": "0"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 459602652608657,
+					"parameters": {
+						"variable": "CanvasRatioX",
+						"value": "0"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 213205600700853,
+					"parameters": {
+						"variable": "ZombiesLeft",
+						"value": "0"
+					}
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 452396715892946,
+					"parameters": {
+						"variable": "PistolSafety",
+						"value": "false"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Restart layout."
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 977294831079157
+				}
+			],
+			"sid": 198265390245779
+		}
+	],
+	"sid": 859040980880872
+}

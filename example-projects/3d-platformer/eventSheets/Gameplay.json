@@ -1,0 +1,2320 @@
+{
+	"name": "Gameplay",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Reset all global variables and prepare the environment for a new run."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 437813729552164
+				}
+			],
+			"actions": [
+				{
+					"id": "reset-global-variables",
+					"objectClass": "System",
+					"sid": 977223386400692
+				}
+			],
+			"sid": 752209944755830,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Move the foam on top of the water to prevent Z fighting and attach it to the water to make sure they're always synced."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 587624819550491,
+							"parameters": {
+								"object": "Foam"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Foam",
+							"sid": 383496643252144,
+							"parameters": {
+								"z": "WaterTexture.ZElevation + 0.1"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "WaterTexture",
+							"sid": 381066063901708,
+							"parameters": {
+								"child": "Foam",
+								"transform-x": false,
+								"transform-y": false,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-o": false,
+								"transform-z-elevation": true,
+								"transform-visibility": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 387273131608187
+				},
+				{
+					"eventType": "comment",
+					"text": "The probably of spawning a decoration object on top of a ground block."
+				},
+				{
+					"eventType": "variable",
+					"name": "DECORATIONSPAWNRATE",
+					"type": "number",
+					"initialValue": "50",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 469872324245773
+				},
+				{
+					"eventType": "comment",
+					"text": "The probably of a decoration object becoming a flower once spawned."
+				},
+				{
+					"eventType": "variable",
+					"name": "FLOWERSPAWNRATE",
+					"type": "number",
+					"initialValue": "10",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 316810183148223
+				},
+				{
+					"eventType": "comment",
+					"text": "A random number used to determine how each block will be decorated."
+				},
+				{
+					"eventType": "variable",
+					"name": "RandomNumber",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 574871931966808
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 915992906605188,
+							"parameters": {
+								"object": "SolidModel",
+								"expression": "SolidModel.CoveredInGrass",
+								"comparison": 0,
+								"value": "1"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 830060662357602,
+							"parameters": {
+								"object": "SolidModel"
+							}
+						},
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 260154762039128,
+							"parameters": {
+								"name": "\"x\"",
+								"start-index": "0",
+								"end-index": "SolidModel.Width / 16 - 1"
+							}
+						},
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 363511160603025,
+							"parameters": {
+								"name": "\"y\"",
+								"start-index": "0",
+								"end-index": "SolidModel.Height / 16 - 1"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 152066005356078,
+							"parameters": {
+								"value": "random(0, 100) <= DECORATIONSPAWNRATE"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Choose a random number between 0 and 100."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 994840679762386,
+							"parameters": {
+								"variable": "RandomNumber",
+								"value": "random(0, 100)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create a decoration object on top of the block."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 159200527703427,
+							"parameters": {
+								"object-to-create": "DecorationModel",
+								"layer": "SolidModel.LayerName",
+								"x": "SolidModel.BBoxLeft + 8 + loopindex(\"x\") * 16 + round(random(-4, 4))",
+								"y": "SolidModel.BBoxTop + 8 + loopindex(\"y\") * 16 + round(random(-4, 4)) + 0.1",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "DecorationModel",
+							"sid": 512537220063158,
+							"parameters": {
+								"z": "SolidModel.ZElevation + SolidModel.ZHeight"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also create a texture for the decoration model and link both of them."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 150874463102124,
+							"parameters": {
+								"object-to-create": "DecorationTextures",
+								"layer": "DecorationModel.LayerName",
+								"x": "DecorationModel.X",
+								"y": "DecorationModel.Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-face-object",
+							"objectClass": "DecorationModel",
+							"sid": 775456178877469,
+							"parameters": {
+								"face": "right",
+								"object": "DecorationTextures"
+							}
+						}
+					],
+					"sid": 899292161685432,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the random number is lower or equal to the flower spawn rate, turn the decoration object into a flower."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 611406750347357,
+									"parameters": {
+										"value": "RandomNumber <= FLOWERSPAWNRATE"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "DecorationTextures",
+									"sid": 212530077077623,
+									"parameters": {
+										"animation": "\"Flower\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "DecorationTextures",
+									"sid": 807619386149575,
+									"parameters": {
+										"frame-number": "choose(0, 1, 2)"
+									}
+								}
+							],
+							"sid": 118664858400667
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the random number is greater than the flower spawn rate, turn the decoration object into a patch of grass."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 876416837435477
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 100830020456459,
+									"parameters": {
+										"value": "RandomNumber > FLOWERSPAWNRATE"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "DecorationTextures",
+									"sid": 708609646412877,
+									"parameters": {
+										"animation": "\"Grass\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "DecorationTextures",
+									"sid": 284449994559827,
+									"parameters": {
+										"frame-number": "choose(0, 1, 2)"
+									}
+								}
+							],
+							"sid": 574381903277830
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "If any key is pressed, check if the tutorial still is \"alive\" and destroy it if possible."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 540290405351153
+				},
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 976504132586147,
+					"parameters": {
+						"value": "TutorialText.IsAlive = 1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-instvar",
+					"objectClass": "TutorialText",
+					"sid": 189151988050606,
+					"parameters": {
+						"instance-variable": "IsAlive",
+						"value": "false"
+					}
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "TutorialText",
+					"sid": 848102342987078,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"SelfDestroy\"",
+						"property": "offsetX",
+						"end-value": "-316",
+						"time": "2",
+						"ease": "easeinsine",
+						"destroy-on-complete": "yes",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				}
+			],
+			"sid": 863643226356790
+		},
+		{
+			"eventType": "comment",
+			"text": "The base water Z elevation."
+		},
+		{
+			"eventType": "variable",
+			"name": "WATERBASEZELEVATION",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": true,
+			"sid": 554187217660879
+		},
+		{
+			"eventType": "comment",
+			"text": "How far the water will move in the X and Y axis."
+		},
+		{
+			"eventType": "variable",
+			"name": "WATERXYMOVEMENTSTRENGTH",
+			"type": "number",
+			"initialValue": "8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 192874992745079
+		},
+		{
+			"eventType": "comment",
+			"text": "How far the water will move in the Z axis."
+		},
+		{
+			"eventType": "variable",
+			"name": "WATERMOVEMENTZSTRENGTH",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 455123814723293
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the water will move along all axis."
+		},
+		{
+			"eventType": "variable",
+			"name": "WATERMOVEMENTSPEED",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 872403446055886
+		},
+		{
+			"eventType": "comment",
+			"text": "The X axis of the water."
+		},
+		{
+			"eventType": "variable",
+			"name": "WaterAngleXMovement",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 189672947922161
+		},
+		{
+			"eventType": "comment",
+			"text": "The Y axis of the water."
+		},
+		{
+			"eventType": "variable",
+			"name": "WaterAngleYMovement",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 846645736275024
+		},
+		{
+			"eventType": "comment",
+			"text": "The Z axis of the water."
+		},
+		{
+			"eventType": "variable",
+			"name": "WaterAngleZMovement",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 554941714383744
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly move the water along all axis using sine and cosine to simulate real life waves."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 961194059077511
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Update and apply the X axis."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 682931286215110,
+					"parameters": {
+						"variable": "WaterAngleXMovement",
+						"value": "(WaterAngleXMovement + WATERMOVEMENTSPEED / 2 * 60 * dt) % 360"
+					}
+				},
+				{
+					"id": "set-image-offset-x",
+					"objectClass": "WaterTexture",
+					"sid": 656465802056853,
+					"parameters": {
+						"offset-x": "cos(WaterAngleXMovement) * WATERXYMOVEMENTSTRENGTH"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Update and apply the Y axis."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 826321456967843,
+					"parameters": {
+						"variable": "WaterAngleYMovement",
+						"value": "(WaterAngleYMovement + WATERMOVEMENTSPEED * 60 * dt) % 360"
+					}
+				},
+				{
+					"id": "set-image-offset-y",
+					"objectClass": "WaterTexture",
+					"sid": 859804525299911,
+					"parameters": {
+						"offset-y": "sin(WaterAngleYMovement) * WATERXYMOVEMENTSTRENGTH / 2"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Update and apply the Z axis."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 622690115791320,
+					"parameters": {
+						"variable": "WaterAngleZMovement",
+						"value": "(WaterAngleZMovement + WATERMOVEMENTSPEED * 60 * dt) % 360"
+					}
+				},
+				{
+					"id": "set-z-elevation",
+					"objectClass": "WaterTexture",
+					"sid": 913194969417082,
+					"parameters": {
+						"z": "WATERBASEZELEVATION + cos(WaterAngleZMovement) * WATERMOVEMENTZSTRENGTH"
+					}
+				}
+			],
+			"sid": 954252346028463
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the player accelerates."
+		},
+		{
+			"eventType": "variable",
+			"name": "PLAYERACCELERATION",
+			"type": "number",
+			"initialValue": "0.25",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": true,
+			"sid": 870228320360399
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the player decelerates."
+		},
+		{
+			"eventType": "variable",
+			"name": "PLAYERDECELERATION",
+			"type": "number",
+			"initialValue": "0.1",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": true,
+			"sid": 552440028950036
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the player can move."
+		},
+		{
+			"eventType": "variable",
+			"name": "PLAYERMAXSPEED",
+			"type": "number",
+			"initialValue": "1.5",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": true,
+			"sid": 701926572732458
+		},
+		{
+			"eventType": "comment",
+			"text": "How high the player can jump."
+		},
+		{
+			"eventType": "variable",
+			"name": "PLAYERJUMPSTRENGTH",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": true,
+			"sid": 527923968177828
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the player falls."
+		},
+		{
+			"eventType": "variable",
+			"name": "PLAYERGRAVITYSTRENGTH",
+			"type": "number",
+			"initialValue": "0.1",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 467606257441328
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player should move left."
+		},
+		{
+			"eventType": "variable",
+			"name": "WalkLeft",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 873831051342633
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player should move right."
+		},
+		{
+			"eventType": "variable",
+			"name": "WalkRight",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 649524090890074
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player should move up."
+		},
+		{
+			"eventType": "variable",
+			"name": "WalkUp",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 921785658012725
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player should move down."
+		},
+		{
+			"eventType": "variable",
+			"name": "WalkDown",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 857052446276606
+		},
+		{
+			"eventType": "comment",
+			"text": "If the left key is down, set the related boolean to true."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 948608880262539,
+					"parameters": {
+						"key": 37
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 593735755765068,
+					"parameters": {
+						"variable": "WalkLeft",
+						"value": "true"
+					}
+				}
+			],
+			"sid": 248137771734716
+		},
+		{
+			"eventType": "comment",
+			"text": "However, if the left key is not down, set the related boolean to false."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 159226083581380
+				},
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 926253286576958,
+					"parameters": {
+						"key": 37
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 604287250529305,
+					"parameters": {
+						"variable": "WalkLeft",
+						"value": "false"
+					}
+				}
+			],
+			"sid": 759165320826804
+		},
+		{
+			"eventType": "comment",
+			"text": "If the right key is down, set the related boolean to true."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 952893030828502,
+					"parameters": {
+						"key": 39
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 906937425877045,
+					"parameters": {
+						"variable": "WalkRight",
+						"value": "true"
+					}
+				}
+			],
+			"sid": 864997021839674
+		},
+		{
+			"eventType": "comment",
+			"text": "However, if the right key is not down, set the related boolean to false."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 871638348557784
+				},
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 489655836347315,
+					"parameters": {
+						"key": 39
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 199758125200634,
+					"parameters": {
+						"variable": "WalkRight",
+						"value": "false"
+					}
+				}
+			],
+			"sid": 564603213263390
+		},
+		{
+			"eventType": "comment",
+			"text": "If the up key is down, set the related boolean to true."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 871056242272306,
+					"parameters": {
+						"key": 38
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 335184453317226,
+					"parameters": {
+						"variable": "WalkUp",
+						"value": "true"
+					}
+				}
+			],
+			"sid": 760825845294676
+		},
+		{
+			"eventType": "comment",
+			"text": "However, if the up key is not down, set the related boolean to false."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 124723646389019
+				},
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 299995756579731,
+					"parameters": {
+						"key": 38
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 808188707031689,
+					"parameters": {
+						"variable": "WalkUp",
+						"value": "false"
+					}
+				}
+			],
+			"sid": 360472724774920
+		},
+		{
+			"eventType": "comment",
+			"text": "If the down key is down, set the related boolean to true."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 893270854435861,
+					"parameters": {
+						"key": 40
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 114660611781842,
+					"parameters": {
+						"variable": "WalkDown",
+						"value": "true"
+					}
+				}
+			],
+			"sid": 759899854130217
+		},
+		{
+			"eventType": "comment",
+			"text": "However, if the down key is not down, set the related boolean to false."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 459352735441441
+				},
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 485782232293144,
+					"parameters": {
+						"key": 40
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 878710870044533,
+					"parameters": {
+						"variable": "WalkDown",
+						"value": "false"
+					}
+				}
+			],
+			"sid": 195549313899636
+		},
+		{
+			"eventType": "comment",
+			"text": "The horizontal and vertical input axis sent by the player."
+		},
+		{
+			"eventType": "variable",
+			"name": "InputHorizontalAxis",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 537672191174868
+		},
+		{
+			"eventType": "variable",
+			"name": "InputVerticalAxis",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 254418599162040
+		},
+		{
+			"eventType": "comment",
+			"text": "The final movement X and Y vector, that will determine exactly how the player will move in the world."
+		},
+		{
+			"eventType": "variable",
+			"name": "MovementVectorX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 529207721528290
+		},
+		{
+			"eventType": "variable",
+			"name": "MovementVectorY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 730320235201940
+		},
+		{
+			"eventType": "comment",
+			"text": "Calculate the direction the player should move towards based on both horizontal and vertical input axis."
+		},
+		{
+			"eventType": "block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 855897463597516,
+					"parameters": {
+						"variable": "InputHorizontalAxis",
+						"value": "WalkRight - WalkLeft"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 184741155081998,
+					"parameters": {
+						"variable": "InputVerticalAxis",
+						"value": "WalkDown - WalkUp"
+					}
+				}
+			],
+			"sid": 589495939912782
+		},
+		{
+			"eventType": "comment",
+			"text": "If there's any type of horizontal input, adjust the related movement vector to match it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 799268043313541,
+					"parameters": {
+						"value": "InputHorizontalAxis <> 0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 744240982767833,
+					"parameters": {
+						"variable": "MovementVectorX",
+						"value": "Functions.MoveValueTowardsAnotherValue(MovementVectorX, InputHorizontalAxis * PlayerMaxSpeed, PlayerAcceleration)"
+					}
+				}
+			],
+			"sid": 799730386869214
+		},
+		{
+			"eventType": "comment",
+			"text": "However, if there's no horizontal input, set the related movement vector back to zero."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 419813529866766
+				},
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 779150107346160,
+					"parameters": {
+						"value": "InputHorizontalAxis = 0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 551220190905860,
+					"parameters": {
+						"variable": "MovementVectorX",
+						"value": "Functions.MoveValueTowardsAnotherValue(MovementVectorX, 0, PlayerDeceleration)"
+					}
+				}
+			],
+			"sid": 633156973078023
+		},
+		{
+			"eventType": "comment",
+			"text": "If there's any type of vertical input, adjust the related movement vector to match it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 105072468527965,
+					"parameters": {
+						"value": "InputVerticalAxis <> 0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 907593433970802,
+					"parameters": {
+						"variable": "MovementVectorY",
+						"value": "Functions.MoveValueTowardsAnotherValue(MovementVectorY, InputVerticalAxis* PlayerMaxSpeed, PlayerAcceleration)"
+					}
+				}
+			],
+			"sid": 572259600572406
+		},
+		{
+			"eventType": "comment",
+			"text": "However, if there's no vertical input, set the related movement vector back to zero."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 260873195045421
+				},
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 399426035465981,
+					"parameters": {
+						"value": "InputVerticalAxis = 0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 290074666658287,
+					"parameters": {
+						"variable": "MovementVectorY",
+						"value": "Functions.MoveValueTowardsAnotherValue(MovementVectorY, 0, PlayerDeceleration)"
+					}
+				}
+			],
+			"sid": 659731209111723
+		},
+		{
+			"eventType": "comment",
+			"text": "The layout margin where the player is not able to reach."
+		},
+		{
+			"eventType": "variable",
+			"name": "LAYOUTMARGIN",
+			"type": "number",
+			"initialValue": "384",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": true,
+			"sid": 433339147043300
+		},
+		{
+			"eventType": "comment",
+			"text": "If the movement vector X is not equal to zero, move the player along the X axis based on said vector."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 276318962206594,
+					"parameters": {
+						"value": "MovementVectorX <> 0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "PlayerCollider",
+					"sid": 318650786118674,
+					"parameters": {
+						"x": "clamp(Self.X + MovementVectorX * 60 * dt, LayoutMargin, LayoutWidth - LayoutMargin)"
+					}
+				}
+			],
+			"sid": 259240181685323,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "However, if the player ends colliding with a solid object, push it outside the solid object and reset the X movement vector."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollider",
+							"sid": 485156678822489,
+							"parameters": {
+								"object": "SolidModel"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 713549697355087,
+							"parameters": {
+								"object": "SolidModel"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 682196693648970,
+							"parameters": {
+								"value": "SolidModel.ZElevation + SolidModel.ZHeight > PlayerCollider.ZElevation"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 908767627244170,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "while",
+									"objectClass": "System",
+									"sid": 539627911253972
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerCollider",
+									"sid": 894649480484226,
+									"parameters": {
+										"object": "SolidModel"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-x",
+									"objectClass": "PlayerCollider",
+									"sid": 993344592699501,
+									"parameters": {
+										"x": "Self.X -sign(MovementVectorX) * 0.1"
+									}
+								}
+							],
+							"sid": 233787747681109
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 870797488630480,
+									"parameters": {
+										"variable": "MovementVectorX",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 608848300559174
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "If the movement vector Y is not equal to zero, move the player along the X axis based on said vector."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 908669047102739,
+					"parameters": {
+						"value": "MovementVectorY <> 0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-y",
+					"objectClass": "PlayerCollider",
+					"sid": 947293739379772,
+					"parameters": {
+						"y": "clamp(Self.Y + MovementVectorY * 60 * dt, LayoutMargin, LayoutHeight - LayoutMargin)"
+					}
+				}
+			],
+			"sid": 978236268187990,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "However, if the player ends colliding with a solid object, push it outside the solid object and reset the Y movement vector."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollider",
+							"sid": 975408855260459,
+							"parameters": {
+								"object": "SolidModel"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 723991635054858,
+							"parameters": {
+								"object": "SolidModel"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 788856306397896,
+							"parameters": {
+								"value": "SolidModel.ZElevation + SolidModel.ZHeight > PlayerCollider.ZElevation"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 263782296931970,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "while",
+									"objectClass": "System",
+									"sid": 188883101456474
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerCollider",
+									"sid": 360925842152396,
+									"parameters": {
+										"object": "SolidModel"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-y",
+									"objectClass": "PlayerCollider",
+									"sid": 611960994314862,
+									"parameters": {
+										"y": "Self.Y -sign(MovementVectorY) * 0.1"
+									}
+								}
+							],
+							"sid": 653237352599875
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 663438164677608,
+									"parameters": {
+										"variable": "MovementVectorY",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 134238280146617
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the jump button was pressed."
+		},
+		{
+			"eventType": "variable",
+			"name": "PressedJump",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 840142121573151
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player presses the jump button, set the related boolean to true."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 186893226864981,
+					"parameters": {
+						"key": 32
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 594860332153169,
+					"parameters": {
+						"variable": "PressedJump",
+						"value": "true"
+					}
+				}
+			],
+			"sid": 508900883482565
+		},
+		{
+			"eventType": "comment",
+			"text": "The final movement Z vector, that will determine exactly how the player will move in the world."
+		},
+		{
+			"eventType": "variable",
+			"name": "MovementVectorZ",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 173625748990440
+		},
+		{
+			"eventType": "comment",
+			"text": "How low the player can go into the water."
+		},
+		{
+			"eventType": "variable",
+			"name": "PLAYERMINZELEVATION",
+			"type": "number",
+			"initialValue": "-16",
+			"comment": "",
+			"isStatic": true,
+			"isConstant": true,
+			"sid": 171734690565404
+		},
+		{
+			"eventType": "comment",
+			"text": "The highest Z elevation below the player."
+		},
+		{
+			"eventType": "variable",
+			"name": "HighestSolidZElevation",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 475631568326274
+		},
+		{
+			"eventType": "comment",
+			"text": "Update the entire 3D physics system for the player."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 923237706183786
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 351954109540798,
+					"parameters": {
+						"variable": "HighestSolidZElevation",
+						"value": "PLAYERMINZELEVATION"
+					}
+				}
+			],
+			"sid": 494985348200208,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Find the tallest ground object."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollider",
+							"sid": 277163241094465,
+							"parameters": {
+								"object": "SolidModel"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 960701726800070,
+							"parameters": {
+								"object": "SolidModel"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 472361893507487,
+							"parameters": {
+								"value": "SolidModel.ZElevation + SolidModel.ZHeight > HighestSolidZElevation"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 819245364001306,
+							"parameters": {
+								"variable": "HighestSolidZElevation",
+								"value": "SolidModel.ZElevation + SolidModel.ZHeight"
+							}
+						}
+					],
+					"sid": 304593213359807
+				},
+				{
+					"eventType": "comment",
+					"text": "The angle in which the player is about to move at."
+				},
+				{
+					"eventType": "variable",
+					"name": "AngleOfMotion",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 774195906752932
+				},
+				{
+					"eventType": "comment",
+					"text": "The minimum amount of speed the player needs to accumulate before displaying any movement related animation."
+				},
+				{
+					"eventType": "variable",
+					"name": "MOVEMENTTHRESHOLD",
+					"type": "number",
+					"initialValue": "0.5",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 391592700538754
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 955322865196132,
+							"parameters": {
+								"value": "MovementVectorX < -MovementThreshold | MovementVectorX > MovementThreshold | MovementVectorY < -MovementThreshold | MovementVectorY > MovementThreshold"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 826573969330012,
+							"parameters": {
+								"variable": "AngleOfMotion",
+								"value": "round(((angle(0, 0, MovementVectorX, MovementVectorY) + 360) % 360) / 45) * 45"
+							}
+						}
+					],
+					"sid": 690538451249410
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is above the ground, reduce the movement vector Z and display the jumping animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 319229868249645,
+							"parameters": {
+								"value": "PlayerCollider.ZElevation > HighestSolidZElevation"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 759535001256313,
+							"parameters": {
+								"variable": "MovementVectorZ",
+								"value": "MovementVectorZ - PlayerGravityStrength * 60 * dt"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerTextures",
+							"sid": 718905201359268,
+							"parameters": {
+								"animation": "\"Jumping\"&AngleOfMotion",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 276215819504652
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the player is already on the ground, reset the movement vector Z back to zero."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 104831699416320
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 652389009468402,
+							"parameters": {
+								"value": "PlayerCollider.ZElevation = HighestSolidZElevation"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 824004729593293,
+							"parameters": {
+								"variable": "MovementVectorZ",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 676277129465164,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the player moving in any direction, display the walking animation."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 848907773642052,
+									"parameters": {
+										"value": "MovementVectorX < -MovementThreshold | MovementVectorX > MovementThreshold | MovementVectorY < -MovementThreshold | MovementVectorY > MovementThreshold"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerTextures",
+									"sid": 773525173410955,
+									"parameters": {
+										"animation": "\"Walking\"&AngleOfMotion",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 299477650310461
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the player is standing still, display the waiting animation."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 904757890854630
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 203709724756864,
+									"parameters": {
+										"value": "MovementVectorX >= -MovementThreshold & MovementVectorX <= MovementThreshold & MovementVectorY >= -MovementThreshold & MovementVectorY <= MovementThreshold"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerTextures",
+									"sid": 296561648195983,
+									"parameters": {
+										"animation": "\"Waiting\"&AngleOfMotion",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 951469763290054
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If the pressed jump button variable is true, set it back to false."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 637093109457135,
+							"parameters": {
+								"value": "PressedJump = 1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 931096063902830,
+							"parameters": {
+								"variable": "PressedJump",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 238455773970805,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also, if the player is on the ground, make it jump."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 172388794999142,
+									"parameters": {
+										"value": "PlayerCollider.ZElevation = HighestSolidZElevation"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 355910375871934,
+									"parameters": {
+										"variable": "MovementVectorZ",
+										"value": "PlayerJumpStrength"
+									}
+								}
+							],
+							"sid": 681468936242947
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "The previous Z elevation for the player before applying the force of gravity to it."
+				},
+				{
+					"eventType": "variable",
+					"name": "PreviousZElevation",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 359661803252238
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Store the player's previous Z elevation."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 307778544396720,
+							"parameters": {
+								"variable": "PreviousZElevation",
+								"value": "PlayerCollider.ZElevation"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Apply the force of gravity to the player."
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "PlayerCollider",
+							"sid": 319344419144207,
+							"parameters": {
+								"z": "clamp(Self.ZElevation + MovementVectorZ * 60 * dt, HighestSolidZElevation, Infinity)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update the position and Z elevation of the shadow below the player."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "PlayerShadow",
+							"sid": 156584683715634,
+							"parameters": {
+								"x": "PlayerCollider.X",
+								"y": "PlayerCollider.Y"
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "PlayerShadow",
+							"sid": 786612207128508,
+							"parameters": {
+								"z": "HighestSolidZElevation + 0.1"
+							}
+						}
+					],
+					"sid": 141094026555758,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the player enters the water, create a water splash in front of it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 386660868241174,
+									"parameters": {
+										"value": "PreviousZElevation >= WaterTexture.ZElevation & PlayerCollider.ZElevation < WaterTexture.ZElevation"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "CreateWaterSplash",
+									"sid": 151459965393701
+								}
+							],
+							"sid": 244352930442278
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player leaves the water, also create a water splash in front of it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 287068246393828,
+									"parameters": {
+										"value": "PreviousZElevation <= WaterTexture.ZElevation & PlayerCollider.ZElevation > WaterTexture.ZElevation"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "CreateWaterSplash",
+									"sid": 909740471887851
+								}
+							],
+							"sid": 901309226949417
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is overlapping the end trigger zone, restart the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollider",
+							"sid": 121693632001232,
+							"parameters": {
+								"object": "EndTriggerZone"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 602229229447929,
+							"parameters": {
+								"value": "PlayerCollider.ZElevation = EndTriggerZone.ZElevation"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Destroy the end trigger zone."
+						},
+						{
+							"id": "destroy",
+							"objectClass": "EndTriggerZone",
+							"sid": 126334431921685
+						},
+						{
+							"type": "comment",
+							"text": "If the end trigger zone is tagged as \"bad game over\" it means the player fell into a pit, so change the text to a negative version."
+						},
+						{
+							"id": "set-text",
+							"objectClass": "VictoryText",
+							"sid": 635514166645276,
+							"parameters": {
+								"text": "EndTriggerZone.BadGameOver = 0 ? \"[color=#57ce00]YOU WIN![/color]\" & newline & \"The game will restart in a few seconds...\" : \"[color=#ce5757]YOU LOSE![/color]\" & newline & \"The game will restart in a few seconds...\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Display a victory text."
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "VictoryText",
+							"sid": 393794487666413,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "flash",
+							"objectClass": "VictoryText",
+							"sid": 144990067358973,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.05",
+								"off-time": "0.05",
+								"duration": "0.5"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Wait a few seconds before restarting the game."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 898238301751682,
+							"parameters": {
+								"seconds": "5"
+							}
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 185597835561486
+						}
+					],
+					"sid": 472578255883050
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Create a water splash using the X and Y component from the player and the Z component from the water."
+		},
+		{
+			"functionName": "CreateWaterSplash",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 479883156964772,
+					"parameters": {
+						"object-to-create": "WaterSplashModel",
+						"layer": "0",
+						"x": "PlayerCollider.X",
+						"y": "PlayerCollider.Y + 4",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "set-z-elevation",
+					"objectClass": "WaterSplashModel",
+					"sid": 769125734724515,
+					"parameters": {
+						"z": "WaterTexture.ZElevation"
+					}
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "WaterSplashModel",
+					"sid": 122796904825104,
+					"parameters": {
+						"angle": "90"
+					}
+				},
+				{
+					"id": "add-child",
+					"objectClass": "WaterTexture",
+					"sid": 570735843971892,
+					"parameters": {
+						"child": "WaterSplashModel",
+						"transform-x": false,
+						"transform-y": false,
+						"transform-w": false,
+						"transform-h": false,
+						"transform-a": false,
+						"transform-o": false,
+						"transform-z-elevation": true,
+						"transform-visibility": false,
+						"destroy-with-parent": false
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Create a separate texture object for the water splash, so it can be animated."
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 129795834075172,
+					"parameters": {
+						"object-to-create": "WaterSplashTextures",
+						"layer": "0",
+						"x": "WaterSplashModel.X",
+						"y": "WaterSplashModel.Y",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "set-face-object",
+					"objectClass": "WaterSplashModel",
+					"sid": 921508741890338,
+					"parameters": {
+						"face": "right",
+						"object": "WaterSplashTextures"
+					}
+				},
+				{
+					"id": "add-child",
+					"objectClass": "WaterSplashModel",
+					"sid": 501019628681760,
+					"parameters": {
+						"child": "WaterSplashTextures",
+						"transform-x": true,
+						"transform-y": true,
+						"transform-w": false,
+						"transform-h": false,
+						"transform-a": false,
+						"transform-o": false,
+						"transform-z-elevation": true,
+						"transform-visibility": false,
+						"destroy-with-parent": true
+					}
+				}
+			],
+			"sid": 117578252036556
+		},
+		{
+			"eventType": "comment",
+			"text": "Destroy the water splash effect once its animation is finished."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-animation-finished",
+					"objectClass": "WaterSplashTextures",
+					"sid": 587843973943028,
+					"parameters": {
+						"animation": "\"Default\""
+					}
+				},
+				{
+					"id": "pick-parent",
+					"objectClass": "WaterSplashTextures",
+					"sid": 978253377502208,
+					"parameters": {
+						"parent": "WaterSplashModel",
+						"which": "own"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "WaterSplashModel",
+					"sid": 790783122765656
+				}
+			],
+			"sid": 821206459341071
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly move the camera towards the player."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 133303900371411
+				}
+			],
+			"actions": [
+				{
+					"id": "look-at-position",
+					"objectClass": "3DCamera",
+					"sid": 689449408545444,
+					"parameters": {
+						"cam-x": "PlayerCollider.X",
+						"cam-y": "PlayerCollider.Y + 160",
+						"cam-z": "PlayerCollider.ZElevation + 160",
+						"look-x": "PlayerCollider.X",
+						"look-y": "PlayerCollider.Y",
+						"look-z": "PlayerCollider.ZElevation",
+						"up-x": "0",
+						"up-y": "0",
+						"up-z": "1"
+					}
+				}
+			],
+			"sid": 284639460769788
+		},
+		{
+			"eventType": "comment",
+			"text": "The direction in which the current value needs to move at in order to reach the target value."
+		},
+		{
+			"eventType": "variable",
+			"name": "ValueDirection",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 241130108432526
+		},
+		{
+			"functionName": "MoveValueTowardsAnotherValue",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "number",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "CurrentValue",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 753493024001998
+				},
+				{
+					"name": "TargetValue",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 314374838392782
+				},
+				{
+					"name": "Speed",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 354909596937562
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Calculate the value direction."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 990161880872611,
+					"parameters": {
+						"variable": "ValueDirection",
+						"value": "sign(TargetValue - CurrentValue )"
+					}
+				}
+			],
+			"sid": 214747429031085,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the current value is higher than the target value, use the target value as the minimum clamp parameter."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 682472223633076,
+							"parameters": {
+								"value": "CurrentValue > TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 218696787058252,
+							"parameters": {
+								"value": "clamp(CurrentValue + ValueDirection * abs(Speed) * 60 * dt, TargetValue, Infinity)"
+							}
+						}
+					],
+					"sid": 730902706015435
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value is lower than the target value, use the target value as the maximum clamp parameter."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 383028074623973
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 567003172866816,
+							"parameters": {
+								"value": "CurrentValue < TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 211320352740041,
+							"parameters": {
+								"value": "clamp(CurrentValue + ValueDirection * abs(Speed) * 60 * dt, -Infinity, TargetValue)"
+							}
+						}
+					],
+					"sid": 370874505240173
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value equals the target value, simply return the target value."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 871472349592400
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 337405647987141,
+							"parameters": {
+								"value": "CurrentValue = TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 247159210728495,
+							"parameters": {
+								"value": "TargetValue"
+							}
+						}
+					],
+					"sid": 580941678387854
+				}
+			]
+		}
+	],
+	"sid": 104582459088419
+}

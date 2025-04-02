@@ -1,0 +1,1560 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of our patrons on https://www.patreon.com/viridinostudios and our good friends at https://www.construct.net."
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the layout by refreshing the list of discoveries and changing the 3D camera properties, giving the scene an interesting perspective."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 603762161787922
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "RefreshDiscoveriesList",
+							"sid": 860081281557926
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 944918128327642,
+							"parameters": {
+								"cam-x": "LayoutWidth / 2",
+								"cam-y": "LayoutHeight / 2 + 16",
+								"cam-z": "64",
+								"look-x": "LayoutWidth / 2",
+								"look-y": "LayoutHeight / 2 + 4",
+								"look-z": "0",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 991487803923136
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup each element by storing their initial position to a couple of local variables."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Element",
+							"sid": 721212542684305
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Element",
+							"sid": 212281614859548,
+							"parameters": {
+								"instance-variable": "InitialX",
+								"value": "Self.X"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Element",
+							"sid": 626900795694048,
+							"parameters": {
+								"instance-variable": "InitialY",
+								"value": "Self.Y"
+							}
+						}
+					],
+					"sid": 447861771847857
+				}
+			],
+			"sid": 105549004992867
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Once a matrix element is picked, disable its \"IsMatrix\" property and create a new matrix element on its initial position to replace it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-drag-start",
+							"objectClass": "Element",
+							"sid": 529227640417984,
+							"behaviorType": "DragDrop"
+						}
+					],
+					"actions": [],
+					"sid": 745133305908076,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Element",
+									"sid": 102727520313741,
+									"parameters": {
+										"instance-variable": "IsMatrix"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Element",
+									"sid": 862392301293819,
+									"parameters": {
+										"instance-variable": "IsMatrix",
+										"value": "false"
+									}
+								},
+								{
+									"callFunction": "CreateElementAtPosition",
+									"sid": 511359322881853,
+									"parameters": [
+										"Element.InitialX",
+										"Element.InitialY",
+										"Element.AnimationName",
+										true,
+										false
+									]
+								}
+							],
+							"sid": 965555843935258
+						},
+						{
+							"eventType": "comment",
+							"text": "At the end, move the element to the top of the layer, even if it isn't a matrix."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "move-to-top",
+									"objectClass": "Element",
+									"sid": 867421464465304
+								}
+							],
+							"sid": 768307428762136
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once an element is dropped, check if it's close to a trash bin or not."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-drop",
+							"objectClass": "Element",
+							"sid": 892508777007171,
+							"behaviorType": "DragDrop"
+						}
+					],
+					"actions": [],
+					"sid": 875400291654204,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the element is overlapping a trash bin, simply destroy it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Element",
+									"sid": 304816424360063,
+									"parameters": {
+										"object": "TrashBin"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Element",
+									"sid": 965457277265502
+								}
+							],
+							"sid": 479972945232339
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the element isn't overlapping a trash bin, read its position."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 519754576406327
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Element",
+									"sid": 687525075024167,
+									"parameters": {
+										"object": "TrashBin"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "ReadPosition",
+									"sid": 607811220507666,
+									"parameters": [
+										"Element.X",
+										"Element.Y"
+									]
+								}
+							],
+							"sid": 786547616618615
+						}
+					]
+				}
+			],
+			"sid": 365549147934928
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Elements",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create an element at a specific position."
+				},
+				{
+					"functionName": "CreateElementAtPosition",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "PositionX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 442088410339604
+						},
+						{
+							"name": "PositionY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 140992455053891
+						},
+						{
+							"name": "AnimationName",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 533568233153202
+						},
+						{
+							"name": "IsMatrix",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 598148340947913
+						},
+						{
+							"name": "UnlockNew",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 663990649732105
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Create an element and update its properties (animation, matrix, etc)."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 569131691578281,
+							"parameters": {
+								"object-to-create": "Element",
+								"layer": "\"World\"",
+								"x": "PositionX",
+								"y": "PositionY",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Element",
+							"sid": 832963695010588,
+							"parameters": {
+								"animation": "AnimationName",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Element",
+							"sid": 744729729255740,
+							"parameters": {
+								"instance-variable": "MatrixAnimationName",
+								"value": "Self.AnimationName"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also perform a quick bounce animation to make it more visually appealing."
+						},
+						{
+							"id": "set-size",
+							"objectClass": "Element",
+							"sid": 370280181680081,
+							"parameters": {
+								"width": "0",
+								"height": "0"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Element",
+							"sid": 632326432311105,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Bounce\"",
+								"property": "size",
+								"end-x": "16",
+								"end-y": "16",
+								"time": "0.5",
+								"ease": "easeoutback",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 509276763300032,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update the element \"IsMatrix\" variable."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 936527683388130,
+									"parameters": {
+										"value": "IsMatrix = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Element",
+									"sid": 806387488898198,
+									"parameters": {
+										"instance-variable": "IsMatrix",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 230050056919949
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 706751122713972
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 106194271357311,
+									"parameters": {
+										"value": "IsMatrix = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Element",
+									"sid": 193519395342367,
+									"parameters": {
+										"instance-variable": "IsMatrix",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 316703754643659
+						},
+						{
+							"eventType": "comment",
+							"text": "Add the element name to the discoveries list if it wasn't there already."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 391988471344425,
+									"parameters": {
+										"value": "UnlockNew = 1 & find(Discoveries, AnimationName) = -1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 145015935874704,
+									"parameters": {
+										"variable": "Discoveries",
+										"value": "Discoveries&\"|\"&AnimationName"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also refresh the discoveries list, so it matches its global variable."
+								},
+								{
+									"callFunction": "RefreshDiscoveriesList",
+									"sid": 309586373050857
+								}
+							],
+							"sid": 788739104037621
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Read the elements around a specific position, searching for all types of different combinations."
+				},
+				{
+					"functionName": "ReadPosition",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "PositionX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 963797441919424
+						},
+						{
+							"name": "PositionY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 873342819844457
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 356039998433930,
+							"parameters": {
+								"object-to-create": "Reader",
+								"layer": "\"World\"",
+								"x": "PositionX",
+								"y": "PositionY",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 333118197946376,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the reader object is overlapping exactly two non-matrix elements, proceed with the match search."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Reader",
+									"sid": 974915478031679,
+									"parameters": {
+										"object": "Element"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 679211954824353,
+									"parameters": {
+										"object": "Element",
+										"expression": "Element.IsMatrix",
+										"comparison": 0,
+										"value": "0"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 242768823144929,
+									"parameters": {
+										"value": "Element.PickedCount = 2"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 188758780114967,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Name of both elements."
+								},
+								{
+									"eventType": "variable",
+									"name": "Elements",
+									"type": "string",
+									"initialValue": "",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 168829154515608
+								},
+								{
+									"eventType": "comment",
+									"text": "Store the name of both elements in a single local variable."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 808257347779771,
+											"parameters": {
+												"object": "Element"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 461215041331697,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 401106000298608,
+													"parameters": {
+														"value": "loopindex = 0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 577437997882751,
+													"parameters": {
+														"variable": "Elements",
+														"value": "Element.AnimationName"
+													}
+												}
+											],
+											"sid": 560141350768913
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 298077296784853
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 495780481752578,
+													"parameters": {
+														"value": "loopindex = 1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 184237915376396,
+													"parameters": {
+														"variable": "Elements",
+														"value": "Elements&\"|\"&Element.AnimationName"
+													}
+												}
+											],
+											"sid": 726401078591069
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "If the combination of both elements are a match for another element, destroy the previous elements and create a new one on top of everything."
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a brick."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 122563201429565,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Fire\", \"Mud\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 978058279353771
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 688372676398624,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Brick\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 522472660382292,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 770274049598424
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a dust."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 665892706652316
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 610940729606394,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Air\", \"Earth\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 705625067493964
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 671431738219559,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Dust\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 332035906993058,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 902266150933490
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a explosion."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 542623656282839
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 654633243760003,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Fire\", \"Gunpowder\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 711876858876577
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 808903296117955,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Explosion\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 739307186243873,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 896449846348940
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a gunpowder."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 476793097580028
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 146390965731405,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Dust\", \"Fire\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 334951057346848
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 361210813849478,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Gunpowder\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 488932921419662,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 287601805518617
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a lava."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 120873371118007
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 453431052579210,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Earth\", \"Fire\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 329108669964906
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 451078103232425,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Lava\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 244021458458842,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 189327586171279
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a mud."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 985208464637889
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 329282900134362,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Earth\", \"Water\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 871143247805347
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 771636049789633,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Mud\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 562533649945770,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 688384505074311
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a obsidian."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 182167009388006
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 887892498738267,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Lava\", \"Water\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 810523783659692
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 551078241275549,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Obsidian\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 769039498215012,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 799469339985810
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a rain."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 535254537536152
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 568367237151762,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Air\", \"Water\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 791932296000199
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 272843630355350,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Rain\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 129489822878891,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 674960510095957
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a sea."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 129842245936623
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 871230761160022,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Water\", \"Water\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 202151485575729
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 239058143637550,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Sea\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 934696903917190,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 234679848689976
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a steam."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 167182627461263
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 494382552127156,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Fire\", \"Water\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 610903406511579
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 601335660504126,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Steam\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 292362409448818,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 977422187387230
+								},
+								{
+									"eventType": "comment",
+									"text": "Create a wall."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 873724642174054
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 785435933231491,
+											"parameters": {
+												"value": "Functions.ParseElements(Elements, \"Brick\", \"Brick\") = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Element",
+											"sid": 171788903691863
+										},
+										{
+											"callFunction": "CreateElementAtPosition",
+											"sid": 563110762653759,
+											"parameters": [
+												"Reader.X",
+												"Reader.Y",
+												"\"Wall\"",
+												false,
+												true
+											]
+										},
+										{
+											"callFunction": "CreateEffectAtPosition",
+											"sid": 960886912778213,
+											"parameters": [
+												"PositionX",
+												"PositionY"
+											]
+										}
+									],
+									"sid": 896638347999942
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy the ready object once it's no longer required."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Reader",
+									"sid": 375682866915040
+								}
+							],
+							"sid": 199606410952639
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Create a flash effect and a few particles at a specific position."
+				},
+				{
+					"functionName": "CreateEffectAtPosition",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "PositionX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 788264047101049
+						},
+						{
+							"name": "PositionY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 852939468049816
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 291503055549927,
+							"parameters": {
+								"object-to-create": "Flash",
+								"layer": "\"World\"",
+								"x": "PositionX",
+								"y": "PositionY",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Flash",
+							"sid": 939472979944903,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SelfDestroy\"",
+								"property": "size",
+								"end-x": "0",
+								"end-y": "0",
+								"time": "0.25",
+								"ease": "easeinsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 736446468085307,
+							"parameters": {
+								"object-to-create": "Particles",
+								"layer": "\"World\"",
+								"x": "PositionX",
+								"y": "PositionY",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 900357474387915
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if the name of two elements are part of a single string."
+				},
+				{
+					"functionName": "ParseElements",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Text",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 543806521442826
+						},
+						{
+							"name": "Element1",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 164673307394818
+						},
+						{
+							"name": "Element2",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 178691493482967
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 537993864006061,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Whether or not the results are valid."
+						},
+						{
+							"eventType": "variable",
+							"name": "IsValid",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 792648161626307
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 766093963547912,
+									"parameters": {
+										"value": "left(Text, len(Element1)) = Element1 & right(Text, len(Element2)) = Element2"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 319308061056810,
+									"parameters": {
+										"value": "left(Text, len(Element2)) = Element2 & right(Text, len(Element1)) = Element1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 788138116367317,
+									"parameters": {
+										"variable": "IsValid",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 576655768608137,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "If the result is valid return 1, otherwise return 0."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 676537229137424,
+									"parameters": {
+										"value": "Isvalid = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 383311879859437,
+									"parameters": {
+										"value": "1"
+									}
+								}
+							],
+							"sid": 454077161121653
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 935491657907870
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 986944246248568,
+									"parameters": {
+										"value": "Isvalid = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 984790395843175,
+									"parameters": {
+										"value": "0"
+									}
+								}
+							],
+							"sid": 456761732836451
+						}
+					]
+				}
+			],
+			"sid": 916654475689598
+		},
+		{
+			"eventType": "comment",
+			"text": "List of all elements that were already discovered by the player."
+		},
+		{
+			"eventType": "variable",
+			"name": "Discoveries",
+			"type": "string",
+			"initialValue": "Water|Fire|Earth|Air",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 153932660633005
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "UserInterface",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Refresh the discoveries list, replacing all locks for element icons like fire and water."
+				},
+				{
+					"functionName": "RefreshDiscoveriesList",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 896405035108935,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 229073394720452,
+									"parameters": {
+										"object": "Element",
+										"expression": "Element.IsMatrix",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 234559177392146,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 788332043189203,
+											"parameters": {
+												"object": "Element"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-enabled",
+											"objectClass": "Element",
+											"sid": 662601578459158,
+											"behaviorType": "DragDrop",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "Element",
+											"sid": 653367596958571,
+											"parameters": {
+												"animation": "\"Locked\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 322231173828213,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Elements shown if their names are included in the \"Discoveries\" global variable."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 452099926858457,
+													"parameters": {
+														"value": "find(Discoveries, Element.MatrixAnimationName) <> -1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-enabled",
+													"objectClass": "Element",
+													"sid": 903997938613982,
+													"behaviorType": "DragDrop",
+													"parameters": {
+														"state": "enabled"
+													}
+												},
+												{
+													"id": "set-animation",
+													"objectClass": "Element",
+													"sid": 559840183897157,
+													"parameters": {
+														"animation": "Self.MatrixAnimationName",
+														"from": "beginning"
+													}
+												}
+											],
+											"sid": 208356070214839
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 909191335606215
+		}
+	],
+	"sid": 656175444614692
+}

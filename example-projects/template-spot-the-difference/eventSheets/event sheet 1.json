@@ -1,0 +1,290 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Original image source : https://www.pexels.com/photo/brown-and-red-leaves-3150553/"
+		},
+		{
+			"eventType": "comment",
+			"text": "References :\n\n[b]Plugin[/b]\n[item]Sprite - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/sprite\n[item]Text - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/text\n[item]Touch - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/touch\n\n[u]System[/u]\n[item]Instances - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/objects/instances\n[item]Global variables - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/events/variables\n[item]Instance variables - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/objects/instance-variables",
+			"background-color": [
+				0.7450980392156863,
+				0.996078431372549,
+				0.8431372549019608,
+				1
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Spot the difference template\n\n[b]image[/b] contains two animation frames of two \"similar\" drawings. The one on the right (animation frame 1) has a few differing elements the player is supposed to spot by clicking/touching on it. The speed of the animation is set to 0 so the [b]Sprite[/b] acts as an \"image bank\".\n\nOver [b]image[/b] (animation frame 1) we placed [b]area[/b] instances (to interact and detect the player's [b]touch[/b]) and [b]circle[/b] instances that display the specific difference once the player has touched.\nBoth [b]area[/b] and [b]circle[/b] have an instance variable named [i]ID[/i]. The same number allows to \"link\" a [b]circle[/b] to an [b]area[/b] in event 3.\n\n[b]area[/b] instances are set to not be \"initially visible\" and are of 35% opacity to make it easier to position [b]circle[/b] instances accordingly in the editor.\nSizes for [b]area[/b] and [b]circle[/b] instances are placed on differences in [b]image[/b] accordingly to the current difference.\n",
+			"background-color": [
+				0.7686274509803922,
+				0.8862745098039215,
+				0.996078431372549,
+				1
+			]
+		},
+		{
+			"eventType": "variable",
+			"name": "diffSpotted",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Differences currently spotted",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 752210091332607
+		},
+		{
+			"eventType": "variable",
+			"name": "diffNB",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Total number of differences to spot",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 673434727923667
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 571288627183624
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Set the total number of differences according to the number of [b]circle[/b] instances existing in the layout"
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 384961740036603,
+					"parameters": {
+						"variable": "diffNB",
+						"value": "circle.Count"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Set some text instead of the default text. \"&\" is used to concatenate some string text (\"Differences spotted\") and global variables [i]diffSpotted[/i] and [i]diffNB[/i]"
+				},
+				{
+					"id": "set-text",
+					"objectClass": "txtDiffSpotted",
+					"sid": 504960916733173,
+					"parameters": {
+						"text": "\"Differences spotted : \" & diffSpotted & \"/\" & diffNB"
+					}
+				}
+			],
+			"sid": 500332460368014
+		},
+		{
+			"eventType": "comment",
+			"text": "When the player touches some [b]area[/b] instances, pick only the one that is at the top of the layout (the condition is used to make sure to pick only one instance and prevent overlapping [b]area[/b] instances to both display as \"spotted difference\")."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 931221573652020,
+					"parameters": {
+						"object": "area"
+					}
+				},
+				{
+					"id": "pick-topbottom",
+					"objectClass": "area",
+					"sid": 751569882266601,
+					"parameters": {
+						"which": "top"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 204364384930819,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Pick [b]circle[/b] instance which instance variable [i]ID[/i] value is the same as the currently picked [b]area[/b] instance variable [i]ID[/i] value"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "circle",
+							"sid": 761699746102183,
+							"parameters": {
+								"instance-variable": "ID",
+								"comparison": 0,
+								"value": "area.ID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Display [b]circle[/b]"
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "circle",
+							"sid": 860453378577609,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Destroy [b]area[/b] (it cannot be clicked anymore and won't risk messing up the number of differences spotted)"
+						},
+						{
+							"id": "destroy",
+							"objectClass": "area",
+							"sid": 547121381779979
+						},
+						{
+							"type": "comment",
+							"text": "Add 1 to the global variable [i]diffSpotted[/i] (one new difference spotted)"
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 418788352533364,
+							"parameters": {
+								"variable": "diffSpotted",
+								"value": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update [b]txtDiffSpotted[/b] to display the new numbers of difference spotted"
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtDiffSpotted",
+							"sid": 554335117789811,
+							"parameters": {
+								"text": "\"Differences spotted : \" & diffSpotted & \"/\" & diffNB"
+							}
+						}
+					],
+					"sid": 994933978974075
+				},
+				{
+					"eventType": "comment",
+					"text": "If the number of difference spotted ([i]diffSpotted[/i] value) is equal to the total number of differences to spot ([i]diffNB[/i] value) the game is over"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 997608105324717,
+							"parameters": {
+								"variable": "diffSpotted",
+								"comparison": 0,
+								"value": "diffNB"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Position [b]underGameOver[/b] so it is in the middle of the screen and to the size of [b]txtGameOver[/b]"
+						},
+						{
+							"id": "set-position",
+							"objectClass": "underGameOver",
+							"sid": 404976006094657,
+							"parameters": {
+								"x": "LayoutWidth/2",
+								"y": "LayoutHeight/2"
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "underGameOver",
+							"sid": 308224310515326,
+							"parameters": {
+								"width": "txtGameOver.Width",
+								"height": "txtGameOver.Height"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Position [b]txtGameOver[/b] so it is at the same position as [b]underGameOver[/b] and moved on top of it (this works because the origin point of the [b]text[/b] object has been set to \"middle\")"
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "txtGameOver",
+							"sid": 343196022333360,
+							"parameters": {
+								"object": "underGameOver",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "move-to-top",
+							"objectClass": "txtGameOver",
+							"sid": 972487123159857
+						},
+						{
+							"type": "comment",
+							"text": "Position [b]btnRestart[/b] on screen so the player can restart the layout and play again"
+						},
+						{
+							"id": "set-position",
+							"objectClass": "btnRestart",
+							"sid": 955032254079609,
+							"parameters": {
+								"x": "LayoutWidth/2",
+								"y": "LayoutHeight/2 + 96 + btnRestart.Height/2"
+							}
+						}
+					],
+					"sid": 371366147845768
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Player touched [b]btnRestart[/b], reset the values of the global variable and restart the layout to play the game again"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 633745554953052,
+					"parameters": {
+						"object": "btnRestart"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "reset-global-variables",
+					"objectClass": "System",
+					"sid": 687454656811365
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 461954560715126
+				}
+			],
+			"sid": 531204416803677
+		}
+	],
+	"sid": 383981207116763
+}

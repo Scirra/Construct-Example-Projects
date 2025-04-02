@@ -1,0 +1,311 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "Interval",
+			"type": "number",
+			"initialValue": "0.025",
+			"comment": "How often to play a sound",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 5694571296854749
+		},
+		{
+			"eventType": "variable",
+			"name": "ScheduleAhead",
+			"type": "number",
+			"initialValue": "0.5",
+			"comment": "How far ahead to schedule sounds",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 4376551436655139
+		},
+		{
+			"eventType": "variable",
+			"name": "NextScheduleTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Time to play next sound at",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 646351397499661
+		},
+		{
+			"eventType": "variable",
+			"name": "CurrentScheduleTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Current scheduling time",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 8667681081230539
+		},
+		{
+			"eventType": "variable",
+			"name": "IsPlaying",
+			"type": "string",
+			"initialValue": "nothing",
+			"comment": "\"nothing\", \"every\" or \"scheduled\"",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 7010143536126766
+		},
+		{
+			"eventType": "comment",
+			"text": "Playing sounds with \"Every X seconds\". This simply uses a \"Play\" action in an \"Every\" event."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 9809488721489696,
+					"parameters": {
+						"variable": "IsPlaying",
+						"comparison": 0,
+						"value": "\"every\""
+					}
+				},
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 8923369760394947,
+					"parameters": {
+						"interval-seconds": "Interval"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "play",
+					"objectClass": "Audio",
+					"sid": 9557617841254464,
+					"parameters": {
+						"audio-file": "SFX1",
+						"loop": "not-looping",
+						"volume": "0",
+						"tag-optional": "\"\""
+					}
+				}
+			],
+			"sid": 4684041177108804
+		},
+		{
+			"eventType": "comment",
+			"text": "Playing sounds with scheduling. In this example we schedule sounds up to 50ms in the future (ScheduleAhead), which is low enough to be semi-instant to the user, but high enough to not be affected by variations in how often the events run. Note we must use Audio.CurrentTime to schedule relative to audio hardware time."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 2440650795545591,
+					"parameters": {
+						"variable": "IsPlaying",
+						"comparison": 0,
+						"value": "\"scheduled\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 8088632165028227,
+					"parameters": {
+						"variable": "CurrentScheduleTime",
+						"value": "Audio.CurrentTime + ScheduleAhead"
+					}
+				}
+			],
+			"sid": 411573769314559,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "NextScheduleTime is the time to play the next sound at. When it is time to schedule this sound, we use the \"Schedule next play\" action to set its time and then a normal \"Play\" action. It's important that we add the interval to the NextScheduleTime so it increments by exactly 25ms (Interval), making sure the next sound is scheduled exactly 25ms after this one. Also note we use a \"While\" so we keep scheduling sounds up until the CurrentScheduleTime; this makes sure intervals less than 16ms still work (where multiple sounds are scheduled per tick) and helps scheduling at low framerates too."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "while",
+							"objectClass": "System",
+							"sid": 9452813159748234
+						},
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 3811997006433806,
+							"parameters": {
+								"variable": "NextScheduleTime",
+								"comparison": 2,
+								"value": "CurrentScheduleTime"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "schedule-next-play",
+							"objectClass": "Audio",
+							"sid": 4217367792075323,
+							"parameters": {
+								"time": "NextScheduleTime"
+							}
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 673439191943059,
+							"parameters": {
+								"audio-file": "SFX1",
+								"loop": "not-looping",
+								"volume": "0",
+								"tag-optional": "\"\""
+							}
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 4346466204815062,
+							"parameters": {
+								"variable": "NextScheduleTime",
+								"value": "Interval"
+							}
+						}
+					],
+					"sid": 8443072387501544
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Start playback using \"Every\" for 1 second."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "PlayEvery",
+					"sid": 8296558527073291
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 967202600980333,
+					"parameters": {
+						"variable": "IsPlaying",
+						"value": "\"every\""
+					}
+				},
+				{
+					"id": "wait",
+					"objectClass": "System",
+					"sid": 5375777685025859,
+					"parameters": {
+						"seconds": "1.0"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 8018345703124677,
+					"parameters": {
+						"variable": "IsPlaying",
+						"value": "\"none\""
+					}
+				}
+			],
+			"sid": 806261951920551
+		},
+		{
+			"eventType": "comment",
+			"text": "Start playback using scheduling for 1 second. Note in this case we have to update NextScheduleTime, to set the time for the first sound to play. We put this just ahead of the scheduling time to make sure it doesn't have to catch-up with the current time."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "PlayScheduled",
+					"sid": 4428430811724664
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 3038573411840074,
+					"parameters": {
+						"variable": "NextScheduleTime",
+						"value": "Audio.CurrentTime + ScheduleAhead + Interval"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 6063132904796954,
+					"parameters": {
+						"variable": "IsPlaying",
+						"value": "\"scheduled\""
+					}
+				},
+				{
+					"id": "wait",
+					"objectClass": "System",
+					"sid": 9254601809324572,
+					"parameters": {
+						"seconds": "1.0"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 4353081322000729,
+					"parameters": {
+						"variable": "IsPlaying",
+						"value": "\"none\""
+					}
+				}
+			],
+			"sid": 2771769922212865
+		},
+		{
+			"eventType": "comment",
+			"text": "Note the scheduling features requires advanced audio support (i.e. Web Audio API support in the browser). Disable the schedule button if it is not supported."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 2717754127466604
+				},
+				{
+					"id": "advanced-audio-supported",
+					"objectClass": "Audio",
+					"sid": 1811467711874331,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-enabled",
+					"objectClass": "PlayScheduled",
+					"sid": 7972355013823852,
+					"parameters": {
+						"mode": "disabled"
+					}
+				}
+			],
+			"sid": 2905017324456366
+		}
+	],
+	"sid": 774054379403103
+}

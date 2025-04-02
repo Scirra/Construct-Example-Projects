@@ -1,0 +1,2219 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "PSPEED",
+			"type": "number",
+			"initialValue": "6",
+			"comment": "How fast the player moves",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 502898549956391
+		},
+		{
+			"eventType": "variable",
+			"name": "WPNDIST",
+			"type": "number",
+			"initialValue": "5120",
+			"comment": "Distance to the next waypoint (entities spawn)",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 265120200865500
+		},
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "nextMode",
+			"type": "string",
+			"initialValue": "wolf",
+			"comment": "Next mode the player is expected to be in",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 722829183100829
+		},
+		{
+			"eventType": "variable",
+			"name": "gameSpeed",
+			"type": "number",
+			"initialValue": "350",
+			"comment": "How fast the game progresses",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 927546995667822
+		},
+		{
+			"eventType": "variable",
+			"name": "score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Player score",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 716993328790871
+		},
+		{
+			"eventType": "variable",
+			"name": "lives",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "Player lives",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 109549814748972
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 149438207628913
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set initial camera position."
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 680148408986573,
+							"parameters": {
+								"cam-x": "LayoutWidth/2",
+								"cam-y": "448",
+								"cam-z": "160",
+								"look-x": "PlayerCollision.X",
+								"look-y": "PlayerCollision.Y - 32",
+								"look-z": "96",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Disable player movement."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 301302613370420,
+							"parameters": {
+								"group-name": "\"Player Movement\"",
+								"state": "deactivated"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create intial trees."
+						},
+						{
+							"callFunction": "createInitialTrees",
+							"sid": 787037443433463
+						}
+					],
+					"sid": 299523343001921,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Create pool of trees."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 221994864380487,
+									"parameters": {
+										"count": "128"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 198830779267618,
+									"parameters": {
+										"object-to-create": "TreeBillboard",
+										"layer": "\"Game\"",
+										"x": "10000",
+										"y": "10000",
+										"create-hierarchy": false,
+										"template-name": "(random(10) < 5) ? \"Tree1\" : \"Tree2\""
+									}
+								}
+							],
+							"sid": 485115895126095
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Make camera smoothly rotate towards the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 102891679131201
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 808140549423245,
+							"parameters": {
+								"cam-x": "lerp(Self.CameraX, PlayerCollision.X/3 + 60, 10 * dt)",
+								"cam-y": "448",
+								"cam-z": "lerp(Self.CameraZ, PlayerCollision.currentMode = \"bird\" ? 80 : 160, 10 * dt)",
+								"look-x": "lerp(Self.LookX, PlayerCollision.X/3 + 60, 10 * dt)",
+								"look-y": "PlayerCollision.Y - 32",
+								"look-z": "96",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 707716624537979
+				}
+			],
+			"sid": 321466930111686
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tutorial",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Hide tutorial when the screen is tapped/clicked."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tap",
+							"objectClass": "Touch",
+							"sid": 195896848519042
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Hide tutorial."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 188927295087957,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FaderOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTutorial",
+							"sid": 606965018586077,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TutorialOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show score and lives."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextLives",
+							"sid": 203439056463256,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"LivesOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextScore",
+							"sid": 563306500109442,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScoreOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Enable player movement."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 807854997592479,
+							"parameters": {
+								"group-name": "\"Player Movement\"",
+								"state": "activated"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Disable tutorial."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 929877920494613,
+							"parameters": {
+								"group-name": "\"Tutorial\"",
+								"state": "deactivated"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start spawning entities."
+						},
+						{
+							"callFunction": "spawnEntities",
+							"sid": 446880644666522
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Timer",
+							"sid": 208746051096288,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "6",
+								"type": "once",
+								"tag": "\"entities\""
+							}
+						}
+					],
+					"sid": 147255623006382
+				}
+			],
+			"sid": 413536331294906
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "World Movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Move the world, every tick."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 146961512007459
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Move ground."
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Ground",
+							"sid": 327326374584237,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + gameSpeed * dt"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move obstacles."
+						},
+						{
+							"id": "set-y",
+							"objectClass": "Rock",
+							"sid": 629240268078824,
+							"parameters": {
+								"y": "Self.Y + gameSpeed * dt"
+							}
+						},
+						{
+							"id": "set-y",
+							"objectClass": "RockBig",
+							"sid": 448840753810432,
+							"parameters": {
+								"y": "Self.Y + gameSpeed * dt"
+							}
+						},
+						{
+							"id": "set-y",
+							"objectClass": "Wood",
+							"sid": 410952312106025,
+							"parameters": {
+								"y": "Self.Y + gameSpeed * dt"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move portals."
+						},
+						{
+							"id": "set-y",
+							"objectClass": "PortalLizard",
+							"sid": 701143084190053,
+							"parameters": {
+								"y": "Self.Y + gameSpeed * dt"
+							}
+						},
+						{
+							"id": "set-y",
+							"objectClass": "PortalWolf",
+							"sid": 838785444998343,
+							"parameters": {
+								"y": "Self.Y + gameSpeed * dt"
+							}
+						},
+						{
+							"id": "set-y",
+							"objectClass": "PortalBird",
+							"sid": 332589032277605,
+							"parameters": {
+								"y": "Self.Y + gameSpeed * dt"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move coins."
+						},
+						{
+							"id": "set-y",
+							"objectClass": "CoinBillboard",
+							"sid": 990770073214696,
+							"parameters": {
+								"y": "Self.Y + gameSpeed * dt"
+							}
+						}
+					],
+					"sid": 235378175628750,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Spawn tree when ground has sufficiently moved."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 915309523053890,
+									"parameters": {
+										"value": "int(Ground.ImageOffsetY % 64) < 8"
+									}
+								},
+								{
+									"id": "trigger-once-while-true",
+									"objectClass": "System",
+									"sid": 103957492356992
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "createTrees",
+									"sid": 692058494530376,
+									"parameters": [
+										"-2560"
+									]
+								}
+							],
+							"sid": 510180103513550
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy entities when they go too far outside of gameplay area."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "Rock",
+									"sid": 326981212312051,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "384"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Rock",
+									"sid": 761183646135175
+								}
+							],
+							"sid": 581709230004507
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "RockBig",
+									"sid": 832088132015484,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "384"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "RockBig",
+									"sid": 106315253123645
+								}
+							],
+							"sid": 441909318539873
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "Wood",
+									"sid": 626376271501139,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "384"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Wood",
+									"sid": 288160538727250
+								}
+							],
+							"sid": 792435657537019
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "CoinBillboard",
+									"sid": 624217144131015,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "384"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "CoinBillboard",
+									"sid": 470426067481297
+								}
+							],
+							"sid": 592386348821334
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "PortalBird",
+									"sid": 160903436236901,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "384"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "PortalBird",
+									"sid": 825031630171150
+								}
+							],
+							"sid": 681522968238214
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "PortalLizard",
+									"sid": 988415440588472,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "384"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "PortalLizard",
+									"sid": 328880298110137
+								}
+							],
+							"sid": 446160046987378
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "PortalWolf",
+									"sid": 876255027188041,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "384"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "PortalWolf",
+									"sid": 610427540560093
+								}
+							],
+							"sid": 711997299566857
+						},
+						{
+							"eventType": "comment",
+							"text": "Move trees that are in-game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "TreeBillboard",
+									"sid": 555249948593418,
+									"parameters": {
+										"instance-variable": "inPool"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-y",
+									"objectClass": "TreeBillboard",
+									"sid": 917729523366214,
+									"parameters": {
+										"y": "Self.Y + gameSpeed * dt"
+									}
+								}
+							],
+							"sid": 401276028081090,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Move trees back to the pool when they go too far outside of gameplay area."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-y",
+											"objectClass": "TreeBillboard",
+											"sid": 705937482918472,
+											"parameters": {
+												"comparison": 4,
+												"y-co-ordinate": "384"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "TreeBillboard",
+											"sid": 919681350326813,
+											"parameters": {
+												"instance-variable": "inPool",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-position",
+											"objectClass": "TreeBillboard",
+											"sid": 776014833862972,
+											"parameters": {
+												"x": "10000",
+												"y": "10000"
+											}
+										}
+									],
+									"sid": 779060033883065
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 276154219648990
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Pool of trees",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Pick 2 trees from the pool and place them on the road."
+				},
+				{
+					"functionName": "createTrees",
+					"functionDescription": "Pick 2 trees from the pool and place them on the road",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "y",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Y coordinate to spawn the tree",
+							"sid": 233311868157935
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 906840903027719,
+							"parameters": {
+								"object": "TreeBillboard",
+								"expression": "TreeBillboard.inPool"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 780689810086461,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Left side."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-nth-instance",
+									"objectClass": "System",
+									"sid": 373857535021813,
+									"parameters": {
+										"object": "TreeBillboard",
+										"instance": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "TreeBillboard",
+									"sid": 191314253280513,
+									"parameters": {
+										"x": "-118 - random(96)",
+										"y": "y"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "TreeBillboard",
+									"sid": 131332586339080,
+									"parameters": {
+										"instance-variable": "inPool",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 568840017972972
+						},
+						{
+							"eventType": "comment",
+							"text": "Right side."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-nth-instance",
+									"objectClass": "System",
+									"sid": 357944328899969,
+									"parameters": {
+										"object": "TreeBillboard",
+										"instance": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "TreeBillboard",
+									"sid": 457342043883992,
+									"parameters": {
+										"x": "298 + random(96)",
+										"y": "y"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "TreeBillboard",
+									"sid": 894248355255470,
+									"parameters": {
+										"instance-variable": "inPool",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 588539386351262
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Create trees that are already placed on start of layout."
+				},
+				{
+					"functionName": "createInitialTrees",
+					"functionDescription": "Create trees that are already placed on start of layout",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 357183817738549,
+							"parameters": {
+								"seconds": "0"
+							}
+						}
+					],
+					"sid": 680874913720273,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Create initial trees."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 320765758615478,
+									"parameters": {
+										"count": "39"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "createTrees",
+									"sid": 719404199418562,
+									"parameters": [
+										"-2496 + loopindex * 64"
+									]
+								}
+							],
+							"sid": 367359289754075
+						}
+					]
+				}
+			],
+			"sid": 154233383242036
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Move the player to the touch position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-in-touch",
+							"objectClass": "Touch",
+							"sid": 679202158089502
+						}
+					],
+					"actions": [
+						{
+							"id": "set-x",
+							"objectClass": "PlayerCollision",
+							"sid": 910340264523333,
+							"parameters": {
+								"x": "max(min(lerp(Self.X, max(min(Touch.X(\"UI\"), LayoutWidth), 0), PSPEED * dt), 180), 0)"
+							}
+						}
+					],
+					"sid": 180436283321444
+				}
+			],
+			"sid": 198588590620818
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Obstacles",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player took a hit."
+				},
+				{
+					"functionName": "playerHit",
+					"functionDescription": "Player took a hit",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "flash",
+							"objectClass": "PlayerBillboard",
+							"sid": 303726769974751,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.1",
+								"off-time": "0.1",
+								"duration": "2.0"
+							}
+						},
+						{
+							"id": "subtract-from-eventvar",
+							"objectClass": "System",
+							"sid": 169449139923321,
+							"parameters": {
+								"variable": "lives",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextLives",
+							"sid": 704965990781766,
+							"parameters": {
+								"text": "\"Lives: \" & lives"
+							}
+						}
+					],
+					"sid": 613758646578099,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Game over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 918382701240787,
+									"parameters": {
+										"variable": "lives",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Stop everything."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 628618220345358,
+									"parameters": {
+										"variable": "gameSpeed",
+										"value": "0"
+									}
+								},
+								{
+									"id": "stop-all-timers",
+									"objectClass": "Timer",
+									"sid": 379692758287219,
+									"behaviorType": "Timer"
+								},
+								{
+									"id": "set-collisions-enabled",
+									"objectClass": "PlayerCollision",
+									"sid": 290545692411063,
+									"parameters": {
+										"collisions": "disabled"
+									}
+								},
+								{
+									"id": "stop-flashing",
+									"objectClass": "PlayerBillboard",
+									"sid": 509095015896968,
+									"behaviorType": "Flash"
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "PlayerBillboard",
+									"sid": 129692145886380,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Disable player controls."
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 190831938640069,
+									"parameters": {
+										"group-name": "\"Player Movement\"",
+										"state": "deactivated"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade game over screen."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 952066369426738,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FaderOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "70",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextGameOver",
+									"sid": 276804635915161,
+									"parameters": {
+										"text": "replace(Self.Text, \"###\", str(score))"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextGameOver",
+									"sid": 736559597862019,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"GameOverOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Restart the game."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 156570393714139,
+									"parameters": {
+										"seconds": "7"
+									}
+								},
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 392828724690125
+								},
+								{
+									"id": "restart-layout",
+									"objectClass": "System",
+									"sid": 409371792757365
+								}
+							],
+							"sid": 859696754164924
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn new obstacle, portals and coins."
+				},
+				{
+					"functionName": "spawnEntities",
+					"functionDescription": "Spawn new obstacle, portals and coins",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 596237727019948,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "obstacleType",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Type of the obstacle to spawn",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 510699230152719
+						},
+						{
+							"eventType": "variable",
+							"name": "otherPortalType",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Type of the other portal to spawn (the first portal has to match the obstacle.)",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 844187199359424
+						},
+						{
+							"eventType": "variable",
+							"name": "invertPosition",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Should the correct portal be on the right?",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 105935592540607
+						},
+						{
+							"eventType": "variable",
+							"name": "coinsPos",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Current coins X position",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 777722403119922
+						},
+						{
+							"eventType": "comment",
+							"text": "Spawn coins before the portal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 829010822880613,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "14"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 147388285881317,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 857579243950328,
+											"parameters": {
+												"value": "loopindex(\"i\") % 5 = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 978408233623161,
+											"parameters": {
+												"variable": "coinsPos",
+												"value": "choose(26, 58, 90, 122, 154)"
+											}
+										}
+									],
+									"sid": 878116562570521
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 906023899785191
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 322452917759501,
+											"parameters": {
+												"object-to-create": "CoinBillboard",
+												"layer": "\"Game\"",
+												"x": "coinsPos",
+												"y": "-WPNDIST + 768 + loopindex(\"i\") * 64",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-z-elevation",
+											"objectClass": "CoinBillboard",
+											"sid": 125106605948274,
+											"parameters": {
+												"z": "160 * (nextMode = \"bird\")"
+											}
+										}
+									],
+									"sid": 193265527815632
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Set random numbers."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 288913257760528,
+									"parameters": {
+										"variable": "obstacleType",
+										"value": "choose(0, 1, 2)"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 818188362694352,
+									"parameters": {
+										"variable": "otherPortalType",
+										"value": "choose(0, 1)"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 296504238136467,
+									"parameters": {
+										"variable": "invertPosition",
+										"value": "choose(0, 1)"
+									}
+								}
+							],
+							"sid": 721245676837982
+						},
+						{
+							"eventType": "comment",
+							"text": "Spawn rock, wolf portal and a random portal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 952991424952921,
+									"parameters": {
+										"variable": "obstacleType",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 453232252179179,
+									"parameters": {
+										"object-to-create": "Rock",
+										"layer": "\"Game\"",
+										"x": "LayoutWidth/2",
+										"y": "-WPNDIST",
+										"create-hierarchy": true,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 408813722010139,
+									"parameters": {
+										"object-to-create": "PortalWolf",
+										"layer": "\"Game\"",
+										"x": "(invertPosition = 0) ? 10 : 170",
+										"y": "-WPNDIST + 640",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "create-object-by-name",
+									"objectClass": "System",
+									"sid": 636837781931949,
+									"parameters": {
+										"object-name": "otherPortalType = 0 ? \"PortalLizard\" : \"PortalBird\"",
+										"layer": "\"Game\"",
+										"x": "(invertPosition = 1) ? 10 : 170",
+										"y": "-WPNDIST + 640",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 699737512912451,
+									"parameters": {
+										"variable": "nextMode",
+										"value": "\"wolf\""
+									}
+								}
+							],
+							"sid": 343800855863359
+						},
+						{
+							"eventType": "comment",
+							"text": "Spawn wood, lizard portal and a random portal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 414206655423857
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 891845623204271,
+									"parameters": {
+										"variable": "obstacleType",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 575813342266672,
+									"parameters": {
+										"object-to-create": "Wood",
+										"layer": "\"Game\"",
+										"x": "LayoutWidth/2",
+										"y": "-WPNDIST",
+										"create-hierarchy": true,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 895921451186153,
+									"parameters": {
+										"object-to-create": "PortalLizard",
+										"layer": "\"Game\"",
+										"x": "(invertPosition = 0) ? 10 : 170",
+										"y": "-WPNDIST + 640",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "create-object-by-name",
+									"objectClass": "System",
+									"sid": 688671459276592,
+									"parameters": {
+										"object-name": "otherPortalType = 0 ? \"PortalWolf\" : \"PortalBird\"",
+										"layer": "\"Game\"",
+										"x": "(invertPosition = 1) ? 10 : 170",
+										"y": "-WPNDIST + 640",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 123338202821902,
+									"parameters": {
+										"variable": "nextMode",
+										"value": "\"lizard\""
+									}
+								}
+							],
+							"sid": 972012993807875
+						},
+						{
+							"eventType": "comment",
+							"text": "Spawn big rock, bird portal and a random portal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 306598604122624
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 463843665607375,
+									"parameters": {
+										"object-to-create": "RockBig",
+										"layer": "\"Game\"",
+										"x": "LayoutWidth/2",
+										"y": "-WPNDIST",
+										"create-hierarchy": true,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 867089437172132,
+									"parameters": {
+										"object-to-create": "PortalBird",
+										"layer": "\"Game\"",
+										"x": "(invertPosition = 0) ? 10 : 170",
+										"y": "-WPNDIST + 640",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "create-object-by-name",
+									"objectClass": "System",
+									"sid": 349311473797255,
+									"parameters": {
+										"object-name": "otherPortalType = 0 ? \"PortalLizard\" : \"PortalWolf\"",
+										"layer": "\"Game\"",
+										"x": "(invertPosition = 1) ? 10 : 170",
+										"y": "-WPNDIST + 640",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 921105115823927,
+									"parameters": {
+										"variable": "nextMode",
+										"value": "\"bird\""
+									}
+								}
+							],
+							"sid": 166522303957217
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Periodically spawn entities."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Timer",
+							"sid": 198515891145439,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"entities\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Spawn entities."
+						},
+						{
+							"callFunction": "spawnEntities",
+							"sid": 422437180772517
+						},
+						{
+							"type": "comment",
+							"text": "Increase frequency of entity spawn."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Timer",
+							"sid": 456776716280558,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "7 - gameSpeed/300",
+								"type": "once",
+								"tag": "\"entities\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Increase game speed."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 333093740466870,
+							"parameters": {
+								"variable": "gameSpeed",
+								"value": "min(gameSpeed + 50, 1250)\n"
+							}
+						}
+					],
+					"sid": 107384319236472
+				},
+				{
+					"eventType": "comment",
+					"text": "If player is a wolf and collides with jump area of rock obstacle, perform a jump."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 678592025251960,
+							"parameters": {
+								"object": "RockJumpArea"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "PlayerCollision",
+							"sid": 439789122606401,
+							"parameters": {
+								"instance-variable": "currentMode",
+								"comparison": 0,
+								"value": "\"wolf\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-face-object",
+							"objectClass": "PlayerBillboard",
+							"sid": 230108456145667,
+							"parameters": {
+								"face": "bottom",
+								"object": "TexWolfJump"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "PlayerCollision",
+							"sid": 528947842764813,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerJump\"",
+								"property": "offsetZElevation",
+								"end-value": "64",
+								"time": "0.33",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 815968933382352
+						},
+						{
+							"id": "set-face-object",
+							"objectClass": "PlayerBillboard",
+							"sid": 157436789836861,
+							"parameters": {
+								"face": "bottom",
+								"object": "TexWolf"
+							}
+						}
+					],
+					"sid": 811480295340341
+				},
+				{
+					"eventType": "comment",
+					"text": "Player loses a life if hit vines as a bird."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 812052617506886,
+							"parameters": {
+								"object": "Vines"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "PlayerCollision",
+							"sid": 137893560379029,
+							"parameters": {
+								"instance-variable": "currentMode",
+								"comparison": 0,
+								"value": "\"bird\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "playerHit",
+							"sid": 633844314093086
+						}
+					],
+					"sid": 306766181637438
+				},
+				{
+					"eventType": "comment",
+					"text": "Player loses a life if hit wood as a wolf."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 569903386268666,
+							"parameters": {
+								"object": "Wood"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "PlayerCollision",
+							"sid": 797675853312150,
+							"parameters": {
+								"instance-variable": "currentMode",
+								"comparison": 0,
+								"value": "\"wolf\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "playerHit",
+							"sid": 164501200364921
+						}
+					],
+					"sid": 478372750122963
+				},
+				{
+					"eventType": "comment",
+					"text": "Player loses a life if hit rock as a lizard."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 870295007151050,
+							"parameters": {
+								"object": "Rock"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "PlayerCollision",
+							"sid": 868740095149286,
+							"parameters": {
+								"instance-variable": "currentMode",
+								"comparison": 0,
+								"value": "\"lizard\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "playerHit",
+							"sid": 761088538169965
+						}
+					],
+					"sid": 681248589685665
+				},
+				{
+					"eventType": "comment",
+					"text": "Player loses a life if hit rock as a lizard or wolf."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 964301432817360,
+							"parameters": {
+								"object": "RockBig"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 203653012235030,
+							"parameters": {
+								"value": "(PlayerCollision.currentMode = \"lizard\") | (PlayerCollision.currentMode = \"wolf\")"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "playerHit",
+							"sid": 410886985246698
+						}
+					],
+					"sid": 254237042869510
+				}
+			],
+			"sid": 921067604641463
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Morphs",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Morph into lizard."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 108261462570930,
+							"parameters": {
+								"object": "PortalLizard"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "PlayerCollision",
+							"sid": 507861528807101,
+							"parameters": {
+								"instance-variable": "currentMode",
+								"value": "\"lizard\""
+							}
+						},
+						{
+							"id": "set-face-object",
+							"objectClass": "PlayerBillboard",
+							"sid": 471403503281518,
+							"parameters": {
+								"face": "bottom",
+								"object": "TexLizard"
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 314827432319562,
+							"parameters": {
+								"object-to-create": "SmokeBillboard",
+								"layer": "\"Game\"",
+								"x": "PlayerCollision.X",
+								"y": "PlayerCollision.Y + 1",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "SmokeBillboard",
+							"sid": 295063694214773,
+							"parameters": {
+								"z": "PlayerBillboard.ZElevation"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerBillboard",
+							"sid": 524524696294158,
+							"parameters": {
+								"child": "SmokeBillboard",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": true,
+								"transform-h": true,
+								"transform-a": true,
+								"transform-o": true,
+								"transform-z-elevation": true,
+								"transform-visibility": true,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "TexSmoke",
+							"sid": 588792704605657,
+							"parameters": {
+								"animation": "\"Smoke\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "PlayerCollision",
+							"sid": 673696896633212,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerLand\"",
+								"property": "offsetZElevation",
+								"end-value": "0",
+								"time": "0.33",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 637895495854705
+				},
+				{
+					"eventType": "comment",
+					"text": "Morph into wolf."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 922171406699584,
+							"parameters": {
+								"object": "PortalWolf"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "PlayerCollision",
+							"sid": 751289423712983,
+							"parameters": {
+								"instance-variable": "currentMode",
+								"value": "\"wolf\""
+							}
+						},
+						{
+							"id": "set-face-object",
+							"objectClass": "PlayerBillboard",
+							"sid": 475789354573045,
+							"parameters": {
+								"face": "bottom",
+								"object": "TexWolf"
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 443802513218866,
+							"parameters": {
+								"object-to-create": "SmokeBillboard",
+								"layer": "\"Game\"",
+								"x": "PlayerCollision.X",
+								"y": "PlayerCollision.Y + 1",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "SmokeBillboard",
+							"sid": 474163266324709,
+							"parameters": {
+								"z": "PlayerBillboard.ZElevation"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerBillboard",
+							"sid": 895702133887252,
+							"parameters": {
+								"child": "SmokeBillboard",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": true,
+								"transform-h": true,
+								"transform-a": true,
+								"transform-o": true,
+								"transform-z-elevation": true,
+								"transform-visibility": true,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "TexSmoke",
+							"sid": 956408082568322,
+							"parameters": {
+								"animation": "\"Smoke\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "PlayerCollision",
+							"sid": 695686504327679,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerLand\"",
+								"property": "offsetZElevation",
+								"end-value": "0",
+								"time": "0.33",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 375855024982350
+				},
+				{
+					"eventType": "comment",
+					"text": "Morph into bird."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 712347921979097,
+							"parameters": {
+								"object": "PortalBird"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "PlayerCollision",
+							"sid": 805336509337815,
+							"parameters": {
+								"instance-variable": "currentMode",
+								"value": "\"bird\""
+							}
+						},
+						{
+							"id": "set-face-object",
+							"objectClass": "PlayerBillboard",
+							"sid": 388129729441876,
+							"parameters": {
+								"face": "bottom",
+								"object": "TexBird"
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 806498137781107,
+							"parameters": {
+								"object-to-create": "SmokeBillboard",
+								"layer": "\"Game\"",
+								"x": "PlayerCollision.X",
+								"y": "PlayerCollision.Y + 1",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "SmokeBillboard",
+							"sid": 210713442216006,
+							"parameters": {
+								"z": "PlayerBillboard.ZElevation"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerBillboard",
+							"sid": 965628393378050,
+							"parameters": {
+								"child": "SmokeBillboard",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": true,
+								"transform-h": true,
+								"transform-a": true,
+								"transform-o": true,
+								"transform-z-elevation": true,
+								"transform-visibility": true,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "TexSmoke",
+							"sid": 822216845731255,
+							"parameters": {
+								"animation": "\"Smoke\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "PlayerCollision",
+							"sid": 521782340021373,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerFly\"",
+								"property": "offsetZElevation",
+								"end-value": "160",
+								"time": "0.5",
+								"ease": "easeoutback",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 678391047526918
+				},
+				{
+					"eventType": "comment",
+					"text": "When smoke's animation finishes playing, smoke billboard objects are destroyed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "TexSmoke",
+							"sid": 552189156372036,
+							"parameters": {
+								"animation": "\"Smoke\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "SmokeBillboard",
+							"sid": 884607769230911
+						}
+					],
+					"sid": 241248007854545
+				}
+			],
+			"sid": 301580565207054
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Coins",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player collects coins on collision."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 715330442495071,
+							"parameters": {
+								"object": "CoinBillboard"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 486647176877313,
+							"parameters": {
+								"value": "PlayerCollision.ZElevation = CoinBillboard.ZElevation"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Remove coin from the map."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "CoinBillboard",
+							"sid": 798234606857644,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"CoinDestroy\"",
+								"property": "offsetZElevation",
+								"end-value": "PlayerCollision.currentMode = \"bird\" ? -80 : 240",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Add 1 to score and update text."
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 290293905788616,
+							"parameters": {
+								"variable": "score",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextScore",
+							"sid": 582064931901124,
+							"parameters": {
+								"text": "\"Score: \" & score"
+							}
+						}
+					],
+					"sid": 722127130972903
+				}
+			],
+			"sid": 321387722423078
+		}
+	],
+	"sid": 431144525184015
+}

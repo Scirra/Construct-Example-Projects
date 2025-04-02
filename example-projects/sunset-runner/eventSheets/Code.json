@@ -1,0 +1,442 @@
+{
+	"name": "Code",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How much the camera shake when the character steps on the ground."
+		},
+		{
+			"eventType": "variable",
+			"name": "CAMERASHAKESTRENGTH",
+			"type": "number",
+			"initialValue": "0.015",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 681946503812377
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup the scene by playing the run cycle timeline."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 466349272674747
+				}
+			],
+			"actions": [
+				{
+					"id": "play-timeline",
+					"objectClass": "TimelineController",
+					"sid": 359500822177121,
+					"parameters": {
+						"timeline": "RunCycle",
+						"tags": "\"Main\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Wait a few frames before starting the camera shake animation in a ping pong loop."
+				},
+				{
+					"id": "wait",
+					"objectClass": "System",
+					"sid": 891069206277066,
+					"parameters": {
+						"seconds": "0.1"
+					}
+				},
+				{
+					"id": "tween-value",
+					"objectClass": "Manager",
+					"sid": 346931542097560,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"CameraShake\"",
+						"start-value": "0",
+						"end-value": "CAMERASHAKESTRENGTH",
+						"time": "0.25",
+						"ease": "easeoutsine",
+						"destroy-on-complete": "no",
+						"loop": "yes",
+						"ping-pong": "yes",
+						"repeat-count": "1"
+					}
+				}
+			],
+			"sid": 832639741231697
+		},
+		{
+			"eventType": "comment",
+			"text": "Make the lens flare flicker every few frames to achieve more realistic results."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 971350984042724,
+					"parameters": {
+						"interval-seconds": "0.1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "tween-one-property",
+					"objectClass": "Flare",
+					"sid": 265150456733097,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Flicker\"",
+						"property": "offsetOpacity",
+						"end-value": "random(50, 70)",
+						"time": "0.1",
+						"ease": "noease",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				}
+			],
+			"sid": 118911436917896
+		},
+		{
+			"eventType": "comment",
+			"text": "Which frame will be shown once the vegetation object is spawned."
+		},
+		{
+			"eventType": "variable",
+			"name": "FrameIndex",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 963943668842473
+		},
+		{
+			"eventType": "comment",
+			"text": "Spawn a new vegetation object every few seconds."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 428172119547274,
+					"parameters": {
+						"interval-seconds": "1"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 951288979385498,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "There's a 50% chance of it being spawned, creating a more organic environment."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 988349420021752,
+							"parameters": {
+								"value": "choose(0, 1) = 1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Increase the frame index, preventing the same frame from being shown in a short amount of time."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 298129420602557,
+							"parameters": {
+								"variable": "FrameIndex",
+								"value": "(FrameIndex + choose(1, 2, 3, 4)) % 5"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create the vegetation object outside the visible area."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 524388780379010,
+							"parameters": {
+								"object-to-create": "Vegetation",
+								"layer": "\"Beach\"",
+								"x": "LayoutWidth + 256",
+								"y": "LayoutHeight",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Display the correct frame."
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Vegetation",
+							"sid": 222017509525209,
+							"parameters": {
+								"frame-number": "FrameIndex"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize the width for even more dynamic results."
+						},
+						{
+							"id": "set-width",
+							"objectClass": "Vegetation",
+							"sid": 782890349163743,
+							"parameters": {
+								"width": "Self.Width * choose(-1, 1)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move the vegetation in front of the lens flare."
+						},
+						{
+							"id": "move-to-object",
+							"objectClass": "Vegetation",
+							"sid": 920934365521563,
+							"parameters": {
+								"where": "in-front",
+								"object": "Flare"
+							}
+						}
+					],
+					"sid": 460587882920878
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the ground texture will scroll through the screen."
+		},
+		{
+			"eventType": "variable",
+			"name": "GROUNDSCROLLSPEED",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 856204330460417
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly make the ground texture scroll towards the character."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 903002795293637
+				}
+			],
+			"actions": [
+				{
+					"id": "set-image-offset-x",
+					"objectClass": "Sand",
+					"sid": 786507599010898,
+					"parameters": {
+						"offset-x": "Self.ImageOffsetX + GROUNDSCROLLSPEED * 60 * dt"
+					}
+				}
+			],
+			"sid": 738926025422206,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Also make the vegetation scroll at a slightly higher speed, creating a parallax effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 614585284475290,
+							"parameters": {
+								"object": "Vegetation"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-x",
+							"objectClass": "Vegetation",
+							"sid": 131941745946851,
+							"parameters": {
+								"x": "Self.X - GROUNDSCROLLSPEED * 1.85 * 60 * dt"
+							}
+						}
+					],
+					"sid": 758299471636527,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Once the vegetation is outside the screen, destroy it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 740884873434152,
+									"parameters": {
+										"value": "Vegetation.X <= - 256"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Vegetation",
+									"sid": 409316958396864
+								}
+							],
+							"sid": 485941971273234
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Every time the character steps on the ground, use the timeline signal to spawn a burst of sand."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-keyframe-reached",
+					"objectClass": "TimelineController",
+					"sid": 665335184443032,
+					"parameters": {
+						"tags": "\"RightFootDust\"",
+						"match": "any-tags"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 121432492629113,
+					"parameters": {
+						"object-to-create": "Particles",
+						"layer": "\"Beach\"",
+						"x": "RightFoot.ImagePointX(\"sole\")",
+						"y": "RightFoot.ImagePointY(\"sole\")",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "move-to-object",
+					"objectClass": "Particles",
+					"sid": 346188729126268,
+					"parameters": {
+						"where": "behind",
+						"object": "Flare"
+					}
+				}
+			],
+			"sid": 753911594600046
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-keyframe-reached",
+					"objectClass": "TimelineController",
+					"sid": 605734621295828,
+					"parameters": {
+						"tags": "\"LeftFootDust\"",
+						"match": "any-tags"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 371201355470156,
+					"parameters": {
+						"object-to-create": "Particles",
+						"layer": "\"Beach\"",
+						"x": "LeftFoot.ImagePointX(\"sole\")",
+						"y": "LeftFoot.ImagePointY(\"sole\")",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "move-to-object",
+					"objectClass": "Particles",
+					"sid": 936410449510699,
+					"parameters": {
+						"where": "behind",
+						"object": "Flare"
+					}
+				}
+			],
+			"sid": 510046738392214
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly update the beach layer time scale to create the camera shake effect."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 130333788447761
+				}
+			],
+			"actions": [
+				{
+					"id": "set-layer-scale",
+					"objectClass": "System",
+					"sid": 897264918137329,
+					"parameters": {
+						"layer": "\"Beach\"",
+						"scale": "1 + CAMERASHAKESTRENGTH - Manager.Tween.Value(\"CameraShake\")"
+					}
+				}
+			],
+			"sid": 510899160182308
+		}
+	],
+	"sid": 931876649919469
+}

@@ -1,0 +1,2034 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the layout by changing adjusting all global variables back to their default values, while also emptying both player and ghost racer arrays."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 367825078878735
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 494303181507310
+						},
+						{
+							"id": "set-size",
+							"objectClass": "PlayerData",
+							"sid": 437072041228581,
+							"parameters": {
+								"width": "0",
+								"height": "1",
+								"depth": "1"
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "GhostRacerData",
+							"sid": 603483126909107,
+							"parameters": {
+								"width": "0",
+								"height": "1",
+								"depth": "1"
+							}
+						}
+					],
+					"sid": 825549512524335,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Create one pillar on each side of each checkpoint, so the player knows where exactly they're located."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 981155044451581,
+									"parameters": {
+										"object": "Checkpoint"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 935827343844677,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 747317697984081,
+											"parameters": {
+												"name": "\"Angle\"",
+												"start-index": "0",
+												"end-index": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Create the pillar body."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 625286124996848,
+											"parameters": {
+												"object-to-create": "PillarBody",
+												"layer": "\"World\"",
+												"x": "Checkpoint.X + cos(Checkpoint.Angle + (loopindex(\"Angle\") * 180)) * ((Checkpoint.Width / 2) + 4 + 8)",
+												"y": "Checkpoint.Y + sin(Checkpoint.Angle + (loopindex(\"Angle\") * 180)) * ((Checkpoint.Width / 2) + 4 + 8)",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-z-elevation",
+											"objectClass": "PillarBody",
+											"sid": 370718527785391,
+											"parameters": {
+												"z": "-384 + 16"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "PillarBody",
+											"sid": 973985124644859,
+											"parameters": {
+												"angle": "choose(0, 1, 2, 3) * 90"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Create the pillar top above the pillar body."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 151452237312248,
+											"parameters": {
+												"object-to-create": "PillarTop",
+												"layer": "\"World\"",
+												"x": "PillarBody.X",
+												"y": "PillarBody.Y",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-z-elevation",
+											"objectClass": "PillarTop",
+											"sid": 419545228773781,
+											"parameters": {
+												"z": "PillarBody.ZElevation + PillarBody.ZHeight"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "PillarTop",
+											"sid": 333047193730798,
+											"parameters": {
+												"angle": "choose(0, 1, 2, 3) * 90"
+											}
+										}
+									],
+									"sid": 793993385042377
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the player by creating and attaching a 3D model and a text box to it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "PlayerCollision",
+							"sid": 115175216122916
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Create and attach a 3D model."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 280463505424705,
+							"parameters": {
+								"object-to-create": "PlayerModel",
+								"layer": "\"World\"",
+								"x": "PlayerCollision.X",
+								"y": "PlayerCollision.Y",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "PlayerModel",
+							"sid": 971567435166642,
+							"parameters": {
+								"angle": "PlayerCollision.Angle"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerCollision",
+							"sid": 997110916244227,
+							"parameters": {
+								"child": "PlayerModel",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": true,
+								"transform-z-elevation": true,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create and attach a text box."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 516707888650381,
+							"parameters": {
+								"object-to-create": "Text",
+								"layer": "\"World\"",
+								"x": "PlayerCollision.X",
+								"y": "PlayerCollision.Y + 48",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Text",
+							"sid": 340037476725123,
+							"parameters": {
+								"z": "8"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerCollision",
+							"sid": 746317353287308,
+							"parameters": {
+								"child": "Text",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": true,
+								"transform-z-elevation": true,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Flash the player position."
+						},
+						{
+							"callFunction": "FlashVan",
+							"sid": 119929054645480,
+							"parameters": [
+								"PlayerCollision.X",
+								"PlayerCollision.Y",
+								"PlayerCollision.Width",
+								"PlayerCollision.Height",
+								"PlayerCollision.Angle",
+								"PlayerModel.ZHeight",
+								true,
+								false
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Wait a bit before showing the initial tutorial text."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 889883588175055,
+							"parameters": {
+								"seconds": "0.25"
+							}
+						},
+						{
+							"callFunction": "DisplayText",
+							"sid": 509438457028249,
+							"parameters": [
+								"\"Use the arrow keys to accelerate and steer the van.\"",
+								false
+							]
+						}
+					],
+					"sid": 444613188627677
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the camera by moving it behind the player van."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 435475995646795
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 164473602345225,
+							"parameters": {
+								"cam-x": "PlayerCollision.X - cos(PlayerCollision.Angle) * 128",
+								"cam-y": "PlayerCollision.Y - sin(PlayerCollision.Angle) * 128",
+								"cam-z": "32",
+								"look-x": "PlayerCollision.X",
+								"look-y": "PlayerCollision.Y",
+								"look-z": "8",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 853392113539542
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the camera, by slowly moving it behind the player van with linear interpolation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 174969734473208
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 392809835747918,
+							"parameters": {
+								"cam-x": "lerp(3DCamera.CameraX, PlayerCollision.X - cos(PlayerCollision.Angle) * 128, 0.1 * 60 * dt)",
+								"cam-y": "lerp(3DCamera.CameraY, PlayerCollision.Y - sin(PlayerCollision.Angle) * 128, 0.1 * 60 * dt)",
+								"cam-z": "32",
+								"look-x": "PlayerCollision.X",
+								"look-y": "PlayerCollision.Y",
+								"look-z": "8",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also constantly update the horizon texture, so it follows the camera rotation around the player van."
+						},
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Horizon",
+							"sid": 631438366844413,
+							"parameters": {
+								"offset-x": "-320 * angle(3DCamera.CameraX, 3DCamera.CameraY, PlayerCollision.X, PlayerCollision.Y) / 90"
+							}
+						}
+					],
+					"sid": 185257204208276
+				}
+			],
+			"sid": 126749198472879
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the game will reset after a text fades out."
+		},
+		{
+			"eventType": "variable",
+			"name": "Reset",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 691851785844578
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Text",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Displays a text message on top of the player van, which will eventually disappear based on its length."
+				},
+				{
+					"functionName": "DisplayText",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Text",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 624956668807340
+						},
+						{
+							"name": "ResetAfterwards",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 288494728336190
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "stop-all-tweens",
+							"objectClass": "Text",
+							"sid": 566685635494984,
+							"behaviorType": "Tween"
+						},
+						{
+							"id": "set-text",
+							"objectClass": "Text",
+							"sid": 201716356102769,
+							"parameters": {
+								"text": "Text"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "Text",
+							"sid": 182198611178441,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Text",
+							"sid": 620023379938480,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeIn\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.25",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "Text",
+							"sid": 902044465468778,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Hide\"",
+								"start-value": "0",
+								"end-value": "1",
+								"time": "0.25 + (len(Text) / 5)",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 608610918736536,
+							"parameters": {
+								"variable": "Reset",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 557573373932222,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Whether or not the game will reset after the text has disappeared."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 264047843880516,
+									"parameters": {
+										"variable": "ResetAfterwards"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 968350650377337,
+									"parameters": {
+										"variable": "Reset",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 264141639310641
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the hide animation is over, make the text fade out."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Text",
+							"sid": 559888962691049,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Hide\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-opacity",
+							"objectClass": "Text",
+							"sid": 721547238880297,
+							"parameters": {
+								"opacity": "100"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Text",
+							"sid": 902580673764015,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 872904080714420
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the fade out animation is over, reset the game if it's necessary."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Text",
+							"sid": 837389307499732,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\""
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 895077483156006,
+							"parameters": {
+								"variable": "Reset"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "GameOver",
+							"sid": 312035335643080
+						}
+					],
+					"sid": 380283944408050
+				}
+			],
+			"sid": 557217718977771
+		},
+		{
+			"eventType": "comment",
+			"text": "How long each time step takes to complete."
+		},
+		{
+			"eventType": "variable",
+			"name": "STEPTIME",
+			"type": "number",
+			"initialValue": "0.05",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 229030745469704
+		},
+		{
+			"eventType": "comment",
+			"text": "The fastest time achieved by the player."
+		},
+		{
+			"eventType": "variable",
+			"name": "FastestTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 303135412528656
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player has at least one fastest time."
+		},
+		{
+			"eventType": "variable",
+			"name": "NoFastestTimeYet",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 853310943623016
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "DataReader",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player collides with the finish line, start or end a race depending on the situation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 970146344699138,
+							"parameters": {
+								"object": "FinishLine"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 804100107819634,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the checkpoint count is higher than zero and the step timer isn't active yet, start the step time and check if there's any data stored for the ghost racer."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 306781664976062,
+									"parameters": {
+										"first-value": "Checkpoint.Count",
+										"comparison": 4,
+										"second-value": "0"
+									}
+								},
+								{
+									"id": "is-timer-running",
+									"objectClass": "GameManager",
+									"sid": 182737846156259,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"Step\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "GameManager",
+									"sid": 607912169478764,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "STEPTIME",
+										"type": "regular",
+										"tag": "\"Step\""
+									}
+								},
+								{
+									"id": "check-item-exists",
+									"objectClass": "LocalStorage",
+									"sid": 516886811971891,
+									"parameters": {
+										"key": "\"GhostRacer\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also flash the player van."
+								},
+								{
+									"callFunction": "FlashVan",
+									"sid": 623063590022659,
+									"parameters": [
+										"PlayerCollision.X",
+										"PlayerCollision.Y",
+										"PlayerCollision.Width",
+										"PlayerCollision.Height",
+										"PlayerCollision.Angle",
+										"PlayerModel.ZHeight",
+										true,
+										false
+									]
+								}
+							],
+							"sid": 493439612736103
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the checkpoint count is equal to zero and the step timer is already active, stop the step timer."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 728950626103004
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 971871197927136,
+									"parameters": {
+										"first-value": "Checkpoint.Count",
+										"comparison": 0,
+										"second-value": "0"
+									}
+								},
+								{
+									"id": "is-timer-running",
+									"objectClass": "GameManager",
+									"sid": 733566574977984,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"Step\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "stop-timer",
+									"objectClass": "GameManager",
+									"sid": 311450935916981,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"Step\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also flash the player van."
+								},
+								{
+									"callFunction": "FlashVan",
+									"sid": 968890653958237,
+									"parameters": [
+										"PlayerCollision.X",
+										"PlayerCollision.Y",
+										"PlayerCollision.Width",
+										"PlayerCollision.Height",
+										"PlayerCollision.Angle",
+										"PlayerModel.ZHeight",
+										true,
+										false
+									]
+								}
+							],
+							"sid": 272708753413007,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the ghost racer van still is in the layout, flash destroy it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 550347911333955,
+											"parameters": {
+												"first-value": "GhostRacer.Count",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "FlashVan",
+											"sid": 438873130795783,
+											"parameters": [
+												"GhostRacer.X",
+												"GhostRacer.Y",
+												"GhostRacer.Width",
+												"GhostRacer.Height",
+												"GhostRacer.Angle",
+												"GhostRacer.ZHeight",
+												false,
+												true
+											]
+										},
+										{
+											"id": "destroy",
+											"objectClass": "GhostRacer",
+											"sid": 629386252697231
+										}
+									],
+									"sid": 259468175130111
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player hasn't any stored data, simply store the latest race data."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 893606057738789,
+											"parameters": {
+												"variable": "NoFastestTimeYet"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "StoreData",
+											"sid": 946954098640765
+										}
+									],
+									"sid": 695013423398688
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the player already has data store, check if the latest race data is the fastest one."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 793218887590791
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 555127182776516,
+											"parameters": {
+												"variable": "NoFastestTimeYet"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [],
+									"sid": 688987686721378,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the latest race data is indeed the fastest one, replace the previous one."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 109344735562408,
+													"parameters": {
+														"first-value": "PlayerData.Width",
+														"comparison": 2,
+														"second-value": "FastestTime"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "StoreData",
+													"sid": 343991600931877
+												}
+											],
+											"sid": 187898791085992
+										},
+										{
+											"eventType": "comment",
+											"text": "However, if the latest race data isn't the fastest one, scrap it and display a text message."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 767172093294562
+												},
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 142420291484604,
+													"parameters": {
+														"first-value": "PlayerData.Width",
+														"comparison": 5,
+														"second-value": "FastestTime"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "DisplayText",
+													"sid": 645862319488042,
+													"parameters": [
+														"\"The ghost racer was faster this time!\"",
+														true
+													]
+												}
+											],
+											"sid": 731202574407921
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Also destroy the finish line, while also disabling the van and restarting the game in a few seconds."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "FinishLine",
+											"sid": 114008712934865
+										},
+										{
+											"callFunction": "DisableVan",
+											"sid": 491828114905244
+										}
+									],
+									"sid": 337272302561082
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If there's any data for the ghost racer, get it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 270074876724696,
+							"parameters": {
+								"key": "\"GhostRacer\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "get-item",
+							"objectClass": "LocalStorage",
+							"sid": 177793529841169,
+							"parameters": {
+								"key": "\"GhostRacer\""
+							}
+						}
+					],
+					"sid": 130736275647098
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the ghost racer data is get, load it into the ghost racer array."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-get",
+							"objectClass": "LocalStorage",
+							"sid": 546434202111100,
+							"parameters": {
+								"key": "\"GhostRacer\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "GhostRacerData",
+							"sid": 791383964421064,
+							"parameters": {
+								"json": "LocalStorage.ItemValue"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Store the fastest time length in a variable."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 449367023069961,
+							"parameters": {
+								"variable": "FastestTime",
+								"value": "GhostRacerData.Width"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also create and setup the ghost racer van in the track."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 723847447937077,
+							"parameters": {
+								"object-to-create": "GhostRacer",
+								"layer": "\"World\"",
+								"x": "float(tokenat(GhostRacerData.At(0), 0, \"|\"))",
+								"y": "float(tokenat(GhostRacerData.At(0), 1, \"|\"))",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "GhostRacer",
+							"sid": 624460241375241,
+							"parameters": {
+								"angle": "float(tokenat(GhostRacerData.At(0), 2, \"|\"))"
+							}
+						},
+						{
+							"callFunction": "DisplayText",
+							"sid": 918694871165658,
+							"parameters": [
+								"\"Race against your own ghost racer!\"",
+								false
+							]
+						},
+						{
+							"callFunction": "FlashVan",
+							"sid": 148937288592833,
+							"parameters": [
+								"GhostRacer.X",
+								"GhostRacer.Y",
+								"GhostRacer.Width",
+								"GhostRacer.Height",
+								"GhostRacer.Angle",
+								"GhostRacer.ZHeight",
+								false,
+								true
+							]
+						}
+					],
+					"sid": 906314596476215
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if there's no data for the ghost racer, store this information and display a text message."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-missing",
+							"objectClass": "LocalStorage",
+							"sid": 166706593102257,
+							"parameters": {
+								"key": "\"GhostRacer\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 859313810503679,
+							"parameters": {
+								"variable": "NoFastestTimeYet",
+								"value": "true"
+							}
+						},
+						{
+							"callFunction": "DisplayText",
+							"sid": 436688001796971,
+							"parameters": [
+								"\"Finish the track for the first time.\"",
+								false
+							]
+						}
+					],
+					"sid": 851748720490106
+				},
+				{
+					"eventType": "comment",
+					"text": "Every time the step timer ends, store the player's current position and angle in the player data array."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 799940059375151,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Step\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "push",
+							"objectClass": "PlayerData",
+							"sid": 627424408759312,
+							"parameters": {
+								"where": "back",
+								"value": "PlayerCollision.X&\"|\"&PlayerCollision.Y&\"|\"&PlayerCollision.Angle",
+								"axis": "x"
+							}
+						}
+					],
+					"sid": 606944926741887,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the ghost racer array isn't empty, move and rotate it based on the current values."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-empty",
+									"objectClass": "GhostRacerData",
+									"sid": 461368428580622,
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "stop-all-tweens",
+									"objectClass": "GhostRacer",
+									"sid": 241710285243566,
+									"behaviorType": "Tween"
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "GhostRacer",
+									"sid": 416504815750861,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\"",
+										"property": "position",
+										"end-x": "float(tokenat(GhostRacerData.At(0), 0, \"|\"))",
+										"end-y": "float(tokenat(GhostRacerData.At(0), 1, \"|\"))",
+										"time": "STEPTIME",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "GhostRacer",
+									"sid": 862273538298697,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Rotate\"",
+										"property": "offsetAngle",
+										"end-value": "float(tokenat(GhostRacerData.At(0), 2, \"|\"))",
+										"time": "STEPTIME",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 917280033653641
+						},
+						{
+							"eventType": "comment",
+							"text": "If the ghost racer array isn't empty, delete one of its values."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-empty",
+									"objectClass": "GhostRacerData",
+									"sid": 165112018835265,
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "pop",
+									"objectClass": "GhostRacerData",
+									"sid": 982262133664873,
+									"parameters": {
+										"where": "front",
+										"axis": "x"
+									}
+								}
+							],
+							"sid": 973348224178372
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the ghost racer is empty, flash and destroy its van."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 795084528419363
+								},
+								{
+									"id": "is-empty",
+									"objectClass": "GhostRacerData",
+									"sid": 888452872640985
+								}
+							],
+							"actions": [],
+							"sid": 326186002374009,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 789922374288032,
+											"parameters": {
+												"first-value": "GhostRacer.Count",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "FlashVan",
+											"sid": 674852743457760,
+											"parameters": [
+												"GhostRacer.X",
+												"GhostRacer.Y",
+												"GhostRacer.Width",
+												"GhostRacer.Height",
+												"GhostRacer.Angle",
+												"GhostRacer.ZHeight",
+												false,
+												true
+											]
+										},
+										{
+											"id": "destroy",
+											"objectClass": "GhostRacer",
+											"sid": 935425224134183
+										}
+									],
+									"sid": 877010011463396
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Store the player position and angle data from the latest race."
+				},
+				{
+					"functionName": "StoreData",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-item",
+							"objectClass": "LocalStorage",
+							"sid": 701855146127599,
+							"parameters": {
+								"key": "\"GhostRacer\"",
+								"value": "PlayerData.AsJSON"
+							}
+						},
+						{
+							"callFunction": "DisplayText",
+							"sid": 859940983741003,
+							"parameters": [
+								"\"New record achieved!\"",
+								true
+							]
+						}
+					],
+					"sid": 849122215201007
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player collides with a checkpoint while the step timer is active, destroy the checkpoint and flash the player van."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 105802489404711,
+							"parameters": {
+								"object": "Checkpoint"
+							}
+						},
+						{
+							"id": "is-timer-running",
+							"objectClass": "GameManager",
+							"sid": 954406956153538,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Step\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Checkpoint",
+							"sid": 833834686968713
+						},
+						{
+							"callFunction": "FlashVan",
+							"sid": 280346047611184,
+							"parameters": [
+								"PlayerCollision.X",
+								"PlayerCollision.Y",
+								"PlayerCollision.Width",
+								"PlayerCollision.Height",
+								"PlayerCollision.Angle",
+								"PlayerModel.ZHeight",
+								true,
+								false
+							]
+						}
+					],
+					"sid": 744094656054062
+				},
+				{
+					"eventType": "comment",
+					"text": "Completely erase the data stored in the local storage, allowing the player to have a fresh start."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 264190670129537,
+							"parameters": {
+								"key": 46
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "clear-storage",
+							"objectClass": "LocalStorage",
+							"sid": 480095452661576
+						}
+					],
+					"sid": 483147332424013
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-storage-cleared",
+							"objectClass": "LocalStorage",
+							"sid": 140613827409642
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "GameOver",
+							"sid": 387650870059616
+						}
+					],
+					"sid": 220152722733064
+				}
+			],
+			"sid": 310816749017459
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GroundLights",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Leave a trail of glow behind the player van and the ghost race van."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 174611786606231,
+							"parameters": {
+								"interval-seconds": "0.1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 231782502538976,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "AngleOfMotion",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 857058497680891
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 214259192685456,
+									"parameters": {
+										"count": "4"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Choose a random angle to move the glow towards."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 713797538627964,
+									"parameters": {
+										"variable": "AngleOfMotion",
+										"value": "random(0, 360)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create and snap the glow to the nearest tile on ground."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 816046500262120,
+									"parameters": {
+										"object-to-create": "Glow",
+										"layer": "\"World\"",
+										"x": "GroundCollision.SnapX(PlayerCollision.X + cos(AngleOfMotion) * random(0, 32))",
+										"y": "GroundCollision.SnapY(PlayerCollision.Y + sin(AngleOfMotion) * random(0, 32))",
+										"create-hierarchy": false
+									}
+								}
+							],
+							"sid": 148942944811444,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the glow isn't overlapping the ground collider, destroy it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Glow",
+											"sid": 822995160525427,
+											"parameters": {
+												"object": "GroundCollision"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Glow",
+											"sid": 845047541060130
+										}
+									],
+									"sid": 988959216635525
+								}
+							]
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 743428254932920,
+									"parameters": {
+										"count": "4"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Choose a random angle to move the glow towards."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 225060962766182,
+									"parameters": {
+										"variable": "AngleOfMotion",
+										"value": "random(0, 360)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create and snap the glow to the nearest tile on ground."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 804291658600150,
+									"parameters": {
+										"object-to-create": "Glow",
+										"layer": "\"World\"",
+										"x": "GroundCollision.SnapX(GhostRacer.X + cos(AngleOfMotion) * random(0, 32))",
+										"y": "GroundCollision.SnapY(GhostRacer.Y + sin(AngleOfMotion) * random(0, 32))",
+										"create-hierarchy": false
+									}
+								}
+							],
+							"sid": 793655942316302,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the glow isn't overlapping the ground collider, destroy it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Glow",
+											"sid": 307754727297831,
+											"parameters": {
+												"object": "GroundCollision"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Glow",
+											"sid": 639489051128586
+										}
+									],
+									"sid": 784227019955933
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 356690321608442
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Flash",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create a big animated white flash around a specific van position."
+				},
+				{
+					"functionName": "FlashVan",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "ObjectX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 497188197672403
+						},
+						{
+							"name": "ObjectY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 801413097542275
+						},
+						{
+							"name": "ObjectWidth",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 730814972740394
+						},
+						{
+							"name": "ObjectHeight",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 529929212892595
+						},
+						{
+							"name": "ObjectAngle",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 271334919615505
+						},
+						{
+							"name": "ObjectZHeight",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 228756551643114
+						},
+						{
+							"name": "AttachToPlayer",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 146498701183818
+						},
+						{
+							"name": "AttachToGhostRacer",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 606867752681440
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 300803354572472,
+							"parameters": {
+								"object-to-create": "Flash",
+								"layer": "\"World\"",
+								"x": "ObjectX",
+								"y": "ObjectY",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "Flash",
+							"sid": 683458787840290,
+							"parameters": {
+								"width": "ObjectWidth + 16",
+								"height": "ObjectHeight + 16"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Flash",
+							"sid": 267913279121677,
+							"parameters": {
+								"angle": "ObjectAngle"
+							}
+						},
+						{
+							"id": "set-z-height",
+							"objectClass": "Flash",
+							"sid": 816192757724903,
+							"parameters": {
+								"z-height": "ObjectZHeight + 2"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Flash",
+							"sid": 349530116309834,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Size\"",
+								"property": "size",
+								"end-x": "0",
+								"end-y": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "Flash",
+							"sid": 291170478024602,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ZHeight\"",
+								"start-value": "Self.ZHeight",
+								"end-value": "64",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 572205528069277,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Attach the white flash object to the player van."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 312799908854383,
+									"parameters": {
+										"variable": "AttachToPlayer"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-child",
+									"objectClass": "PlayerCollision",
+									"sid": 852079555750772,
+									"parameters": {
+										"child": "Flash",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": true,
+										"transform-z-elevation": true,
+										"destroy-with-parent": false
+									}
+								}
+							],
+							"sid": 701544058154116
+						},
+						{
+							"eventType": "comment",
+							"text": "Attach the white flash object to the ghost racer van."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 331548884740172
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 651977471083785,
+									"parameters": {
+										"variable": "AttachToGhostRacer"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-child",
+									"objectClass": "GhostRacer",
+									"sid": 984328759821739,
+									"parameters": {
+										"child": "Flash",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": true,
+										"transform-z-elevation": true,
+										"destroy-with-parent": false
+									}
+								}
+							],
+							"sid": 794456927852499
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the white flash Z height."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Flash",
+							"sid": 480680700846057,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ZHeight\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-z-height",
+							"objectClass": "Flash",
+							"sid": 396104888335945,
+							"parameters": {
+								"z-height": "Self.Tween.Value(\"ZHeight\")"
+							}
+						}
+					],
+					"sid": 783943599398870
+				}
+			],
+			"sid": 627486812258681
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GameOver",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If player van isn't overlapping the ground collider and has an altered deceleration value, disable it and make it fall towards the void."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 142915569278164,
+							"parameters": {
+								"object": "GroundCollision"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 483354138122250,
+							"parameters": {
+								"first-value": "PlayerCollision.Car.Deceleration",
+								"comparison": 0,
+								"second-value": "128"
+							}
+						},
+						{
+							"id": "trigger-once-while-true",
+							"objectClass": "System",
+							"sid": 420781471083181
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "DisableVan",
+							"sid": 949795915414740
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "PlayerCollision",
+							"sid": 736954432962495,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\"",
+								"property": "offsetZElevation",
+								"end-value": "-64",
+								"time": "1.5",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 481679390107923
+				},
+				{
+					"eventType": "comment",
+					"text": "Prevent the player from controlling the van while also increasing its deceleration, forcing it to stop in a few moments."
+				},
+				{
+					"functionName": "DisableVan",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-ignoring-input",
+							"objectClass": "PlayerCollision",
+							"sid": 870277529032832,
+							"behaviorType": "Car",
+							"parameters": {
+								"input": "start-ignoring"
+							}
+						},
+						{
+							"id": "set-deceleration",
+							"objectClass": "PlayerCollision",
+							"sid": 684045162584018,
+							"behaviorType": "Car",
+							"parameters": {
+								"deceleration": "1024"
+							}
+						}
+					],
+					"sid": 915232787119724
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the fall animation is over, restart the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCollision",
+							"sid": 620624061434806,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "GameOver",
+							"sid": 568562760835359
+						}
+					],
+					"sid": 538376920593827
+				},
+				{
+					"eventType": "comment",
+					"text": "Restart the game."
+				},
+				{
+					"functionName": "GameOver",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 318310185146551
+						}
+					],
+					"sid": 344242638969530
+				}
+			],
+			"sid": 979716355488830
+		}
+	],
+	"sid": 699007536329825
+}

@@ -1,0 +1,1153 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "The position of the next target."
+		},
+		{
+			"eventType": "variable",
+			"name": "TargetX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 967017769948747
+		},
+		{
+			"eventType": "variable",
+			"name": "TargetY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 605430571231531
+		},
+		{
+			"eventType": "comment",
+			"text": "How many meteors the player has destroyed."
+		},
+		{
+			"eventType": "variable",
+			"name": "Score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 527884133265099
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "OverallGameplay",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Shoot a missile after any touch if the cannon is not being used already."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-touch-start",
+							"objectClass": "Touch",
+							"sid": 881496598746611
+						}
+					],
+					"actions": [],
+					"sid": 790072808552392,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "Cannon",
+									"sid": 640337278406499,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Aim\""
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-playing",
+									"objectClass": "Cannon",
+									"sid": 390406104206310,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Recoil\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Store the target position while also clamping its Y value, so the player don't shoot the buildings on the ground."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 274112942514525,
+									"parameters": {
+										"variable": "TargetX",
+										"value": "Touch.X"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 271420856578486,
+									"parameters": {
+										"variable": "TargetY",
+										"value": "clamp(Touch.Y, 0, LayoutHeight - 48)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Rotate the cannon towards the target position."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Cannon",
+									"sid": 555247469398884,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Aim\"",
+										"property": "offsetAngle",
+										"end-value": "angle(Self.X, Self.Y, TargetX, TargetY)",
+										"time": "0.25",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create a sight on top of the target position and animate its properties (size and visibility)."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 579876759832821,
+									"parameters": {
+										"object-to-create": "Sigth",
+										"layer": "\"City\"",
+										"x": "TargetX",
+										"y": "TargetY"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Sigth",
+									"sid": 943462901763118,
+									"parameters": {
+										"width": "128",
+										"height": "128"
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Sigth",
+									"sid": 752333451867954,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ResetSize\"",
+										"property": "size",
+										"end-x": "16",
+										"end-y": "16",
+										"time": "0.25",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "flash",
+									"objectClass": "Sigth",
+									"sid": 913305077363772,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.1",
+										"off-time": "0.1",
+										"duration": "0.5"
+									}
+								}
+							],
+							"sid": 171264599891983
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the sigh after the flash animation if over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-flash-ended",
+							"objectClass": "Sigth",
+							"sid": 555459097523373,
+							"behaviorType": "Flash"
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Sigth",
+							"sid": 179048744725959
+						}
+					],
+					"sid": 356037272077422
+				},
+				{
+					"eventType": "comment",
+					"text": "Shoot a missile after the aiming animation is over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Cannon",
+							"sid": 959132572330876,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Aim\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Cannon",
+							"sid": 825089434298397,
+							"parameters": {
+								"object": "Missile",
+								"layer": "0",
+								"image-point": "\"Tip\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Spawn a trail behind the missile and add it to the missile as child, so they stay together."
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Missile",
+							"sid": 829666590146916,
+							"parameters": {
+								"object": "MissileTrail",
+								"layer": "\"City\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "move-to-object",
+							"objectClass": "MissileTrail",
+							"sid": 392450111594498,
+							"parameters": {
+								"where": "behind",
+								"object": "Missile"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Missile",
+							"sid": 825494348646234,
+							"parameters": {
+								"child": "MissileTrail",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Spawn a muzzle flash on the cannon's tip."
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Cannon",
+							"sid": 365662771112576,
+							"parameters": {
+								"object": "MuzzleFlash",
+								"layer": "0",
+								"image-point": "\"Tip\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move the cannon backwards to simulate the recoil from a big projectile."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Cannon",
+							"sid": 158097251724312,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Recoil\"",
+								"property": "position",
+								"end-x": "Self.X + cos(Self.Angle + 180) * 4",
+								"end-y": "Self.Y + sin(Self.Angle + 180) * 4",
+								"time": "0.1",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move the missile towards the target by tweening its position."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Missile",
+							"sid": 657117673764719,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Seek\"",
+								"property": "position",
+								"end-x": "TargetX",
+								"end-y": "TargetY",
+								"time": "distance(Self.X, Self.Y, TargetX, TargetY) / 256",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 765045821438544
+				},
+				{
+					"eventType": "comment",
+					"text": "After the missile is done seeking its target position, destroy the missile and spawn a couple of explosion particles."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Missile",
+							"sid": 264373158531321,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Seek\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Missile",
+							"sid": 298304118753940
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Missile",
+							"sid": 157449353422809,
+							"parameters": {
+								"object": "MissileExplosion",
+								"layer": "\"City\"",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Missile",
+							"sid": 887121075043484,
+							"parameters": {
+								"object": "ExplosionSparkles",
+								"layer": "\"City\"",
+								"image-point": "0"
+							}
+						}
+					],
+					"sid": 413382950980792
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the missile is destroyed, pick its trail (children in the hierarchy), set its rate to 0 and start a self destroy sequence, so the trail is not instantly eliminated."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-destroyed",
+							"objectClass": "Missile",
+							"sid": 871835877335694
+						}
+					],
+					"actions": [],
+					"sid": 914555622854487,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Missile",
+									"sid": 219844641157790,
+									"parameters": {
+										"child": "MissileTrail",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-rate",
+									"objectClass": "MissileTrail",
+									"sid": 967998762636721,
+									"parameters": {
+										"rate": "0"
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "MissileTrail",
+									"sid": 283151496700073,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "2",
+										"type": "once",
+										"tag": "\"SelfDestroy\""
+									}
+								}
+							],
+							"sid": 543159325477808
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the self destroy sequence is complete, finally destroy the trail object."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "MissileTrail",
+							"sid": 787898771340567,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SelfDestroy\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "MissileTrail",
+							"sid": 196377987668396
+						}
+					],
+					"sid": 905520000360217
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Meteor",
+							"sid": 490988579301776,
+							"parameters": {
+								"object": "MissileExplosion"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Meteor",
+							"sid": 653850033515910
+						},
+						{
+							"callFunction": "UpdateScore",
+							"sid": 282641721746726,
+							"parameters": [
+								"100"
+							]
+						}
+					],
+					"sid": 297233410444810
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn a new meteor every second if there's at least one intact building in the city, then point the meteor towards it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 644812612213585,
+							"parameters": {
+								"interval-seconds": "1.0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 773113365552963,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 243783440163736,
+									"parameters": {
+										"object": "Building",
+										"expression": "Building.AnimationName",
+										"comparison": 0,
+										"value": "\"Intact\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 504567150032739,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-random-instance",
+											"objectClass": "System",
+											"sid": 551826809076568,
+											"parameters": {
+												"object": "Building"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 603807318918927,
+											"parameters": {
+												"object-to-create": "Meteor",
+												"layer": "\"City\"",
+												"x": "random(0, LayoutWidth)",
+												"y": "-8"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move the meteor towards the building by tweening its position."
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Meteor",
+											"sid": 607987455932837,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Fall\"",
+												"property": "position",
+												"end-x": "Building.ImagePointX(\"Center\")",
+												"end-y": "Building.ImagePointY(\"Center\")",
+												"time": "distance(Self.X, Self.Y, Building.ImagePointX(\"Center\"), Building.ImagePointY(\"Center\")) / 32",
+												"ease": "default",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Spawn a trail behind the meteor and add it to the meteor as child, so they stay together."
+										},
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Meteor",
+											"sid": 570491930759658,
+											"parameters": {
+												"object": "MeteorTrail",
+												"layer": "\"City\"",
+												"image-point": "0"
+											}
+										},
+										{
+											"id": "move-to-object",
+											"objectClass": "MeteorTrail",
+											"sid": 889125618427478,
+											"parameters": {
+												"where": "behind",
+												"object": "Meteor"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Meteor",
+											"sid": 462756301238021,
+											"parameters": {
+												"child": "MeteorTrail",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": false,
+												"transform-z-elevation": false,
+												"destroy-with-parent": false
+											}
+										}
+									],
+									"sid": 937817415139017
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the meteor when it hits the city."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Meteor",
+							"sid": 816707252083478,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Meteor",
+							"sid": 318418215890919
+						}
+					],
+					"sid": 658479548744146,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the meteor is overlapping any building, spawn some meteor debris upwards."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Meteor",
+									"sid": 670794577507002,
+									"parameters": {
+										"object": "Building"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Building",
+									"sid": 171518664292558,
+									"parameters": {
+										"object": "MeteorDebris",
+										"layer": "\"Effects\"",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "MeteorDebris",
+									"sid": 725185129036917,
+									"parameters": {
+										"angle": "270"
+									}
+								}
+							],
+							"sid": 789054216808596,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the building is still intact, destroy it and spawn a bunch of particles."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-animation-playing",
+											"objectClass": "Building",
+											"sid": 320616965931776,
+											"parameters": {
+												"animation": "\"Intact\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "Building",
+											"sid": 953710948990095,
+											"parameters": {
+												"animation": "\"Destroyed\"",
+												"from": "current-frame"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Fire in front of the bulding."
+										},
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Building",
+											"sid": 900313315341988,
+											"parameters": {
+												"object": "BuildingFire",
+												"layer": "\"Buildings\"",
+												"image-point": "0"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Mushroom explosion in front of the building."
+										},
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Building",
+											"sid": 893317373976935,
+											"parameters": {
+												"object": "MushroomExplosion",
+												"layer": "\"Buildings\"",
+												"image-point": "0"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Fire behind the building."
+										},
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Building",
+											"sid": 900741370982717,
+											"parameters": {
+												"object": "CityFire",
+												"layer": "\"Effects\"",
+												"image-point": "0"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "CityFire",
+											"sid": 418299525775747,
+											"parameters": {
+												"angle": "270"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Flying debris behind the bulding."
+										},
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Building",
+											"sid": 697728696513870,
+											"parameters": {
+												"object": "BuildingDebris",
+												"layer": "\"Effects\"",
+												"image-point": "0"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "BuildingDebris",
+											"sid": 251769317421269,
+											"parameters": {
+												"angle": "270"
+											}
+										}
+									],
+									"sid": 327177021395187
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the meteor is destroyed, pick its trail (children in the hierarchy), set its rate to 0 and start a self destroy sequence, so the trail is not instantly eliminated."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-destroyed",
+							"objectClass": "Meteor",
+							"sid": 456611641741978
+						}
+					],
+					"actions": [],
+					"sid": 144806053902525,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Meteor",
+									"sid": 522084303640396,
+									"parameters": {
+										"child": "MeteorTrail",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-rate",
+									"objectClass": "MeteorTrail",
+									"sid": 931211156859811,
+									"parameters": {
+										"rate": "0"
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "MeteorTrail",
+									"sid": 630123228463017,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "2",
+										"type": "once",
+										"tag": "\"SelfDestroy\""
+									}
+								}
+							],
+							"sid": 592510651726173
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the self destroy sequence is complete, finally destroy the trail object."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "MeteorTrail",
+							"sid": 903395070655155,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SelfDestroy\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "MeteorTrail",
+							"sid": 822680763914758
+						}
+					],
+					"sid": 661272250384364
+				}
+			],
+			"sid": 637478766588401
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Sky",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly offset the sky on both axis to simulate the earth rotation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 560299105202578
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Sky",
+							"sid": 955714033835115,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + 0.01 * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Sky",
+							"sid": 630607098373198,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + 0.025 * 60 * dt"
+							}
+						}
+					],
+					"sid": 355636519623417
+				}
+			],
+			"sid": 140530395816315
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Cars",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Spawn a car every few seconds, while also randomizing their speed to simulate real street traffic."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 485909122981738,
+							"parameters": {
+								"interval-seconds": "random(1, 4)"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 725358865076460,
+							"parameters": {
+								"object-to-create": "Car",
+								"layer": "\"Cars\"",
+								"x": "0",
+								"y": "158"
+							}
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "Car",
+							"sid": 739112210713026,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"speed": "random(16, 64)"
+							}
+						}
+					],
+					"sid": 625474888739654
+				}
+			],
+			"sid": 116721549298331
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Memory",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Destroy all temporary objects after their animations are done to prevent any sort of CPU or memory overload."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "MuzzleFlash",
+							"sid": 194038805625864,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "MuzzleFlash",
+							"sid": 886432999860597
+						}
+					],
+					"sid": 814032070883027
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "MissileExplosion",
+							"sid": 125617551009958,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "MissileExplosion",
+							"sid": 717820912079793
+						}
+					],
+					"sid": 108546930794970
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "MushroomExplosion",
+							"sid": 436324957300543,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "MushroomExplosion",
+							"sid": 200944655518836
+						}
+					],
+					"sid": 141925198539253
+				}
+			],
+			"sid": 928501878063670
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Score",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Add a specific value to the current score and update the display text."
+				},
+				{
+					"functionName": "UpdateScore",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Value",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 441431490630028
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 407847904990587,
+							"parameters": {
+								"variable": "Score",
+								"value": "Score + Value"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "Score",
+							"sid": 184435681696275,
+							"parameters": {
+								"text": "\"Score: \"&Score"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also flash the display text."
+						},
+						{
+							"id": "flash",
+							"objectClass": "Score",
+							"sid": 478036088277483,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.1",
+								"off-time": "0.1",
+								"duration": "0.5"
+							}
+						}
+					],
+					"sid": 353125967724883
+				}
+			],
+			"sid": 778976326828201
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Force the layout to be restarted for debugging porpuses."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 775166982836647,
+							"parameters": {
+								"key": 82
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 991847722168051
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 877949061881962
+						}
+					],
+					"sid": 993312384347015
+				}
+			],
+			"sid": 107666828458725
+		}
+	],
+	"sid": 409364712024995
+}

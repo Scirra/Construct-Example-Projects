@@ -1,0 +1,304 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "FrequencyBinCount",
+			"type": "number",
+			"initialValue": "512",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 9
+		},
+		{
+			"eventType": "comment",
+			"text": "On startup, get a list of microphone sources, and create the analyser effect. We also add a mute effect to prevent the mic output coming through the speakers. Note that there are half as many frequency bins as the FFT size."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 11
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "FrequencyBin",
+					"sid": 13
+				},
+				{
+					"id": "get-media-sources",
+					"objectClass": "UserMedia",
+					"sid": 1480418680714391
+				},
+				{
+					"id": "add-analyser-effect",
+					"objectClass": "Audio",
+					"sid": 603196620641977,
+					"parameters": {
+						"tag": "\"mic\"",
+						"fft-size": "FrequencyBinCount * 2",
+						"smoothing": "0.2"
+					}
+				},
+				{
+					"id": "add-mute-effect",
+					"objectClass": "Audio",
+					"sid": 352592869599736,
+					"parameters": {
+						"tag": "\"mic\""
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 809387227633289,
+					"parameters": {
+						"text": "FrequencyBinCount & \" frequency bins\""
+					}
+				}
+			],
+			"sid": 10,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Then create a tiled background for each bar in the frequency graph."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 852340111487475,
+							"parameters": {
+								"count": "FrequencyBinCount"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 621586488456959,
+							"parameters": {
+								"object-to-create": "FrequencyBin",
+								"layer": "0",
+								"x": "loopindex * WindowWidth / FrequencyBinCount",
+								"y": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "FrequencyBin",
+							"sid": 165036659016971,
+							"parameters": {
+								"instance-variable": "binNumber",
+								"value": "loopindex"
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "FrequencyBin",
+							"sid": 190206645850942,
+							"parameters": {
+								"width": "WindowWidth / FrequencyBinCount",
+								"height": "200"
+							}
+						}
+					],
+					"sid": 827545746972285
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When the list of media sources becomes available, fill out the AudioSourcesList. This allows a user with more than one microphone to pick which to use from the dropdown."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-retrieved-media-sources",
+					"objectClass": "UserMedia",
+					"sid": 3518107948524816
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "AudioSourcesList",
+					"sid": 3004294717624425,
+					"parameters": {
+						"visibility": "visible"
+					}
+				},
+				{
+					"id": "clear",
+					"objectClass": "AudioSourcesList",
+					"sid": 7135245716536863
+				}
+			],
+			"sid": 848247611698732,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 1242114094774316,
+							"parameters": {
+								"count": "UserMedia.AudioSourceCount"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-item",
+							"objectClass": "AudioSourcesList",
+							"sid": 9482248613248234,
+							"parameters": {
+								"text": "\"Microphone \" & loopindex & \" (\" & UserMedia.AudioSourceLabelAt(loopindex) & \")\""
+							}
+						}
+					],
+					"sid": 7199712736634351
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Every tick, update each frequency bin's position depending on the data from the analyser."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 36,
+					"parameters": {
+						"object": "FrequencyBin"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-y",
+					"objectClass": "FrequencyBin",
+					"sid": 37,
+					"parameters": {
+						"y": "400 - Audio.AnalyserFreqBinAt(\"mic\", 0, FrequencyBin.binNumber) * 1.5"
+					}
+				}
+			],
+			"sid": 35
+		},
+		{
+			"eventType": "comment",
+			"text": "Also update the peak and RMS meters. Only update the readings every 100ms to make them easier to read."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 44
+				}
+			],
+			"actions": [
+				{
+					"id": "set-height",
+					"objectClass": "PeakMeter",
+					"sid": 45,
+					"parameters": {
+						"height": "200 + Audio.AnalyserPeakLevel(\"mic\", 0) * 4"
+					}
+				},
+				{
+					"id": "set-height",
+					"objectClass": "RMSMeter",
+					"sid": 49,
+					"parameters": {
+						"height": "200 + Audio.AnalyserRMSLevel(\"mic\", 0) * 4"
+					}
+				},
+				{
+					"id": "set-size",
+					"objectClass": "Sprite",
+					"sid": 54,
+					"parameters": {
+						"width": "150 + Audio.AnalyserRMSLevel(\"mic\", 0) * 2",
+						"height": "150 + Audio.AnalyserRMSLevel(\"mic\", 0) * 2"
+					}
+				}
+			],
+			"sid": 43
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 47,
+					"parameters": {
+						"interval-seconds": "0.1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "PeakReading",
+					"sid": 48,
+					"parameters": {
+						"text": "\"Peak:\" & newline & round(Audio.AnalyserPeakLevel(\"mic\", 0)) & \" dB\""
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "RMSReading",
+					"sid": 51,
+					"parameters": {
+						"text": "\"RMS:\" & newline & round(Audio.AnalyserRMSLevel(\"mic\", 0)) & \" dB\""
+					}
+				}
+			],
+			"sid": 46
+		},
+		{
+			"eventType": "comment",
+			"text": "When the user clicks the button, request microphone input. If the user has selected a specific source from the dropdown, use that."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "Button",
+					"sid": 59
+				}
+			],
+			"actions": [
+				{
+					"id": "request-microphone",
+					"objectClass": "UserMedia",
+					"sid": 60,
+					"parameters": {
+						"tag": "\"mic\"",
+						"source": "AudioSourcesList.SelectedIndex"
+					}
+				}
+			],
+			"sid": 58
+		}
+	],
+	"sid": 500768402892574
+}

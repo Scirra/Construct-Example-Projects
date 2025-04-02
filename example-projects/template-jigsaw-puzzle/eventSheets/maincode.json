@@ -1,0 +1,1354 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How many pieces will be created per line."
+		},
+		{
+			"eventType": "variable",
+			"name": "PiecesPerLine",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 394491244240575
+		},
+		{
+			"eventType": "comment",
+			"text": "How large and high each piece will be (calculated automatically)."
+		},
+		{
+			"eventType": "variable",
+			"name": "PiecesWidth",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 702609888563545
+		},
+		{
+			"eventType": "variable",
+			"name": "PiecesHeight",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 999619900778593
+		},
+		{
+			"eventType": "comment",
+			"text": "How far from the border each piece can go while being randomly moved in beginning of the round (inside)."
+		},
+		{
+			"eventType": "variable",
+			"name": "SpawnMargin",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 439836087065338
+		},
+		{
+			"eventType": "comment",
+			"text": "How close a piece a need to be to a grid block in order to be snapped to it."
+		},
+		{
+			"eventType": "variable",
+			"name": "SnapDistance",
+			"type": "number",
+			"initialValue": "4",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 574194661934763
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "SceneSetup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The current index for both X and Y loops."
+				},
+				{
+					"eventType": "variable",
+					"name": "CurrentIndex",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 826585325918938
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 375216815271402
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Calculate the width and height of each piece based on the source image size."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 219550917904506,
+							"parameters": {
+								"variable": "PiecesWidth",
+								"value": "SourceImage.Width / PiecesPerLine"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 980123619103967,
+							"parameters": {
+								"variable": "PiecesHeight",
+								"value": "SourceImage.Height / PiecesPerLine"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create a frame on top of the source image, with the same size as the source image as well."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 561223932755518,
+							"parameters": {
+								"object-to-create": "Frame",
+								"layer": "\"Background\"",
+								"x": "SourceImage.X + SourceImage.Width / 2",
+								"y": "SourceImage.Y + SourceImage.Height / 2",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "Frame",
+							"sid": 599504194999701,
+							"parameters": {
+								"width": "SourceImage.Width + 2",
+								"height": "SourceImage.Height + 2"
+							}
+						}
+					],
+					"sid": 263288529474403,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Execute a loop for each axis (X and Y), in order to create an array of pieces and grid blocks, dividing the source image into smaller parts."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 215905657896825,
+									"parameters": {
+										"name": "\"Y\"",
+										"start-index": "0",
+										"end-index": "PiecesPerLine - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 470203810826154,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 650109264680241,
+											"parameters": {
+												"name": "\"X\"",
+												"start-index": "0",
+												"end-index": "PiecesPerLine - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Create a piece on the correct position."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 710120822738982,
+											"parameters": {
+												"object-to-create": "Piece",
+												"layer": "\"Pieces\"",
+												"x": "SourceImage.X + PIecesWidth / 2 + PIecesWidth * loopindex(\"X\")",
+												"y": "SourceImage.Y + PiecesHeight / 2 + PiecesHeight * loopindex(\"Y\")",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Store the index value in a local variable inside the piece itself."
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Piece",
+											"sid": 644638413303078,
+											"parameters": {
+												"instance-variable": "Index",
+												"value": "CurrentIndex"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Adjust the piece size, so it can fit inside the frame."
+										},
+										{
+											"id": "set-size",
+											"objectClass": "Piece",
+											"sid": 907922613535029,
+											"parameters": {
+												"width": "PIecesWidth",
+												"height": "PiecesHeight"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Copy and paste the source image to the piece."
+										},
+										{
+											"id": "paste-object",
+											"objectClass": "Piece",
+											"sid": 213918372934752,
+											"parameters": {
+												"object": "SourceImage",
+												"effects": "with-effects"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Randomize the position and angle of the piece."
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Piece",
+											"sid": 271224724413181,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"PositionRandom\"",
+												"property": "position",
+												"end-x": "random(0 + SpawnMargin, LayoutWidth - SpawnMargin)",
+												"end-y": "random(0 + SpawnMargin, LayoutHeight - SpawnMargin)",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Piece",
+											"sid": 658779828904868,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"AngleRandom\"",
+												"property": "offsetAngle",
+												"end-value": "random(0, 360)",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Also create a grid block with the same position, index and size."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 358563259100192,
+											"parameters": {
+												"object-to-create": "GridBlock",
+												"layer": "\"Background\"",
+												"x": "SourceImage.X + PIecesWidth / 2 + PIecesWidth * loopindex(\"X\")",
+												"y": "SourceImage.Y + PiecesHeight / 2 + PiecesHeight * loopindex(\"Y\")",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "GridBlock",
+											"sid": 637556951495257,
+											"parameters": {
+												"instance-variable": "Index",
+												"value": "CurrentIndex"
+											}
+										},
+										{
+											"id": "set-size",
+											"objectClass": "GridBlock",
+											"sid": 455801152116009,
+											"parameters": {
+												"width": "PIecesWidth",
+												"height": "PiecesHeight"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Increase the index value."
+										},
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 462285779959098,
+											"parameters": {
+												"variable": "CurrentIndex",
+												"value": "1"
+											}
+										}
+									],
+									"sid": 431794413023594
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Hide the source image, since it won't be used anymore."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "SourceImage",
+									"sid": 740602923053133,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								}
+							],
+							"sid": 652949551963332
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the piece has been randomly positionated, allow the player to drag and drop it anywhere."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Piece",
+							"sid": 211779887006956,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PositionRandom\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "Piece",
+							"sid": 692228210363331,
+							"behaviorType": "DragDrop",
+							"parameters": {
+								"state": "enabled"
+							}
+						}
+					],
+					"sid": 825829369508329
+				}
+			],
+			"sid": 844888119184520
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Interactions",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If a piece is picked, move it to the top of the layer, so it can be seen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-drag-start",
+							"objectClass": "Piece",
+							"sid": 354447651286521,
+							"behaviorType": "DragDrop"
+						}
+					],
+					"actions": [
+						{
+							"id": "move-to-top",
+							"objectClass": "Piece",
+							"sid": 264394978091599
+						}
+					],
+					"sid": 684040124268586,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Reset the piece's angle if it's set to a random value."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 384873575694369,
+									"parameters": {
+										"first-value": "Piece.Angle",
+										"comparison": 1,
+										"second-value": "0"
+									}
+								},
+								{
+									"id": "is-playing",
+									"objectClass": "Piece",
+									"sid": 415330751391832,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"AngleReset\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Piece",
+									"sid": 628124647338442,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"AngleReset\"",
+										"property": "offsetAngle",
+										"end-value": "0",
+										"time": "0.25",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 775341020330178
+						},
+						{
+							"eventType": "comment",
+							"text": "If the piece was previsouly snapped to a grid block, release both the piece and the grid block."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Piece",
+									"sid": 285805974732275,
+									"parameters": {
+										"instance-variable": "Snapped"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 163419171296666,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "GridBlock",
+											"sid": 234497542423618,
+											"parameters": {
+												"unique-id": "Piece.GridBlockUID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "GridBlock",
+											"sid": 928703866676218,
+											"parameters": {
+												"instance-variable": "Snapped",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 377009997799561
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Piece",
+											"sid": 446659885362574,
+											"parameters": {
+												"instance-variable": "Snapped",
+												"value": "false"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Piece",
+											"sid": 695740871884359,
+											"parameters": {
+												"instance-variable": "GridBlockUID",
+												"value": "-1"
+											}
+										}
+									],
+									"sid": 106826439650516
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If a piece is dropped, check if it's close enough to a grid block, so it can be snapped to the grid block position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-drop",
+							"objectClass": "Piece",
+							"sid": 840898336572124,
+							"behaviorType": "DragDrop"
+						}
+					],
+					"actions": [],
+					"sid": 284049151048581,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-nearestfurthest",
+									"objectClass": "GridBlock",
+									"sid": 147153462223568,
+									"parameters": {
+										"which": "nearest",
+										"x": "Piece.X",
+										"y": "Piece.Y"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 819656372043399,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-between-values",
+											"objectClass": "System",
+											"sid": 461803205360126,
+											"parameters": {
+												"value": "Piece.X",
+												"lower-bound": "GridBlock.X - SnapDistance",
+												"upper-bound": "GridBlock.X + SnapDistance"
+											}
+										},
+										{
+											"id": "is-between-values",
+											"objectClass": "System",
+											"sid": 119520373934015,
+											"parameters": {
+												"value": "Piece.Y",
+												"lower-bound": "GridBlock.Y - SnapDistance",
+												"upper-bound": "GridBlock.Y + SnapDistance"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 772960724457035,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the piece is close enough and the grid block is already occupied, snap the piece to the grid block position."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "GridBlock",
+													"sid": 150918365569755,
+													"parameters": {
+														"instance-variable": "Snapped"
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Lock both the piece and the grid block, so other pieces can't snap to the same position."
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "Piece",
+													"sid": 236667382816925,
+													"parameters": {
+														"instance-variable": "Snapped",
+														"value": "true"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Piece",
+													"sid": 578946407783139,
+													"parameters": {
+														"instance-variable": "GridBlockUID",
+														"value": "GridBlock.UID"
+													}
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "GridBlock",
+													"sid": 499636187579046,
+													"parameters": {
+														"instance-variable": "Snapped",
+														"value": "true"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Snap the piece to the grid block."
+												},
+												{
+													"id": "set-position",
+													"objectClass": "Piece",
+													"sid": 621062637237929,
+													"parameters": {
+														"x": "GridBlock.X",
+														"y": "GridBlock.Y"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Execute a quick bounce animation for a more impactful effect."
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "Piece",
+													"sid": 142011336590621,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Bounce\"",
+														"property": "offsetZElevation",
+														"end-value": "16",
+														"time": "0.25 / 2",
+														"ease": "easeoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "yes"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Prevent the player from dragging this specific piece while it's bouncing."
+												},
+												{
+													"id": "set-enabled",
+													"objectClass": "Piece",
+													"sid": 291703146669770,
+													"behaviorType": "DragDrop",
+													"parameters": {
+														"state": "disabled"
+													}
+												}
+											],
+											"sid": 326300040923197
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the bounce animation is over, create a quick \"pick effect\" around the dropped piece."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Piece",
+							"sid": 283652944845868,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Bounce\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 872603575657753,
+							"parameters": {
+								"object-to-create": "PickEffect",
+								"layer": "\"Pieces\"",
+								"x": "Piece.X",
+								"y": "Piece.Y",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "PickEffect",
+							"sid": 851920345062198,
+							"parameters": {
+								"width": "Piece.Width",
+								"height": "Piece.Height"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "PickEffect",
+							"sid": 994109063770652,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScaleUp\"",
+								"property": "scale",
+								"end-x": "1.25",
+								"end-y": "1.25",
+								"time": "0.25",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "PickEffect",
+							"sid": 529165432318034,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"OpacityDown\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move the piece to the bottom of the layer, since it's already positionated and might need to be touched again."
+						},
+						{
+							"id": "move-to-bottom",
+							"objectClass": "Piece",
+							"sid": 632469892056847
+						},
+						{
+							"type": "comment",
+							"text": "Re-enable the drag and drop behavior."
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Piece",
+							"sid": 512809882850835,
+							"behaviorType": "DragDrop",
+							"parameters": {
+								"state": "enabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Check if all pieces are in the correct place."
+						},
+						{
+							"callFunction": "CheckAllPieces",
+							"sid": 368732304763973
+						}
+					],
+					"sid": 280821349826786
+				},
+				{
+					"eventType": "comment",
+					"text": "Count how many piece are in the correct position and check if the player has won."
+				},
+				{
+					"functionName": "CheckAllPieces",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 275094127579482,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "Count",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 109741977113972
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 766446407597439,
+									"parameters": {
+										"object": "Piece"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 220174306056749,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 874255892134801,
+											"parameters": {
+												"object": "GridBlock"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 653613988600590,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If a piece is close enough to the correct grid block and their index are equal, increase the count value."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-between-values",
+													"objectClass": "System",
+													"sid": 273526662588686,
+													"parameters": {
+														"value": "Piece.X",
+														"lower-bound": "GridBlock.X - SnapDistance",
+														"upper-bound": "GridBlock.X + SnapDistance"
+													}
+												},
+												{
+													"id": "is-between-values",
+													"objectClass": "System",
+													"sid": 254062185370822,
+													"parameters": {
+														"value": "Piece.Y",
+														"lower-bound": "GridBlock.Y - SnapDistance",
+														"upper-bound": "GridBlock.Y + SnapDistance"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 398145988477412,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-two-values",
+															"objectClass": "System",
+															"sid": 457266342103797,
+															"parameters": {
+																"first-value": "Piece.Index",
+																"comparison": 0,
+																"second-value": "GridBlock.Index"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "add-to-eventvar",
+															"objectClass": "System",
+															"sid": 408169132386940,
+															"parameters": {
+																"variable": "Count",
+																"value": "1"
+															}
+														}
+													],
+													"sid": 527901230331552
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If there are enough correct pieces, display a bunch of visuals to let the player know he won."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 509789821269161,
+									"parameters": {
+										"first-value": "Count",
+										"comparison": 0,
+										"second-value": "Piece.Count"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create a big animated white flash on top of all the pieces."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 257067808080411,
+									"parameters": {
+										"object-to-create": "Flash",
+										"layer": "\"Effects\"",
+										"x": "SourceImage.X + SourceImage.Width / 2",
+										"y": "SourceImage.Y + SourceImage.Height / 2",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Flash",
+									"sid": 680372496684988,
+									"parameters": {
+										"width": "4",
+										"height": "0"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Flash",
+									"sid": 189930309563825,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HeightUp\"",
+										"property": "offsetHeight",
+										"end-value": "SourceImage.Height",
+										"time": "0.25",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Shake the screen for a moment."
+								},
+								{
+									"callFunction": "ShakeScreen",
+									"sid": 708526049989150,
+									"parameters": [
+										"2",
+										"3"
+									]
+								}
+							],
+							"sid": 109694570430529,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Prevent the player from moving the pieces from now on, since they're correct already."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 285511625932863,
+											"parameters": {
+												"object": "Piece"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-enabled",
+											"objectClass": "Piece",
+											"sid": 102032212254248,
+											"behaviorType": "DragDrop",
+											"parameters": {
+												"state": "disabled"
+											}
+										}
+									],
+									"sid": 158094872905693
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Flash",
+							"sid": 611809624744092,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HeightUp\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Flash",
+							"sid": 528068238423585,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"WidthUp\"",
+								"property": "offsetWidth",
+								"end-value": "SourceImage.Width",
+								"time": "0.25",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 644765885170623
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the white flash animation is over, create a couple of glowy particles."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Flash",
+							"sid": 585986802896583,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"WidthUp\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Flash",
+							"sid": 564499852250908,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"OpacityDown\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "glow splash"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 701746219926704,
+							"parameters": {
+								"object-to-create": "SplashGlow",
+								"layer": "\"Effects\"",
+								"x": "SourceImage.X + SourceImage.Width / 2",
+								"y": "SourceImage.Y + SourceImage.Height / 2",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "glow win"
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 154698679439268,
+							"parameters": {
+								"object-to-create": "WinGlow",
+								"layer": "\"Background\"",
+								"x": "SourceImage.X + SourceImage.Width / 2",
+								"y": "SourceImage.Y + SourceImage.Height / 2",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 130891830657917
+				}
+			],
+			"sid": 624835436855024
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ScreenShake",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Shake the screen based on a duration and strength parameters."
+				},
+				{
+					"functionName": "ShakeScreen",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Duration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 438912377109819
+						},
+						{
+							"name": "Strength",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 973240741589292
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 482143353161434,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\"",
+								"start-value": "Strength",
+								"end-value": "0",
+								"time": "Duration",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 160556323464283
+				},
+				{
+					"eventType": "comment",
+					"text": "The screen shake effect is achieved by randomly changing the layout angle."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "GameManager",
+							"sid": 315873327146720,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-angle",
+							"objectClass": "System",
+							"sid": 270214522828775,
+							"parameters": {
+								"angle": "random(-GameManager.Tween.Value(\"ScreenShake\"), GameManager.Tween.Value(\"ScreenShake\"))"
+							}
+						}
+					],
+					"sid": 369727771664165
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the screen shake effect is over, reset the layout angle to its default value, which is zero."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "GameManager",
+							"sid": 220001841306390,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-angle",
+							"objectClass": "System",
+							"sid": 230139629508055,
+							"parameters": {
+								"angle": "0"
+							}
+						}
+					],
+					"sid": 694142549447177
+				}
+			],
+			"sid": 648678330226295
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Background",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "OffsetSpeed",
+					"type": "number",
+					"initialValue": "0.25",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 358834118955161
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly offset the background to create an environment that feels more \"alive\"."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 740103967049251
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Background",
+							"sid": 772877624891117,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + OffsetSpeed * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Background",
+							"sid": 812283775436140,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + OffsetSpeed * 60 * dt"
+							}
+						}
+					],
+					"sid": 669469222111527
+				}
+			],
+			"sid": 300519862898444
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Restart the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 619401841788532,
+							"parameters": {
+								"key": 82
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 602915872590287
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 700657503274174
+						}
+					],
+					"sid": 177923886059097
+				}
+			],
+			"sid": 610875098254419
+		}
+	],
+	"sid": 221752208568770
+}

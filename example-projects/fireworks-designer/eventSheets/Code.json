@@ -1,0 +1,1074 @@
+{
+	"name": "Code",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the game instructions are visible to the player."
+		},
+		{
+			"eventType": "variable",
+			"name": "InstructionsAreVisible",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 490057126220589
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup the game by updating the fireworks color."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 967384456205335
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "UpdateFireworksColor",
+					"sid": 962109698123168
+				}
+			],
+			"sid": 399693620785842
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player starts to touch the screen, reset the \"has been touched\" flag of every pixel back to false."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-nth-touch-start",
+					"objectClass": "Touch",
+					"sid": 587307004027759,
+					"parameters": {
+						"touch-number": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-instvar",
+					"objectClass": "Pixel",
+					"sid": 520660466042729,
+					"parameters": {
+						"instance-variable": "HasBeenTouched",
+						"value": "false"
+					}
+				}
+			],
+			"sid": 100247390555153,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player isn't touch the side window, create a firework."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-touching-object",
+							"objectClass": "Touch",
+							"sid": 202348080177567,
+							"parameters": {
+								"object": "SideWindow"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "CreateFirework",
+							"sid": 518116320794255,
+							"parameters": [
+								"Touch.X",
+								"Touch.Y"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Disable the auto fire."
+						},
+						{
+							"id": "stop-timer",
+							"objectClass": "GameManager",
+							"sid": 711949622174922,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"AutoFire\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "But, if the player doesn't create more fireworks in the next five seconds, enable auto fire again."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 562777196850552,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "5",
+								"type": "once",
+								"tag": "\"StartAutoFire\""
+							}
+						}
+					],
+					"sid": 182023979241114,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the instructions are still visible, destroy them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 942895856885106,
+									"parameters": {
+										"value": "InstructionsAreVisible = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 488789578588860,
+									"parameters": {
+										"variable": "InstructionsAreVisible",
+										"value": "false"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "Instructions",
+									"sid": 213788821129940
+								}
+							],
+							"sid": 918554606168620
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Create a firework based on the provided parameters."
+		},
+		{
+			"functionName": "CreateFirework",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "DestinationX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 612173332001851
+				},
+				{
+					"name": "DestinationY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 951281745359660
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 644397842536893,
+					"parameters": {
+						"object-to-create": "Firework",
+						"layer": "\"World\"",
+						"x": "DestinationX + random(-16, 16)",
+						"y": "LayoutHeight",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Move the firework along the X and Y axis."
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Firework",
+					"sid": 102686534605018,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"MovementX\"",
+						"property": "offsetX",
+						"end-value": "DestinationX",
+						"time": "1",
+						"ease": "easeinsine",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Firework",
+					"sid": 839486702485772,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"MovementY\"",
+						"property": "offsetY",
+						"end-value": "DestinationY",
+						"time": "1",
+						"ease": "easeoutsine",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Start a regular timer to leave a trail behind the firework."
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "Firework",
+					"sid": 437438389002573,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "0.05",
+						"type": "regular",
+						"tag": "\"Trail\""
+					}
+				}
+			],
+			"sid": 421410707493174
+		},
+		{
+			"eventType": "comment",
+			"text": "Every time the trail timer ends, create a trail object behind the firework."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "Firework",
+					"sid": 134890841905416,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Trail\""
+					}
+				}
+			],
+			"actions": [],
+			"sid": 676291406099129,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 530150364439154,
+							"parameters": {
+								"object": "Firework"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 646282765380867,
+							"parameters": {
+								"object-to-create": "Trail",
+								"layer": "\"World\"",
+								"x": "Firework.ImagePointX(\"Trail\")",
+								"y": "Firework.ImagePointY(\"Trail\")",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also randomize the trail angle and update its color."
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Trail",
+							"sid": 471179726100546,
+							"parameters": {
+								"angle": "floor(random(0, 4)) * 90"
+							}
+						},
+						{
+							"id": "set-default-color",
+							"objectClass": "Trail",
+							"sid": 165575525331977,
+							"parameters": {
+								"color": "rgbEx255(Red, Green, Blue)"
+							}
+						}
+					],
+					"sid": 716163186644579
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the trail animation is over, destroy it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-animation-finished",
+					"objectClass": "Trail",
+					"sid": 897156317779574,
+					"parameters": {
+						"animation": "\"Default\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Trail",
+					"sid": 681539438311962
+				}
+			],
+			"sid": 568802879069638
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the firework has reached its maximum height, destroy it and make it explode."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-tweens-finished",
+					"objectClass": "Firework",
+					"sid": 238125829203056,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"MovementY\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Firework",
+					"sid": 824216917390193
+				},
+				{
+					"callFunction": "CreateExplosion",
+					"sid": 381221965849636,
+					"parameters": [
+						"Firework.X",
+						"Firework.Y"
+					]
+				}
+			],
+			"sid": 290310634066074
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player is touching a pixel, make it toggle between on and off."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-touching-object",
+					"objectClass": "Touch",
+					"sid": 716358517575541,
+					"parameters": {
+						"object": "Pixel"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 725027733459588,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Only allow each pixel to be toggled once per touch. This prevents pixels from being toggle every frame, while also allowing the player to draw lines with a single touch."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 604577840341158,
+							"parameters": {
+								"value": "Pixel.HasBeenTouched = 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Pixel",
+							"sid": 878142911832500,
+							"parameters": {
+								"instance-variable": "HasBeenTouched",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 239674303078351,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the pixel is currently set to on, change it to off."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 632748758477105,
+									"parameters": {
+										"value": "Pixel.AnimationName = \"On\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Pixel",
+									"sid": 965614777552424,
+									"parameters": {
+										"animation": "\"Off\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 783192569303923
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the pixel is currently set to off, change it to on."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 766642179813092
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 326753217593620,
+									"parameters": {
+										"value": "Pixel.AnimationName = \"Off\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Pixel",
+									"sid": 196510352365971,
+									"parameters": {
+										"animation": "\"On\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 949069560054877
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player touches the clear button, change all pixels to off."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 168057939923776,
+					"parameters": {
+						"object": "ClearButton"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation",
+					"objectClass": "ClearButton",
+					"sid": 866324175001469,
+					"parameters": {
+						"animation": "\"Default\"",
+						"from": "beginning"
+					}
+				},
+				{
+					"id": "set-animation",
+					"objectClass": "Pixel",
+					"sid": 936780561015023,
+					"parameters": {
+						"animation": "\"Off\"",
+						"from": "beginning"
+					}
+				}
+			],
+			"sid": 812633560428698
+		},
+		{
+			"eventType": "comment",
+			"text": "Create an explosion at a specific position."
+		},
+		{
+			"functionName": "CreateExplosion",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "PositionX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 941951834699571
+				},
+				{
+					"name": "PositionY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 475656608876089
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Restart the background animation to simulate a big light flash."
+				},
+				{
+					"id": "set-animation",
+					"objectClass": "Background",
+					"sid": 661621714346163,
+					"parameters": {
+						"animation": "\"Default\"",
+						"from": "beginning"
+					}
+				}
+			],
+			"sid": 436685596337320,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Pick only pixels that are currently set to on, and use them as a reference to draw the explosion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 177007887359523,
+							"parameters": {
+								"object": "Pixel",
+								"expression": "Pixel.AnimationName",
+								"comparison": 0,
+								"value": "\"On\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 917743914799425,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 445163907690008,
+									"parameters": {
+										"object": "Pixel"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 387969197622831,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "RandomDuration",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 312473754950192
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 648776559305962,
+											"parameters": {
+												"count": "4"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 181320980560679,
+											"parameters": {
+												"object-to-create": "Spark",
+												"layer": "0",
+												"x": "PositionX",
+												"y": "PositionY",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Choose a random duration for each spark, making the explosion feel more organic."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 399398624525036,
+											"parameters": {
+												"variable": "RandomDuration",
+												"value": "random(0.8, 1)"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move each spark to its final position."
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Spark",
+											"sid": 448032199110330,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Position\"",
+												"property": "position",
+												"end-x": "PositionX + Pixel.OffsetX * 8 + random(-2, 2)",
+												"end-y": "PositionY + Pixel.OffsetY * 8 + random(-2, 2)",
+												"time": "RandomDuration",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Adjust the color of each spark based on what was set by the player."
+										},
+										{
+											"id": "set-default-color",
+											"objectClass": "Spark",
+											"sid": 737267209730299,
+											"parameters": {
+												"color": "rgbEx255(Red, Green, Blue)"
+											}
+										}
+									],
+									"sid": 190362541653194
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once a spark reaches its destination, randomize its angle and make it fade out."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-tweens-finished",
+					"objectClass": "Spark",
+					"sid": 291098637889520,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Position\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "Spark",
+					"sid": 834326125813673,
+					"parameters": {
+						"angle": "floor(random(0, 4)) * 90"
+					}
+				},
+				{
+					"id": "set-animation",
+					"objectClass": "Spark",
+					"sid": 701594072219807,
+					"parameters": {
+						"animation": "\"FadeOut\"",
+						"from": "beginning"
+					}
+				}
+			],
+			"sid": 800557713332324
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the fade out animation is over, destroy the spark."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-animation-finished",
+					"objectClass": "Spark",
+					"sid": 903905058997175,
+					"parameters": {
+						"animation": "\"FadeOut\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Spark",
+					"sid": 493690740796054
+				}
+			],
+			"sid": 344398050625455
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player is touching a slider bar, move the equivalent slider button to the same X position, clamp its X position and update the firework color."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-touching-object",
+					"objectClass": "Touch",
+					"sid": 371925816463806,
+					"parameters": {
+						"object": "SliderBar"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 694589880934172,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 142301615585677,
+							"parameters": {
+								"object": "SliderButton",
+								"expression": "round(SliderButton.Y)",
+								"comparison": 0,
+								"value": "round(SliderBar.Y)"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-x",
+							"objectClass": "SliderButton",
+							"sid": 921135230011462,
+							"parameters": {
+								"x": "clamp(Touch.X, Self.MinX, Self.MaxX)"
+							}
+						},
+						{
+							"callFunction": "UpdateFireworksColor",
+							"sid": 365352391882593
+						}
+					],
+					"sid": 354972604649514
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "How much red, green and blue each spark will have."
+		},
+		{
+			"eventType": "variable",
+			"name": "Red",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 733401730491929
+		},
+		{
+			"eventType": "variable",
+			"name": "Green",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 681644928233507
+		},
+		{
+			"eventType": "variable",
+			"name": "Blue",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 887867106700632
+		},
+		{
+			"eventType": "comment",
+			"text": "Update the red, green and blue components based on the position of each slider."
+		},
+		{
+			"functionName": "UpdateFireworksColor",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 290380907473199,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update the red component."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 611614183577788,
+							"parameters": {
+								"object": "SliderButton",
+								"expression": "SliderButton.Color",
+								"comparison": 0,
+								"value": "\"Red\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 721535479644397,
+							"parameters": {
+								"variable": "Red",
+								"value": "unlerp(SliderButton.MinX, SliderButton.MaxX, SliderButton.X) * 255"
+							}
+						}
+					],
+					"sid": 761869507957500
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the green component."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 593996028645954,
+							"parameters": {
+								"object": "SliderButton",
+								"expression": "SliderButton.Color",
+								"comparison": 0,
+								"value": "\"Green\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 618675748374890,
+							"parameters": {
+								"variable": "Green",
+								"value": "unlerp(SliderButton.MinX, SliderButton.MaxX, SliderButton.X) * 255"
+							}
+						}
+					],
+					"sid": 809026535220006
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the blue component."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 336107795639682,
+							"parameters": {
+								"object": "SliderButton",
+								"expression": "SliderButton.Color",
+								"comparison": 0,
+								"value": "\"Blue\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 162320880215540,
+							"parameters": {
+								"variable": "Blue",
+								"value": "unlerp(SliderButton.MinX, SliderButton.MaxX, SliderButton.X) * 255"
+							}
+						}
+					],
+					"sid": 288464139678324
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the color display on the side window."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-default-color",
+							"objectClass": "ColorDisplay",
+							"sid": 131152821554622,
+							"parameters": {
+								"color": "rgbEx255(Red, Green, Blue)"
+							}
+						}
+					],
+					"sid": 100734958412696
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Start the auto fire by creating a firework every 0.5 seconds."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 107526953858872,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"StartAutoFire\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "CreateFirework",
+					"sid": 419201837682406,
+					"parameters": [
+						"random(AutoFireZone.BBoxLeft, AutoFireZone.BBoxRight)",
+						"random(AutoFireZone.BBoxTop, AutoFireZone.BBoxBottom)"
+					]
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "GameManager",
+					"sid": 737516862472124,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "0.5",
+						"type": "regular",
+						"tag": "\"AutoFire\""
+					}
+				}
+			],
+			"sid": 581412700260289
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 929786079522670,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"AutoFire\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "CreateFirework",
+					"sid": 599385751511058,
+					"parameters": [
+						"random(AutoFireZone.BBoxLeft, AutoFireZone.BBoxRight)",
+						"random(AutoFireZone.BBoxTop, AutoFireZone.BBoxBottom)"
+					]
+				}
+			],
+			"sid": 179788258621146
+		}
+	],
+	"sid": 518600834263516
+}

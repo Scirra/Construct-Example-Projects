@@ -1,0 +1,2357 @@
+{
+	"name": "ShopEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Shop logic."
+		},
+		{
+			"eventType": "variable",
+			"name": "shopButtonSelected",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Currently selected shop button",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 156902365773566
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Upgrade Shop",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "FIRST_PURCHASE",
+					"type": "number",
+					"initialValue": "1000",
+					"comment": "Price when purchasing a specific upgrade for the first time",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 986399099676661
+				},
+				{
+					"eventType": "variable",
+					"name": "BASE_PRICE",
+					"type": "number",
+					"initialValue": "350",
+					"comment": "Base price of an upgrade (except for first purchase)",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 321595624858134
+				},
+				{
+					"eventType": "variable",
+					"name": "LEVEL_TAX",
+					"type": "number",
+					"initialValue": "50",
+					"comment": "How much the base price increases per level",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 470935003791011
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Upgrade Shop - Core Functions",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Is the player fully upgraded?"
+						},
+						{
+							"functionName": "fullyUpgraded",
+							"functionDescription": "Is the player fully upgraded?",
+							"functionCategory": "Shop",
+							"functionReturnType": "number",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 647960454348179,
+									"parameters": {
+										"value": "(eLevelDrone + eLevelBlaster + eLevelSaucer + eLevelRecon + canBounce + canLink + canRocket) = 43"
+									}
+								}
+							],
+							"sid": 340683253334134
+						},
+						{
+							"eventType": "comment",
+							"text": "Hide shop UI."
+						},
+						{
+							"functionName": "hideShopUI",
+							"functionDescription": "Hide shop UI",
+							"functionCategory": "Shop",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [],
+							"sid": 387049015643747,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the current session is endless, resume the game."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 867388198080875,
+											"parameters": {
+												"variable": "endlessMode"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Change BGM volume."
+										},
+										{
+											"callFunction": "BGMVolume",
+											"sid": 888877508395138,
+											"parameters": [
+												false
+											]
+										},
+										{
+											"type": "comment",
+											"text": "If the player is fully upgraded, hide some UI elements."
+										},
+										{
+											"id": "set-opacity",
+											"objectClass": "TimeBar",
+											"sid": 432441077653501,
+											"parameters": {
+												"opacity": "Functions.fullyUpgraded ? 0 : 100"
+											}
+										},
+										{
+											"id": "set-opacity",
+											"objectClass": "TimeBarBottom",
+											"sid": 279128933435466,
+											"parameters": {
+												"opacity": "Functions.fullyUpgraded ? 0 : 100"
+											}
+										},
+										{
+											"id": "set-opacity",
+											"objectClass": "TextScore",
+											"sid": 678843184434232,
+											"parameters": {
+												"opacity": "Functions.fullyUpgraded ? 0 : 100"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Reset time remaining."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 138973755059957,
+											"parameters": {
+												"variable": "timeRemaining",
+												"value": "timeLimit"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Unpause the game."
+										},
+										{
+											"id": "set-time-scale",
+											"objectClass": "System",
+											"sid": 755102605288224,
+											"parameters": {
+												"time-scale": "1.0"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update player's score."
+										},
+										{
+											"callFunction": "updatePlayerScore",
+											"sid": 534423780832380,
+											"parameters": [
+												"playerScore",
+												true,
+												true
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Animate shop."
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "GameManager",
+											"sid": 461633462062630,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShopUIOpacity\"",
+												"start-value": "100",
+												"end-value": "0",
+												"time": "0.25",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Fader",
+											"sid": 300662007365070,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"HideFader\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.25",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Restart enemy timers."
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 759111043941605
+										},
+										{
+											"callFunction": "startEnemyTimers",
+											"sid": 762443180586973
+										},
+										{
+											"type": "comment",
+											"text": "Change input focus so that the player can control the game."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 254897329280703,
+											"parameters": {
+												"variable": "inputFocus",
+												"value": "\"game\""
+											}
+										}
+									],
+									"sid": 109025060644484,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Only set a time limit if the player is not fully upgraded."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 115055223839511,
+													"parameters": {
+														"value": "Functions.fullyUpgraded = 0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "start-timer",
+													"objectClass": "GameManager",
+													"sid": 920561411851719,
+													"behaviorType": "Timer",
+													"parameters": {
+														"duration": "1.0",
+														"type": "regular",
+														"tag": "\"TimeLimit\""
+													}
+												}
+											],
+											"sid": 101878917064063
+										},
+										{
+											"eventType": "comment",
+											"text": "In the case that the player is fully upgraded, lock their score."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 192012160110182
+												}
+											],
+											"actions": [
+												{
+													"id": "set-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 215572041729903,
+													"parameters": {
+														"variable": "lockScore",
+														"value": "true"
+													}
+												}
+											],
+											"sid": 321871170485841
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Otherwise, advance to the next campaign level."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 499941695780847
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Fade BGM out."
+										},
+										{
+											"callFunction": "fadeBGM",
+											"sid": 281653587623123,
+											"parameters": [
+												false,
+												"1.0"
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Change input focus."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 169515694253822,
+											"parameters": {
+												"variable": "inputFocus",
+												"value": "\"advanceLevel\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Stop all timers."
+										},
+										{
+											"id": "stop-all-timers",
+											"objectClass": "GameManager",
+											"sid": 424828658720862,
+											"behaviorType": "Timer"
+										},
+										{
+											"type": "comment",
+											"text": "Pause the game."
+										},
+										{
+											"id": "set-time-scale",
+											"objectClass": "System",
+											"sid": 874866754648697,
+											"parameters": {
+												"time-scale": "0.0"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Unpause relevant objects."
+										},
+										{
+											"id": "set-object-time-scale",
+											"objectClass": "System",
+											"sid": 175063345764977,
+											"parameters": {
+												"object": "Fader",
+												"time-scale": "1.0"
+											}
+										},
+										{
+											"id": "set-object-time-scale",
+											"objectClass": "System",
+											"sid": 777630304526581,
+											"parameters": {
+												"object": "GameManager",
+												"time-scale": "1.0"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Fade out the game."
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "GameManager",
+											"sid": 933938932620583,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShopUIOpacity\"",
+												"start-value": "100",
+												"end-value": "0",
+												"time": "0.5",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Fader",
+											"sid": 836538593430467,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShowFader\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "0.5",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update current level."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 302389495914937,
+											"parameters": {
+												"variable": "currentLevel",
+												"value": "min(currentLevel + 1, 5)"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update player's profile."
+										},
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 972211174342667,
+											"parameters": {
+												"key": "\"Drone\"",
+												"value": "eLevelDrone"
+											}
+										},
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 930862210247131,
+											"parameters": {
+												"key": "\"Blaster\"",
+												"value": "eLevelBlaster"
+											}
+										},
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 108784543459057,
+											"parameters": {
+												"key": "\"Saucer\"",
+												"value": "eLevelSaucer"
+											}
+										},
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 102259095834523,
+											"parameters": {
+												"key": "\"Recon\"",
+												"value": "eLevelRecon"
+											}
+										},
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 302491628734032,
+											"parameters": {
+												"key": "\"Rocket\"",
+												"value": "canRocket"
+											}
+										},
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 897122465697164,
+											"parameters": {
+												"key": "\"Link\"",
+												"value": "canLink"
+											}
+										},
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 334764192061620,
+											"parameters": {
+												"key": "\"Bounce\"",
+												"value": "canBounce"
+											}
+										},
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 433978252050831,
+											"parameters": {
+												"key": "\"Level\"",
+												"value": "currentLevel"
+											}
+										},
+										{
+											"callFunction": "saveProfile",
+											"sid": 173716909044101
+										},
+										{
+											"type": "comment",
+											"text": "Go to the next level."
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 126113885034296
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 746720907930141,
+											"parameters": {
+												"seconds": "1.0",
+												"use-timescale": false
+											}
+										},
+										{
+											"id": "set-time-scale",
+											"objectClass": "System",
+											"sid": 522366387970274,
+											"parameters": {
+												"time-scale": "1.0"
+											}
+										},
+										{
+											"callFunction": "stopBGM",
+											"sid": 120735049624835
+										},
+										{
+											"id": "restart-layout",
+											"objectClass": "System",
+											"sid": 254745475826215
+										}
+									],
+									"sid": 409698429896299
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Display shop UI."
+						},
+						{
+							"functionName": "displayShopUI",
+							"functionDescription": "Display shop UI",
+							"functionCategory": "Shop",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"bookmark": true,
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Stop all sound effects."
+								},
+								{
+									"callFunction": "stopAllSFX",
+									"sid": 914878968068771
+								},
+								{
+									"type": "comment",
+									"text": "Change BGM volume."
+								},
+								{
+									"callFunction": "BGMVolume",
+									"sid": 214457857569596,
+									"parameters": [
+										true
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Reset shop button states."
+								},
+								{
+									"callFunction": "resetShopButtonsState",
+									"sid": 127696111842895
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 418233306138261,
+									"parameters": {
+										"variable": "shopButtonSelected",
+										"value": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Stop all timers."
+								},
+								{
+									"id": "stop-all-timers",
+									"objectClass": "GameManager",
+									"sid": 878488968702299,
+									"behaviorType": "Timer"
+								},
+								{
+									"type": "comment",
+									"text": "Update shop UI."
+								},
+								{
+									"callFunction": "updateShopUI",
+									"sid": 643403521939412
+								},
+								{
+									"type": "comment",
+									"text": "Set balance."
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextUpgradePoints",
+									"sid": 563239197917706,
+									"parameters": {
+										"text": "\"[outlineBack=#000000][lineThickness=4]Balance: $\" & playerScore"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Pause the game."
+								},
+								{
+									"id": "set-time-scale",
+									"objectClass": "System",
+									"sid": 593949461364288,
+									"parameters": {
+										"time-scale": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Unpause relevant objects."
+								},
+								{
+									"id": "set-object-time-scale",
+									"objectClass": "System",
+									"sid": 653436489938333,
+									"parameters": {
+										"object": "Fader",
+										"time-scale": "1.0"
+									}
+								},
+								{
+									"id": "set-object-time-scale",
+									"objectClass": "System",
+									"sid": 313276584866271,
+									"parameters": {
+										"object": "GameManager",
+										"time-scale": "1.0"
+									}
+								},
+								{
+									"id": "set-object-time-scale",
+									"objectClass": "System",
+									"sid": 628053828097843,
+									"parameters": {
+										"object": "ButtonBuy",
+										"time-scale": "1.0"
+									}
+								},
+								{
+									"id": "set-object-time-scale",
+									"objectClass": "System",
+									"sid": 804373717344683,
+									"parameters": {
+										"object": "TextBuyItem",
+										"time-scale": "1.0"
+									}
+								},
+								{
+									"id": "set-object-time-scale",
+									"objectClass": "System",
+									"sid": 496436464287612,
+									"parameters": {
+										"object": "TextUpgradePoints",
+										"time-scale": "1.0"
+									}
+								},
+								{
+									"id": "set-object-time-scale",
+									"objectClass": "System",
+									"sid": 153918899868098,
+									"parameters": {
+										"object": "TimeBar",
+										"time-scale": "1.0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Animate shop."
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "GameManager",
+									"sid": 315085536066675,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShopUIOpacity\"",
+										"start-value": "0",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 531850100079837,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader80\"",
+										"property": "offsetOpacity",
+										"end-value": "80",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Change input focus."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 426729000721162,
+									"parameters": {
+										"variable": "inputFocus",
+										"value": "\"shop\""
+									}
+								}
+							],
+							"sid": 486415702596492,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the player is not on a mobile device, the first button starts selected."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 289311695932723,
+											"parameters": {
+												"variable": "mobileControls"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 644490833341529,
+											"parameters": {
+												"object": "ButtonBuy",
+												"expression": "ButtonBuy.buttonID = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation-frame",
+											"objectClass": "ButtonBuy",
+											"sid": 454393123910911,
+											"parameters": {
+												"frame-number": "1"
+											}
+										}
+									],
+									"sid": 163959233691089
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Change opacity of UI layers."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "GameManager",
+									"sid": 199860163667662,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShopUIOpacity\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-layer-opacity",
+									"objectClass": "System",
+									"sid": 393770210860744,
+									"parameters": {
+										"layer": "\"ShopUI\"",
+										"opacity": "GameManager.Tween.Value(\"ShopUIOpacity\")"
+									}
+								},
+								{
+									"id": "set-layer-opacity",
+									"objectClass": "System",
+									"sid": 167768710583333,
+									"parameters": {
+										"layer": "\"UI\"",
+										"opacity": "100 - GameManager.Tween.Value(\"ShopUIOpacity\")"
+									}
+								}
+							],
+							"sid": 515057266589766
+						},
+						{
+							"eventType": "comment",
+							"text": "Update shop UI."
+						},
+						{
+							"functionName": "updateShopUI",
+							"functionDescription": "Update shop UI",
+							"functionCategory": "Shop",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [],
+							"sid": 288724462629876,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "upgradeLevels",
+									"type": "string",
+									"initialValue": "0,0,0,0,0,0,0",
+									"comment": "Upgrade levels",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 630765987863624
+								},
+								{
+									"eventType": "comment",
+									"text": "Create upgrade levels array string."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 536955066926577,
+											"parameters": {
+												"variable": "upgradeLevels",
+												"value": "eLevelDrone & \",\" & eLevelBlaster & \",\" & eLevelSaucer & \",\" & eLevelRecon & \",\" & canRocket & \",\" & canLink & \",\" & canBounce"
+											}
+										}
+									],
+									"sid": 763702455788452
+								},
+								{
+									"eventType": "comment",
+									"text": "Set enemy upgrade prices."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 151014170156593,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "0",
+												"end-index": "3"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 422765142191493,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 359602594950047,
+													"parameters": {
+														"object": "TextBuyItem",
+														"expression": "TextBuyItem.textID = loopindex"
+													}
+												},
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 392392646399310,
+													"parameters": {
+														"object": "ButtonBuy",
+														"expression": "ButtonBuy.buttonID = loopindex"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 758751971976799,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Upgrade is sold out."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 705475079178367,
+															"parameters": {
+																"value": "int(tokenat(upgradeLevels, loopindex, \",\")) = 10"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-text",
+															"objectClass": "TextBuyItem",
+															"sid": 858108001928157,
+															"parameters": {
+																"text": "\"[outlineBack=#000000][lineThickness=4]SOLD OUT\" & newline & \"SOLD OUT\""
+															}
+														}
+													],
+													"sid": 734024502950613
+												},
+												{
+													"eventType": "comment",
+													"text": "Player can still upgrade the item."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 254163028409744
+														}
+													],
+													"actions": [
+														{
+															"id": "set-text",
+															"objectClass": "TextBuyItem",
+															"sid": 531064491422266,
+															"parameters": {
+																"text": "\"[outlineBack=#000000][lineThickness=4]Level \" & int(tokenat(upgradeLevels, loopindex, \",\")) + 1 & newline &\n\"$\" & Functions.computePrice(\"Enemy\", int(tokenat(upgradeLevels, loopindex, \",\")))"
+															}
+														}
+													],
+													"sid": 949712305037890
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Set player upgrade prices."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 116567336881204,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "4",
+												"end-index": "6"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 776532559475850,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 439777464867118,
+													"parameters": {
+														"object": "TextBuyItem",
+														"expression": "TextBuyItem.textID = loopindex"
+													}
+												},
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 721427563757563,
+													"parameters": {
+														"object": "ButtonBuy",
+														"expression": "ButtonBuy.buttonID = loopindex"
+													}
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 980808999046015,
+													"parameters": {
+														"value": "int(tokenat(upgradeLevels, loopindex, \",\")) = 1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-text",
+													"objectClass": "TextBuyItem",
+													"sid": 732318142800109,
+													"parameters": {
+														"text": "\"[outlineBack=#000000][lineThickness=4]SOLD OUT\" & newline & \"SOLD OUT\""
+													}
+												},
+												{
+													"id": "set-opacity",
+													"objectClass": "ButtonBuy",
+													"sid": 960243725188069,
+													"parameters": {
+														"opacity": "50"
+													}
+												}
+											],
+											"sid": 734753148011024
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Disable unavailable upgrades (max level or insufficient funds)."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 407539624948267,
+											"parameters": {
+												"object": "ButtonBuy"
+											}
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 840544671753890,
+											"parameters": {
+												"object": "TextBuyItem",
+												"expression": "TextBuyItem.textID = ButtonBuy.buttonID"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "ButtonBuy",
+											"sid": 113402926474558,
+											"parameters": {
+												"instance-variable": "buttonID",
+												"comparison": 1,
+												"value": "7"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 644842174953537,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Unavailable."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 538119308680122,
+													"parameters": {
+														"value": "find(TextBuyItem.Text, \"SOLD OUT\") <> -1"
+													}
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 930636482925493,
+													"parameters": {
+														"value": "int(tokenat(TextBuyItem.Text, 1, \"$\")) > playerScore"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-opacity",
+													"objectClass": "ButtonBuy",
+													"sid": 463849697321147,
+													"parameters": {
+														"opacity": "50"
+													}
+												}
+											],
+											"sid": 392199377011612,
+											"isOrBlock": true
+										},
+										{
+											"eventType": "comment",
+											"text": "Available."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 384435669270635
+												}
+											],
+											"actions": [
+												{
+													"id": "set-opacity",
+													"objectClass": "ButtonBuy",
+													"sid": 842285101280229,
+													"parameters": {
+														"opacity": "100"
+													}
+												}
+											],
+											"sid": 760451760256224
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Compute price for an upgrade."
+						},
+						{
+							"functionName": "computePrice",
+							"functionDescription": "Compute price for an upgrade",
+							"functionCategory": "Shop",
+							"functionReturnType": "number",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "type",
+									"type": "string",
+									"initialValue": "Enemy",
+									"comment": "Enemy upgrade or Player ugprade?",
+									"sid": 718041739531142
+								},
+								{
+									"name": "upgradeLevel",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Current upgrade level",
+									"sid": 943446483926859
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [],
+							"sid": 112254232482091,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "It's an enemy upgrade."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 541559591969798,
+											"parameters": {
+												"variable": "type",
+												"comparison": 0,
+												"value": "\"Enemy\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 285523816075060,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "First purchase of a specific upgrade."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 561663852346789,
+													"parameters": {
+														"value": "upgradeLevel = 0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-function-return-value",
+													"objectClass": "Functions",
+													"sid": 876140560420279,
+													"parameters": {
+														"value": "FIRST_PURCHASE"
+													}
+												}
+											],
+											"sid": 659860072911061
+										},
+										{
+											"eventType": "comment",
+											"text": "Subsequent purchases of a specific upgrade."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 434606682593354
+												}
+											],
+											"actions": [
+												{
+													"id": "set-function-return-value",
+													"objectClass": "Functions",
+													"sid": 898695851518606,
+													"parameters": {
+														"value": "BASE_PRICE + (upgradeLevel + 1) * LEVEL_TAX"
+													}
+												}
+											],
+											"sid": 620869589990837
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "It's a player upgrade, therefore can only be bought once."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 908542757518963
+										}
+									],
+									"actions": [
+										{
+											"id": "set-function-return-value",
+											"objectClass": "Functions",
+											"sid": 761937960974875,
+											"parameters": {
+												"value": "FIRST_PURCHASE"
+											}
+										}
+									],
+									"sid": 850003782944383
+								}
+							]
+						}
+					],
+					"sid": 549246565262704
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Upgrade Shop - Controls",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Reset shop buttons state."
+						},
+						{
+							"functionName": "resetShopButtonsState",
+							"functionDescription": "Reset shop buttons state",
+							"functionCategory": "Shop",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "ButtonBuy",
+									"sid": 686130557230832,
+									"parameters": {
+										"frame-number": "0"
+									}
+								}
+							],
+							"sid": 294430801983338
+						},
+						{
+							"eventType": "comment",
+							"text": "Perform action related to this button."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Perform Action",
+							"objectClass": "ButtonBuy",
+							"functionDescription": "Perform action related to this button",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 461391309002290,
+									"parameters": {
+										"object": "TextBuyItem",
+										"expression": "TextBuyItem.textID = ButtonBuy.buttonID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 505753776980216,
+									"parameters": [
+										"\"MenuConfirm\"",
+										"\"SFX\"",
+										"0",
+										"1"
+									]
+								}
+							],
+							"sid": 608240299678828,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Upgrade."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "ButtonBuy",
+											"sid": 857012922151947,
+											"parameters": {
+												"instance-variable": "buttonID",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 740330470714236,
+											"parameters": {
+												"variable": "eLevelDrone",
+												"value": "1"
+											}
+										},
+										{
+											"callFunction": "updatePlayerScore",
+											"sid": 249877781908283,
+											"parameters": [
+												"playerScore - int(tokenat(TextBuyItem.Text, 1, \"$\"))",
+												true,
+												true
+											]
+										}
+									],
+									"sid": 427451744387146
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "ButtonBuy",
+											"sid": 399558846784133,
+											"parameters": {
+												"instance-variable": "buttonID",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 668301350976356,
+											"parameters": {
+												"variable": "eLevelBlaster",
+												"value": "1"
+											}
+										},
+										{
+											"callFunction": "updatePlayerScore",
+											"sid": 770597416486952,
+											"parameters": [
+												"playerScore - int(tokenat(TextBuyItem.Text, 1, \"$\"))",
+												true,
+												true
+											]
+										}
+									],
+									"sid": 284411770760641
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "ButtonBuy",
+											"sid": 615236817982451,
+											"parameters": {
+												"instance-variable": "buttonID",
+												"comparison": 0,
+												"value": "2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 157280601654876,
+											"parameters": {
+												"variable": "eLevelSaucer",
+												"value": "1"
+											}
+										},
+										{
+											"callFunction": "updatePlayerScore",
+											"sid": 936282196899912,
+											"parameters": [
+												"playerScore - int(tokenat(TextBuyItem.Text, 1, \"$\"))",
+												true,
+												true
+											]
+										}
+									],
+									"sid": 656114947511769
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "ButtonBuy",
+											"sid": 392108074934870,
+											"parameters": {
+												"instance-variable": "buttonID",
+												"comparison": 0,
+												"value": "3"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 184823887630284,
+											"parameters": {
+												"variable": "eLevelRecon",
+												"value": "1"
+											}
+										},
+										{
+											"callFunction": "updatePlayerScore",
+											"sid": 382204586749519,
+											"parameters": [
+												"playerScore - int(tokenat(TextBuyItem.Text, 1, \"$\"))",
+												true,
+												true
+											]
+										}
+									],
+									"sid": 700511472419433
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "ButtonBuy",
+											"sid": 331741240914755,
+											"parameters": {
+												"instance-variable": "buttonID",
+												"comparison": 0,
+												"value": "4"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 414258143686075,
+											"parameters": {
+												"variable": "canRocket",
+												"value": "true"
+											}
+										},
+										{
+											"callFunction": "updatePlayerScore",
+											"sid": 766696064195422,
+											"parameters": [
+												"playerScore - int(tokenat(TextBuyItem.Text, 1, \"$\"))",
+												true,
+												true
+											]
+										}
+									],
+									"sid": 397657427523184,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If mobile controls are on, bring Rocket Jump button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 953047385525749,
+													"parameters": {
+														"variable": "mobileControls"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-x",
+													"objectClass": "ButtonRocket",
+													"sid": 219644203232053,
+													"parameters": {
+														"x": "Self.X - 1000"
+													}
+												}
+											],
+											"sid": 206688189387180
+										}
+									]
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "ButtonBuy",
+											"sid": 470722901391522,
+											"parameters": {
+												"instance-variable": "buttonID",
+												"comparison": 0,
+												"value": "5"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 106019680889263,
+											"parameters": {
+												"variable": "canLink",
+												"value": "true"
+											}
+										},
+										{
+											"callFunction": "updatePlayerScore",
+											"sid": 577507222093608,
+											"parameters": [
+												"playerScore - int(tokenat(TextBuyItem.Text, 1, \"$\"))",
+												true,
+												true
+											]
+										}
+									],
+									"sid": 267167239064840,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If mobile controls are on, bring Tesla Link button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 873658866813081,
+													"parameters": {
+														"variable": "mobileControls"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-x",
+													"objectClass": "ButtonLink",
+													"sid": 623351331387439,
+													"parameters": {
+														"x": "Self.X - 1000"
+													}
+												}
+											],
+											"sid": 827658357405327
+										}
+									]
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "ButtonBuy",
+											"sid": 261904320737450,
+											"parameters": {
+												"instance-variable": "buttonID",
+												"comparison": 0,
+												"value": "6"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 502250879269546,
+											"parameters": {
+												"variable": "canBounce",
+												"value": "true"
+											}
+										},
+										{
+											"callFunction": "updatePlayerScore",
+											"sid": 745335702734780,
+											"parameters": [
+												"playerScore - int(tokenat(TextBuyItem.Text, 1, \"$\"))",
+												true,
+												true
+											]
+										}
+									],
+									"sid": 553360458547171
+								},
+								{
+									"eventType": "comment",
+									"text": "Exit shop."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "ButtonBuy",
+											"sid": 215087401457437,
+											"parameters": {
+												"instance-variable": "buttonID",
+												"comparison": 0,
+												"value": "7"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "hideShopUI",
+											"sid": 599782528115219
+										}
+									],
+									"sid": 136937179789760
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Player can control the shop buttons when the shop is focused."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 433153094694204,
+									"parameters": {
+										"variable": "inputFocus",
+										"comparison": 0,
+										"value": "\"shop\""
+									}
+								},
+								{
+									"id": "is-playing",
+									"objectClass": "GameManager",
+									"sid": 895415051556536,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShopUIOpacity\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 774824300396312,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Left."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-key-pressed",
+											"objectClass": "Keyboard",
+											"sid": 557496259761102,
+											"parameters": {
+												"key": 37
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "resetShopButtonsState",
+											"sid": 140389365019322
+										},
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 686518419808786,
+											"parameters": [
+												"\"MenuSelect\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										}
+									],
+									"sid": 999247033057363,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Top row."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-eventvar",
+													"objectClass": "System",
+													"sid": 588234490823428,
+													"parameters": {
+														"variable": "shopButtonSelected",
+														"comparison": 2,
+														"value": "4"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 578777085070166,
+													"parameters": {
+														"variable": "shopButtonSelected",
+														"value": "max(shopButtonSelected - 1, 0)"
+													}
+												}
+											],
+											"sid": 115586231741964
+										},
+										{
+											"eventType": "comment",
+											"text": "Bottom row."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 176542787165794
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 170572967158113,
+													"parameters": {
+														"variable": "shopButtonSelected",
+														"value": "max(shopButtonSelected - 1, 4)"
+													}
+												}
+											],
+											"sid": 605091055983883
+										},
+										{
+											"eventType": "comment",
+											"text": "Update selected button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 474196182104602,
+													"parameters": {
+														"object": "ButtonBuy",
+														"expression": "ButtonBuy.buttonID = shopButtonSelected"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation-frame",
+													"objectClass": "ButtonBuy",
+													"sid": 979404755826822,
+													"parameters": {
+														"frame-number": "1"
+													}
+												}
+											],
+											"sid": 137053846148906
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Right."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-key-pressed",
+											"objectClass": "Keyboard",
+											"sid": 501540537999875,
+											"parameters": {
+												"key": 39
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "resetShopButtonsState",
+											"sid": 370861656229565
+										},
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 686518419808786,
+											"parameters": [
+												"\"MenuSelect\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										}
+									],
+									"sid": 770159074447280,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Top row."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-eventvar",
+													"objectClass": "System",
+													"sid": 273280247822895,
+													"parameters": {
+														"variable": "shopButtonSelected",
+														"comparison": 5,
+														"value": "4"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 906878795543476,
+													"parameters": {
+														"variable": "shopButtonSelected",
+														"value": "min(shopButtonSelected + 1, 7)"
+													}
+												}
+											],
+											"sid": 724103693012661
+										},
+										{
+											"eventType": "comment",
+											"text": "Bottom row."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 459444442833294
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 102911191611436,
+													"parameters": {
+														"variable": "shopButtonSelected",
+														"value": "min(shopButtonSelected + 1, 3)"
+													}
+												}
+											],
+											"sid": 883182702994307
+										},
+										{
+											"eventType": "comment",
+											"text": "Update selected button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 750317545629061,
+													"parameters": {
+														"object": "ButtonBuy",
+														"expression": "ButtonBuy.buttonID = shopButtonSelected"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation-frame",
+													"objectClass": "ButtonBuy",
+													"sid": 384595355913878,
+													"parameters": {
+														"frame-number": "1"
+													}
+												}
+											],
+											"sid": 787047425443856
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Down."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-key-pressed",
+											"objectClass": "Keyboard",
+											"sid": 591159228884500,
+											"parameters": {
+												"key": 40
+											}
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 352979076012441,
+											"parameters": {
+												"variable": "shopButtonSelected",
+												"comparison": 2,
+												"value": "4"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "resetShopButtonsState",
+											"sid": 318043231314043
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 856605481453722,
+											"parameters": {
+												"variable": "shopButtonSelected",
+												"value": "shopButtonSelected + 4"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 686518419808786,
+											"parameters": [
+												"\"MenuSelect\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										}
+									],
+									"sid": 792599373457662,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Update selected button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 271868626443024,
+													"parameters": {
+														"object": "ButtonBuy",
+														"expression": "ButtonBuy.buttonID = shopButtonSelected"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation-frame",
+													"objectClass": "ButtonBuy",
+													"sid": 510716060546633,
+													"parameters": {
+														"frame-number": "1"
+													}
+												}
+											],
+											"sid": 911476259263576
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Up."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-key-pressed",
+											"objectClass": "Keyboard",
+											"sid": 425368059913467,
+											"parameters": {
+												"key": 38
+											}
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 153489559187236,
+											"parameters": {
+												"variable": "shopButtonSelected",
+												"comparison": 5,
+												"value": "4"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "resetShopButtonsState",
+											"sid": 695972469216334
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 632328414443176,
+											"parameters": {
+												"variable": "shopButtonSelected",
+												"value": "shopButtonSelected - 4"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 686518419808786,
+											"parameters": [
+												"\"MenuSelect\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										}
+									],
+									"sid": 279498414119218,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Update selected button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 243412055347672,
+													"parameters": {
+														"object": "ButtonBuy",
+														"expression": "ButtonBuy.buttonID = shopButtonSelected"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation-frame",
+													"objectClass": "ButtonBuy",
+													"sid": 347947492911155,
+													"parameters": {
+														"frame-number": "1"
+													}
+												}
+											],
+											"sid": 170259274967426
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Confirm."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-key-pressed",
+											"objectClass": "Keyboard",
+											"sid": 544821565265154,
+											"parameters": {
+												"key": 32
+											}
+										},
+										{
+											"id": "on-key-pressed",
+											"objectClass": "Keyboard",
+											"sid": 458666297218237,
+											"parameters": {
+												"key": 13
+											}
+										}
+									],
+									"actions": [],
+									"sid": 171073200545943,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If button is enabled, purchase the upgrade."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 455624236932375,
+													"parameters": {
+														"object": "ButtonBuy",
+														"expression": "ButtonBuy.buttonID = shopButtonSelected"
+													}
+												},
+												{
+													"id": "compare-opacity",
+													"objectClass": "ButtonBuy",
+													"sid": 524161787655392,
+													"parameters": {
+														"comparison": 0,
+														"opacity": "100"
+													}
+												},
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 559581423715005,
+													"parameters": {
+														"object": "TextBuyItem",
+														"expression": "TextBuyItem.textID = ButtonBuy.buttonID"
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Perform Action",
+													"objectClass": "ButtonBuy",
+													"sid": 526396849502184
+												},
+												{
+													"callFunction": "updateShopUI",
+													"sid": 819834193996636
+												}
+											],
+											"sid": 784968156935678
+										}
+									],
+									"isOrBlock": true
+								},
+								{
+									"eventType": "comment",
+									"text": "Touch controls."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-touched-object",
+											"objectClass": "Touch",
+											"sid": 233411206674418,
+											"parameters": {
+												"object": "ButtonBuy",
+												"type": "start"
+											}
+										},
+										{
+											"id": "compare-opacity",
+											"objectClass": "ButtonBuy",
+											"sid": 958030437149248,
+											"parameters": {
+												"comparison": 0,
+												"opacity": "100"
+											}
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 486478565576149,
+											"parameters": {
+												"object": "TextBuyItem",
+												"expression": "TextBuyItem.textID = ButtonBuy.buttonID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "resetShopButtonsState",
+											"sid": 774785688402823
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "ButtonBuy",
+											"sid": 671849753454211,
+											"parameters": {
+												"frame-number": "1"
+											}
+										},
+										{
+											"customAction": "Perform Action",
+											"objectClass": "ButtonBuy",
+											"sid": 986633182393673
+										},
+										{
+											"callFunction": "updateShopUI",
+											"sid": 355191628418524
+										}
+									],
+									"sid": 987285177525477
+								}
+							]
+						}
+					],
+					"sid": 888025413521075
+				}
+			],
+			"sid": 617233822406560
+		}
+	],
+	"sid": 472138909288680
+}

@@ -1,0 +1,465 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Moving through flowchart",
+			"description": "These events handle the process of displaying each flowchart node and moving to the next node when an answer is chosen.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On startup, begin our questionnaire flowchart. This enters the start node."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 801950934713409
+						}
+					],
+					"actions": [
+						{
+							"id": "start-flowchart",
+							"objectClass": "FlowchartController",
+							"sid": 820368131980681,
+							"parameters": {
+								"flowchart-name": "Questionnaire",
+								"start-node-tag": "\"\"",
+								"flowchart-tag": "\"\"",
+								"set-as-current": true
+							}
+						}
+					],
+					"sid": 449801964958653
+				},
+				{
+					"eventType": "comment",
+					"text": "When entering any node, show the message, and either update the answer list or show a link depending on the kind of node."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-node-change",
+							"objectClass": "FlowchartController",
+							"sid": 888520539801505
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "AnswerText",
+							"sid": 705221949239568
+						},
+						{
+							"id": "destroy",
+							"objectClass": "AnswerBackground",
+							"sid": 124699984672501
+						},
+						{
+							"id": "set-text",
+							"objectClass": "QuestionText",
+							"sid": 478843009048545,
+							"parameters": {
+								"text": "FlowchartController.OutputValue(\"Message\")"
+							}
+						}
+					],
+					"sid": 902747742992063,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the node has an output named \"Option1\", treat it as a question with a list of answers."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "has-output",
+									"objectClass": "FlowchartController",
+									"sid": 116530565311454,
+									"parameters": {
+										"output-index-or-name": "\"Option1\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 249639170167122,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "List every answer in this node. The first output of the node is the message, so the number of answers is the number of outputs minus one. Repeat these actions that many times."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 887892412443277,
+											"parameters": {
+												"count": "FlowchartController.OutputCount - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Create the AnswerBackground, which is just a Tiled Background object. Move each answer down by 70 pixels, and save the output index in the background object's instance variable (as that is the object the user interacts with)."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 278813192899175,
+											"parameters": {
+												"object-to-create": "AnswerBackground",
+												"layer": "0",
+												"x": "AnswersPosition.X",
+												"y": "AnswersPosition.Y + loopindex * 70",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "AnswerBackground",
+											"sid": 310567236329920,
+											"parameters": {
+												"instance-variable": "OutputIndex",
+												"value": "loopindex + 1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Create a text object on the background with the answer text."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 689661590729278,
+											"parameters": {
+												"object-to-create": "AnswerText",
+												"layer": "0",
+												"x": "AnswerBackground.X + 5",
+												"y": "AnswerBackground.Y + 5",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "AnswerText",
+											"sid": 379372875822487,
+											"parameters": {
+												"text": "FlowchartController.OutputValue(loopindex + 1)"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Size the background to the size of the actual text in the text object."
+										},
+										{
+											"id": "set-size",
+											"objectClass": "AnswerBackground",
+											"sid": 678341608481760,
+											"parameters": {
+												"width": "AnswerText.TextWidth + 10",
+												"height": "AnswerText.TextHeight + 10"
+											}
+										}
+									],
+									"sid": 869102210550237
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the node does not have an output named \"Option1\", treat it as a link node, and show the \"Link\" output value."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 556313192220547
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "LinkText",
+									"sid": 684832712230370,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "LinkText",
+									"sid": 118975450963934,
+									"parameters": {
+										"text": "\"Visit [tag=link][color=blue][u]\" & FlowchartController.OutputValue(\"Link\") & \"[/u][/color][/tag]\""
+									}
+								}
+							],
+							"sid": 794843988401875
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When clicking on an answer's background, follow the output index saved in its instance variable. That will trigger 'On node entered' again for the next node, and so it will proceed through the flowchart."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 385524581532456,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "AnswerBackground"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "goto-next-flowchart-node",
+							"objectClass": "FlowchartController",
+							"sid": 881101155130649,
+							"parameters": {
+								"index-or-name": "AnswerBackground.OutputIndex"
+							}
+						}
+					],
+					"sid": 438684948511585
+				}
+			],
+			"sid": 629050439789507
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "User interface",
+			"description": "These events are just some user interface additions to help make the questionnaire easy to use.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Set a normal cursor and default grey answer background. If the mouse is over an answer, highlight it by changing to a yellow answer background. Use a hand cursor for the answer background or the URL part of the link text."
+				},
+				{
+					"eventType": "variable",
+					"name": "IsHandCursor",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 721857735258339
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 826638271229896
+						}
+					],
+					"actions": [
+						{
+							"id": "set-default-color",
+							"objectClass": "AnswerBackground",
+							"sid": 342925811911341,
+							"parameters": {
+								"color": "rgbEx(90, 90, 90)"
+							}
+						}
+					],
+					"sid": 638220983311162
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 664038212417844,
+							"parameters": {
+								"object": "AnswerBackground"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-default-color",
+							"objectClass": "AnswerBackground",
+							"sid": 615727723181005,
+							"parameters": {
+								"color": "rgbEx(100, 100, 0)"
+							}
+						},
+						{
+							"id": "set-cursor-style",
+							"objectClass": "Mouse",
+							"sid": 385923740109267,
+							"parameters": {
+								"cursor-style": "hand"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 383962460826588,
+							"parameters": {
+								"variable": "IsHandCursor",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 322020630733679
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "has-tag-at-position",
+							"objectClass": "LinkText",
+							"sid": 991440902816165,
+							"parameters": {
+								"tag": "\"link\"",
+								"x": "Mouse.X",
+								"y": "Mouse.Y"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-cursor-style",
+							"objectClass": "Mouse",
+							"sid": 267361632034074,
+							"parameters": {
+								"cursor-style": "hand"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 624279675539165,
+							"parameters": {
+								"variable": "IsHandCursor",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 477424970543239
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 379834079541753,
+							"parameters": {
+								"variable": "IsHandCursor"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-cursor-style",
+							"objectClass": "Mouse",
+							"sid": 931164186299388,
+							"parameters": {
+								"cursor-style": "normal"
+							}
+						}
+					],
+					"sid": 844840659498730
+				},
+				{
+					"eventType": "comment",
+					"text": "When clicking on the URL part of the link text, open the URL in a new window."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-click",
+							"objectClass": "Mouse",
+							"sid": 882899054197644,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked"
+							}
+						},
+						{
+							"id": "has-tag-at-position",
+							"objectClass": "LinkText",
+							"sid": 943699504362004,
+							"parameters": {
+								"tag": "\"link\"",
+								"x": "Mouse.X",
+								"y": "Mouse.Y"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "open-url-in-new-window",
+							"objectClass": "Browser",
+							"sid": 779118878442096,
+							"parameters": {
+								"url": "FlowchartController.OutputValue(\"Link\")",
+								"tag": "\"NewWindow\""
+							}
+						}
+					],
+					"sid": 788511541598510
+				},
+				{
+					"eventType": "comment",
+					"text": "The 'Restart' button hides any showing link and resets the flowchart, which will trigger 'On node entered' for the start node again, restarting the questionnaire."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "RestartButton",
+							"sid": 516581502678877
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-flowchart",
+							"objectClass": "FlowchartController",
+							"sid": 161433975876594
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "LinkText",
+							"sid": 343927148020562,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 104635754388735
+				}
+			],
+			"sid": 956895520433838
+		}
+	],
+	"sid": 902719830363836
+}

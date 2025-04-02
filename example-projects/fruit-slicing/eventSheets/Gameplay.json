@@ -1,0 +1,1839 @@
+{
+	"name": "Gameplay",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nTwitter: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup game."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 374060187598698
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Set initial speed to 100%."
+				},
+				{
+					"id": "set-time-scale",
+					"objectClass": "System",
+					"sid": 272526475019682,
+					"parameters": {
+						"time-scale": "1"
+					}
+				},
+				{
+					"id": "set-object-time-scale",
+					"objectClass": "System",
+					"sid": 710282999819104,
+					"parameters": {
+						"object": "GameManager",
+						"time-scale": "1.0"
+					}
+				},
+				{
+					"id": "set-object-time-scale",
+					"objectClass": "System",
+					"sid": 390509930948102,
+					"parameters": {
+						"object": "Fade",
+						"time-scale": "1.0"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Reset score."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 710534161523100,
+					"parameters": {
+						"variable": "Score",
+						"value": "0"
+					}
+				},
+				{
+					"callFunction": "UpdateScore",
+					"sid": 471970482988933
+				},
+				{
+					"type": "comment",
+					"text": "Setup gameplay variables. At the starting point, the player hasn't made the first interaction yet, can cut and the game is not over."
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 477235134503880,
+					"parameters": {
+						"variable": "FirstInteraction",
+						"value": "false"
+					}
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 829574325604446,
+					"parameters": {
+						"variable": "AllowPlayerToCut",
+						"value": "true"
+					}
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 303857012287998,
+					"parameters": {
+						"variable": "GameIsOver",
+						"value": "false"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Start fade from black to the gameplay screen."
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Fade",
+					"sid": 886478509537291,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeOut\"",
+						"property": "offsetOpacity",
+						"end-value": "0",
+						"time": "0.25",
+						"ease": "easeinsine",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				}
+			],
+			"sid": 603835213438241
+		},
+		{
+			"eventType": "comment",
+			"text": "The code below runs when the player touches the screen for the first time."
+		},
+		{
+			"eventType": "variable",
+			"name": "FirstInteraction",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Store if the player has already made the first interaction",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 490359186037039
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-nth-touch-start",
+					"objectClass": "Touch",
+					"sid": 934263332429314,
+					"parameters": {
+						"touch-number": "0"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 961382914849382,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 927998388809305,
+							"parameters": {
+								"value": "FirstInteraction = 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "The player has made the first interaction."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 979898367919190,
+							"parameters": {
+								"variable": "FirstInteraction",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Spawn an object (fruit or bomb)."
+						},
+						{
+							"callFunction": "SpawnObject",
+							"sid": 973658503610407
+						},
+						{
+							"type": "comment",
+							"text": "Start the object spawning loop."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 818731811256140,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.75",
+								"type": "regular",
+								"tag": "\"SpawnObject\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Remove instructions from the screen."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "InstructionsText",
+							"sid": 929424319941506,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SelfDestroy\"",
+								"property": "offsetY",
+								"end-value": "Self.Y - 1024",
+								"time": "1.5",
+								"ease": "easeinsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Allow the player to cut objects."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 127424131792133,
+							"parameters": {
+								"variable": "AllowPlayerToCut",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show blinking SLICE text to inform the player that the game has started."
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "SliceText",
+							"sid": 816036979582211,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "flash",
+							"objectClass": "SliceText",
+							"sid": 985433786346414,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.05",
+								"off-time": "0.05",
+								"duration": "1"
+							}
+						}
+					],
+					"sid": 413337562826351
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When the slice text stops flashing, it is destroyed, since it will no longer be used."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-flash-ended",
+					"objectClass": "SliceText",
+					"sid": 249924202441754,
+					"behaviorType": "Flash"
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "SliceText",
+					"sid": 636027399458162
+				}
+			],
+			"sid": 484586381956948
+		},
+		{
+			"eventType": "comment",
+			"text": "There is a 1/4 chance to spawn two objects at the same time."
+		},
+		{
+			"eventType": "variable",
+			"name": "DOUBLESPAWNRATE",
+			"type": "number",
+			"initialValue": "25",
+			"comment": "Chance to spawn two objects simultaneously (out of 100)",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 374612428621222
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 644845131194754,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"SpawnObject\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "SpawnObject",
+					"sid": 122818484333174
+				}
+			],
+			"sid": 345516480749545,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 588368934980288,
+							"parameters": {
+								"value": "random(0, 100) < DOUBLESPAWNRATE"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SpawnObject",
+							"sid": 518869653475134
+						}
+					],
+					"sid": 417647637583989
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Effectively spawn an object."
+		},
+		{
+			"eventType": "variable",
+			"name": "BOMBSPAWNRATE",
+			"type": "number",
+			"initialValue": "25",
+			"comment": "Chance to spawn a bomb (out of 100)",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 538676322217782
+		},
+		{
+			"eventType": "variable",
+			"name": "SCREENHORIZONTALMARGIN",
+			"type": "number",
+			"initialValue": "480",
+			"comment": "Horizontal threshold that objects can spawn",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 448719003197338
+		},
+		{
+			"functionName": "SpawnObject",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 186046704387984,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "RotationDirection",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "To which direction (clokwise or counter-clockwise) the object will rotate",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 483124694352404
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Create the object."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 618175318486659,
+							"parameters": {
+								"object-to-create": "Object",
+								"layer": "\"World\"",
+								"x": "random(SCREENHORIZONTALMARGIN, LayoutWidth - SCREENHORIZONTALMARGIN)",
+								"y": "1208",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set a random initial angle."
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Object",
+							"sid": 637503852702389,
+							"parameters": {
+								"angle": "random(0, 360)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Define the composite direction of movement by setting the movement vectors. Object starts being launched upwards to a random lateral direction."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Object",
+							"sid": 155361347239083,
+							"parameters": {
+								"instance-variable": "VectorX",
+								"value": "random(-8, 8)"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Object",
+							"sid": 243173900936635,
+							"parameters": {
+								"instance-variable": "VectorY",
+								"value": "random(-32, -48)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Select the direction and rotation speed."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 641083344820378,
+							"parameters": {
+								"variable": "RotationDirection",
+								"value": "choose(-1, 1)"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Object",
+							"sid": 830098092128956,
+							"parameters": {
+								"instance-variable": "RotationSpeed",
+								"value": "RotationDirection * random(2.5, 5)"
+							}
+						}
+					],
+					"sid": 204898515667182,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "There is a 1/4 chance to spawn a bomb instead of a fruit."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 179543536245905,
+									"parameters": {
+										"value": "random(0, 100) < BombSpawnRate"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Object",
+									"sid": 133430511117514,
+									"parameters": {
+										"animation": "\"Bomb\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 623961808041701
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Move the objects and check if they fell out of the screen."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 257473980432506,
+					"parameters": {
+						"object": "Object"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Use the defined vectors to compose the final movement for this frame."
+				},
+				{
+					"id": "set-position",
+					"objectClass": "Object",
+					"sid": 448459253739148,
+					"parameters": {
+						"x": "Self.X + Self.VectorX * 60 * dt",
+						"y": "Self.Y + Self.VectorY * 60 * dt"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Apply rotation for this frame."
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "Object",
+					"sid": 650310500071320,
+					"parameters": {
+						"angle": "Self.Angle + Self.RotationSpeed * 60 * dt"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Emulate gravity by slowly updating the Y speed to drag the object down."
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Object",
+					"sid": 285332170170428,
+					"parameters": {
+						"instance-variable": "VectorY",
+						"value": "Functions.MoveValueTowardsAnotherValue(Self.VectorY, 128, 1)"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Decrease the rotation speed over time."
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Object",
+					"sid": 933796269459433,
+					"parameters": {
+						"instance-variable": "RotationSpeed",
+						"value": "Functions.MoveValueTowardsAnotherValue(Self.RotationSpeed, 0, 0.05)"
+					}
+				}
+			],
+			"sid": 914434755327669,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the object's Y coordinate is at LayoutHeight + 512, it is considered to be outside the playable area."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 609667022111238,
+							"parameters": {
+								"value": "Object.Y >= LayoutHeight + 512"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 991493050387801,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If it is an orange, destroy it and call game over procedure."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 444820885177361,
+									"parameters": {
+										"value": "Object.AnimationName = \"Orange\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Object",
+									"sid": 518135743794453
+								},
+								{
+									"callFunction": "GameOver",
+									"sid": 443078332904092
+								}
+							],
+							"sid": 699515301067379
+						},
+						{
+							"eventType": "comment",
+							"text": "If it is a bomb, nothing happens apart from it being destroyed."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 619643258805885
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 718763199602209,
+									"parameters": {
+										"value": "Object.AnimationName = \"Bomb\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Object",
+									"sid": 432714855588150
+								}
+							],
+							"sid": 713391946959599
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Every time the player touches the screen, update the previous position variables to the current touch position."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-nth-touch-start",
+					"objectClass": "Touch",
+					"sid": 637058681361175,
+					"parameters": {
+						"touch-number": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 559672453154185,
+					"parameters": {
+						"variable": "PreviousX",
+						"value": "Touch.X"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 434687348452346,
+					"parameters": {
+						"variable": "PreviousY",
+						"value": "Touch.Y"
+					}
+				}
+			],
+			"sid": 716057685435893
+		},
+		{
+			"eventType": "variable",
+			"name": "AllowPlayerToCut",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "This variable marks if the player's slice is big enough to cut an object",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 681981690400466
+		},
+		{
+			"eventType": "variable",
+			"name": "PreviousX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Previous touch X position",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 196202523884475
+		},
+		{
+			"eventType": "variable",
+			"name": "PreviousY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Previous touch Y position",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 473601714248489
+		},
+		{
+			"eventType": "comment",
+			"text": "Check if the touch is still being performed."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "has-nth-touch",
+					"objectClass": "Touch",
+					"sid": 533073703432979,
+					"parameters": {
+						"touch-number": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Create the Blade object. This object represents the slice performed by the player. It starts at the initial touch position."
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 886413432592549,
+					"parameters": {
+						"object-to-create": "Blade",
+						"layer": "\"UserInterface\"",
+						"x": "PreviousX",
+						"y": "PreviousY",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Set the blade angle towards the current touch input and its size as the distance between the origin and the touch."
+				},
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "Blade",
+					"sid": 725665812883424,
+					"parameters": {
+						"x": "Touch.X",
+						"y": "Touch.Y"
+					}
+				},
+				{
+					"id": "set-size",
+					"objectClass": "Blade",
+					"sid": 948312809916877,
+					"parameters": {
+						"width": "distance(Self.X, Self.Y, Touch.X, Touch.Y)",
+						"height": "32"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Update touch coordinates."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 900287556652738,
+					"parameters": {
+						"variable": "PreviousX",
+						"value": "Touch.X"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 511641256261348,
+					"parameters": {
+						"variable": "PreviousY",
+						"value": "Touch.Y"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Create a \"BladeSmoother\" object so that the cuts are not so sharp in the corners."
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 524871082476258,
+					"parameters": {
+						"object-to-create": "BladeSmoother",
+						"layer": "\"UserInterface\"",
+						"x": "Blade.ImagePointX(\"Tip\")",
+						"y": "Blade.ImagePointY(\"Tip\")",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "BladeSmoother",
+					"sid": 855520831672706,
+					"parameters": {
+						"angle": "Blade.Angle"
+					}
+				},
+				{
+					"id": "set-size",
+					"objectClass": "BladeSmoother",
+					"sid": 473435623856602,
+					"parameters": {
+						"width": "Blade.Height",
+						"height": "Blade.Height"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Both the Blade and BladeSmoother are destroyed after a brief interval."
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Blade",
+					"sid": 924991262475346,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"SelfDestroy\"",
+						"property": "offsetHeight",
+						"end-value": "0",
+						"time": "0.25",
+						"ease": "easeinsine",
+						"destroy-on-complete": "yes",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"id": "tween-two-properties",
+					"objectClass": "BladeSmoother",
+					"sid": 337218631289455,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"SelfDestroy\"",
+						"property": "size",
+						"end-x": "0",
+						"end-y": "0",
+						"time": "0.25",
+						"ease": "easeinsine",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Move UI elements to the top of the layer so they are always visible."
+				},
+				{
+					"id": "move-to-top",
+					"objectClass": "InstructionsText",
+					"sid": 669326462079288
+				},
+				{
+					"id": "move-to-top",
+					"objectClass": "SliceText",
+					"sid": 636830690208135
+				},
+				{
+					"id": "move-to-top",
+					"objectClass": "ScoreText",
+					"sid": 484532831661707
+				},
+				{
+					"id": "move-to-top",
+					"objectClass": "Fade",
+					"sid": 754247568172624
+				}
+			],
+			"sid": 827279641255216,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "A slice is only valid if its size is over 8 pixels. This is done to prohibit the player from just clicking the object to cut it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 789010303571074,
+							"parameters": {
+								"value": "AllowPlayerToCut = 1 & Blade.Width >= 8"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 546817410818862,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the blade collides with the object, disable the object collisions, rotate it to match the blade angle and destroy it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Blade",
+									"sid": 215778262733562,
+									"parameters": {
+										"object": "Object"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-collisions-enabled",
+									"objectClass": "Object",
+									"sid": 853496289432021,
+									"parameters": {
+										"collisions": "disabled"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Object",
+									"sid": 306944082997128,
+									"parameters": {
+										"angle": "Blade.Angle"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "Object",
+									"sid": 926637025403550
+								}
+							],
+							"sid": 821678829095029,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Spawn two halves where the object was destroyed following the same angle. This makes so that the object is cut in the direction of the slice."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 217963190358297,
+											"parameters": {
+												"count": "2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 272931958268610,
+											"parameters": {
+												"object-to-create": "HalfObject",
+												"layer": "\"World\"",
+												"x": "Object.X",
+												"y": "Object.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "move-to-object",
+											"objectClass": "HalfObject",
+											"sid": 545895647200325,
+											"parameters": {
+												"where": "behind",
+												"object": "Object"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "HalfObject",
+											"sid": 533590498643660,
+											"parameters": {
+												"animation": "Object.AnimationName",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "HalfObject",
+											"sid": 599577918494123,
+											"parameters": {
+												"angle": "Object.Angle"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "HalfObject",
+											"sid": 944968652304303,
+											"parameters": {
+												"frame-number": "loopindex"
+											}
+										}
+									],
+									"sid": 600019557205132,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Set the rotation direction of the half being processed."
+										},
+										{
+											"eventType": "variable",
+											"name": "RotationDirection",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 350667555318703
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 726133349593949,
+													"parameters": {
+														"value": "loopindex = 0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 497293170134866,
+													"parameters": {
+														"variable": "RotationDirection",
+														"value": "-1"
+													}
+												}
+											],
+											"sid": 571494962812586
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 390361523928367
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 534893746511345,
+													"parameters": {
+														"value": "loopindex = 1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 841800802840518,
+													"parameters": {
+														"variable": "RotationDirection",
+														"value": "1"
+													}
+												}
+											],
+											"sid": 502448154282934
+										},
+										{
+											"eventType": "comment",
+											"text": "Set the movement vectors of the half being processed."
+										},
+										{
+											"eventType": "variable",
+											"name": "RandomForce",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 168327552073292
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 798665733955466,
+													"parameters": {
+														"variable": "RandomForce",
+														"value": "random(16, 32)"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Define X and Y vectors to composite a full movement."
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "HalfObject",
+													"sid": 337574290553548,
+													"parameters": {
+														"instance-variable": "VectorX",
+														"value": "cos(Self.Angle + RotationDirection * 90) * RandomForce"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "HalfObject",
+													"sid": 856949332195648,
+													"parameters": {
+														"instance-variable": "VectorY",
+														"value": "sin(Self.Angle + RotationDirection * 90) * RandomForce"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Set the rotation speed to a random value following the random direction previously selected."
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "HalfObject",
+													"sid": 737810175367886,
+													"parameters": {
+														"instance-variable": "RotationSpeed",
+														"value": "RotationDirection * random(5, 10)"
+													}
+												}
+											],
+											"sid": 400476987238867
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Orange has been sliced."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 287842206465669,
+											"parameters": {
+												"value": "Object.AnimationName = \"Orange\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Spawn juice particles behind the fruit."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 847796242233584,
+											"parameters": {
+												"object-to-create": "JuiceParticles",
+												"layer": "\"World\"",
+												"x": "Object.X + cos(Object.Angle + 180) * 128",
+												"y": "Object.Y + sin(Object.Angle + 180) * 128",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "JuiceParticles",
+											"sid": 335243858698030,
+											"parameters": {
+												"angle": "Object.Angle"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Add 1 to score and update the text."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 185412883636498,
+											"parameters": {
+												"variable": "Score",
+												"value": "Score + 1"
+											}
+										},
+										{
+											"callFunction": "UpdateScore",
+											"sid": 409760310219270
+										},
+										{
+											"type": "comment",
+											"text": "Set a timer to draw the juice particles in the drawing canvas."
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "JuiceParticles",
+											"sid": 482108457887358,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.5",
+												"type": "once",
+												"tag": "\"Paste\""
+											}
+										}
+									],
+									"sid": 105585844280487
+								},
+								{
+									"eventType": "comment",
+									"text": "Bomb has been sliced"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 767716655190053
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 770338087946792,
+											"parameters": {
+												"value": "Object.AnimationName = \"Bomb\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Spawn smoke and fire particles."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 524903201604811,
+											"parameters": {
+												"object-to-create": "SmokeParticle",
+												"layer": "\"World\"",
+												"x": "Object.X",
+												"y": "Object.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 937632000932832,
+											"parameters": {
+												"object-to-create": "FireParticles",
+												"layer": "\"World\"",
+												"x": "Object.X",
+												"y": "Object.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "If a bomb is sliced, it is game over."
+										},
+										{
+											"callFunction": "GameOver",
+											"sid": 422374577974665
+										}
+									],
+									"sid": 340555968889889
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Update halves state every frame"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 767593508602387,
+					"parameters": {
+						"object": "HalfObject"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Update the position according to movement vectors."
+				},
+				{
+					"id": "set-position",
+					"objectClass": "HalfObject",
+					"sid": 537915230304992,
+					"parameters": {
+						"x": "Self.X + Self.VectorX * 60 * dt",
+						"y": "Self.Y + Self.VectorY * 60 * dt"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Update the angle according to current rotation."
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "HalfObject",
+					"sid": 628050479615365,
+					"parameters": {
+						"angle": "Self.Angle + Self.RotationSpeed * 60 * dt"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Every half starts with 200% luminosity. This is updated over time to eventually reach normal levels of brightness (100%)."
+				},
+				{
+					"id": "set-effect-parameter",
+					"objectClass": "HalfObject",
+					"sid": 131530993626995,
+					"parameters": {
+						"effect": "\"AdjustHSL\"",
+						"parameter-index": "2",
+						"value": "Self.Luminosity"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Update the movement vectors."
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "HalfObject",
+					"sid": 238728839071768,
+					"parameters": {
+						"instance-variable": "VectorX",
+						"value": "Functions.MoveValueTowardsAnotherValue(Self.VectorX, 0, 0.5)"
+					}
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "HalfObject",
+					"sid": 943169978797953,
+					"parameters": {
+						"instance-variable": "VectorY",
+						"value": "Functions.MoveValueTowardsAnotherValue(Self.VectorY, 128, 1)"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Update the rotation speed."
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "HalfObject",
+					"sid": 459059470805266,
+					"parameters": {
+						"instance-variable": "RotationSpeed",
+						"value": "Functions.MoveValueTowardsAnotherValue(Self.RotationSpeed, 0, 0.05)"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Bring luminosity to 100% over time."
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "HalfObject",
+					"sid": 134420508273174,
+					"parameters": {
+						"instance-variable": "Luminosity",
+						"value": "Functions.MoveValueTowardsAnotherValue(Self.Luminosity, 100, 10)"
+					}
+				}
+			],
+			"sid": 464030287203916,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Just like the other objects, when a half falls of the playable area, it is destroyed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 823381005339569,
+							"parameters": {
+								"value": "HalfObject.Y >= LayoutHeight + 512"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "HalfObject",
+							"sid": 399986282552715
+						}
+					],
+					"sid": 511700425087449
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Draw the juice particles in the drawing canvas."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "JuiceParticles",
+					"sid": 495145094983137,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Paste\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "paste-object",
+					"objectClass": "DrawingCanvas",
+					"sid": 340345910304742,
+					"parameters": {
+						"object": "JuiceParticles",
+						"effects": "with-effects"
+					}
+				}
+			],
+			"sid": 353812027263972
+		},
+		{
+			"eventType": "comment",
+			"text": "When ResetGame is triggered, restart the layout."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 577568351302437,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"ResetGame\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 682338070762121
+				}
+			],
+			"sid": 976961699171261
+		},
+		{
+			"eventType": "comment",
+			"text": "Update player's score text."
+		},
+		{
+			"eventType": "variable",
+			"name": "Score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 157123381320863
+		},
+		{
+			"functionName": "UpdateScore",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Write the score using a padding of 3 zeroes."
+				},
+				{
+					"id": "set-text",
+					"objectClass": "ScoreText",
+					"sid": 446077338921222,
+					"parameters": {
+						"text": "zeropad(Score, 3)"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Flash the score when it is updated."
+				},
+				{
+					"id": "flash",
+					"objectClass": "ScoreText",
+					"sid": 462329811319720,
+					"behaviorType": "Flash",
+					"parameters": {
+						"on-time": "0.05",
+						"off-time": "0.05",
+						"duration": "0.5"
+					}
+				}
+			],
+			"sid": 604355320776948
+		},
+		{
+			"eventType": "comment",
+			"text": "Game over procedure."
+		},
+		{
+			"eventType": "variable",
+			"name": "GameIsOver",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 514787006097896
+		},
+		{
+			"functionName": "GameOver",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 777412358918703,
+					"parameters": {
+						"value": "GameIsOver = 0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Mark game as over."
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 179569402999035,
+					"parameters": {
+						"variable": "GameIsOver",
+						"value": "true"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Disable player cuts."
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 599109215498498,
+					"parameters": {
+						"variable": "AllowPlayerToCut",
+						"value": "false"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Put the game in slow motion for a dramatic effect."
+				},
+				{
+					"id": "set-time-scale",
+					"objectClass": "System",
+					"sid": 208296286493156,
+					"parameters": {
+						"time-scale": "0.1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Start reset timer."
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "GameManager",
+					"sid": 774571013963534,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "2",
+						"type": "once",
+						"tag": "\"ResetGame\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Fade out to black."
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Fade",
+					"sid": 882034746971630,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeIn\"",
+						"property": "offsetOpacity",
+						"end-value": "100",
+						"time": "2",
+						"ease": "easeoutsine",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				}
+			],
+			"sid": 809635678337878
+		},
+		{
+			"eventType": "comment",
+			"text": "Gradually moves a value towards another value using a speed parameter."
+		},
+		{
+			"functionName": "MoveValueTowardsAnotherValue",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "number",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "CurrentValue",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 611495538121550
+				},
+				{
+					"name": "TargetValue",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 510383587235958
+				},
+				{
+					"name": "Speed",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 638823528209298
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 629568992191537,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The direction in which the current value needs to move at in order to reach the target value."
+				},
+				{
+					"eventType": "variable",
+					"name": "Direction",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 452351392680279
+				},
+				{
+					"eventType": "comment",
+					"text": "Calculate the direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 162147909575566,
+							"parameters": {
+								"variable": "Direction",
+								"value": "sign(TargetValue - CurrentValue )"
+							}
+						}
+					],
+					"sid": 736525657223379
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value is higher than the target value, use the target value as the minimum clamp parameter."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 447731354921636,
+							"parameters": {
+								"value": "CurrentValue > TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 963850561137512,
+							"parameters": {
+								"value": "clamp(CurrentValue + Direction * abs(Speed) * 60 * dt, TargetValue, Infinity)"
+							}
+						}
+					],
+					"sid": 906215233337070
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value is lower than the target value, use the target value as the maximum clamp parameter."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 880684047691957
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 803777655353687,
+							"parameters": {
+								"value": "CurrentValue < TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 192384831207851,
+							"parameters": {
+								"value": "clamp(CurrentValue + Direction * abs(Speed) * 60 * dt, -Infinity, TargetValue)"
+							}
+						}
+					],
+					"sid": 518273448121927
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value equals the target value, simply return the target value."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 332717435883103
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 892828448659234,
+							"parameters": {
+								"value": "CurrentValue = TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 540987783420651,
+							"parameters": {
+								"value": "TargetValue"
+							}
+						}
+					],
+					"sid": 798707165154560
+				}
+			]
+		}
+	],
+	"sid": 509311669177824
+}

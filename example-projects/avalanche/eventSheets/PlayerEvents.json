@@ -1,0 +1,4912 @@
+{
+	"name": "PlayerEvents",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Actions",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player has died."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Die",
+					"objectClass": "Player",
+					"functionDescription": "Player has died",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Stop the BGM."
+						},
+						{
+							"callFunction": "stopBGM",
+							"sid": 707852221308044
+						},
+						{
+							"type": "comment",
+							"text": "Mark player as dead."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 184023773180381,
+							"parameters": {
+								"instance-variable": "dead",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Stop movement."
+						},
+						{
+							"id": "stop",
+							"objectClass": "Player",
+							"sid": 783040605673379,
+							"behaviorType": "8Direction"
+						},
+						{
+							"type": "comment",
+							"text": "Set animation to death."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerTextures",
+							"sid": 327806591640083,
+							"parameters": {
+								"animation": "\"Death\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Remove any remaining life bar."
+						},
+						{
+							"id": "set-width",
+							"objectClass": "PlayerLifeBar",
+							"sid": 199429054222557,
+							"parameters": {
+								"width": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Remove all items."
+						},
+						{
+							"id": "set-key",
+							"objectClass": "DictProfile",
+							"sid": 977727506714968,
+							"parameters": {
+								"key": "\"0\"",
+								"value": "\"Empty\""
+							}
+						},
+						{
+							"id": "set-key",
+							"objectClass": "DictProfile",
+							"sid": 540905440356021,
+							"parameters": {
+								"key": "\"1\"",
+								"value": "\"Empty\""
+							}
+						},
+						{
+							"id": "set-key",
+							"objectClass": "DictProfile",
+							"sid": 165088607911524,
+							"parameters": {
+								"key": "\"2\"",
+								"value": "\"Empty\""
+							}
+						},
+						{
+							"callFunction": "saveProfile",
+							"sid": 186788427948254
+						},
+						{
+							"type": "comment",
+							"text": "Wait a little, then restart the layout."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 437266669681521,
+							"parameters": {
+								"seconds": "2",
+								"use-timescale": true
+							}
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 105245953848200
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 826884773495565,
+							"parameters": {
+								"reset-static": true
+							}
+						}
+					],
+					"sid": 312015161564604
+				},
+				{
+					"eventType": "comment",
+					"text": "Player was hit by something."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Hit",
+					"objectClass": "Player",
+					"functionDescription": "Player was hit by something",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "damage",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "How much damage player took",
+							"sid": 977134238195284
+						}
+					],
+					"eventType": "custom-ace-block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 219828343764884,
+							"parameters": {
+								"instance-variable": "dead"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-timer-running",
+							"objectClass": "Player",
+							"sid": 725649542186417,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Immune\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Play sound."
+						},
+						{
+							"callFunction": "playSFX",
+							"sid": 335375921729273,
+							"parameters": [
+								"\"hit\"",
+								"\"PHit\"",
+								"-11",
+								"random(1.5, 1.8)"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Damage player."
+						},
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "Player",
+							"sid": 906803516201552,
+							"parameters": {
+								"instance-variable": "hp",
+								"value": "damage * abs(invincible - 1)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Uncloak player."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 174690431354083,
+							"parameters": {
+								"instance-variable": "cloaked",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Flash player."
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "Player",
+							"sid": 881903975921077,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerFlash\"",
+								"start-value": "100",
+								"end-value": "150",
+								"time": "0.075",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make player immune for a brief period, so that they don't get hit multiple times by the same hit."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Player",
+							"sid": 276154658870491,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.6",
+								"type": "once",
+								"tag": "\"Immune\""
+							}
+						},
+						{
+							"id": "flash",
+							"objectClass": "PlayerBillboard",
+							"sid": 120018509634020,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.1",
+								"off-time": "0.1",
+								"duration": "0.6"
+							}
+						},
+						{
+							"id": "flash",
+							"objectClass": "PlayerShadow",
+							"sid": 828602081471445,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.1",
+								"off-time": "0.1",
+								"duration": "0.6"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update lifebar."
+						},
+						{
+							"id": "set-width",
+							"objectClass": "PlayerLifeBar",
+							"sid": 256021308399645,
+							"parameters": {
+								"width": "max(Player.hp / Player.maxHp * Self.ImageWidth, 0)"
+							}
+						}
+					],
+					"sid": 818526339560425,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player died."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Player",
+									"sid": 462682699720217,
+									"parameters": {
+										"instance-variable": "hp",
+										"comparison": 3,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Die",
+									"objectClass": "Player",
+									"sid": 345944395404969
+								}
+							],
+							"sid": 764527889664232
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Flash the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Player",
+							"sid": 424194380061428,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerFlash\""
+							}
+						},
+						{
+							"id": "pick-children",
+							"objectClass": "Player",
+							"sid": 525898198655665,
+							"parameters": {
+								"child": "PlayerBillboard",
+								"which": "own"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "PlayerBillboard",
+							"sid": 951734433440267,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Player.Tween.Value(\"PlayerFlash\")"
+							}
+						}
+					],
+					"sid": 841129006141937
+				},
+				{
+					"eventType": "comment",
+					"text": "Use an item from the inventory."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Use item",
+					"objectClass": "Player",
+					"functionDescription": "Use an item from the inventory",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 621886763048889,
+							"parameters": {
+								"instance-variable": "performingAction"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 136364387633886,
+							"parameters": {
+								"instance-variable": "dead"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-timer-running",
+							"objectClass": "Player",
+							"sid": 489770682992424,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"itemCooldown\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 926580965308727,
+							"parameters": {
+								"instance-variable": "onGround"
+							}
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 742205511121257,
+							"parameters": {
+								"object": "InventorySlot",
+								"expression": "InventorySlot.slotID = InventorySelector.selected"
+							}
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "InventorySlot",
+							"sid": 193091433504593,
+							"parameters": {
+								"animation": "\"Empty\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 172125278346009,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "itemName",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Name of the used item",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 617056025105265
+						},
+						{
+							"eventType": "comment",
+							"text": "Set item name."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 287421533537971,
+									"parameters": {
+										"variable": "itemName",
+										"value": "DictProfile.Get(str(InventorySelector.selected))"
+									}
+								}
+							],
+							"sid": 306033002210622
+						},
+						{
+							"eventType": "comment",
+							"text": "Item animation and removal should be player for all items, except for the key."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 603514063916196,
+									"parameters": {
+										"variable": "itemName",
+										"comparison": 1,
+										"value": "\"Key\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Setup player angle."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 590609364191163,
+									"parameters": {
+										"instance-variable": "currentAngle",
+										"value": "90"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "PlayerAoE",
+									"sid": 639005559539646,
+									"parameters": {
+										"angle": "Player.currentAngle"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Block the player from using items for a brief period of time."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 274919408353875,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "Self.itemCooldown",
+										"type": "once",
+										"tag": "\"itemCooldown\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Player is using an item."
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 903256498511414,
+									"parameters": {
+										"instance-variable": "performingAction",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play animation and lock the player for a while."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerTextures",
+									"sid": 547172530607426,
+									"parameters": {
+										"animation": "\"Item\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 535196822682687,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "0.5",
+										"type": "once",
+										"tag": "\"unlockPlayer\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set item name."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 344261662324869,
+									"parameters": {
+										"variable": "itemName",
+										"value": "DictProfile.Get(str(InventorySelector.selected))"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Consume item."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "InventorySlot",
+									"sid": 165019138600667,
+									"parameters": {
+										"animation": "\"Empty\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextInventory",
+									"sid": 179081763134589,
+									"parameters": {
+										"text": "\"EMPTY\""
+									}
+								},
+								{
+									"id": "set-key",
+									"objectClass": "DictProfile",
+									"sid": 931345429210448,
+									"parameters": {
+										"key": "str(InventorySelector.selected)\n",
+										"value": "\"Empty\""
+									}
+								}
+							],
+							"sid": 434598883714787
+						},
+						{
+							"eventType": "comment",
+							"text": "Health potion."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 137347697349943,
+									"parameters": {
+										"variable": "itemName",
+										"comparison": 0,
+										"value": "\"HPPotion\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 838258324871350,
+									"parameters": [
+										"\"health_potion\"",
+										"\"PHealth\"",
+										"-7",
+										"1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Create health effect."
+								},
+								{
+									"callFunction": "createFX",
+									"sid": 330230631758935,
+									"parameters": [
+										"\"Billboard\"",
+										"\"PlayerHPPotion\"",
+										"Player.X",
+										"Player.Y + 2",
+										"Player.ZElevation"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Increase hp."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 208882839578051,
+									"parameters": {
+										"instance-variable": "hp",
+										"value": "min(Self.hp + 25, Self.maxHp)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Update lifebar."
+								},
+								{
+									"id": "set-width",
+									"objectClass": "PlayerLifeBar",
+									"sid": 881287565207909,
+									"parameters": {
+										"width": "(Player.hp/Player.maxHp) * Self.ImageWidth"
+									}
+								}
+							],
+							"sid": 728881167350908
+						},
+						{
+							"eventType": "comment",
+							"text": "Berserk potion."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 545484595301415
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 468263601984139,
+									"parameters": {
+										"variable": "itemName",
+										"comparison": 0,
+										"value": "\"BerserkPotion\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 640041010750213,
+									"parameters": [
+										"\"berserk_potion\"",
+										"\"PBerserk\"",
+										"-4",
+										"1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Create berserk effect."
+								},
+								{
+									"callFunction": "createFX",
+									"sid": 238433564861754,
+									"parameters": [
+										"\"Billboard\"",
+										"\"PlayerBerserkPotion\"",
+										"Player.X",
+										"Player.Y + 2",
+										"Player.ZElevation"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Start berserk time."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 998793356354914,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "Self.berserkTime",
+										"type": "once",
+										"tag": "\"playerBerserk\""
+									}
+								}
+							],
+							"sid": 726044194211296
+						},
+						{
+							"eventType": "comment",
+							"text": "Night cloak."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 601712896162617
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 635696835563248,
+									"parameters": {
+										"variable": "itemName",
+										"comparison": 0,
+										"value": "\"NightCloak\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 379227223144269,
+									"parameters": [
+										"\"night_cloak\"",
+										"\"PCloak\"",
+										"-7",
+										"1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Flash player."
+								},
+								{
+									"id": "flash",
+									"objectClass": "PlayerBillboard",
+									"sid": 646053399805088,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.05",
+										"off-time": "0.1",
+										"duration": "0.4"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Activate invisibility."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 754744053490227,
+									"parameters": {
+										"seconds": "0.5",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "PlayerBillboard",
+									"sid": 886694613212189,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 876213079893907,
+									"parameters": {
+										"instance-variable": "cloaked",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Start timer to end invisibility."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 365359065939544,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "Self.cloakTime",
+										"type": "once",
+										"tag": "\"playerCloak\""
+									}
+								}
+							],
+							"sid": 761010479095702,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Update enemies state."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 741639498280279,
+											"parameters": {
+												"object": "EnemyMelee"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Override act",
+											"objectClass": "EnemyMelee",
+											"sid": 752353271630346
+										}
+									],
+									"sid": 953005312956228
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 987924115158178,
+											"parameters": {
+												"object": "EnemyRanged"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Override act",
+											"objectClass": "EnemyRanged",
+											"sid": 699508381988538
+										}
+									],
+									"sid": 727696970139119
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Fury Howl."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 565233430683793
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 133799398141901,
+									"parameters": {
+										"variable": "itemName",
+										"comparison": 0,
+										"value": "\"FuryHowl\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 604227083829023,
+									"parameters": [
+										"\"fury_howl\"",
+										"\"PHowl\"",
+										"-7",
+										"1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Create the fury howl visual effect."
+								},
+								{
+									"callFunction": "createFX",
+									"sid": 187030361463235,
+									"parameters": [
+										"\"Billboard\"",
+										"\"PlayerFuryHowl\"",
+										"Player.X",
+										"Player.Y + 2",
+										"Player.ZElevation + PlayerBillboard.ZHeight - 4"
+									]
+								}
+							],
+							"sid": 291974825368327,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Damage all melee enemies nearby."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 899691713195708,
+											"parameters": {
+												"object": "EnemyMelee",
+												"expression": "distance(EnemyMelee.X, EnemyMelee.Y, Player.X, Player.Y) < 128"
+											}
+										},
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 124970870439690,
+											"parameters": {
+												"object": "EnemyMelee"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Take hit",
+											"objectClass": "EnemyMelee",
+											"sid": 226094808442257,
+											"parameters": [
+												"Player.furyHowlDamage"
+											]
+										},
+										{
+											"callFunction": "createFX",
+											"sid": 362766769850347,
+											"parameters": [
+												"\"Billboard\"",
+												"\"PlayerFuryHowlAttack\"",
+												"EnemyMelee.X",
+												"EnemyMelee.Y + 4",
+												"EnemyMelee.ZElevation"
+											]
+										}
+									],
+									"sid": 399734591821160
+								},
+								{
+									"eventType": "comment",
+									"text": "Damage all ranged enemies on the same geometry."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 768168881258050,
+											"parameters": {
+												"object": "EnemyRanged",
+												"expression": "distance(EnemyRanged.X, EnemyRanged.Y, Player.X, Player.Y) < 128"
+											}
+										},
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 502681297033600,
+											"parameters": {
+												"object": "EnemyRanged"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Take hit",
+											"objectClass": "EnemyRanged",
+											"sid": 667580142150793,
+											"parameters": [
+												"Player.furyHowlDamage"
+											]
+										},
+										{
+											"callFunction": "createFX",
+											"sid": 332933756032589,
+											"parameters": [
+												"\"Billboard\"",
+												"\"PlayerFuryHowlAttack\"",
+												"EnemyRanged.X",
+												"EnemyRanged.Y + 4",
+												"EnemyRanged.ZElevation"
+											]
+										}
+									],
+									"sid": 779541204350824
+								},
+								{
+									"eventType": "comment",
+									"text": "Damage all totems nearby."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 449009071024097,
+											"parameters": {
+												"object": "Totem",
+												"expression": "distance(Totem.X, Totem.Y, Player.X, Player.Y) < 128"
+											}
+										},
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 219649083392669,
+											"parameters": {
+												"object": "Totem"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Take hit",
+											"objectClass": "Totem",
+											"sid": 507832493114920,
+											"parameters": [
+												"Player.furyHowlDamage"
+											]
+										},
+										{
+											"callFunction": "createFX",
+											"sid": 826496413622595,
+											"parameters": [
+												"\"Billboard\"",
+												"\"PlayerFuryHowlAttack\"",
+												"Totem.X",
+												"Totem.Y + 12",
+												"Totem.ZElevation - TotemShape.ZHeight"
+											]
+										}
+									],
+									"sid": 332253402936342
+								},
+								{
+									"eventType": "comment",
+									"text": "Damage all boss totems nearby."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 579584316735019,
+											"parameters": {
+												"object": "FinalBoss",
+												"expression": "distance(FinalBoss.X, FinalBoss.Y, Player.X, Player.Y) < 128"
+											}
+										},
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 627453208186392,
+											"parameters": {
+												"object": "FinalBoss"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Take hit",
+											"objectClass": "FinalBoss",
+											"sid": 345353260377026,
+											"parameters": [
+												"Player.furyHowlDamage"
+											]
+										},
+										{
+											"callFunction": "createFX",
+											"sid": 433666149649020,
+											"parameters": [
+												"\"Billboard\"",
+												"\"PlayerFuryHowlAttack\"",
+												"FinalBoss.X",
+												"FinalBoss.Y + 12",
+												"48"
+											]
+										}
+									],
+									"sid": 921561466034759
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Key."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 612642927109851
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 542692476430479,
+									"parameters": {
+										"variable": "itemName",
+										"comparison": 0,
+										"value": "\"Key\""
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 585266036335788,
+									"parameters": {
+										"object": "Geometry",
+										"expression": "distance(Geometry.X, Geometry.Y, Player.X, Player.Y) < 64"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 299460304889156,
+									"parameters": {
+										"object": "Geometry",
+										"expression": "abs(Geometry.ZElevation - Player.ZElevation) < 6"
+									}
+								},
+								{
+									"id": "has-tags",
+									"objectClass": "Geometry",
+									"sid": 133361457203664,
+									"parameters": {
+										"tags": "\"Gate\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 813638768302730,
+									"parameters": [
+										"\"open_gate\"",
+										"\"PGate\"",
+										"-4",
+										"1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Setup player angle."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 248853521352240,
+									"parameters": {
+										"instance-variable": "currentAngle",
+										"value": "90"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "PlayerAoE",
+									"sid": 977874223315074,
+									"parameters": {
+										"angle": "Player.currentAngle"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Block the player from using items for a brief period of time."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 260389854345627,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "Self.itemCooldown",
+										"type": "once",
+										"tag": "\"itemCooldown\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Player is using an item."
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 577565591939415,
+									"parameters": {
+										"instance-variable": "performingAction",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play animation and lock the player for a long time."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerTextures",
+									"sid": 359404831616400,
+									"parameters": {
+										"animation": "\"Key\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 509403145397870,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "100",
+										"type": "once",
+										"tag": "\"unlockPlayer\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Consume item."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "InventorySlot",
+									"sid": 513866747508663,
+									"parameters": {
+										"animation": "\"Empty\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextInventory",
+									"sid": 527059822648564,
+									"parameters": {
+										"text": "\"EMPTY\""
+									}
+								},
+								{
+									"id": "set-key",
+									"objectClass": "DictProfile",
+									"sid": 455871385846858,
+									"parameters": {
+										"key": "str(InventorySelector.selected)\n",
+										"value": "\"Empty\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Open gate."
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "GateTexture",
+									"sid": 114936393071641,
+									"parameters": {
+										"frame-number": "1"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "GateDoor",
+									"sid": 331937428754805,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "GateDoor",
+									"sid": 963904831857067,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"OpenGate\"",
+										"property": "offsetAngle",
+										"end-value": "Self.openAngle",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Go to the next level."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 601826293771595
+								},
+								{
+									"callFunction": "goToNextLevel",
+									"sid": 814896957630825
+								}
+							],
+							"sid": 173095224445246
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Let the player perform actions again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Player",
+							"sid": 136352492762272,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"unlockPlayer\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 112663229124308,
+							"parameters": {
+								"instance-variable": "performingAction",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 403227174496699
+				},
+				{
+					"eventType": "comment",
+					"text": "Player Cloak is over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Player",
+							"sid": 289935546571822,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"playerCloak\""
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 315038156162199,
+							"parameters": {
+								"instance-variable": "cloaked"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 354145764235934,
+							"parameters": {
+								"instance-variable": "cloaked",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 473600226603401,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Warn enemies."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 449242020371148,
+									"parameters": {
+										"object": "EnemyMelee"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Override act",
+									"objectClass": "EnemyMelee",
+									"sid": 147070209379825
+								}
+							],
+							"sid": 493675716183521
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 770427474479514,
+									"parameters": {
+										"object": "EnemyRanged"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Override act",
+									"objectClass": "EnemyRanged",
+									"sid": 428814756428684
+								}
+							],
+							"sid": 525227331676037
+						},
+						{
+							"eventType": "comment",
+							"text": "Show player."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "flash",
+									"objectClass": "PlayerBillboard",
+									"sid": 256038659185937,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.1",
+										"off-time": "0.05",
+										"duration": "0.4"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 687866275436582,
+									"parameters": {
+										"seconds": "0.5",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "PlayerBillboard",
+									"sid": 684835482228279,
+									"parameters": {
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 703878904520951
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Drop selected item."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Drop item",
+					"objectClass": "Player",
+					"functionDescription": "Drop selected item",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 911243755375869,
+							"parameters": {
+								"instance-variable": "performingAction"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 766140622404530,
+							"parameters": {
+								"instance-variable": "dead"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-timer-running",
+							"objectClass": "Player",
+							"sid": 553282528778261,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"itemCooldown\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 430714708916315,
+							"parameters": {
+								"instance-variable": "onGround"
+							}
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 419673912296410,
+							"parameters": {
+								"object": "InventorySlot",
+								"expression": "InventorySlot.slotID = InventorySelector.selected"
+							}
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "InventorySlot",
+							"sid": 469032376482055,
+							"parameters": {
+								"animation": "\"Empty\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "InventorySlot",
+							"sid": 788820228848469,
+							"parameters": {
+								"animation": "\"Key\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 362549348057822,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 532589447934614,
+									"parameters": [
+										"\"menu_select\"",
+										"\"SFX\"",
+										"0",
+										"1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Create the dropped item."
+								},
+								{
+									"callFunction": "createItem",
+									"sid": 412831329979354,
+									"parameters": [
+										"Player.X",
+										"Player.Y",
+										"Player.ZElevation",
+										"DictProfile.Get(str(InventorySelector.selected))",
+										"2"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Remove from player's inventory."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "InventorySlot",
+									"sid": 391664227564952,
+									"parameters": {
+										"animation": "\"Empty\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextInventory",
+									"sid": 991693038209750,
+									"parameters": {
+										"text": "\"EMPTY\""
+									}
+								},
+								{
+									"id": "set-key",
+									"objectClass": "DictProfile",
+									"sid": 156649177436754,
+									"parameters": {
+										"key": "str(InventorySelector.selected)\n",
+										"value": "\"Empty\""
+									}
+								}
+							],
+							"sid": 721656669412441
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Push back the player, dealing damage."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Pushback",
+					"objectClass": "Player",
+					"functionDescription": "Push back the player, dealing damage.",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "sourceX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Source damage X coordinate",
+							"sid": 166964419106853
+						},
+						{
+							"name": "sourceY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Source damage Y coordinate",
+							"sid": 838634085595066
+						}
+					],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Deal damage to the player."
+						},
+						{
+							"customAction": "Hit",
+							"objectClass": "Player",
+							"sid": 652061098418595,
+							"parameters": [
+								"10"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Become immune from receiving hurt area damage for a brief period."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Player",
+							"sid": 424873270423476,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.25",
+								"type": "once",
+								"tag": "\"Immune\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Stop the player."
+						},
+						{
+							"id": "set-max-speed",
+							"objectClass": "Player",
+							"sid": 338636136356240,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"max-speed": "0"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Player",
+							"sid": 636124305672052,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Push the player back."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Player",
+							"sid": 344744937108505,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PushPlayer\"",
+								"property": "position",
+								"end-x": "Player.X + cos(angle(sourceX, sourceY, Player.X, Player.Y)) * 16",
+								"end-y": "Player.Y + sin(angle(sourceX, sourceY, Player.X, Player.Y)) * 16",
+								"time": "0.1",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make player smoothly regain their normal walking speed."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 931182387930369
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Player",
+							"sid": 450606723565233,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"state": "enabled"
+							}
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "Player",
+							"sid": 596726145707531,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerSpeedTween\"",
+								"start-value": "0",
+								"end-value": "Self.defaultMaxSpeed",
+								"time": "0.5",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 401669031065054
+				},
+				{
+					"eventType": "comment",
+					"text": "Play Fury Howl hit sound."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-frame-changed",
+							"objectClass": "EffectPlane",
+							"sid": 847486494105318
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "EffectPlane",
+							"sid": 333602360627878,
+							"parameters": {
+								"animation": "\"PlayerFuryHowlAttack\""
+							}
+						},
+						{
+							"id": "compare-animation-frame",
+							"objectClass": "EffectPlane",
+							"sid": 720075378386031,
+							"parameters": {
+								"comparison": 0,
+								"number": "2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Play sound."
+						},
+						{
+							"callFunction": "playSFX",
+							"sid": 387009934223438,
+							"parameters": [
+								"\"fury_howl_hit\"",
+								"\"PHowl\"",
+								"-7",
+								"1"
+							]
+						}
+					],
+					"sid": 480512071652367
+				}
+			],
+			"sid": 184018759225896
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Shadow",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Set shadow position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set (x, y) position."
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "PlayerShadow",
+							"sid": 316236903791333,
+							"parameters": {
+								"object": "Player",
+								"image-point-optional": "0"
+							}
+						}
+					],
+					"sid": 690995763847307,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Set shadow's Z-Elevation according to the geometry below."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Player",
+									"sid": 190178049935164,
+									"parameters": {
+										"object": "Geometry"
+									}
+								},
+								{
+									"id": "pick-by-highest-lowest-value",
+									"objectClass": "System",
+									"sid": 837158551896409,
+									"parameters": {
+										"object": "Geometry",
+										"which": "highest",
+										"expression": "Geometry.ZElevation + Geometry.ZHeight"
+									}
+								},
+								{
+									"id": "compare-z-elevation",
+									"objectClass": "Player",
+									"sid": 615270278775467,
+									"parameters": {
+										"which": "z-elevation",
+										"comparison": 5,
+										"z-elevation": "Geometry.ZElevation + Geometry.ZHeight"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Geometry",
+									"sid": 432056842618936,
+									"parameters": {
+										"instance-variable": "geometryID",
+										"comparison": 1,
+										"value": "-999"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-z-elevation",
+									"objectClass": "PlayerShadow",
+									"sid": 638534444995515,
+									"parameters": {
+										"z": "Geometry.ZElevation + Geometry.ZHeight + 1"
+									}
+								}
+							],
+							"sid": 994226983599965
+						},
+						{
+							"eventType": "comment",
+							"text": "If there is no geometry, use the water."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 210695711905486
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Player",
+									"sid": 868287525770790,
+									"parameters": {
+										"object": "WaterTex"
+									}
+								},
+								{
+									"id": "compare-z-elevation",
+									"objectClass": "Player",
+									"sid": 128389789005422,
+									"parameters": {
+										"which": "z-elevation",
+										"comparison": 5,
+										"z-elevation": "WaterTex.ZElevation"
+									}
+								},
+								{
+									"id": "is-visible",
+									"objectClass": "WaterTex",
+									"sid": 635561585056857
+								}
+							],
+							"actions": [
+								{
+									"id": "set-z-elevation",
+									"objectClass": "PlayerShadow",
+									"sid": 494761172089192,
+									"parameters": {
+										"z": "WaterTex.ZElevation + 1"
+									}
+								}
+							],
+							"sid": 422342098805200
+						},
+						{
+							"eventType": "comment",
+							"text": "If not even water is present, use the \"bedrock\"."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 783585511351590
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Geometry",
+									"sid": 351943433585912,
+									"parameters": {
+										"instance-variable": "geometryID",
+										"comparison": 0,
+										"value": "-999"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-z-elevation",
+									"objectClass": "PlayerShadow",
+									"sid": 203583293233526,
+									"parameters": {
+										"z": "Geometry.ZElevation + 1"
+									}
+								}
+							],
+							"sid": 995786142165517
+						},
+						{
+							"eventType": "comment",
+							"text": "The shadow's opacity is defined by how far the player is from it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-z-elevation",
+									"objectClass": "PlayerShadow",
+									"sid": 189490360607143,
+									"parameters": {
+										"which": "z-elevation",
+										"comparison": 4,
+										"z-elevation": "Player.ZElevation + 2"
+									}
+								},
+								{
+									"id": "is-playing",
+									"objectClass": "EndGameArea",
+									"sid": 608269997743626,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ChangeFog\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-opacity",
+									"objectClass": "PlayerShadow",
+									"sid": 611818933223262,
+									"parameters": {
+										"opacity": "0"
+									}
+								}
+							],
+							"sid": 119002711365069
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 781840797107137
+								},
+								{
+									"id": "is-playing",
+									"objectClass": "EndGameArea",
+									"sid": 997305454615381,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ChangeFog\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-opacity",
+									"objectClass": "PlayerShadow",
+									"sid": 332478416435913,
+									"parameters": {
+										"opacity": "50 - (Player.ZElevation - Self.ZElevation)"
+									}
+								}
+							],
+							"sid": 495837112491972
+						}
+					]
+				}
+			],
+			"sid": 610713208686384
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Horizontal Movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "pInputX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Player's X-axis input",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 411323487658625
+				},
+				{
+					"eventType": "variable",
+					"name": "pInputY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Player's Y-axis input",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 146134983936344
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 785654217993671,
+							"parameters": {
+								"instance-variable": "performingAction"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 561671644441587,
+							"parameters": {
+								"instance-variable": "dead"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 197906501668101,
+							"parameters": {
+								"variable": "paused"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 495529963184247,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Get X input."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 476297930016881,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 599544786987773,
+									"parameters": {
+										"key": 68
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 846740697316421,
+									"parameters": {
+										"variable": "pInputX",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 656314421055117,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 274876597393822,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 841129064854267,
+									"parameters": {
+										"key": 65
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 957891058556925,
+									"parameters": {
+										"variable": "pInputX",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 656337089252086,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Get Y input."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 744192235707821,
+									"parameters": {
+										"key": 40
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 451157345044231,
+									"parameters": {
+										"key": 83
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 683978481273423,
+									"parameters": {
+										"variable": "pInputY",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 915911356466284,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 536852423105757,
+									"parameters": {
+										"key": 38
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 725450935727604,
+									"parameters": {
+										"key": 87
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "subtract-from-eventvar",
+									"objectClass": "System",
+									"sid": 839211426539602,
+									"parameters": {
+										"variable": "pInputY",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 552449463653768,
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Using the inputs, apply angle of movement."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 657883101746258,
+							"parameters": {
+								"variable": "pInputX",
+								"comparison": 1,
+								"value": "0"
+							}
+						},
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 449884655282103,
+							"parameters": {
+								"variable": "pInputY",
+								"comparison": 1,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 762444490443953,
+							"parameters": {
+								"instance-variable": "currentAngle",
+								"value": "Functions.ConvertAngle(angle(0, 0, pInputX, pInputY))"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "PlayerAoE",
+							"sid": 880630205793201,
+							"parameters": {
+								"angle": "Player.currentAngle"
+							}
+						},
+						{
+							"id": "set-vector-x",
+							"objectClass": "Player",
+							"sid": 797779511229802,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"vector-x": "cos(Player.currentAngle) * Self.8Direction.MaxSpeed"
+							}
+						},
+						{
+							"id": "set-vector-y",
+							"objectClass": "Player",
+							"sid": 838718989792263,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"vector-y": "sin(Player.currentAngle) * Self.8Direction.MaxSpeed"
+							}
+						}
+					],
+					"sid": 159894922974214,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Set animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 718282137526105,
+							"parameters": {
+								"instance-variable": "performingAction"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 664489820691643,
+							"parameters": {
+								"instance-variable": "dead"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 170075002032890,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player is jumping or falling."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Player",
+									"sid": 409765634538889,
+									"parameters": {
+										"instance-variable": "onGround"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 770646047434733,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Moving on air."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-moving",
+											"objectClass": "Player",
+											"sid": 981115563515192,
+											"behaviorType": "8Direction"
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerTextures",
+											"sid": 237967169100353,
+											"parameters": {
+												"animation": "\"Jump\" & Functions.ConvertAngle(Player.8Direction.MovingAngle)",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 503477770881343
+								},
+								{
+									"eventType": "comment",
+									"text": "Stationary on air."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 882528556104233
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerTextures",
+											"sid": 232968888317570,
+											"parameters": {
+												"animation": "\"Jump\" & Player.currentAngle",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 667719274961021
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Moving on the ground."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 666505195827908
+								},
+								{
+									"id": "is-moving",
+									"objectClass": "Player",
+									"sid": 850920880517288,
+									"behaviorType": "8Direction"
+								}
+							],
+							"actions": [],
+							"sid": 275291013042422,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Surface is slippery."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 219330131891726,
+											"parameters": {
+												"object": "Geometry",
+												"expression": "Geometry.geometryID = Player.onGeometryID"
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Geometry",
+											"sid": 291143951855706,
+											"parameters": {
+												"instance-variable": "slippery"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-deceleration",
+											"objectClass": "Player",
+											"sid": 537929571436223,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"deceleration": "Self.slipperyDeceleration"
+											}
+										}
+									],
+									"sid": 809704760416970,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Player must be pressing down buttons to actually show running animation."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "key-is-down",
+													"objectClass": "Keyboard",
+													"sid": 499503374368884,
+													"parameters": {
+														"key": 39
+													}
+												},
+												{
+													"id": "key-is-down",
+													"objectClass": "Keyboard",
+													"sid": 264923361225568,
+													"parameters": {
+														"key": 68
+													}
+												},
+												{
+													"id": "key-is-down",
+													"objectClass": "Keyboard",
+													"sid": 393963138168203,
+													"parameters": {
+														"key": 37
+													}
+												},
+												{
+													"id": "key-is-down",
+													"objectClass": "Keyboard",
+													"sid": 402517750776486,
+													"parameters": {
+														"key": 65
+													}
+												},
+												{
+													"id": "key-is-down",
+													"objectClass": "Keyboard",
+													"sid": 760450362350033,
+													"parameters": {
+														"key": 40
+													}
+												},
+												{
+													"id": "key-is-down",
+													"objectClass": "Keyboard",
+													"sid": 179445614623731,
+													"parameters": {
+														"key": 83
+													}
+												},
+												{
+													"id": "key-is-down",
+													"objectClass": "Keyboard",
+													"sid": 818685956484595,
+													"parameters": {
+														"key": 38
+													}
+												},
+												{
+													"id": "key-is-down",
+													"objectClass": "Keyboard",
+													"sid": 686764113617339,
+													"parameters": {
+														"key": 87
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation",
+													"objectClass": "PlayerTextures",
+													"sid": 920733671305347,
+													"parameters": {
+														"animation": "\"Run\" & Functions.ConvertAngle(Player.8Direction.MovingAngle)",
+														"from": "beginning"
+													}
+												}
+											],
+											"sid": 309609206911409,
+											"isOrBlock": true
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 817165313818282
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation",
+													"objectClass": "PlayerTextures",
+													"sid": 311091663036155,
+													"parameters": {
+														"animation": "\"Idle\" & Player.currentAngle",
+														"from": "beginning"
+													}
+												}
+											],
+											"sid": 230026580665014
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Surface is normal."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 866888552032801
+										}
+									],
+									"actions": [
+										{
+											"id": "set-deceleration",
+											"objectClass": "Player",
+											"sid": 884843281388667,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"deceleration": "Self.defaultDeceleration"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerTextures",
+											"sid": 894924766261524,
+											"parameters": {
+												"animation": "\"Run\" & Functions.ConvertAngle(Player.8Direction.MovingAngle)",
+												"from": "current-frame"
+											}
+										}
+									],
+									"sid": 724419192952144
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Stationary on the ground."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 642185159621058
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerTextures",
+									"sid": 342331695129976,
+									"parameters": {
+										"animation": "\"Idle\" & Player.currentAngle",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 788979821710598
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Player speed is being changed through a tween."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Player",
+							"sid": 803742375546784,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"PlayerSpeedTween\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-max-speed",
+							"objectClass": "Player",
+							"sid": 981116397243802,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"max-speed": "Self.Tween.Value(\"PlayerSpeedTween\")"
+							}
+						}
+					],
+					"sid": 284396395239591
+				},
+				{
+					"eventType": "comment",
+					"text": "Play steps sound."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-frame-changed",
+							"objectClass": "PlayerTextures",
+							"sid": 217947357476676
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 222545364919588,
+							"parameters": {
+								"value": "left(PlayerTextures.AnimationName, 3) = \"Run\""
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 243799593529799,
+							"parameters": {
+								"value": "PlayerTextures.AnimationFrame = 0 | PlayerTextures.AnimationFrame = 3"
+							}
+						},
+						{
+							"id": "is-tag-playing",
+							"objectClass": "Audio",
+							"sid": 584309459185913,
+							"parameters": {
+								"tag": "\"PWalk\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 670967816611662,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 782487911487399,
+									"parameters": {
+										"object": "Geometry",
+										"expression": "Geometry.geometryID = Player.onGeometryID"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 930924682478567,
+									"parameters": {
+										"object": "Geometry",
+										"expression": "(Player.X >= Geometry.BBoxLeft - Player.Width/2) &\n(Player.X <= Geometry.BBoxRight + Player.Width/2) &\n(Player.Y >= Geometry.BBoxTop - Player.Height/2) &\n(Player.Y <= Geometry.BBoxBottom +  Player.Height/2)"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 799562569136305,
+									"parameters": {
+										"object": "Geometry",
+										"expression": "Geometry.ZElevation < Player.ZElevation"
+									}
+								},
+								{
+									"id": "pick-by-highest-lowest-value",
+									"objectClass": "System",
+									"sid": 176850271980841,
+									"parameters": {
+										"object": "Geometry",
+										"which": "lowest",
+										"expression": "distance(Player.X, Player.Y, Geometry.X, Geometry.Y)"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 187345674517993,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the player is on a geometry with vegetation, play snowy step sounds."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Geometry",
+											"sid": 353553851428383,
+											"parameters": {
+												"instance-variable": "vegetation"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playSFX",
+											"sid": 414263332474969,
+											"parameters": [
+												"\"walk_snow\"",
+												"\"PWalk\"",
+												"-7",
+												"random(1.0, 1.5)"
+											]
+										}
+									],
+									"sid": 438246275581985
+								},
+								{
+									"eventType": "comment",
+									"text": "Otherwise, play solid step sounds."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 387969357774617
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playSFX",
+											"sid": 854150985572813,
+											"parameters": [
+												"\"walk_solid\"",
+												"\"PWalk\"",
+												"-26",
+												"random(0.7,1.0)"
+											]
+										}
+									],
+									"sid": 326402027986150
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 255359305300265
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Vertical Movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Enable solid behavior for geometry blocks whose (Z-Elevation, Z-Elevation + Z-Height) interval contains the player's Z-Elevation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 453297764670812,
+							"parameters": {
+								"object": "Geometry"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 149963755531060,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-z-elevation",
+									"objectClass": "Player",
+									"sid": 302431799800637,
+									"parameters": {
+										"which": "z-elevation",
+										"comparison": 5,
+										"z-elevation": "Geometry.ZElevation - PlayerBillboard.ZHeight"
+									}
+								},
+								{
+									"id": "compare-z-elevation",
+									"objectClass": "Player",
+									"sid": 781342375878704,
+									"parameters": {
+										"which": "z-elevation",
+										"comparison": 3,
+										"z-elevation": "Geometry.ZElevation + Geometry.ZHeight - PlayerBillboard.ZHeight/8"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-enabled",
+									"objectClass": "Geometry",
+									"sid": 716814618434515,
+									"behaviorType": "Solid",
+									"parameters": {
+										"state": "enabled"
+									}
+								}
+							],
+							"sid": 332807492974613
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 100303828688637
+								}
+							],
+							"actions": [
+								{
+									"id": "set-enabled",
+									"objectClass": "Geometry",
+									"sid": 881976223079794,
+									"behaviorType": "Solid",
+									"parameters": {
+										"state": "disabled"
+									}
+								}
+							],
+							"sid": 526033670718277
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Player jump."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 946877882684557,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 955335558351481,
+							"parameters": {
+								"instance-variable": "onGround"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 394915658126683,
+							"parameters": {
+								"instance-variable": "performingAction"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 246189104508487,
+							"parameters": {
+								"instance-variable": "dead"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 200656291954321,
+							"parameters": {
+								"variable": "paused"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 636401675499601,
+							"parameters": {
+								"instance-variable": "zAccel",
+								"value": "Self.jumpStrength"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 249146453347812,
+							"parameters": {
+								"instance-variable": "onGround",
+								"value": "false"
+							}
+						},
+						{
+							"callFunction": "playSFX",
+							"sid": 337804128743907,
+							"parameters": [
+								"\"jump\"",
+								"\"PJump\"",
+								"-4",
+								"random(0.9, 1.2)"
+							]
+						}
+					],
+					"sid": 737142149919450
+				},
+				{
+					"eventType": "comment",
+					"text": "Apply gravity to the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 125430823694289
+						}
+					],
+					"actions": [
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "Player",
+							"sid": 546310404357915,
+							"parameters": {
+								"instance-variable": "zAccel",
+								"value": "GRAVITY * dt"
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Player",
+							"sid": 733645257338135,
+							"parameters": {
+								"z": "Self.ZElevation + Self.zAccel * 60 * dt"
+							}
+						}
+					],
+					"sid": 180136176553559
+				},
+				{
+					"eventType": "comment",
+					"text": "Stop player from falling through the highest platform below them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Player",
+							"sid": 563295068796888,
+							"parameters": {
+								"instance-variable": "zAccel",
+								"comparison": 2,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 192958500115648,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player is on the ground."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Player",
+									"sid": 529685857033184,
+									"parameters": {
+										"object": "Geometry"
+									}
+								},
+								{
+									"id": "compare-z-elevation",
+									"objectClass": "Geometry",
+									"sid": 409590966389767,
+									"parameters": {
+										"which": "z-elevation",
+										"comparison": 2,
+										"z-elevation": "Player.ZElevation + PlayerBillboard.ZHeight"
+									}
+								},
+								{
+									"id": "pick-by-highest-lowest-value",
+									"objectClass": "System",
+									"sid": 681585416152287,
+									"parameters": {
+										"object": "Geometry",
+										"which": "highest",
+										"expression": "Geometry.ZElevation + Geometry.ZHeight"
+									}
+								},
+								{
+									"id": "compare-z-elevation",
+									"objectClass": "Player",
+									"sid": 146010311887838,
+									"parameters": {
+										"which": "z-elevation",
+										"comparison": 5,
+										"z-elevation": "Geometry.ZElevation"
+									}
+								},
+								{
+									"id": "compare-z-elevation",
+									"objectClass": "Player",
+									"sid": 994865749567480,
+									"parameters": {
+										"which": "z-elevation",
+										"comparison": 3,
+										"z-elevation": "Geometry.ZElevation + Geometry.ZHeight"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 411882200435723,
+									"parameters": {
+										"instance-variable": "zAccel",
+										"value": "0"
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "Player",
+									"sid": 800761838954082,
+									"parameters": {
+										"z": "Geometry.ZElevation + Geometry.ZHeight"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 258223267591571,
+									"parameters": {
+										"instance-variable": "onGround",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 219767554815614,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Player moved to another geometry block. Update geometry ID and warn threats about this movement."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 308658819110486,
+											"parameters": {
+												"instance-variable": "onGeometryID",
+												"comparison": 1,
+												"value": "Geometry.geometryID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Player",
+											"sid": 277336097900360,
+											"parameters": {
+												"instance-variable": "onGeometryID",
+												"value": "Geometry.geometryID"
+											}
+										}
+									],
+									"sid": 583848747368453,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for-each",
+													"objectClass": "System",
+													"sid": 908996675296589,
+													"parameters": {
+														"object": "EnemyMelee"
+													}
+												},
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "Player",
+													"sid": 840363990040826,
+													"parameters": {
+														"instance-variable": "cloaked"
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Override act",
+													"objectClass": "EnemyMelee",
+													"sid": 301142874738758
+												}
+											],
+											"sid": 438003421336252
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for-each",
+													"objectClass": "System",
+													"sid": 131358544247404,
+													"parameters": {
+														"object": "EnemyRanged"
+													}
+												},
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "Player",
+													"sid": 436266722752523,
+													"parameters": {
+														"instance-variable": "cloaked"
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Override act",
+													"objectClass": "EnemyRanged",
+													"sid": 855747243677872
+												}
+											],
+											"sid": 560335913317988
+										}
+									]
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "trigger-once-while-true",
+											"objectClass": "System",
+											"sid": 982807414129070
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playSFX",
+											"sid": 378430827040716,
+											"parameters": [
+												"\"walk\"",
+												"\"PFall\"",
+												"-5",
+												"random(0.75, 0.9)"
+											]
+										}
+									],
+									"sid": 228341173489815
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Player is falling."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 318071447361809
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 194656834476475,
+									"parameters": {
+										"instance-variable": "onGround",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 739170096544229
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Stop player from jumping through the lowest platform above them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Player",
+							"sid": 642698122241786,
+							"parameters": {
+								"instance-variable": "zAccel",
+								"comparison": 4,
+								"value": "0"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Player",
+							"sid": 719115045417442,
+							"parameters": {
+								"object": "Geometry"
+							}
+						},
+						{
+							"id": "compare-z-elevation",
+							"objectClass": "Geometry",
+							"sid": 733524976621088,
+							"parameters": {
+								"which": "z-elevation",
+								"comparison": 4,
+								"z-elevation": "Player.ZElevation"
+							}
+						},
+						{
+							"id": "pick-by-highest-lowest-value",
+							"objectClass": "System",
+							"sid": 404015768827508,
+							"parameters": {
+								"object": "Geometry",
+								"which": "lowest",
+								"expression": "Geometry.ZElevation + Geometry.ZHeight"
+							}
+						},
+						{
+							"id": "compare-z-elevation",
+							"objectClass": "Player",
+							"sid": 955661838956093,
+							"parameters": {
+								"which": "z-elevation",
+								"comparison": 5,
+								"z-elevation": "Geometry.ZElevation - PlayerBillboard.ZHeight"
+							}
+						},
+						{
+							"id": "compare-z-elevation",
+							"objectClass": "Player",
+							"sid": 729711623668228,
+							"parameters": {
+								"which": "z-elevation",
+								"comparison": 3,
+								"z-elevation": "Geometry.ZElevation + Geometry.ZHeight"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 108844051470667,
+							"parameters": {
+								"instance-variable": "zAccel",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Player",
+							"sid": 655067883220502,
+							"parameters": {
+								"z": "Geometry.ZElevation - PlayerBillboard.ZHeight - 1"
+							}
+						}
+					],
+					"sid": 954604796917339
+				},
+				{
+					"eventType": "comment",
+					"text": "Player fell into the water."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-all",
+							"objectClass": "System",
+							"sid": 448701129484583,
+							"parameters": {
+								"object": "WaterTex"
+							}
+						},
+						{
+							"id": "compare-z-elevation",
+							"objectClass": "Player",
+							"sid": 118581021157001,
+							"parameters": {
+								"which": "z-elevation",
+								"comparison": 2,
+								"z-elevation": "WaterTex.ZElevation"
+							}
+						},
+						{
+							"id": "trigger-once-while-true",
+							"objectClass": "System",
+							"sid": 715170183581039
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Hide the shadow."
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "PlayerShadow",
+							"sid": 682251743114463,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Water kills he player."
+						},
+						{
+							"customAction": "Die",
+							"objectClass": "Player",
+							"sid": 903136134537560
+						},
+						{
+							"type": "comment",
+							"text": "Lock the camera."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 796314387644800,
+							"parameters": {
+								"variable": "cameraLock",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 275220533372667,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Check if water is visible."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-visible",
+									"objectClass": "WaterTex",
+									"sid": 798594105037366
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create splash effect."
+								},
+								{
+									"callFunction": "createFX",
+									"sid": 675346441928339,
+									"parameters": [
+										"\"Billboard\"",
+										"\"WaterSplash\"",
+										"Player.X",
+										"Player.Y + 2",
+										"WaterTex.ZElevation"
+									]
+								},
+								{
+									"callFunction": "createFX",
+									"sid": 437047156027078,
+									"parameters": [
+										"\"Plane\"",
+										"\"WaterSplashPlane\"",
+										"Player.X",
+										"Player.Y",
+										"WaterTex.ZElevation + 2"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 619565791507982,
+									"parameters": [
+										"\"splash\"",
+										"\"SFX\"",
+										"-9",
+										"1"
+									]
+								}
+							],
+							"sid": 184702226586932
+						}
+					]
+				}
+			],
+			"sid": 577927872006935
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Melee Attack",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player melee attack."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 983889775056151,
+							"parameters": {
+								"key": 17
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 580944117911236,
+							"parameters": {
+								"instance-variable": "dead"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 725548540985897,
+							"parameters": {
+								"instance-variable": "performingAction"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-timer-running",
+							"objectClass": "Player",
+							"sid": 663690738942242,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"meleeCooldown\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 867487660537011,
+							"parameters": {
+								"variable": "paused"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 582662123712045,
+							"parameters": {
+								"instance-variable": "onGround"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Play woosh sound."
+						},
+						{
+							"callFunction": "playSFX",
+							"sid": 998315316703525,
+							"parameters": [
+								"\"woosh\" & choose(0, 1, 2)",
+								"\"PMelee\"",
+								"-11",
+								"random(1.4, 1.7)"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Uncloak player."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 618387136360230,
+							"parameters": {
+								"instance-variable": "cloaked",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "PlayerBillboard",
+							"sid": 107448970103821,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set melee attack animation."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerTextures",
+							"sid": 885560834291166,
+							"parameters": {
+								"animation": "\"Melee\" & Player.currentAngle",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Player is performing a melee attack."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 486279976221548,
+							"parameters": {
+								"instance-variable": "performingAction",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 384273886432685,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Melee cooldown changes depending on berserk status."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-timer-running",
+									"objectClass": "Player",
+									"sid": 901437616116510,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"playerBerserk\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 589778224695363,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "Self.berserkMeleeCooldown",
+										"type": "once",
+										"tag": "\"meleeCooldown\""
+									}
+								}
+							],
+							"sid": 921755228670411
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 524592954358068
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 949638011578513,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "Self.defaultMeleeCooldown",
+										"type": "once",
+										"tag": "\"meleeCooldown\""
+									}
+								}
+							],
+							"sid": 993036332260663
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Hit threats within attack boundaries, while the attack animation plays."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-frame-changed",
+							"objectClass": "PlayerTextures",
+							"sid": 574072581935915
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 889684265422565,
+							"parameters": {
+								"value": "left(PlayerTextures.AnimationName, 5) = \"Melee\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 589136642080341,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "EnemyMelee."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 809591694575908,
+									"parameters": {
+										"object": "EnemyMelee"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "EnemyMelee",
+									"sid": 821148538791628,
+									"parameters": {
+										"instance-variable": "onGeometryID",
+										"comparison": 0,
+										"value": "Player.onGeometryID"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerAoE",
+									"sid": 766845401612720,
+									"parameters": {
+										"object": "EnemyMelee"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 622302943312354,
+									"parameters": {
+										"value": "PlayerAoE.ZElevation >= EnemyMelee.ZElevation"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 644343974946011,
+									"parameters": {
+										"value": "PlayerAoE.ZElevation < EnemyMelee.ZElevation + EnemyMeleeBillboard.ZHeight"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Take hit",
+									"objectClass": "EnemyMelee",
+									"sid": 973988374069662,
+									"parameters": [
+										"Player.meleeDamage"
+									]
+								}
+							],
+							"sid": 465275030932080
+						},
+						{
+							"eventType": "comment",
+							"text": "EnemyRanged."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 544866753160664,
+									"parameters": {
+										"object": "EnemyRanged"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "EnemyRanged",
+									"sid": 105140401704940,
+									"parameters": {
+										"instance-variable": "onGeometryID",
+										"comparison": 0,
+										"value": "Player.onGeometryID"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerAoE",
+									"sid": 175974381014572,
+									"parameters": {
+										"object": "EnemyRanged"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 732746132907585,
+									"parameters": {
+										"value": "PlayerAoE.ZElevation >= EnemyRanged.ZElevation"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 853756108175310,
+									"parameters": {
+										"value": "PlayerAoE.ZElevation < EnemyRanged.ZElevation + EnemyRangedBillboard.ZHeight"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Take hit",
+									"objectClass": "EnemyRanged",
+									"sid": 708421867172105,
+									"parameters": [
+										"Player.meleeDamage"
+									]
+								}
+							],
+							"sid": 902482476364835
+						},
+						{
+							"eventType": "comment",
+							"text": "Totem."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 227265333387713,
+									"parameters": {
+										"object": "Totem"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Totem",
+									"sid": 673454510722669,
+									"parameters": {
+										"instance-variable": "onGeometryID",
+										"comparison": 0,
+										"value": "Player.onGeometryID"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerAoE",
+									"sid": 880593511045486,
+									"parameters": {
+										"object": "Totem"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 362105652901751,
+									"parameters": {
+										"value": "PlayerAoE.ZElevation < Totem.ZElevation + Totem.ZHeight + TotemShape.ZHeight"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 210476096408545,
+									"parameters": {
+										"value": "PlayerAoE.ZElevation >= Totem.ZElevation - TotemShape.ZHeight"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Take hit",
+									"objectClass": "Totem",
+									"sid": 124845877553475,
+									"parameters": [
+										"Player.meleeDamage"
+									]
+								}
+							],
+							"sid": 434435921964372
+						},
+						{
+							"eventType": "comment",
+							"text": "FinalBoss."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 231275677760172,
+									"parameters": {
+										"object": "FinalBoss"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerAoE",
+									"sid": 112676688795131,
+									"parameters": {
+										"object": "FinalBoss"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 523740043188446,
+									"parameters": {
+										"value": "PlayerAoE.ZElevation < FinalBoss.ZElevation + FinalBoss.ZHeight"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 435190046985508,
+									"parameters": {
+										"value": "PlayerAoE.ZElevation >= FinalBoss.ZElevation"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Take hit",
+									"objectClass": "FinalBoss",
+									"sid": 640041716360122,
+									"parameters": [
+										"Player.meleeDamage"
+									]
+								}
+							],
+							"sid": 145384418217960
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Immediately after finishing the melee attack, return to idle animation and enable actions."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-animation-finished",
+							"objectClass": "PlayerTextures",
+							"sid": 362939915489222
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 559937661690220,
+							"parameters": {
+								"value": "left(PlayerTextures.AnimationName, 5) = \"Melee\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerTextures",
+							"sid": 292495875901854,
+							"parameters": {
+								"animation": "\"idle\" & Player.currentAngle",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 519779135602323,
+							"parameters": {
+								"instance-variable": "performingAction",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 125848334349718
+				}
+			],
+			"sid": 225565613331001
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Inventory",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Get inventory item description given the name."
+				},
+				{
+					"functionName": "getItemDescription",
+					"functionDescription": "Get inventory item description given the name",
+					"functionCategory": "Game",
+					"functionReturnType": "string",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "name",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Name of the item",
+							"sid": 705174732902633
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 576436355617296,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 187514026024528,
+									"parameters": {
+										"variable": "name",
+										"comparison": 0,
+										"value": "\"HPPotion\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 469238875781085,
+									"parameters": {
+										"value": "\"HEALTH\""
+									}
+								}
+							],
+							"sid": 124964746008454
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 818641354881673
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 472953101563838,
+									"parameters": {
+										"variable": "name",
+										"comparison": 0,
+										"value": "\"BerserkPotion\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 305812981048123,
+									"parameters": {
+										"value": "\"BERSERK\""
+									}
+								}
+							],
+							"sid": 887309266347851
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 211298665824044
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 948366954460385,
+									"parameters": {
+										"variable": "name",
+										"comparison": 0,
+										"value": "\"NightCloak\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 127237206407152,
+									"parameters": {
+										"value": "\"CLOAK\""
+									}
+								}
+							],
+							"sid": 711306744631638
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 468841334183161
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 660957383908062,
+									"parameters": {
+										"variable": "name",
+										"comparison": 0,
+										"value": "\"FuryHowl\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 868945304666696,
+									"parameters": {
+										"value": "\"HOWL\""
+									}
+								}
+							],
+							"sid": 392646907580969
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 979775180328867
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 342040128628300,
+									"parameters": {
+										"variable": "name",
+										"comparison": 0,
+										"value": "\"Key\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 808239990759197,
+									"parameters": {
+										"value": "\"KEY\""
+									}
+								}
+							],
+							"sid": 982170758773602
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 540136765889743
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 448026317932324,
+									"parameters": {
+										"value": "\"EMPTY\""
+									}
+								}
+							],
+							"sid": 527256379603959
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Load inventory."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 505256385250284
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "TextInventory",
+							"sid": 153871238178243,
+							"parameters": {
+								"text": "Functions.GetItemDescription(DictProfile.Get(\"0\"))"
+							}
+						}
+					],
+					"sid": 801057593830586,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Set animations."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 180559830776871,
+									"parameters": {
+										"object": "InventorySlot"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "InventorySlot",
+									"sid": 715260078948317,
+									"parameters": {
+										"animation": "DictProfile.Get(str(Self.slotID))",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 663589081855490
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Use item."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 211812005064749,
+							"parameters": {
+								"key": 13
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 745999683484552,
+							"parameters": {
+								"variable": "paused"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 420859034239481,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Lock all items briefly."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 255803816021647,
+									"parameters": {
+										"object": "ItemShadow"
+									}
+								},
+								{
+									"id": "is-any-playing",
+									"objectClass": "ItemShadow",
+									"sid": 620808202091823,
+									"behaviorType": "Tween",
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "ItemShadow",
+									"sid": 542092519158424,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "1.0",
+										"type": "once",
+										"tag": "\"CantPickup\""
+									}
+								}
+							],
+							"sid": 863396543188288
+						},
+						{
+							"eventType": "comment",
+							"text": "Use the item."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"customAction": "Use item",
+									"objectClass": "Player",
+									"sid": 233059524955977
+								}
+							],
+							"sid": 953513832240155
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Drop item."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 562371615026264,
+							"parameters": {
+								"key": 8
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 167394639719254,
+							"parameters": {
+								"variable": "paused"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 853964079843875,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Lock all items briefly."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 761908249603442,
+									"parameters": {
+										"object": "ItemShadow"
+									}
+								},
+								{
+									"id": "is-any-playing",
+									"objectClass": "ItemShadow",
+									"sid": 681705460391476,
+									"behaviorType": "Tween",
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "ItemShadow",
+									"sid": 247946046649898,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "1.0",
+										"type": "once",
+										"tag": "\"CantPickup\""
+									}
+								}
+							],
+							"sid": 795431017543324
+						},
+						{
+							"eventType": "comment",
+							"text": "Drop the item."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"customAction": "Drop item",
+									"objectClass": "Player",
+									"sid": 624982518852245
+								}
+							],
+							"sid": 435488815039931
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Select item."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 673439537709251,
+							"parameters": {
+								"key": 49
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 326715633628800,
+							"parameters": {
+								"variable": "paused"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 682179387086962,
+							"parameters": {
+								"object": "InventorySlot",
+								"expression": "InventorySlot.slotID = 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "playSFX",
+							"sid": 147643775878468,
+							"parameters": [
+								"\"menu_change\"",
+								"\"SFX\"",
+								"0",
+								"1"
+							]
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "InventorySelector",
+							"sid": 300632501337454,
+							"parameters": {
+								"object": "InventorySlot",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "InventorySelector",
+							"sid": 482803180131934,
+							"parameters": {
+								"instance-variable": "selected",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextInventory",
+							"sid": 218934930157791,
+							"parameters": {
+								"text": "Functions.GetItemDescription(InventorySlot.AnimationName)"
+							}
+						}
+					],
+					"sid": 815412320248425
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 996590029983673,
+							"parameters": {
+								"key": 50
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 218832769413206,
+							"parameters": {
+								"variable": "paused"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 324602527675155,
+							"parameters": {
+								"object": "InventorySlot",
+								"expression": "InventorySlot.slotID = 1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "playSFX",
+							"sid": 633094967970275,
+							"parameters": [
+								"\"menu_change\"",
+								"\"SFX\"",
+								"0",
+								"1"
+							]
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "InventorySelector",
+							"sid": 532256988386150,
+							"parameters": {
+								"object": "InventorySlot",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "InventorySelector",
+							"sid": 335200281568461,
+							"parameters": {
+								"instance-variable": "selected",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextInventory",
+							"sid": 964945720462534,
+							"parameters": {
+								"text": "Functions.GetItemDescription(InventorySlot.AnimationName)"
+							}
+						}
+					],
+					"sid": 750866969831234
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 452927893886939,
+							"parameters": {
+								"key": 51
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 796480073813533,
+							"parameters": {
+								"variable": "paused"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 127200094056379,
+							"parameters": {
+								"object": "InventorySlot",
+								"expression": "InventorySlot.slotID = 2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "playSFX",
+							"sid": 658922910934332,
+							"parameters": [
+								"\"menu_change\"",
+								"\"SFX\"",
+								"0",
+								"1"
+							]
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "InventorySelector",
+							"sid": 537639990637576,
+							"parameters": {
+								"object": "InventorySlot",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "InventorySelector",
+							"sid": 521570581786280,
+							"parameters": {
+								"instance-variable": "selected",
+								"value": "2"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextInventory",
+							"sid": 745131406676593,
+							"parameters": {
+								"text": "Functions.GetItemDescription(InventorySlot.AnimationName)"
+							}
+						}
+					],
+					"sid": 930061460514095
+				},
+				{
+					"eventType": "comment",
+					"text": "Player can pick items up by getting close to them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 704694789248129,
+							"parameters": {
+								"object": "ItemShadow"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 628515472452477,
+							"parameters": {
+								"value": "distance(Player.X, Player.Y, ItemShadow.X, ItemShadow.Y) < 32"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 862792605736380,
+							"parameters": {
+								"value": "abs(Player.ZElevation - ItemShadow.ZElevation) < 6"
+							}
+						},
+						{
+							"id": "is-timer-running",
+							"objectClass": "ItemShadow",
+							"sid": 223930271432346,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"CantPickup\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 605948810608769,
+							"parameters": {
+								"object": "InventorySlot",
+								"expression": "InventorySlot.AnimationName = \"Empty\""
+							}
+						},
+						{
+							"id": "pick-by-highest-lowest-value",
+							"objectClass": "System",
+							"sid": 515412748245109,
+							"parameters": {
+								"object": "InventorySlot",
+								"which": "lowest",
+								"expression": "InventorySlot.slotID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Play sound."
+						},
+						{
+							"callFunction": "playSFX",
+							"sid": 929147749436538,
+							"parameters": [
+								"\"menu_select\"",
+								"\"SFX\"",
+								"0",
+								"1"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Item can't be picked up twice."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "ItemShadow",
+							"sid": 979650605776062,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "10",
+								"type": "once",
+								"tag": "\"CantPickup\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move item to the player."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "ItemShadow",
+							"sid": 726478371960368,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveItemToPlayer\"",
+								"property": "position",
+								"end-x": "Player.X",
+								"end-y": "Player.Y",
+								"time": "0.1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update inventory."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "InventorySlot",
+							"sid": 546007694211525,
+							"parameters": {
+								"animation": "ItemShadow.TemplateName",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-key",
+							"objectClass": "DictProfile",
+							"sid": 518847653683128,
+							"parameters": {
+								"key": "str(InventorySlot.slotID)",
+								"value": "ItemShadow.TemplateName"
+							}
+						}
+					],
+					"sid": 220230713777692,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 279912890957413,
+									"parameters": {
+										"value": "InventorySelector.selected = InventorySlot.slotID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextInventory",
+									"sid": 649372442797270,
+									"parameters": {
+										"text": "Functions.GetItemDescription(InventorySlot.AnimationName)"
+									}
+								}
+							],
+							"sid": 119652481155338
+						}
+					]
+				}
+			],
+			"sid": 614787434794668
+		}
+	],
+	"sid": 622123729177886
+}

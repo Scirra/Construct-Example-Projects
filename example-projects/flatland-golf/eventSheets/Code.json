@@ -1,0 +1,2077 @@
+{
+	"name": "Code",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @Bäto\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "At which state the game currently is, like fading, aiming, flying, etc."
+		},
+		{
+			"eventType": "variable",
+			"name": "GameState",
+			"type": "string",
+			"initialValue": "Fading",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 891189734336072
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup the game by making everything fade out from black."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 857752233833399
+				}
+			],
+			"actions": [
+				{
+					"id": "tween-one-property",
+					"objectClass": "Fade",
+					"sid": 407449922996705,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeOut\"",
+						"property": "offsetOpacity",
+						"end-value": "0",
+						"time": "0.25",
+						"ease": "noease",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Snap the camera behind the player."
+				},
+				{
+					"callFunction": "UpdateCamera",
+					"sid": 651208242735915,
+					"parameters": [
+						true
+					]
+				}
+			],
+			"sid": 383883396346136,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "At which angle the tree will move."
+				},
+				{
+					"eventType": "variable",
+					"name": "RandomAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 346854231021869
+				},
+				{
+					"eventType": "comment",
+					"text": "How far the tree will move."
+				},
+				{
+					"eventType": "variable",
+					"name": "RandomDistance",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 960341067846002
+				},
+				{
+					"eventType": "comment",
+					"text": "Loop through each tree in the level and randomize their X, Y and Z coordinates in order to create an organic composition."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 895305745652058,
+							"parameters": {
+								"object": "TreeModel"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Generate a random angle and distance."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 753567714615382,
+							"parameters": {
+								"variable": "RandomAngle",
+								"value": "TreeModel.Angle + 180 + random(-90, 90)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 550253721382021,
+							"parameters": {
+								"variable": "RandomDistance",
+								"value": "random(0, 32)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change the X and Y coordinates."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "TreeModel",
+							"sid": 902807641997174,
+							"parameters": {
+								"x": "Self.X + cos(RandomAngle) * RandomDistance",
+								"y": "Self.Y + sin(RandomAngle) * RandomDistance"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change the Z coordinate."
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "TreeModel",
+							"sid": 100282709544395,
+							"parameters": {
+								"z": "random(-8, 0)"
+							}
+						}
+					],
+					"sid": 732090724748364
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the fade out animation is over, reset the game state."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-tweens-finished",
+					"objectClass": "Fade",
+					"sid": 522106319983506,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeOut\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "ResetGameState",
+					"sid": 568747726808222
+				}
+			],
+			"sid": 358366052543454
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the player has dropped into the ground, reset its animation and move it closer to the ball."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-tweens-finished",
+					"objectClass": "PlayerModel",
+					"sid": 340535136352048,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Drop\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation",
+					"objectClass": "PlayerTexture",
+					"sid": 824691807645151,
+					"parameters": {
+						"animation": "\"Waiting\"",
+						"from": "beginning"
+					}
+				},
+				{
+					"id": "set-position",
+					"objectClass": "PlayerModel",
+					"sid": 385690683222325,
+					"parameters": {
+						"x": "BallModel.X + cos(AimingAngle + 180) * 8",
+						"y": "BallModel.Y + sin(AimingAngle + 180) * 8"
+					}
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "PlayerModel",
+					"sid": 294289827519342,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Ascend\"",
+						"property": "offsetZElevation",
+						"end-value": "0",
+						"time": "0.25",
+						"ease": "easeoutsine",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				}
+			],
+			"sid": 399467403149707
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the player has ascended, reset the game state."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-tweens-finished",
+					"objectClass": "PlayerModel",
+					"sid": 124121727466694,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Ascend\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "ResetGameState",
+					"sid": 571856423043589
+				}
+			],
+			"sid": 162408985373252
+		},
+		{
+			"eventType": "comment",
+			"text": "How long is the power bar."
+		},
+		{
+			"eventType": "variable",
+			"name": "POWERBARLENGTH",
+			"type": "number",
+			"initialValue": "68",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 851939898656922
+		},
+		{
+			"eventType": "comment",
+			"text": "Reset the game state, by changing a few variables back to their original value."
+		},
+		{
+			"functionName": "ResetGameState",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Reset the hit strength back to zero."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 224413707301738,
+					"parameters": {
+						"variable": "HitStrength",
+						"value": "0"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Cover the entire power bar."
+				},
+				{
+					"id": "set-width",
+					"objectClass": "PowerBarCover",
+					"sid": 649043192331865,
+					"parameters": {
+						"width": "POWERBARLENGTH"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Reset the game state back to aiming mode."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 134346050435220,
+					"parameters": {
+						"variable": "GameState",
+						"value": "\"Aiming\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Randomize the wind diretion."
+				},
+				{
+					"callFunction": "RandomizeWindDirection",
+					"sid": 641964753115150
+				}
+			],
+			"sid": 539860164577939
+		},
+		{
+			"eventType": "comment",
+			"text": "Restart the game."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "PlayerModel",
+					"sid": 353533365417182,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Restart\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Change the game state to the fading mode and reset the aiming angle back to zero."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 795927258932781,
+					"parameters": {
+						"variable": "GameState",
+						"value": "\"Fading\""
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 289514852813017,
+					"parameters": {
+						"variable": "AimingAngle",
+						"value": "0"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Make everything fade in to black."
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Fade",
+					"sid": 136722163570597,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeIn\"",
+						"property": "offsetOpacity",
+						"end-value": "100",
+						"time": "0.25",
+						"ease": "noease",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				}
+			],
+			"sid": 300255312078170
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the fade in animation is over, restart the layout."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-tweens-finished",
+					"objectClass": "Fade",
+					"sid": 917080723886107,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeIn\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 402487355205314
+				}
+			],
+			"sid": 353118610742724
+		},
+		{
+			"eventType": "comment",
+			"text": "At which angle the player is aiming."
+		},
+		{
+			"eventType": "variable",
+			"name": "AimingAngle",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 269822854404510
+		},
+		{
+			"eventType": "comment",
+			"text": "How hard the player will hit the ball."
+		},
+		{
+			"eventType": "variable",
+			"name": "HitStrength",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 477763524600443
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the player is turning around the ball."
+		},
+		{
+			"eventType": "variable",
+			"name": "TurningSpeed",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 357005106675336
+		},
+		{
+			"eventType": "comment",
+			"text": "The minimum turning speed."
+		},
+		{
+			"eventType": "variable",
+			"name": "MINTURNINGSPEED",
+			"type": "number",
+			"initialValue": "0.5",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 839535221181703
+		},
+		{
+			"eventType": "comment",
+			"text": "The maximum turning speed."
+		},
+		{
+			"eventType": "variable",
+			"name": "MAXTURNINGSPEED",
+			"type": "number",
+			"initialValue": "2.5",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 642101546613590
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the turning speed is increased."
+		},
+		{
+			"eventType": "variable",
+			"name": "ACCELERATIONSPEED",
+			"type": "number",
+			"initialValue": "0.025",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 309477682139312
+		},
+		{
+			"eventType": "comment",
+			"text": "Allow the player to rotate the main character around the ball and adjust the hit strength."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 981552340821577,
+					"parameters": {
+						"value": "GameState = \"Aiming\""
+					}
+				}
+			],
+			"actions": [],
+			"sid": 411438201554800,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Rotate the player around the ball counterclockwise."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 567782586954119,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 216418312957538,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-left"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 941631382993357,
+							"parameters": {
+								"variable": "AimingAngle",
+								"value": "AimingAngle - TurningSpeed * 60 * dt"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 649888937222878,
+							"parameters": {
+								"variable": "TurningSpeed",
+								"value": "clamp(TurningSpeed + ACCELERATIONSPEED * 60 * dt, MINTURNINGSPEED, MAXTURNINGSPEED)"
+							}
+						}
+					],
+					"sid": 502996944847312,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Rotate the player around the ball clockwise."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 371250602104032,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 369474190333582,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-right"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 964602427757054,
+							"parameters": {
+								"variable": "AimingAngle",
+								"value": "AimingAngle + TurningSpeed * 60 * dt"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 518571038961184,
+							"parameters": {
+								"variable": "TurningSpeed",
+								"value": "clamp(TurningSpeed + ACCELERATIONSPEED * 60 * dt, MINTURNINGSPEED, MAXTURNINGSPEED)"
+							}
+						}
+					],
+					"sid": 697297803697298,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Prevent the player from rotating any longer."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 514683762484084,
+							"parameters": {
+								"key": 37
+							},
+							"isInverted": true
+						},
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 440877616185538,
+							"parameters": {
+								"key": 39
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 349094225962925,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-left"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 900858981088530,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-right"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 852613554741925,
+							"parameters": {
+								"variable": "TurningSpeed",
+								"value": "MINTURNINGSPEED"
+							}
+						}
+					],
+					"sid": 797223260614803
+				},
+				{
+					"eventType": "comment",
+					"text": "Flip the player 180 degrees."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 968949500058343,
+							"parameters": {
+								"key": 40
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 565057095165758,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-down"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 990917485100392,
+							"parameters": {
+								"variable": "AimingAngle",
+								"value": "AimingAngle + 180"
+							}
+						}
+					],
+					"sid": 661617084105142,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the player position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "PlayerModel",
+							"sid": 924323856934220,
+							"parameters": {
+								"x": "BallModel.X + cos(AimingAngle + 180) * 8",
+								"y": "BallModel.Y + sin(AimingAngle + 180) * 8"
+							}
+						}
+					],
+					"sid": 292612848821901
+				},
+				{
+					"eventType": "comment",
+					"text": "Gradually increase the hit strength and update the bar."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 474327199344146,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 889790335371056,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 287989798107993,
+							"parameters": {
+								"variable": "HitStrength",
+								"value": "clamp(HitStrength + 0.01 * 60 * dt, 0, 1)"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "PowerBarCover",
+							"sid": 987489094668735,
+							"parameters": {
+								"width": "lerp(POWERBARLENGTH, 0, HitStrength)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also make the player display the charging animation."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerTexture",
+							"sid": 683962384404956,
+							"parameters": {
+								"animation": "\"Charging\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 990887458887969,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player hits the maximum hit strength or release the hit button, release the ball."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 339165018439616,
+							"parameters": {
+								"value": "HitStrength = 1"
+							}
+						},
+						{
+							"id": "on-key-released",
+							"objectClass": "Keyboard",
+							"sid": 661463087871047,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "on-button-released",
+							"objectClass": "Gamepad",
+							"sid": 955904595891087,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Apply the hit strength to each vector."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 315050838905838,
+							"parameters": {
+								"variable": "BallVectorX",
+								"value": "cos(AimingAngle) * lerp(0, 15, HitStrength)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 767055879831264,
+							"parameters": {
+								"variable": "BallVectorY",
+								"value": "sin(AimingAngle) * lerp(0, 15, HitStrength)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 367090020806215,
+							"parameters": {
+								"variable": "BallVectorZ",
+								"value": "lerp(0, 2, HitStrength)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change the game state to the flying mode."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 598790788853845,
+							"parameters": {
+								"variable": "GameState",
+								"value": "\"Flying\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also make the player display the hitting animation."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerTexture",
+							"sid": 466421053688263,
+							"parameters": {
+								"animation": "\"Hitting\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 177252288182090,
+					"isOrBlock": true
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the ball should move in each axis."
+		},
+		{
+			"eventType": "variable",
+			"name": "BallVectorX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 568509343421716
+		},
+		{
+			"eventType": "variable",
+			"name": "BallVectorY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 884340644170679
+		},
+		{
+			"eventType": "variable",
+			"name": "BallVectorZ",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 802623009384729
+		},
+		{
+			"eventType": "comment",
+			"text": "The general wind strength used in combination with the wind direction."
+		},
+		{
+			"eventType": "variable",
+			"name": "WINDSTRENGTH",
+			"type": "number",
+			"initialValue": "0.005",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 164524023899495
+		},
+		{
+			"eventType": "comment",
+			"text": "Update the ball position while in the flying mode."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "evaluate-expression",
+					"objectClass": "System",
+					"sid": 195892326347139,
+					"parameters": {
+						"value": "GameState = \"Flying\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Move the ball."
+				},
+				{
+					"id": "set-position",
+					"objectClass": "BallModel",
+					"sid": 774938774605545,
+					"parameters": {
+						"x": "Self.X + BallVectorX * 60 * dt",
+						"y": "Self.Y + BallVectorY * 60 * dt"
+					}
+				},
+				{
+					"id": "set-z-elevation",
+					"objectClass": "BallModel",
+					"sid": 961688212311835,
+					"parameters": {
+						"z": "clamp(Self.ZElevation + BallVectorZ * 60 * dt, 0, Infinity)"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Use the wind force to modify the ball's X and Y vectors."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 512899404232328,
+					"parameters": {
+						"variable": "BallVectorX",
+						"value": "BallVectorX + cos(AimingAngle + sign(WindDirection) * 90) * abs(WindDirection) * WINDSTRENGTH"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 474888375187281,
+					"parameters": {
+						"variable": "BallVectorY",
+						"value": "BallVectorY + sin(AimingAngle + sign(WindDirection) * 90) * abs(WindDirection) * WINDSTRENGTH"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Apply the effect of gravity on the Z vector."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 141853191336156,
+					"parameters": {
+						"variable": "BallVectorZ",
+						"value": "Functions.MoveValueTowardsAnotherValue(BallVectorZ, -10, 0.05)"
+					}
+				}
+			],
+			"sid": 941057523099613,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the ball hits the ground, make it bounce or stop depending on its speed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 686509556616990,
+							"parameters": {
+								"value": "BallModel.ZElevation = 0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 179785409359371,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Whether or not the ball is out of bounds."
+						},
+						{
+							"eventType": "variable",
+							"name": "IsOutOfBounds",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 574298177662734
+						},
+						{
+							"eventType": "comment",
+							"text": "Whether or not the ball is in the water."
+						},
+						{
+							"eventType": "variable",
+							"name": "IsOnWater",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 251756753837444
+						},
+						{
+							"eventType": "comment",
+							"text": "If the ball is out of bounds, tag it as out of bounds."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 569498702581854,
+									"parameters": {
+										"value": "BallModel.X < 0 | BallModel.X > LayoutWidth | BallModel.Y < 0 | BallModel.Y > LayoutHeight"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 265578999225486,
+									"parameters": {
+										"variable": "IsOutOfBounds",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 603617501400916
+						},
+						{
+							"eventType": "comment",
+							"text": "If the ball isn't tagged as out of bounds, check if it's in the water."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 223296420312055,
+									"parameters": {
+										"value": "IsOutOfBounds = 0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 578169285744440,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Loop through each water puddle. If the water is in the water, tag it as in the water and stop the loop."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 415941749478556,
+											"parameters": {
+												"object": "WaterPuddle"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 292948028642198,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 822728354611631,
+													"parameters": {
+														"value": "BallModel.X >= WaterPuddle.BBoxLeft & BallModel.X <= WaterPuddle.BBoxRight & BallModel.Y >= WaterPuddle.BBoxTop & BallModel.Y <= WaterPuddle.BBoxBottom"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 616601113219959,
+													"parameters": {
+														"variable": "IsOnWater",
+														"value": "true"
+													}
+												},
+												{
+													"id": "stop-loop",
+													"objectClass": "System",
+													"sid": 409526006676848
+												}
+											],
+											"sid": 587386660528781
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the ball is out of bounds or in the water, stop it and end the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 352334067549954,
+									"parameters": {
+										"value": "IsOutOfBounds = 1 | IsOnWater = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 851205020938644,
+									"parameters": {
+										"variable": "BallVectorX",
+										"value": "0"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 938284285234117,
+									"parameters": {
+										"variable": "BallVectorY",
+										"value": "0"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 133794102587733,
+									"parameters": {
+										"variable": "BallVectorZ",
+										"value": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Change the game state to the losing mode."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 825623835265468,
+									"parameters": {
+										"variable": "GameState",
+										"value": "\"Losing\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Wait four seconds before restarting the game."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "PlayerModel",
+									"sid": 975295654678028,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "4",
+										"type": "once",
+										"tag": "\"Restart\""
+									}
+								}
+							],
+							"sid": 770807223389314,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the ball is out of bounds, display a related game over message."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 545851034080137,
+											"parameters": {
+												"value": "IsOutOfBounds = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "typewriter-text",
+											"objectClass": "Text",
+											"sid": 445514237572971,
+											"parameters": {
+												"text": "\"GAME OVER! THE BALL IS OUT OF BOUNDS\"",
+												"duration": "0.5"
+											}
+										}
+									],
+									"sid": 138612134142876
+								},
+								{
+									"eventType": "comment",
+									"text": "If the ball is in the water, display a related game over message."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 751977001508579,
+											"parameters": {
+												"value": "IsOnWater = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "typewriter-text",
+											"objectClass": "Text",
+											"sid": 847834040840931,
+											"parameters": {
+												"text": "\"GAME OVER! THE BALL HAS SANK\"",
+												"duration": "0.5"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Make the ball sink by gradually changing its Z elevation."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "BallModel",
+											"sid": 328746305328428,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Sink\"",
+												"property": "offsetZElevation",
+												"end-value": "HoleModel.ZElevation - Self.ZHeight",
+												"time": "0.5",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Create a water splash effect."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 366709676037721,
+											"parameters": {
+												"object-to-create": "WaterSplashModel",
+												"layer": "\"World\"",
+												"x": "BallModel.X",
+												"y": "BallModel.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 260386262285773,
+											"parameters": {
+												"object-to-create": "WaterSplashTexture",
+												"layer": "\"World\"",
+												"x": "BallModel.X",
+												"y": "BallModel.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-face-object",
+											"objectClass": "WaterSplashModel",
+											"sid": 529704585695397,
+											"parameters": {
+												"face": "right",
+												"object": "WaterSplashTexture"
+											}
+										}
+									],
+									"sid": 880665350772660
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the ball isn't out of bounds and isn't in the water, keep updating the ball."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 906406140159331
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 846120790116386,
+									"parameters": {
+										"value": "IsOutOfBounds = 0 & IsOnWater = 0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 251100966974381,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the ball has enough Z speed, make it bounce."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 483209691177346,
+											"parameters": {
+												"value": "abs(BallVectorZ) >= 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 827174802823667,
+											"parameters": {
+												"variable": "BallVectorX",
+												"value": "BallVectorX * 0.667"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 929378679086548,
+											"parameters": {
+												"variable": "BallVectorY",
+												"value": "BallVectorY * 0.667"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 950781436672230,
+											"parameters": {
+												"variable": "BallVectorZ",
+												"value": "-BallVectorZ * 0.5"
+											}
+										}
+									],
+									"sid": 184489715230839
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the ball doesn't enough Z speed, make it stop."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 980797934569393
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 523070478987899,
+											"parameters": {
+												"value": "abs(BallVectorZ) < 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 566797913326678,
+											"parameters": {
+												"variable": "BallVectorX",
+												"value": "0"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 275162120979503,
+											"parameters": {
+												"variable": "BallVectorY",
+												"value": "0"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 664010592737643,
+											"parameters": {
+												"variable": "BallVectorZ",
+												"value": "0"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Change the game state to the checking mode."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 661115136435171,
+											"parameters": {
+												"variable": "GameState",
+												"value": "\"Checking\""
+											}
+										}
+									],
+									"sid": 670257034085544,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the ball is close enough to the hole, make the player win."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 744623005816403,
+													"parameters": {
+														"value": "distance(BallModel.X, BallModel.Y, HoleModel.X, HoleModel.Y) <= 8"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "typewriter-text",
+													"objectClass": "Text",
+													"sid": 326017621442037,
+													"parameters": {
+														"text": "\"YOU WIN! THE BALL ENTERED THE HOLE\"",
+														"duration": "0.5"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Make the ball shadow invisible."
+												},
+												{
+													"id": "set-visible",
+													"objectClass": "BallShadow",
+													"sid": 273400639138879,
+													"parameters": {
+														"visibility": "invisible"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Snap the ball position into the hole position."
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "BallModel",
+													"sid": 425779703228459,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"MoveHorizontally\"",
+														"property": "position",
+														"end-x": "HoleModel.X",
+														"end-y": "HoleModel.Y",
+														"time": "0.5",
+														"ease": "easeoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "BallModel",
+													"sid": 950673751452903,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"MoveVertically\"",
+														"property": "offsetZElevation",
+														"end-value": "HoleModel.ZElevation - Self.ZHeight",
+														"time": "0.5",
+														"ease": "easeinsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Restart the game after 2.5 seconds."
+												},
+												{
+													"id": "start-timer",
+													"objectClass": "PlayerModel",
+													"sid": 694178892350480,
+													"behaviorType": "Timer",
+													"parameters": {
+														"duration": "2.5",
+														"type": "once",
+														"tag": "\"Restart\""
+													}
+												}
+											],
+											"sid": 932443157684373
+										},
+										{
+											"eventType": "comment",
+											"text": "However, if the ball isn't close enough to the hole, make the player drop into the ground and try again."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 171010865621936
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 126191524492019,
+													"parameters": {
+														"value": "distance(BallModel.X, BallModel.Y, HoleModel.X, HoleModel.Y) > 8"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-one-property",
+													"objectClass": "PlayerModel",
+													"sid": 336071133534025,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Drop\"",
+														"property": "offsetZElevation",
+														"end-value": "- Self.ZHeight",
+														"time": "0.25",
+														"ease": "easeinsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												}
+											],
+											"sid": 908333382078069
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "The angle between the player and the ball."
+		},
+		{
+			"eventType": "variable",
+			"name": "AngleBetweenPlayerAndBall",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 704102925353116
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly update the camera position and the angle between each model and the camera, so they always face the camera, like billboards from old games."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 499088750591618
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 955083280193669,
+					"parameters": {
+						"variable": "AngleBetweenPlayerAndBall",
+						"value": "angle(BallModel.X, BallModel.Y, PlayerModel.X, PlayerModel.Y)"
+					}
+				},
+				{
+					"callFunction": "UpdateCamera",
+					"sid": 308212598853455,
+					"parameters": [
+						false
+					]
+				},
+				{
+					"type": "comment",
+					"text": "Rotate the player model."
+				},
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "PlayerModel",
+					"sid": 628313178149331,
+					"parameters": {
+						"x": "3DCamera.CameraX",
+						"y": "3DCamera.CameraY"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Rotate the ball model."
+				},
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "BallModel",
+					"sid": 933570816181544,
+					"parameters": {
+						"x": "3DCamera.CameraX",
+						"y": "3DCamera.CameraY"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Rotate the water splash model."
+				},
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "WaterSplashModel",
+					"sid": 456698175622931,
+					"parameters": {
+						"x": "3DCamera.CameraX",
+						"y": "3DCamera.CameraY"
+					}
+				}
+			],
+			"sid": 142512667215227,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Rotate each tree model."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 529868326901769,
+							"parameters": {
+								"object": "TreeModel"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "TreeModel",
+							"sid": 174617266599629,
+							"parameters": {
+								"x": "3DCamera.CameraX",
+								"y": "3DCamera.CameraY"
+							}
+						}
+					],
+					"sid": 408114553233855
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Update the camera, by moving it behind the player."
+		},
+		{
+			"functionName": "UpdateCamera",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "IgnoreInterpolation",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"sid": 270207230314050
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "look-at-position",
+					"objectClass": "3DCamera",
+					"sid": 665975950718989,
+					"parameters": {
+						"cam-x": "lerp(3DCamera.CameraX, PlayerModel.X + cos(AngleBetweenPlayerAndBall + 0) * 64, clamp(0.1 * 60 * dt + IgnoreInterpolation, 0, 1))",
+						"cam-y": "lerp(3DCamera.CameraY, PlayerModel.Y + sin(AngleBetweenPlayerAndBall + 0) * 64, clamp(0.1 * 60 * dt + IgnoreInterpolation, 0, 1))",
+						"cam-z": "lerp(3DCamera.CameraZ, PlayerModel.ZElevation + PlayerModel.ZHeight / 2 + 24, clamp(0.1 * 60 * dt + IgnoreInterpolation, 0, 1))",
+						"look-x": "lerp(3DCamera.LookX, BallModel.X, clamp(0.1 * 60 * dt + IgnoreInterpolation, 0, 1))",
+						"look-y": "lerp(3DCamera.LookY, BallModel.Y, clamp(0.1 * 60 * dt + IgnoreInterpolation, 0, 1))",
+						"look-z": "lerp(3DCamera.LookZ, BallModel.ZElevation + BallModel.ZHeight / 2 + 16, clamp(0.1 * 60 * dt + IgnoreInterpolation, 0, 1))",
+						"up-x": "0",
+						"up-y": "0",
+						"up-z": "1"
+					}
+				}
+			],
+			"sid": 978169865122873
+		},
+		{
+			"eventType": "comment",
+			"text": "At which direction and how strongly is the wind currently blowing."
+		},
+		{
+			"eventType": "variable",
+			"name": "WindDirection",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 156294281533113
+		},
+		{
+			"eventType": "comment",
+			"text": "Randomize the wind direction to a value between -5 and 5."
+		},
+		{
+			"functionName": "RandomizeWindDirection",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 957683688952833,
+					"parameters": {
+						"variable": "WindDirection",
+						"value": "floor(random(0, 6)) * choose(-1, 1)"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Display the wind direction in the top HUD."
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "WindDirection",
+					"sid": 331177149092133,
+					"parameters": {
+						"angle": "angle(0, 0, sign(WindDirection), 0)"
+					}
+				},
+				{
+					"id": "stop-tweens",
+					"objectClass": "WindDirection",
+					"sid": 882225432914282,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Stretch\""
+					}
+				},
+				{
+					"id": "set-width",
+					"objectClass": "WindDirection",
+					"sid": 556986891581904,
+					"parameters": {
+						"width": "0"
+					}
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "WindDirection",
+					"sid": 490349973375311,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Stretch\"",
+						"property": "offsetWidth",
+						"end-value": "abs(WindDirection) * 8",
+						"time": "abs(WindDirection) * 0.1",
+						"ease": "noease",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				}
+			],
+			"sid": 685401155701059
+		},
+		{
+			"eventType": "comment",
+			"text": "Gradually moves a value towards another value using a speed parameter."
+		},
+		{
+			"functionName": "MoveValueTowardsAnotherValue",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "number",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "CurrentValue",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 704321361754381
+				},
+				{
+					"name": "TargetValue",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 715641350080164
+				},
+				{
+					"name": "Speed",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 367530890708941
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 731556458075495,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The direction in which the current value needs to move at in order to reach the target value."
+				},
+				{
+					"eventType": "variable",
+					"name": "Direction",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 383137751008678
+				},
+				{
+					"eventType": "comment",
+					"text": "Calculate the direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 375475215582861,
+							"parameters": {
+								"variable": "Direction",
+								"value": "sign(TargetValue - CurrentValue )"
+							}
+						}
+					],
+					"sid": 718242960878897
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value is higher than the target value, use the target value as the minimum clamp parameter."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 143585586377206,
+							"parameters": {
+								"value": "CurrentValue > TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 611303582315449,
+							"parameters": {
+								"value": "clamp(CurrentValue + Direction * abs(Speed) * 60 * dt, TargetValue, Infinity)"
+							}
+						}
+					],
+					"sid": 457330999734052
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value is lower than the target value, use the target value as the maximum clamp parameter."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 143376178975260
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 533979024681398,
+							"parameters": {
+								"value": "CurrentValue < TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 230140678220389,
+							"parameters": {
+								"value": "clamp(CurrentValue + Direction * abs(Speed) * 60 * dt, -Infinity, TargetValue)"
+							}
+						}
+					],
+					"sid": 431269710317558
+				},
+				{
+					"eventType": "comment",
+					"text": "If the current value equals the target value, simply return the target value."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 238739343066895
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 260848002327510,
+							"parameters": {
+								"value": "CurrentValue = TargetValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 897466452218552,
+							"parameters": {
+								"value": "TargetValue"
+							}
+						}
+					],
+					"sid": 100128589004838
+				}
+			]
+		}
+	],
+	"sid": 724119474796803
+}

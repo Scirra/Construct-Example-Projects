@@ -1,0 +1,2277 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How much time has passed since the game has been opened."
+		},
+		{
+			"eventType": "variable",
+			"name": "ElapsedTimeGame",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 761413923370035
+		},
+		{
+			"eventType": "comment",
+			"text": "How much time has passed since the round started."
+		},
+		{
+			"eventType": "variable",
+			"name": "ElapsedTimeRound",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 968108320085358
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player is alive."
+		},
+		{
+			"eventType": "variable",
+			"name": "PlayerIsAlive",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 975698464406753
+		},
+		{
+			"eventType": "comment",
+			"text": "How large and tall the grid will be in cells."
+		},
+		{
+			"eventType": "variable",
+			"name": "GRIDSIZE",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 878363151935969
+		},
+		{
+			"eventType": "comment",
+			"text": "How many mines the grid will contain."
+		},
+		{
+			"eventType": "variable",
+			"name": "TOTALMINES",
+			"type": "number",
+			"initialValue": "32",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 155331071938589
+		},
+		{
+			"eventType": "comment",
+			"text": "How large and tall each cell is."
+		},
+		{
+			"eventType": "variable",
+			"name": "CELLSIZE",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 644372109142331
+		},
+		{
+			"eventType": "comment",
+			"text": "The position where the first grid cell will be created, others will follow along."
+		},
+		{
+			"eventType": "variable",
+			"name": "STARTINGPOINTX",
+			"type": "number",
+			"initialValue": "199",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 969456856592782
+		},
+		{
+			"eventType": "variable",
+			"name": "STARTINGPOINTY",
+			"type": "number",
+			"initialValue": "61",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 829157514557045
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create a grid of cells, based on a few pre-definied properties (grid size and cell size)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 787008275401930
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "MineCounter",
+							"sid": 499612592756793,
+							"parameters": {
+								"text": "TOTALMINES"
+							}
+						}
+					],
+					"sid": 126191262085233,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 690593553297969,
+									"parameters": {
+										"name": "\"Column\"",
+										"start-index": "0",
+										"end-index": "GRIDSIZE - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 231683060310135,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 397985609213871,
+											"parameters": {
+												"name": "\"Row\"",
+												"start-index": "0",
+												"end-index": "GRIDSIZE - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 674966592737502,
+											"parameters": {
+												"object-to-create": "GridCell",
+												"layer": "\"Minefield\"",
+												"x": "STARTINGPOINTX + CELLSIZE * loopindex(\"Row\")",
+												"y": "STARTINGPOINTY + CELLSIZE * loopindex(\"Column\")",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "GridCell",
+											"sid": 838173433008951,
+											"parameters": {
+												"frame-number": "0"
+											}
+										}
+									],
+									"sid": 299007127353110
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "To make sure all cells will be available for picking, it's important to wait a bit before placing the mines, so a timer is very useful here."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "GameManager",
+									"sid": 689109948025547,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "0.1",
+										"type": "once",
+										"tag": "\"PlaceMines\""
+									}
+								}
+							],
+							"sid": 423297598478649
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the timer is complete, use a permutation table (sequence of numbers randomly ordered) to pick random cells that will be used as hidden mines."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 113028276696831,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"PlaceMines\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 599967813802198,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "createPermutationTable",
+									"objectClass": "AdvancedRandom",
+									"sid": 616082112643732,
+									"parameters": {
+										"length": "GRIDSIZE * GRIDSIZE",
+										"offset": "0"
+									}
+								}
+							],
+							"sid": 737851645699256,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 636792640201928,
+											"parameters": {
+												"count": "TOTALMINES"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 391546905112221,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-nth-instance",
+													"objectClass": "System",
+													"sid": 119679734194001,
+													"parameters": {
+														"object": "GridCell",
+														"instance": "AdvancedRandom.Permutation(loopindex)"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "GridCell",
+													"sid": 148190173327709,
+													"parameters": {
+														"instance-variable": "IsMine",
+														"value": "true"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Optionally spawn a debug eye on top of each mine, so they're visible while testing (disabled by default)."
+												},
+												{
+													"id": "spawn-another-object",
+													"objectClass": "GridCell",
+													"sid": 739297833635608,
+													"disabled": true,
+													"parameters": {
+														"object": "DebugEye",
+														"layer": "\"Minefield\"",
+														"image-point": "0",
+														"create-hierarchy": false
+													}
+												}
+											],
+											"sid": 817958475855343
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 339788414614162
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "MainLoop",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Allow the player to interact with the cells, but only while he's alive."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 562612442129183,
+							"parameters": {
+								"variable": "PlayerIsAlive"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Count how much time has passed since the round started and display it in the HUD."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 867464172967914,
+							"parameters": {
+								"variable": "ElapsedTimeRound",
+								"value": "round(wallclocktime - ElapsedTimeGame)"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "Timer",
+							"sid": 964416045783079,
+							"parameters": {
+								"text": "zeropad(int(ElapsedTimeRound/60/60% 60),2) & \":\"& zeropad(int(ElapsedTimeRound/60% 60),2) & \":\" & zeropad(int(ElapsedTimeRound%60),2)"
+							}
+						}
+					],
+					"sid": 437614589638202,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the cursor is on top of a closed cell, positionate the cursor on top of it, otherwise move the cursor outside the visible area."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "cursor-is-over-object",
+									"objectClass": "Mouse",
+									"sid": 279557849780499,
+									"parameters": {
+										"object": "GridCell"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 573962307228608,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "GridCell",
+											"sid": 374788319506359,
+											"parameters": {
+												"instance-variable": "HasBeenOpened"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "Cursor",
+											"sid": 123215306409671,
+											"parameters": {
+												"x": "GridCell.X",
+												"y": "GridCell.Y"
+											}
+										}
+									],
+									"sid": 332640073941977
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 835245171438046
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "GridCell",
+											"sid": 774240690257573,
+											"parameters": {
+												"instance-variable": "HasBeenOpened"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "Cursor",
+											"sid": 597844352093695,
+											"parameters": {
+												"x": "-Self.Width / 2",
+												"y": "-Self.Height / 2"
+											}
+										}
+									],
+									"sid": 556574851247069
+								}
+							]
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 458940689721607
+								},
+								{
+									"id": "cursor-is-over-object",
+									"objectClass": "Mouse",
+									"sid": 345662332958226,
+									"parameters": {
+										"object": "GridCell"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "Cursor",
+									"sid": 425809117602371,
+									"parameters": {
+										"x": "-Self.Width / 2",
+										"y": "-Self.Height / 2"
+									}
+								}
+							],
+							"sid": 903926847621733
+						},
+						{
+							"eventType": "comment",
+							"text": "If the cursor is released while touching a cell, check its surroundings."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 461410907398276,
+									"parameters": {
+										"object": "GridCell"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 323400650309555,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-any-touch-end",
+											"objectClass": "Touch",
+											"sid": 617882472960340
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "CheckGridCellSurroundings",
+											"sid": 111183218766046,
+											"parameters": [
+												"GridCell.UID"
+											]
+										}
+									],
+									"sid": 169657574546918
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 143332039100672
+		},
+		{
+			"eventType": "comment",
+			"text": "Check the surroundings of a specific cell based on its UID"
+		},
+		{
+			"functionName": "CheckGridCellSurroundings",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "GridCellUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 600058867397681
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "pick-by-unique-id",
+					"objectClass": "GridCell",
+					"sid": 639722232606903,
+					"parameters": {
+						"unique-id": "GridCellUID"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 120844273151252,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Only open and check the surroundings of the cell if it hasn't been opened yet."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-animation-playing",
+							"objectClass": "GridCell",
+							"sid": 578980215493603,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "GridCell",
+							"sid": 260394985898034,
+							"parameters": {
+								"instance-variable": "HasBeenOpened"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "GridCell",
+							"sid": 653719432874601,
+							"parameters": {
+								"instance-variable": "HasBeenOpened",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 172137788746523,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "How many cells are nearby the chosen cell."
+						},
+						{
+							"eventType": "variable",
+							"name": "NearbyMinesCounter",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 637125821799630
+						},
+						{
+							"eventType": "comment",
+							"text": "If the chosen cell is a mine, then ignore the surroundings and simply detonate it, resulting in a game over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "GridCell",
+									"sid": 831657383958767,
+									"parameters": {
+										"instance-variable": "IsMine"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Reveal the mine."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "GridCell",
+									"sid": 849752848884778,
+									"parameters": {
+										"animation": "\"Default\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "GridCell",
+									"sid": 372626867189692,
+									"parameters": {
+										"frame-number": "2"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Indicate the detonated mine by creating a sight pointing to it. The point also rotates and bounces to better call the player's attention."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 591878416489001,
+									"parameters": {
+										"object-to-create": "MineSight",
+										"layer": "\"Minefield\"",
+										"x": "GridCell.X",
+										"y": "GridCell.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "MineSight",
+									"sid": 727073952344786,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"\"",
+										"property": "size",
+										"end-x": "64",
+										"end-y": "64",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "yes",
+										"ping-pong": "yes"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Remove the cursor from the screen, since it won't be used during the current round."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "Cursor",
+									"sid": 331906444562411,
+									"parameters": {
+										"x": "-Self.Width / 2",
+										"y": "-Self.Height / 2"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Change the smiley to a sad face, so the player know's he lost the game."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "SmileyIcon",
+									"sid": 904518261130355,
+									"parameters": {
+										"animation": "\"Sad\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Since a mine has just exploded, change the window name to \"Explosion.exe\" just as a small easter egg."
+								},
+								{
+									"id": "set-text",
+									"objectClass": "Notification",
+									"sid": 224950281550116,
+									"parameters": {
+										"text": "\"Explosion.exe\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create a constantly growing reveal circle that will show the content of unopened cells in the grid."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 674538693338703,
+									"parameters": {
+										"object-to-create": "RevealCircle",
+										"layer": "\"Minefield\"",
+										"x": "GridCell.X",
+										"y": "GridCell.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "RevealCircle",
+									"sid": 761143353141906,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Reveal\"",
+										"property": "size",
+										"end-x": "Self.Width * 48",
+										"end-y": "Self.Height * 48",
+										"time": "8",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Shake the screen for a more impactful effect."
+								},
+								{
+									"callFunction": "ShakeScreen",
+									"sid": 759258426252123,
+									"parameters": [
+										"10",
+										"2"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Start the explosion sequence, where a bunch of explosions will be shown in the screen."
+								},
+								{
+									"callFunction": "StartExplosionSequenceAtPosition",
+									"sid": 361725985070280,
+									"parameters": [
+										"GridCell.X",
+										"GridCell.Y"
+									]
+								}
+							],
+							"sid": 221892964323001
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the chosen cell is not a mine, count how many cells are surrounding it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 474911036404887
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "GridCell",
+									"sid": 384714327005918,
+									"parameters": {
+										"instance-variable": "IsMine"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 838342867149507,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Spawn a separate collider, which will make it it easier to make collision tests with other cells, since it's a completely different object and not just an instance."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "spawn-another-object",
+											"objectClass": "GridCell",
+											"sid": 826881997657892,
+											"parameters": {
+												"object": "BlueCollider",
+												"layer": "\"Minefield\"",
+												"image-point": "0",
+												"create-hierarchy": false
+											}
+										}
+									],
+									"sid": 274045761917206,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-all",
+													"objectClass": "System",
+													"sid": 703354183189615,
+													"parameters": {
+														"object": "GridCell"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 311143489904180,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Loop through all surrounding cells in a 3x3 area, but avoid the chosen cell by checking if at least one of the loops is not equal to zero."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "for",
+															"objectClass": "System",
+															"sid": 668795630346700,
+															"parameters": {
+																"name": "\"Y\"",
+																"start-index": "-1",
+																"end-index": "1"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 701376276967234,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "for",
+																	"objectClass": "System",
+																	"sid": 356827368061216,
+																	"parameters": {
+																		"name": "\"X\"",
+																		"start-index": "-1",
+																		"end-index": "1"
+																	}
+																}
+															],
+															"actions": [],
+															"sid": 453518719634574,
+															"children": [
+																{
+																	"eventType": "block",
+																	"conditions": [
+																		{
+																			"id": "compare-two-values",
+																			"objectClass": "System",
+																			"sid": 976903012243987,
+																			"parameters": {
+																				"first-value": "loopindex(\"X\")",
+																				"comparison": 1,
+																				"second-value": "0"
+																			}
+																		},
+																		{
+																			"id": "compare-two-values",
+																			"objectClass": "System",
+																			"sid": 286131376696546,
+																			"parameters": {
+																				"first-value": "loopindex(\"Y\")",
+																				"comparison": 1,
+																				"second-value": "0"
+																			}
+																		}
+																	],
+																	"actions": [],
+																	"sid": 425608366917856,
+																	"children": [
+																		{
+																			"eventType": "comment",
+																			"text": "If the collider is indeed overlapping a mine, then add one to the nearby mines counter."
+																		},
+																		{
+																			"eventType": "block",
+																			"conditions": [
+																				{
+																					"id": "is-overlapping-at-offset",
+																					"objectClass": "BlueCollider",
+																					"sid": 959484239931669,
+																					"parameters": {
+																						"object": "GridCell",
+																						"offset-x": "loopindex(\"X\") * CELLSIZE",
+																						"offset-y": "loopindex(\"Y\") * CELLSIZE"
+																					}
+																				}
+																			],
+																			"actions": [],
+																			"sid": 401796969512344,
+																			"children": [
+																				{
+																					"eventType": "block",
+																					"conditions": [
+																						{
+																							"id": "is-boolean-instance-variable-set",
+																							"objectClass": "GridCell",
+																							"sid": 231129682363326,
+																							"parameters": {
+																								"instance-variable": "IsMine"
+																							}
+																						}
+																					],
+																					"actions": [
+																						{
+																							"id": "add-to-eventvar",
+																							"objectClass": "System",
+																							"sid": 186148227281895,
+																							"parameters": {
+																								"variable": "NearbyMinesCounter",
+																								"value": "1"
+																							}
+																						}
+																					],
+																					"sid": 822085936142120
+																				}
+																			]
+																		}
+																	],
+																	"isOrBlock": true
+																}
+															]
+														}
+													]
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Once the collision checking is over, destroy the collider, since it won't be used anymore."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "destroy",
+													"objectClass": "BlueCollider",
+													"sid": 721319521296736
+												}
+											],
+											"sid": 790556077008075
+										},
+										{
+											"eventType": "comment",
+											"text": "If there's at least one mine nearby the chosen cell, update its local nearby mines counter and display it with a different animation."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 369690348819203,
+													"parameters": {
+														"first-value": "NearbyMinesCounter",
+														"comparison": 4,
+														"second-value": "0"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 162198508067873,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-all",
+															"objectClass": "System",
+															"sid": 988413112776180,
+															"parameters": {
+																"object": "GridCell"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 104894385111151,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-by-unique-id",
+																	"objectClass": "GridCell",
+																	"sid": 544343176065999,
+																	"parameters": {
+																		"unique-id": "GridCellUID"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-instvar-value",
+																	"objectClass": "GridCell",
+																	"sid": 914921359408270,
+																	"parameters": {
+																		"instance-variable": "NearbyMines",
+																		"value": "NearbyMinesCounter"
+																	}
+																},
+																{
+																	"id": "set-animation",
+																	"objectClass": "GridCell",
+																	"sid": 149209000634205,
+																	"parameters": {
+																		"animation": "\"NearbyMines\"",
+																		"from": "beginning"
+																	}
+																},
+																{
+																	"id": "set-animation-frame",
+																	"objectClass": "GridCell",
+																	"sid": 295762926323252,
+																	"parameters": {
+																		"frame-number": "Self.NearbyMines - 1"
+																	}
+																}
+															],
+															"sid": 180152060361159
+														}
+													]
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "However, if there are absolutely no mines nearby the chosen cell, turn it into a flying debri and check if there are more lone cells around it."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 243731132198003
+												},
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 294527297499287,
+													"parameters": {
+														"first-value": "NearbyMinesCounter",
+														"comparison": 0,
+														"second-value": "0"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 764171042332887,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-all",
+															"objectClass": "System",
+															"sid": 946162421722916,
+															"parameters": {
+																"object": "GridCell"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 898105457028231,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-by-unique-id",
+																	"objectClass": "GridCell",
+																	"sid": 706554278198278,
+																	"parameters": {
+																		"unique-id": "GridCellUID"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "spawn-another-object",
+																	"objectClass": "GridCell",
+																	"sid": 207261015417892,
+																	"parameters": {
+																		"object": "Debri",
+																		"layer": "\"EffectsBelow\"",
+																		"image-point": "0",
+																		"create-hierarchy": false
+																	}
+																},
+																{
+																	"type": "comment",
+																	"text": "All debri properties are slightly randomized for a more dynamic effect when multiple cells are destroyed in a row."
+																},
+																{
+																	"id": "set-angle-of-motion",
+																	"objectClass": "Debri",
+																	"sid": 252876528402299,
+																	"behaviorType": "Bullet",
+																	"parameters": {
+																		"angle": "random(240, 300)"
+																	}
+																},
+																{
+																	"id": "set-speed",
+																	"objectClass": "Debri",
+																	"sid": 907061510310395,
+																	"behaviorType": "Bullet",
+																	"parameters": {
+																		"speed": "random(128, 256)"
+																	}
+																},
+																{
+																	"id": "set-speed",
+																	"objectClass": "Debri",
+																	"sid": 194769490067666,
+																	"behaviorType": "Rotate",
+																	"parameters": {
+																		"speed": "random(-720, 720)"
+																	}
+																},
+																{
+																	"type": "comment",
+																	"text": "Shake the screen for a more impactful effect."
+																},
+																{
+																	"callFunction": "ShakeScreen",
+																	"sid": 918475047808715,
+																	"parameters": [
+																		"5",
+																		"0.5"
+																	]
+																},
+																{
+																	"callFunction": "OpenGridCellArea",
+																	"sid": 771949013370910,
+																	"parameters": [
+																		"GridCell.UID"
+																	]
+																}
+															],
+															"sid": 689031139867591
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "At last, check if there are only mines remaining in the grid. If so, notify the player of his victory."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 390452748543644,
+							"parameters": {
+								"variable": "PlayerIsAlive"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 403538742517255,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-all",
+									"objectClass": "System",
+									"sid": 336983314875994,
+									"parameters": {
+										"object": "GridCell"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 347632377356253,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 391130620396222,
+											"parameters": {
+												"object": "GridCell",
+												"expression": "GridCell.HasBeenOpened",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 552884625124427,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 681664553749432,
+													"parameters": {
+														"first-value": "GridCell.PickedCount",
+														"comparison": 0,
+														"second-value": "(GRIDSIZE * GRIDSIZE) - TOTALMINES"
+													}
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Prevent the player from interacting with the remaining mines by pretending he has lost."
+												},
+												{
+													"id": "set-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 437807807508096,
+													"parameters": {
+														"variable": "PlayerIsAlive",
+														"value": "false"
+													}
+												},
+												{
+													"id": "set-text",
+													"objectClass": "Notification",
+													"sid": 494982963757122,
+													"parameters": {
+														"text": "\"Level Complete.exe\""
+													}
+												}
+											],
+											"sid": 569001574969679
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Open the area around a specific cell, by checking if there are more lone cells around it."
+		},
+		{
+			"functionName": "OpenGridCellArea",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "GridCellUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 409331178972304
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "pick-by-unique-id",
+					"objectClass": "GridCell",
+					"sid": 870805214457593,
+					"parameters": {
+						"unique-id": "GridCellUID"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Display an empty cell animation."
+				},
+				{
+					"id": "set-animation",
+					"objectClass": "GridCell",
+					"sid": 632842897814820,
+					"parameters": {
+						"animation": "\"Default\"",
+						"from": "beginning"
+					}
+				},
+				{
+					"id": "set-animation-frame",
+					"objectClass": "GridCell",
+					"sid": 684440555665120,
+					"parameters": {
+						"frame-number": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "A small timer is important to prevent the game from lagging due to a huge combination of loops in a single frame, it also create a very visually appealing cascade effect."
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "GridCell",
+					"sid": 490715018162380,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "0.1",
+						"type": "once",
+						"tag": "\"OpenArea\""
+					}
+				}
+			],
+			"sid": 439353044292583
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the timer is over, open the area around the cell with a similar technique to the previous one."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GridCell",
+					"sid": 562041824497849,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"OpenArea\""
+					}
+				},
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 179323671840291,
+					"parameters": {
+						"object": "GridCell"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 206458391149557,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Spawn a separate collider, which will make it it easier to make collision tests with other cells, since it's a completely different object and not just an instance."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "GridCell",
+							"sid": 310015364886067,
+							"parameters": {
+								"object": "RedCollider",
+								"layer": "\"Minefield\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 713607922944996,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-all",
+									"objectClass": "System",
+									"sid": 554646328307064,
+									"parameters": {
+										"object": "GridCell"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 534275000919504,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Loop through all surrounding cells in a 3x3 area, but avoid the chosen cell by checking if at least one of the loops is not equal to zero."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 177985712122664,
+											"parameters": {
+												"name": "\"Y\"",
+												"start-index": "-1",
+												"end-index": "1"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 738898976168131,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for",
+													"objectClass": "System",
+													"sid": 507968361086100,
+													"parameters": {
+														"name": "\"X\"",
+														"start-index": "-1",
+														"end-index": "1"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 533076495728551,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-two-values",
+															"objectClass": "System",
+															"sid": 392000783744515,
+															"parameters": {
+																"first-value": "loopindex(\"X\")",
+																"comparison": 1,
+																"second-value": "0"
+															}
+														},
+														{
+															"id": "compare-two-values",
+															"objectClass": "System",
+															"sid": 396206770722468,
+															"parameters": {
+																"first-value": "loopindex(\"Y\")",
+																"comparison": 1,
+																"second-value": "0"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 927378345875519,
+													"children": [
+														{
+															"eventType": "comment",
+															"text": "If the collider is overlapping a cell that is not a mine, check its surroundings as well, resulting in a cascade effect that will clean the grid as much as possible."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "is-overlapping-at-offset",
+																	"objectClass": "RedCollider",
+																	"sid": 441970019491867,
+																	"parameters": {
+																		"object": "GridCell",
+																		"offset-x": "loopindex(\"X\") * CELLSIZE",
+																		"offset-y": "loopindex(\"Y\") * CELLSIZE"
+																	}
+																}
+															],
+															"actions": [],
+															"sid": 325479319770294,
+															"children": [
+																{
+																	"eventType": "block",
+																	"conditions": [
+																		{
+																			"id": "is-boolean-instance-variable-set",
+																			"objectClass": "GridCell",
+																			"sid": 188770963547954,
+																			"parameters": {
+																				"instance-variable": "IsMine"
+																			},
+																			"isInverted": true
+																		}
+																	],
+																	"actions": [
+																		{
+																			"callFunction": "CheckGridCellSurroundings",
+																			"sid": 697723532331828,
+																			"parameters": [
+																				"GridCell.UID"
+																			]
+																		}
+																	],
+																	"sid": 451001663881027
+																}
+															]
+														}
+													],
+													"isOrBlock": true
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Once the collision checking is over, destroy the collider, since it won't be used anymore."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "RedCollider",
+									"sid": 313476365422737
+								}
+							],
+							"sid": 132222949108529
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ExplosionSequence",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How many explosions were displayed already."
+				},
+				{
+					"eventType": "variable",
+					"name": "ExplosionCounter",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 200217056253502
+				},
+				{
+					"functionName": "StartExplosionSequenceAtPosition",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "PositionX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 573070724958717
+						},
+						{
+							"name": "PositionY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 735322332870410
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Prevent the player from interacting with the remaining mines."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 671791432297915,
+							"parameters": {
+								"variable": "PlayerIsAlive",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Reset the explosion counter, so it can be triggered multiple times if necessary."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 944218415688286,
+							"parameters": {
+								"variable": "ExplosionCounter",
+								"value": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create an initial explosion in the chosen position."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 636979474736458,
+							"parameters": {
+								"object-to-create": "Explosion",
+								"layer": "\"EffectsAbove\"",
+								"x": "PositionX",
+								"y": "PositionY",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start a timer to trigger the next explosion after a small amount of time."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 692084675640945,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.1",
+								"type": "regular",
+								"tag": "\"ExplosionSequence\""
+							}
+						}
+					],
+					"sid": 731598419944767,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Loop through all cells and display the remaining mines in the grid."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 249116619081194,
+									"parameters": {
+										"object": "GridCell"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 305418139161594,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "GridCell",
+											"sid": 410799445361081,
+											"parameters": {
+												"instance-variable": "IsMine"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "GridCell",
+											"sid": 622311540383867,
+											"parameters": {
+												"animation": "\"Default\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "GridCell",
+											"sid": 583390831712988,
+											"parameters": {
+												"frame-number": "2"
+											}
+										}
+									],
+									"sid": 493415041204174
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the the explosion times is over, increase the explosion counter and check if it should stop or create a new explosion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 471549553416038,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"ExplosionSequence\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 758537453692203,
+							"parameters": {
+								"variable": "ExplosionCounter",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 643539633362669,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the explosion counter has reached its limit, then stop the timer, so no more explosions are created."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 241003325131795,
+									"parameters": {
+										"variable": "ExplosionCounter",
+										"comparison": 0,
+										"value": "20"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "stop-timer",
+									"objectClass": "GameManager",
+									"sid": 843819454272950,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"ExplosionSequence\""
+									}
+								}
+							],
+							"sid": 375129992664767
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, create a new explosion on top of a random cell. A random position like \"random(0, 10)\" could've been used here as well, but picking a random cell instance makes sure no explosion will be created outside the grid in a more intuitive way."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 958506399630122
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 943903522717400,
+									"parameters": {
+										"variable": "ExplosionCounter",
+										"comparison": 2,
+										"value": "20"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 209442851216810,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-random-instance",
+											"objectClass": "System",
+											"sid": 163354835956497,
+											"parameters": {
+												"object": "GridCell"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 370258030274858,
+											"parameters": {
+												"object-to-create": "Explosion",
+												"layer": "\"EffectsAbove\"",
+												"x": "GridCell.X",
+												"y": "GridCell.Y",
+												"create-hierarchy": false
+											}
+										}
+									],
+									"sid": 504572933013105
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once an explosion is create in the scene, create four additional fire balls around it that will fly in completely random directions."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Explosion",
+							"sid": 184211199376560
+						}
+					],
+					"actions": [],
+					"sid": 194854356526099,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 221460398058787,
+									"parameters": {
+										"count": "4"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 355405163126892,
+									"parameters": {
+										"object-to-create": "FireBall",
+										"layer": "\"EffectsAbove\"",
+										"x": "Explosion.X",
+										"y": "Explosion.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "FireBall",
+									"sid": 511907428576387,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "random(0, 360)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Destroy the fire ball after a small amount of time."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 529913896719621,
+									"parameters": {
+										"seconds": "random(0.25, 0.5)"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "FireBall",
+									"sid": 845206457489686
+								}
+							],
+							"sid": 121500437448800
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Leave a trail of smoke behind the fire ball while it's flying."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 602116679693155,
+							"parameters": {
+								"interval-seconds": "0.05"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "FireBall",
+							"sid": 386039525915262,
+							"parameters": {
+								"object": "Smoke",
+								"layer": "\"EffectsBelow\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 747580782824874
+				},
+				{
+					"eventType": "comment",
+					"text": "Revealing underneath the blocks"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "GridCell",
+							"sid": 844453670895783,
+							"parameters": {
+								"object": "RevealCircle"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 145092703737331,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "GridCell",
+									"sid": 424690070061121,
+									"parameters": {
+										"instance-variable": "IsMine"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "GridCell",
+									"sid": 786012224263666,
+									"parameters": {
+										"animation": "\"NearbyMines\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "GridCell",
+									"sid": 466122973950266,
+									"parameters": {
+										"frame-number": "1"
+									}
+								}
+							],
+							"sid": 819992577219081
+						}
+					]
+				}
+			],
+			"sid": 540554942908592
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Restarts the game if the player touches the smiley icon, but only if the player is not alive anymore."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-touching-object",
+							"objectClass": "Touch",
+							"sid": 284185427854316,
+							"parameters": {
+								"object": "SmileyIcon"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 596912865200739,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-any-touch-end",
+									"objectClass": "Touch",
+									"sid": 228981872529275
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 495978139023505,
+									"parameters": {
+										"variable": "PlayerIsAlive"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 130047799432212,
+									"parameters": {
+										"variable": "ElapsedTimeGame",
+										"value": "wallclocktime"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 911722671567496,
+									"parameters": {
+										"variable": "PlayerIsAlive",
+										"value": "true"
+									}
+								},
+								{
+									"id": "restart-layout",
+									"objectClass": "System",
+									"sid": 173580280525013
+								}
+							],
+							"sid": 137083566568205
+						}
+					]
+				}
+			],
+			"sid": 257845837065829
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ScreenShake",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Start a tween animation based on a strength and duration values, which will be used to change the layout angle, creating a dynamic screen shake effect."
+				},
+				{
+					"functionName": "ShakeScreen",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Strength",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 100773208108438
+						},
+						{
+							"name": "Duration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 192817189373968
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 976783973841452,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\"",
+								"start-value": "Strength",
+								"end-value": "1",
+								"time": "Duration",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 799846412362550
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "GameManager",
+							"sid": 462509002352255,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-angle",
+							"objectClass": "System",
+							"sid": 411809137392774,
+							"parameters": {
+								"angle": "anglelerp(LayoutAngle, random(-GameManager.Tween.Value(\"ScreenShake\"),GameManager.Tween.Value(\"ScreenShake\")), 0.5 * 60 * dt)"
+							}
+						}
+					],
+					"sid": 970987957840211
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "GameManager",
+							"sid": 284110949530486,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-angle",
+							"objectClass": "System",
+							"sid": 554131371855367,
+							"parameters": {
+								"angle": "0"
+							}
+						}
+					],
+					"sid": 181940045754259
+				}
+			],
+			"sid": 637127747925459
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "MemoryCleaner",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the animation of a particles object is over, destroy it to avoid any sort of CPU overload."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Explosion",
+							"sid": 716750348543215,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Explosion",
+							"sid": 125207862147229
+						}
+					],
+					"sid": 856111065615871
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "FireBall",
+							"sid": 124485292272154,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "FireBall",
+							"sid": 580659233926069
+						}
+					],
+					"sid": 470346950568673
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Smoke",
+							"sid": 125406360430122,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Smoke",
+							"sid": 587577706843422
+						}
+					],
+					"sid": 527249392161899
+				}
+			],
+			"sid": 314268720308285
+		}
+	],
+	"sid": 985867815180464
+}

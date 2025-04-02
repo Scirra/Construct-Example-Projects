@@ -1,0 +1,2190 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the scene by adjusting a few general physics properties, like the stepping mode and the amount of iterations it will perform."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 163451960209476
+						}
+					],
+					"actions": [
+						{
+							"id": "set-stepping-mode",
+							"objectClass": "BallPhysics",
+							"sid": 736644408599097,
+							"behaviorType": "Physics",
+							"parameters": {
+								"mode": "fixed"
+							}
+						},
+						{
+							"id": "set-stepping-iterations",
+							"objectClass": "BallPhysics",
+							"sid": 957611809704050,
+							"behaviorType": "Physics",
+							"parameters": {
+								"velocity-iterations": "32",
+								"position-iterations": "8"
+							}
+						}
+					],
+					"sid": 408428758409997
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the ball physics by updating its last position, preventing weird shapes on its trail."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "BallPhysics",
+							"sid": 601148162254939
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "UpdateBallLastPosition",
+							"sid": 288415071277711,
+							"parameters": [
+								"BallPhysics.UID"
+							]
+						}
+					],
+					"sid": 648004387249565
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the ball graphics by adding it as a child of the ball physics, making them stick together."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "BallGraphics",
+							"sid": 521096173452613
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "BallGraphics",
+							"sid": 606886840890919,
+							"parameters": {
+								"object": "BallPhysics",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "BallPhysics",
+							"sid": 227955863841355,
+							"parameters": {
+								"child": "BallGraphics",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 868738038551684
+				}
+			],
+			"sid": 262861076471573
+		},
+		{
+			"eventType": "comment",
+			"text": "The cinematic effects are disabled by default, because they're only useful when recording footage, otherwise they can make the game very hard to play."
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Cinematic",
+			"description": "",
+			"isActiveOnStart": false,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly scroll the camera towards the player position, but using lerp for interpolating the values, resulting in a smoother camera motion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 950549465259335
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 433983777981028,
+							"parameters": {
+								"x": "lerp(scrollx, BallPhysics.X, 0.1 * 60 * dt)",
+								"y": "lerp(scrolly, BallPhysics.Y, 0.1 * 60 * dt)"
+							}
+						}
+					],
+					"sid": 356159477464723
+				},
+				{
+					"eventType": "comment",
+					"text": "Zoom the camera by changing the layout scale, which is set based on a tween animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 315145400911398
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-scale",
+							"objectClass": "System",
+							"sid": 831734204990006,
+							"parameters": {
+								"scale": "1"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 707604175434383,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.25",
+								"type": "once",
+								"tag": "\"Zoom\""
+							}
+						}
+					],
+					"sid": 262564959408358
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 478378064450867,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Zoom\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 763664048630307,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Zoom\"",
+								"start-value": "LayoutScale",
+								"end-value": "2",
+								"time": "0.5",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 960777691073280
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "GameManager",
+							"sid": 958906284364494,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Zoom\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-scale",
+							"objectClass": "System",
+							"sid": 799098839686751,
+							"parameters": {
+								"scale": "GameManager.Tween.Value(\"Zoom\")"
+							}
+						}
+					],
+					"sid": 621784979025692
+				}
+			],
+			"sid": 742144776038965
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If any of the input keys/buttons for the activating the left flipper are pressed, created a flipper collision object and make it disappear quickly, so it's not too easy to hit a ball."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 537143705577499,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 484447489552332,
+							"parameters": {
+								"gamepad": "0",
+								"button": "left-shoulder-button"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 630182279477876,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 521766830782537,
+									"parameters": {
+										"object": "Flipper",
+										"expression": "Flipper.IDName",
+										"comparison": 0,
+										"value": "\"Left\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Flipper",
+									"sid": 745396293194958,
+									"parameters": {
+										"object": "FlipperCollision",
+										"layer": "\"Machine\"",
+										"image-point": "\"\"",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "FlipperCollision",
+									"sid": 162905755977543,
+									"parameters": {
+										"width": "Self.Width * sign(Flipper.Width)"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "FlipperCollision",
+									"sid": 782621838852501,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeOut\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.25",
+										"ease": "default",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 693216190604280
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If any of the input keys/buttons for the activating the right flipper are pressed, created a flipper collision object and make it disappear quickly, so it's not too easy to hit a ball."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 825521658702602,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 915602342139287,
+							"parameters": {
+								"gamepad": "0",
+								"button": "right-shoulder-button"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 612856870889293,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 128939608420517,
+									"parameters": {
+										"object": "Flipper",
+										"expression": "Flipper.IDName",
+										"comparison": 0,
+										"value": "\"Right\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Flipper",
+									"sid": 491152954379945,
+									"parameters": {
+										"object": "FlipperCollision",
+										"layer": "\"Machine\"",
+										"image-point": "\"\"",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "FlipperCollision",
+									"sid": 199586585010630,
+									"parameters": {
+										"width": "Self.Width * sign(Flipper.Width)"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "FlipperCollision",
+									"sid": 630031119260883,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeOut\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.25",
+										"ease": "default",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 580960977330500
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If a ball collides with a flipper, disable the collision, so it doesn't affect the ball more than once, then apply impulse to the ball, so it can be thrown up."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 755593684745005,
+							"parameters": {
+								"object": "FlipperCollision"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-collisions-enabled",
+							"objectClass": "FlipperCollision",
+							"sid": 854921292665849,
+							"parameters": {
+								"collisions": "disabled"
+							}
+						},
+						{
+							"callFunction": "ApplyImpulseToBall",
+							"sid": 574647811093961,
+							"parameters": [
+								"BallPhysics.UID",
+								"0.25",
+								"clamp(angle(FlipperCollision.X, FlipperCollision.Y, BallPhysics.X, BallPhysics.Y), -90 - 30, 90 + 30)",
+								false
+							]
+						}
+					],
+					"sid": 940612613070768
+				}
+			],
+			"sid": 916875174934130
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Slingshot",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the ball collides with the shooter, thrown it up with slightly random force and spawn a few particles on the shooter's tip."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 886778202920154,
+							"parameters": {
+								"object": "Shooter"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "apply-impulse-at-angle",
+							"objectClass": "BallPhysics",
+							"sid": 789175996249979,
+							"behaviorType": "Physics",
+							"parameters": {
+								"impulse": "1 + random(0, 0.25)",
+								"angle": "90",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Shooter",
+							"sid": 725979475716402,
+							"parameters": {
+								"object": "ShooterMuzzleFlash",
+								"layer": "\"Effects\"",
+								"image-point": "\"Tip\"",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "ShooterMuzzleFlash",
+							"sid": 942507865978501,
+							"parameters": {
+								"angle": "270"
+							}
+						}
+					],
+					"sid": 690441938042818
+				},
+				{
+					"eventType": "comment",
+					"text": "If the ball collide with any of the slingshot objects and the slingshot is able to bounce the ball (out of the cooldown timer), apply force to it depending on the slingshot's conditions, which are different for each one of them."
+				},
+				{
+					"eventType": "comment",
+					"text": "In most cases a family would be useful for reducing similar code for objects with similar purposes, but since most of the slingshots have very distinct methods for applying impulse, having separate event was the best option."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 365072065684973,
+							"parameters": {
+								"object": "SlingshotRadial"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "BallGraphics",
+							"sid": 724296586050884,
+							"parameters": {
+								"object": "SlingshotRadial"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 412929494386241,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "SlingshotRadial",
+									"sid": 368508159348756,
+									"parameters": {
+										"instance-variable": "CanBounce"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "ApplyImpulseToBall",
+									"sid": 816991096071999,
+									"parameters": [
+										"BallPhysics.UID",
+										"0.15",
+										"angle(SlingshotRadial.X, SlingshotRadial.Y, BallPhysics.X, BallPhysics.Y)",
+										true
+									]
+								},
+								{
+									"callFunction": "StartCooldown",
+									"sid": 272549629526107,
+									"parameters": [
+										"SlingshotRadial.UID",
+										"SlingshotRadial.CooldownDuration"
+									]
+								}
+							],
+							"sid": 568726351059796
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 519593230452504,
+							"parameters": {
+								"object": "Launcher"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "BallGraphics",
+							"sid": 644633542682731,
+							"parameters": {
+								"object": "Launcher"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 667722613961407,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Launcher",
+									"sid": 235882604285903,
+									"parameters": {
+										"instance-variable": "CanBounce"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "ApplyImpulseToBall",
+									"sid": 404769910104679,
+									"parameters": [
+										"BallPhysics.UID",
+										"0.3",
+										"clamp(angle(Launcher.X, Launcher.Y, BallPhysics.X, BallPhysics.Y), -90 - 5, 90 + 5)",
+										true
+									]
+								},
+								{
+									"callFunction": "StartCooldown",
+									"sid": 543696045536660,
+									"parameters": [
+										"Launcher.UID",
+										"Launcher.CooldownDuration"
+									]
+								}
+							],
+							"sid": 687111769498007
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 298571547655420,
+							"parameters": {
+								"object": "SlingshotCeiling"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "BallGraphics",
+							"sid": 708744034040230,
+							"parameters": {
+								"object": "SlingshotCeiling"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 133751221745978,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "SlingshotCeiling",
+									"sid": 876015755822080,
+									"parameters": {
+										"instance-variable": "CanBounce"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "ApplyImpulseToBall",
+									"sid": 927254021091791,
+									"parameters": [
+										"BallPhysics.UID",
+										"0.15",
+										"clamp(angle(SlingshotCeiling.X, SlingshotCeiling.Y, BallPhysics.X, BallPhysics.Y), 45 - 10, 45 + 10)",
+										true
+									]
+								},
+								{
+									"callFunction": "StartCooldown",
+									"sid": 312571428793901,
+									"parameters": [
+										"SlingshotCeiling.UID",
+										"SlingshotCeiling.CooldownDuration"
+									]
+								}
+							],
+							"sid": 336068728334562
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 125000368219840,
+							"parameters": {
+								"object": "SlingshotBottomLeft"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "BallGraphics",
+							"sid": 551589017378036,
+							"parameters": {
+								"object": "SlingshotBottomLeft"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 589675431485803,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "SlingshotBottomLeft",
+									"sid": 957471026714801,
+									"parameters": {
+										"instance-variable": "CanBounce"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 512420373580110,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Only if the ball is on a specific side in comparison with the slingshot."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 370074728269163,
+											"parameters": {
+												"first-value": "BallGraphics.X",
+												"comparison": 4,
+												"second-value": "SlingshotBottomLeft.X"
+											}
+										},
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 416315767924949,
+											"parameters": {
+												"first-value": "BallGraphics.Y",
+												"comparison": 2,
+												"second-value": "SlingshotBottomLeft.Y"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "ApplyImpulseToBall",
+											"sid": 605125644496052,
+											"parameters": [
+												"BallPhysics.UID",
+												"0.15",
+												"angle(SlingshotBottomLeft.X, SlingshotBottomLeft.Y, BallPhysics.X, BallPhysics.Y)",
+												true
+											]
+										},
+										{
+											"callFunction": "StartCooldown",
+											"sid": 587044588282027,
+											"parameters": [
+												"SlingshotBottomLeft.UID",
+												"SlingshotBottomLeft.CooldownDuration"
+											]
+										}
+									],
+									"sid": 294787000067452
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 919771507297768,
+							"parameters": {
+								"object": "SlingshotBottomRight"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "BallGraphics",
+							"sid": 276832238590745,
+							"parameters": {
+								"object": "SlingshotBottomRight"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 112407044439994,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "SlingshotBottomRight",
+									"sid": 653616404660676,
+									"parameters": {
+										"instance-variable": "CanBounce"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 183000799359331,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Only if the ball is on a specific side in comparison with the slingshot."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 419005865680499,
+											"parameters": {
+												"first-value": "BallGraphics.X",
+												"comparison": 2,
+												"second-value": "SlingshotBottomRight.X"
+											}
+										},
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 356140980281537,
+											"parameters": {
+												"first-value": "BallGraphics.Y",
+												"comparison": 2,
+												"second-value": "SlingshotBottomRight.Y"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "ApplyImpulseToBall",
+											"sid": 428163899252015,
+											"parameters": [
+												"BallPhysics.UID",
+												"0.15",
+												"angle(SlingshotBottomRight.X, SlingshotBottomRight.Y, BallPhysics.X, BallPhysics.Y)",
+												true
+											]
+										},
+										{
+											"callFunction": "StartCooldown",
+											"sid": 170107748212909,
+											"parameters": [
+												"SlingshotBottomRight.UID",
+												"SlingshotBottomRight.CooldownDuration"
+											]
+										}
+									],
+									"sid": 355170638577887
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 201729869027266,
+							"parameters": {
+								"object": "SligshotTopRight"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "BallGraphics",
+							"sid": 541243942285806,
+							"parameters": {
+								"object": "SligshotTopRight"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 540034233905679,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "SligshotTopRight",
+									"sid": 311941292276528,
+									"parameters": {
+										"instance-variable": "CanBounce"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 432689383732092,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Only if the ball is on a specific side in comparison with the slingshot."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 339657567471583,
+											"parameters": {
+												"first-value": "BallGraphics.X",
+												"comparison": 2,
+												"second-value": "SligshotTopRight.X"
+											}
+										},
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 390105394484820,
+											"parameters": {
+												"first-value": "BallGraphics.Y",
+												"comparison": 4,
+												"second-value": "SligshotTopRight.Y"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "ApplyImpulseToBall",
+											"sid": 659762974835096,
+											"parameters": [
+												"BallPhysics.UID",
+												"0.15",
+												"angle(SligshotTopRight.X, SligshotTopRight.Y, BallPhysics.X, BallPhysics.Y)",
+												true
+											]
+										},
+										{
+											"callFunction": "StartCooldown",
+											"sid": 567983724498609,
+											"parameters": [
+												"SligshotTopRight.UID",
+												"SligshotTopRight.CooldownDuration"
+											]
+										}
+									],
+									"sid": 987971491178124
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 322606451277124,
+							"parameters": {
+								"object": "SlingshotTopLeft"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "BallGraphics",
+							"sid": 891594989766907,
+							"parameters": {
+								"object": "SlingshotTopLeft"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 330799616641385,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "SlingshotTopLeft",
+									"sid": 187198359232176,
+									"parameters": {
+										"instance-variable": "CanBounce"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 283896959528462,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Only if the ball is on a specific side in comparison with the slingshot."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 130815546475438,
+											"parameters": {
+												"first-value": "BallGraphics.X",
+												"comparison": 4,
+												"second-value": "SlingshotTopLeft.X"
+											}
+										},
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 283485454270424,
+											"parameters": {
+												"first-value": "BallGraphics.Y",
+												"comparison": 4,
+												"second-value": "SlingshotTopLeft.Y"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "ApplyImpulseToBall",
+											"sid": 588585208105199,
+											"parameters": [
+												"BallPhysics.UID",
+												"0.15",
+												"angle(SlingshotTopLeft.X, SlingshotTopLeft.Y, BallPhysics.X, BallPhysics.Y)",
+												true
+											]
+										},
+										{
+											"callFunction": "StartCooldown",
+											"sid": 136355418416828,
+											"parameters": [
+												"SlingshotTopLeft.UID",
+												"SlingshotTopLeft.CooldownDuration"
+											]
+										}
+									],
+									"sid": 427314239110374
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Apply force to a specific ball based on a pre-defined angle."
+				},
+				{
+					"functionName": "ApplyImpulseToBall",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "BallUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 823722384701647
+						},
+						{
+							"name": "BallImpulse",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 256033718399778
+						},
+						{
+							"name": "BallAngle",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 750675642522473
+						},
+						{
+							"name": "DisplayScore",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 501750997619400
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "BallPhysics",
+							"sid": 973537586270792,
+							"parameters": {
+								"unique-id": "BallUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "apply-impulse-at-angle",
+							"objectClass": "BallPhysics",
+							"sid": 991351932397231,
+							"behaviorType": "Physics",
+							"parameters": {
+								"impulse": "BallImpulse",
+								"angle": "BallAngle",
+								"image-point": "0"
+							}
+						}
+					],
+					"sid": 887419807185575,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also display an animated fake score text (optional)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 205894446388160,
+									"parameters": {
+										"variable": "DisplayScore"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BallPhysics",
+									"sid": 171927437315936,
+									"parameters": {
+										"object": "Text",
+										"layer": "\"HUD\"",
+										"image-point": "0",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "Text",
+									"sid": 492104191956615,
+									"parameters": {
+										"text": "\"+100\""
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Text",
+									"sid": 498569401912829,
+									"parameters": {
+										"angle": "0"
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Text",
+									"sid": 394361251628384,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Knockback\"",
+										"property": "position",
+										"end-x": "Self.X + cos(BallAngle) * 8",
+										"end-y": "Self.Y + sin(BallAngle) * 8",
+										"time": "0.5",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 853024785498344
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the score text has finished it's initial knockback animation, destroy it by making it disappear."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Text",
+							"sid": 924770460948377,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Knockback\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Text",
+							"sid": 425907676973837,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fadeout\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "default",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 435963166299042
+				},
+				{
+					"eventType": "comment",
+					"text": "Start a cooldown timer on a specific slingshot, which will prevent it from applying force to a ball temporarily."
+				},
+				{
+					"functionName": "StartCooldown",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "SlingshotUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 622885122771763
+						},
+						{
+							"name": "Duration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 985915430851813
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Slingshot",
+							"sid": 878768059791208,
+							"parameters": {
+								"unique-id": "SlingshotUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Slingshot",
+							"sid": 248191200995521,
+							"parameters": {
+								"instance-variable": "CanBounce",
+								"value": "false"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Slingshot",
+							"sid": 323308587725222,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "Duration",
+								"type": "once",
+								"tag": "\"BounceCooldown\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also flash the slingshot, so the player knows it has been hit."
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "Slingshot",
+							"sid": 885808273941376,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Flash\"",
+								"start-value": "200",
+								"end-value": "100",
+								"time": "Duration / 2",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 948484275733984
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Slingshot",
+							"sid": 348035574365960,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Flash\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "Slingshot",
+							"sid": 284068437624602,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Self.Tween.Value(\"Flash\")"
+							}
+						}
+					],
+					"sid": 645289982599136
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the cooldown is over, allow the slingshot to bounce balls again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Slingshot",
+							"sid": 154073659132315,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"BounceCooldown\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Slingshot",
+							"sid": 615177331295048,
+							"parameters": {
+								"instance-variable": "CanBounce",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 763295317046265
+				}
+			],
+			"sid": 102463169361343
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Light",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the lights by creating an outline behind each one of them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Light",
+							"sid": 805299682857882
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Light",
+							"sid": 438533003328297,
+							"parameters": {
+								"object": "LightOutline",
+								"layer": "Self.LayerName",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "LightOutline",
+							"sid": 803612153813442,
+							"parameters": {
+								"animation": "Light.AnimationName",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "move-to-bottom",
+							"objectClass": "LightOutline",
+							"sid": 449825970735743
+						}
+					],
+					"sid": 756697793004889
+				},
+				{
+					"eventType": "comment",
+					"text": "If a ball collides with a light, make the light blink by changing its color in a ping pong animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 258608141696934,
+							"parameters": {
+								"object": "Light"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-default-color",
+							"objectClass": "Light",
+							"sid": 591239632913044,
+							"parameters": {
+								"color": "rgbEx255(0, 0, 0)"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Light",
+							"sid": 989981229028345,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Blink\"",
+								"property": "offsetColor",
+								"end-value": "rgbEx255(255, 255, 255)",
+								"time": "0.25",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes"
+							}
+						}
+					],
+					"sid": 597363712972004
+				}
+			],
+			"sid": 128243209615619
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Hole",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If a ball collides with a hole entrance, disable the physics behavior, so the ball stops moving. Also snap the ball's position to match the hole position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 189655000406557,
+							"parameters": {
+								"object": "HoleEntrance"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "BallPhysics",
+							"sid": 134100753526772,
+							"behaviorType": "Physics",
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "BallPhysics",
+							"sid": 147219839284140,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SnapToHole\"",
+								"property": "position",
+								"end-x": "HoleEntrance.X",
+								"end-y": "HoleEntrance.Y",
+								"time": "0.25",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 442640261241400
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the ball has been properly positionated, make it disappear by slowly reducing its opacity to zero."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "BallPhysics",
+							"sid": 650429188852155,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SnapToHole\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "BallGraphics",
+							"sid": 204413634002211,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.1",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 364293055205324
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the ball is completely invisible, change its position and increase its opacity again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "BallGraphics",
+							"sid": 624360139712659,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "BallPhysics",
+							"sid": 575483623512583,
+							"parameters": {
+								"object": "HoleExit",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"callFunction": "UpdateBallLastPosition",
+							"sid": 390076061478725,
+							"parameters": [
+								"BallPhysics.UID"
+							]
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "BallGraphics",
+							"sid": 401940661122992,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeIn\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.1",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 874386915377490
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the ball is visible again, throw it in a random direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "BallGraphics",
+							"sid": 719807532806845,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeIn\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "BallPhysics",
+							"sid": 705235043175994,
+							"behaviorType": "Physics",
+							"parameters": {
+								"mode": "enabled"
+							}
+						},
+						{
+							"id": "apply-impulse-at-angle",
+							"objectClass": "BallPhysics",
+							"sid": 871128944659076,
+							"behaviorType": "Physics",
+							"parameters": {
+								"impulse": "0.05",
+								"angle": "random(0, 180)",
+								"image-point": "0"
+							}
+						}
+					],
+					"sid": 490859627310357
+				}
+			],
+			"sid": 753187291522548
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Trail",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create a trail effect behind the ball."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 926671795193448,
+							"parameters": {
+								"first-value": "BallPhysics.Count",
+								"comparison": 4,
+								"second-value": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 736523312539989,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 246459959023676,
+									"parameters": {
+										"object": "BallPhysics"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Spawn trail effect."
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "BallPhysics",
+									"sid": 302709970933388,
+									"parameters": {
+										"object": "BallTrail",
+										"layer": "\"BallTrail\"",
+										"image-point": "0",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move trail behind the ball."
+								},
+								{
+									"id": "move-to-object",
+									"objectClass": "BallTrail",
+									"sid": 330657543296549,
+									"parameters": {
+										"where": "behind",
+										"object": "BallPhysics"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Adjust the trail angle to point towards the ball."
+								},
+								{
+									"id": "set-angle-toward-position",
+									"objectClass": "BallTrail",
+									"sid": 772523794275341,
+									"parameters": {
+										"x": "BallPhysics.LastX",
+										"y": "BallPhysics.LastY"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Adjust the trail width to reach the ball's last position."
+								},
+								{
+									"id": "set-width",
+									"objectClass": "BallTrail",
+									"sid": 349139110812847,
+									"parameters": {
+										"width": "distance(Self.X, Self.Y, BallPhysics.LastX, BallPhysics.LastY) * 1.5"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Animate the trail width."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "BallTrail",
+									"sid": 808650595670282,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DecreaseHeight\"",
+										"property": "offsetHeight",
+										"end-value": "0",
+										"time": "0.25",
+										"ease": "default",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Update the ball's last position."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "BallTrail",
+									"sid": 512756750507761,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeOut\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.25",
+										"ease": "default",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Update the ball's last position."
+								},
+								{
+									"callFunction": "UpdateBallLastPosition",
+									"sid": 545339444527507,
+									"parameters": [
+										"BallPhysics.UID"
+									]
+								}
+							],
+							"sid": 204968625046404
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Update and store the ball's last position."
+				},
+				{
+					"functionName": "UpdateBallLastPosition",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "BallUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 968465107103907
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "BallPhysics",
+							"sid": 245590361565653,
+							"parameters": {
+								"unique-id": "BallUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "BallPhysics",
+							"sid": 646851537553639,
+							"parameters": {
+								"instance-variable": "LastX",
+								"value": "Self.X"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "BallPhysics",
+							"sid": 619488799348557,
+							"parameters": {
+								"instance-variable": "LastY",
+								"value": "Self.Y"
+							}
+						}
+					],
+					"sid": 741702503414904
+				}
+			],
+			"sid": 779352744390045
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Thunder",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Shoot a small thunder out of the ball every 1/4 of a second, towards a random direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 270298523095755,
+							"parameters": {
+								"interval-seconds": "0.25"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 665562095768361,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 320243586082017,
+									"parameters": {
+										"object": "BallPhysics"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "BallPhysics",
+									"sid": 626443693845843,
+									"parameters": {
+										"instance-variable": "ThunderAngle",
+										"value": "random(0, 360)"
+									}
+								}
+							],
+							"sid": 964695062845887,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "cast-ray",
+											"objectClass": "BallPhysics",
+											"sid": 251777380925222,
+											"behaviorType": "LineOfSight",
+											"parameters": {
+												"from-x": "Self.X",
+												"from-y": "Self.Y",
+												"to-x": "Self.X + cos(Self.ThunderAngle) * Self.LineOfSight.Range",
+												"to-y": "Self.Y + sin(Self.ThunderAngle) * Self.LineOfSight.Range",
+												"use-collision-cells": true
+											}
+										}
+									],
+									"sid": 738053030159203,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "ray-intersected",
+													"objectClass": "BallPhysics",
+													"sid": 232743470383289,
+													"behaviorType": "LineOfSight"
+												}
+											],
+											"actions": [
+												{
+													"id": "spawn-another-object",
+													"objectClass": "BallPhysics",
+													"sid": 455286393116770,
+													"parameters": {
+														"object": "Thunder",
+														"layer": "\"Effects\"",
+														"image-point": "0",
+														"create-hierarchy": false
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "Thunder",
+													"sid": 860304114292427,
+													"parameters": {
+														"angle": "BallPhysics.ThunderAngle"
+													}
+												},
+												{
+													"id": "set-width",
+													"objectClass": "Thunder",
+													"sid": 227363376158733,
+													"parameters": {
+														"width": "BallPhysics.LineOfSight.HitDistance"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Also spawn a few sparkles where the thunder hits for a more impactful effect. The sparkles position is based on the hit position and the sparkles angle is based on the hit object normal angle."
+												},
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 931403002642114,
+													"parameters": {
+														"object-to-create": "Sparkles",
+														"layer": "\"Effects\"",
+														"x": "BallPhysics.LineOfSight.HitX",
+														"y": "BallPhysics.LineOfSight.HitY",
+														"create-hierarchy": false
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "Sparkles",
+													"sid": 456081393085238,
+													"parameters": {
+														"angle": "BallPhysics.LineOfSight.NormalAngle"
+													}
+												}
+											],
+											"sid": 742236601034471
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Flash each background every few seconds, to simulate the light of a thunder during a storm."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 796464368097972,
+							"parameters": {
+								"interval-seconds": "random(1, 4)"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 585323288279425,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 524691497618523,
+									"parameters": {
+										"object": "BlackBackgorund"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "BlackBackgorund",
+									"sid": 572815433179770,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Flash\"",
+										"property": "offsetColor",
+										"end-value": "rgbEx255(255, 255, 255)",
+										"time": "0.1",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "yes"
+									}
+								}
+							],
+							"sid": 884601559833348
+						}
+					]
+				}
+			],
+			"sid": 803858782140757
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Texture",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly offset the texture on the walls and on the background, so the environment feel more alive, even when the ball is not moving so much."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 156929163194699
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "WallTexture",
+							"sid": 530065739602264,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY - 0.25 * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "DarkBlueBackground",
+							"sid": 796461920722429,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + 0.25 * 60 * dt"
+							}
+						}
+					],
+					"sid": 435090588370950
+				}
+			],
+			"sid": 385823700037182
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "For the game to be restarted, for testing purposes only."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 724792803118423,
+							"parameters": {
+								"key": 82
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 539395056061984
+						}
+					],
+					"sid": 495141777630504
+				},
+				{
+					"eventType": "comment",
+					"text": "Restart the game if a ball falls through the hole on the bottom."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-y",
+							"objectClass": "BallPhysics",
+							"sid": 153512632325944,
+							"parameters": {
+								"comparison": 4,
+								"y-co-ordinate": "LayoutHeight"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 666498679571397
+						}
+					],
+					"sid": 460277701793485
+				}
+			],
+			"sid": 716526593560229
+		}
+	],
+	"sid": 268690538605674
+}

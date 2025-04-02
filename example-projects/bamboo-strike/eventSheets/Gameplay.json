@@ -1,0 +1,2437 @@
+{
+	"name": "Gameplay",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How many bamboos will spawned in the first level."
+		},
+		{
+			"eventType": "variable",
+			"name": "InitialDifficulty",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 731284974384251
+		},
+		{
+			"eventType": "comment",
+			"text": "How many bamboos will spawned on each level. This value is increased at the end of each level."
+		},
+		{
+			"eventType": "variable",
+			"name": "CurrentDifficulty",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 912229087099830
+		},
+		{
+			"eventType": "comment",
+			"text": "How long it takes for a fade in and fade out animation to end."
+		},
+		{
+			"eventType": "variable",
+			"name": "FadeDuration",
+			"type": "number",
+			"initialValue": "0.25",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 243992416170339
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup the game."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 393896802017827
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Change the camera position and angle to better frame important parts of the scene."
+				},
+				{
+					"id": "look-at-position",
+					"objectClass": "3DCamera",
+					"sid": 184549809390044,
+					"parameters": {
+						"cam-x": "320 - 32",
+						"cam-y": "180 + 64",
+						"cam-z": "4",
+						"look-x": "320",
+						"look-y": "180",
+						"look-z": "24",
+						"up-x": "0",
+						"up-y": "0",
+						"up-z": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Adjust the amount of bamboos that will spawn on the first level."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 687588339583587,
+					"parameters": {
+						"variable": "CurrentDifficulty",
+						"value": "InitialDifficulty"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Generate a set of bamboos for the player to strike."
+				},
+				{
+					"callFunction": "GenerateBambooSet",
+					"sid": 104279592809385
+				},
+				{
+					"type": "comment",
+					"text": "Rotate the player model towards the camera."
+				},
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "PlayerModel",
+					"sid": 121903403975190,
+					"parameters": {
+						"x": "3DCamera.CameraX",
+						"y": "3DCamera.CameraY"
+					}
+				}
+			],
+			"sid": 320596997531274,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Rotate every bunch of grass towards the camera."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 512422576990422,
+							"parameters": {
+								"object": "GrassModel"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle",
+							"objectClass": "GrassModel",
+							"sid": 753586892377355,
+							"parameters": {
+								"angle": "angle(Self.X, Self.Y, 3DCamera.CameraX, 3DCamera.CameraY)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also randomize their texture using a separate object containing multiple animations."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 264708308149907,
+							"parameters": {
+								"object-to-create": "GrassTextures",
+								"layer": "\"World\"",
+								"x": "GrassModel.X",
+								"y": "GrassModel.Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "GrassTextures",
+							"sid": 422278649009998,
+							"parameters": {
+								"animation": "\"Grass \"&choose(0, 1)",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-face-object",
+							"objectClass": "GrassModel",
+							"sid": 734860235500697,
+							"parameters": {
+								"face": "right",
+								"object": "GrassTextures"
+							}
+						}
+					],
+					"sid": 469081611212786
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "The min and max wind direction for the falling leaves."
+		},
+		{
+			"eventType": "variable",
+			"name": "MinWindDirection",
+			"type": "number",
+			"initialValue": "190",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 899756491938248
+		},
+		{
+			"eventType": "variable",
+			"name": "MaxWindDirection",
+			"type": "number",
+			"initialValue": "200",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 270409715693692
+		},
+		{
+			"eventType": "comment",
+			"text": "The min and max wind strength for the falling leaves."
+		},
+		{
+			"eventType": "variable",
+			"name": "MinWindStrength",
+			"type": "number",
+			"initialValue": "32",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 929812841081024
+		},
+		{
+			"eventType": "variable",
+			"name": "MaxWindStrength",
+			"type": "number",
+			"initialValue": "64",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 497907904689419
+		},
+		{
+			"eventType": "comment",
+			"text": "The min and max fall duration for the falling leaves."
+		},
+		{
+			"eventType": "variable",
+			"name": "MinLeafFallDuration",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 786262848295571
+		},
+		{
+			"eventType": "variable",
+			"name": "MaxLeafFallDuration",
+			"type": "number",
+			"initialValue": "4",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 284426373645754
+		},
+		{
+			"eventType": "comment",
+			"text": "The final value for each randomized leaf property."
+		},
+		{
+			"eventType": "variable",
+			"name": "RandomWindDirection",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 502725265615527
+		},
+		{
+			"eventType": "variable",
+			"name": "RandomWindStrength",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 893830165307119
+		},
+		{
+			"eventType": "variable",
+			"name": "RandomLeafFallDuration",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 465564537004791
+		},
+		{
+			"eventType": "comment",
+			"text": "Spawn a falling leaf every 0.25 seconds using slightly randomized properties."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 370872197763166,
+					"parameters": {
+						"interval-seconds": "0.25"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 320089339735993,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 467674879122493,
+							"parameters": {
+								"object": "FallingLeafSpawner"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Choose random values for each property."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 281572378265150,
+							"parameters": {
+								"variable": "RandomWindDirection",
+								"value": "random(MinWindDirection, MaxWindDirection)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 877905869580409,
+							"parameters": {
+								"variable": "RandomWindStrength",
+								"value": "random(MinWindStrength, MaxWindStrength)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 636428128366808,
+							"parameters": {
+								"variable": "RandomLeafFallDuration",
+								"value": "random(MinLeafFallDuration, MaxLeafFallDuration)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create the leaf object in the correct position."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 521196187781118,
+							"parameters": {
+								"object-to-create": "FallingLeaf",
+								"layer": "\"World\"",
+								"x": "random(FallingLeafSpawner.BBoxLeft, FallingLeafSpawner.BBoxRight)",
+								"y": "random(FallingLeafSpawner.BBoxTop, FallingLeafSpawner.BBoxBottom)",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "FallingLeaf",
+							"sid": 171777598965520,
+							"parameters": {
+								"z": "FallingLeafSpawner.ZElevation"
+							}
+						},
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "FallingLeaf",
+							"sid": 843758825120009,
+							"parameters": {
+								"x": "3DCamera.CameraX",
+								"y": "3DCamera.CameraY"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move the leaf object using tween animation."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "FallingLeaf",
+							"sid": 879846536555676,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FallAnimationZ\"",
+								"property": "offsetZElevation",
+								"end-value": "-Self.ZHeight",
+								"time": "RandomLeafFallDuration",
+								"ease": "noease",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "FallingLeaf",
+							"sid": 808994868310090,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FallAnimationXY\"",
+								"property": "position",
+								"end-x": "Self.X + cos(RandomWindDirection) * RandomWindStrength",
+								"end-y": "Self.Y + sin(RandomWindDirection) * RandomWindStrength",
+								"time": "RandomLeafFallDuration",
+								"ease": "noease",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 163006714940945
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Which keys the game can use when generating a bamboo set."
+		},
+		{
+			"eventType": "variable",
+			"name": "PossibleKeys",
+			"type": "string",
+			"initialValue": "a|d|w|s",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 728682617292800
+		},
+		{
+			"eventType": "comment",
+			"text": "The final key order chosen by the game."
+		},
+		{
+			"eventType": "variable",
+			"name": "ChosenKeyOrder",
+			"type": "string",
+			"initialValue": "",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 895430004664715
+		},
+		{
+			"eventType": "comment",
+			"text": "How large the timer bar is by default."
+		},
+		{
+			"eventType": "variable",
+			"name": "DefaultTimerBarWidth",
+			"type": "number",
+			"initialValue": "40",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 799737028643461
+		},
+		{
+			"eventType": "comment",
+			"text": "Generate a bamboo set based on the current difficulty."
+		},
+		{
+			"functionName": "GenerateBambooSet",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Reset the fade object properties and start a fresh fade out animation."
+				},
+				{
+					"id": "stop-all-tweens",
+					"objectClass": "Fade",
+					"sid": 187927749862966,
+					"behaviorType": "Tween"
+				},
+				{
+					"id": "set-opacity",
+					"objectClass": "Fade",
+					"sid": 613901400183394,
+					"parameters": {
+						"opacity": "100"
+					}
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Fade",
+					"sid": 105607628047155,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeOut\"",
+						"property": "offsetOpacity",
+						"end-value": "0",
+						"time": "FadeDuration",
+						"ease": "noease",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Start fade out animation."
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "Fade",
+					"sid": 732343755435554,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "FadeDuration",
+						"type": "once",
+						"tag": "\"FadeOut\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Reset the timer bar width and hide it until the player makes their first move."
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "TimerBar",
+					"sid": 820972780362821,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				},
+				{
+					"id": "set-width",
+					"objectClass": "TimerBar",
+					"sid": 747201989571220,
+					"parameters": {
+						"width": "DefaultTimerBarWidth"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Reset a few variables that are related to the gameplay back to a blank value."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 174068336243344,
+					"parameters": {
+						"variable": "ChosenKeyOrder",
+						"value": "\"\""
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 989254346636682,
+					"parameters": {
+						"variable": "PressedTheFirstKey",
+						"value": "0"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 108460308679626,
+					"parameters": {
+						"variable": "PlayerKeyOrder",
+						"value": "\"\""
+					}
+				}
+			],
+			"sid": 201317439948438,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "A random key chosen by the engine's algorithm."
+				},
+				{
+					"eventType": "variable",
+					"name": "RandomKey",
+					"type": "string",
+					"initialValue": "",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 998316365994045
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 383019628342968,
+							"parameters": {
+								"count": "CurrentDifficulty"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Use the \"Random()\" system expression to choose a random key."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 186573520420971,
+							"parameters": {
+								"variable": "RandomKey",
+								"value": "tokenat(PossibleKeys, Functions.RandomInteger(0, tokencount(PossibleKeys, \"|\") - 1), \"|\")"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Add the recently chosen random key to the key order variable, so they're accumulated."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 573805791162241,
+							"parameters": {
+								"variable": "ChosenKeyOrder",
+								"value": "ChosenKeyOrder&RandomKey"
+							}
+						}
+					],
+					"sid": 901525077011959,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "How much space is left between each bamboo."
+						},
+						{
+							"eventType": "variable",
+							"name": "BambooMargin",
+							"type": "number",
+							"initialValue": "1",
+							"comment": "",
+							"isStatic": true,
+							"isConstant": true,
+							"sid": 899712141837708
+						},
+						{
+							"eventType": "comment",
+							"text": "How high is each chunk of bamboo."
+						},
+						{
+							"eventType": "variable",
+							"name": "BambooChunkHeight",
+							"type": "number",
+							"initialValue": "3",
+							"comment": "",
+							"isStatic": true,
+							"isConstant": true,
+							"sid": 158441225935527
+						},
+						{
+							"eventType": "comment",
+							"text": "The current canvas ratio. This is calculated with the help of the Platform Info plugin and is used to make 2D objects can be properly placed on top of 3D objects."
+						},
+						{
+							"eventType": "variable",
+							"name": "CanvasRatioX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 229571844187130
+						},
+						{
+							"eventType": "variable",
+							"name": "CanvasRatioY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 986304463914354
+						},
+						{
+							"eventType": "comment",
+							"text": "The converted position of a bamboo from 3D to 2D. This is used to place a hint text object in the middle of each bamboo."
+						},
+						{
+							"eventType": "variable",
+							"name": "2DTextPositionX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 864530295062323
+						},
+						{
+							"eventType": "variable",
+							"name": "2DTextPositionY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 286826859204701
+						},
+						{
+							"eventType": "comment",
+							"text": "The X and Y coordinates of the first bamboo in 2D."
+						},
+						{
+							"eventType": "variable",
+							"name": "2DFirstBambooX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 216269313796090
+						},
+						{
+							"eventType": "variable",
+							"name": "2DFirstBambooY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 778026976261683
+						},
+						{
+							"eventType": "comment",
+							"text": "The X and Y coordinates of the last bamboo in 2D."
+						},
+						{
+							"eventType": "variable",
+							"name": "2DLastBambooX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 225654449203693
+						},
+						{
+							"eventType": "variable",
+							"name": "2DLastBambooY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 910304518305661
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Destroy every object that might have been used in the previous round."
+								},
+								{
+									"id": "destroy",
+									"objectClass": "BambooBottom",
+									"sid": 165103668493441
+								},
+								{
+									"id": "destroy",
+									"objectClass": "BambooTop",
+									"sid": 943538382072038
+								},
+								{
+									"id": "destroy",
+									"objectClass": "KeyText",
+									"sid": 125314625981944
+								},
+								{
+									"type": "comment",
+									"text": "Reset the player animation back to waiting."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerTextures",
+									"sid": 410310966136140,
+									"parameters": {
+										"animation": "\"Waiting\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make the stuck sword invisible."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "StuckSword",
+									"sid": 301774393946534,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create the bottom part of the bamboo."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 312372965998258,
+									"parameters": {
+										"object-to-create": "BambooBottom",
+										"layer": "\"World\"",
+										"x": "BambooSpawner.X + (BambooSpawner.Width + BambooMargin) * loopindex",
+										"y": "BambooSpawner.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "BambooBottom",
+									"sid": 260373272164462,
+									"parameters": {
+										"z": "BambooSpawner.ZElevation"
+									}
+								},
+								{
+									"id": "set-z-height",
+									"objectClass": "BambooBottom",
+									"sid": 861492551318941,
+									"parameters": {
+										"z-height": "(CurrentDifficulty - loopindex) * BambooChunkHeight"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Calculate the canvas ratio, so converting a 3D position to 2D is as precise as possible."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 614439733411363,
+									"parameters": {
+										"variable": "CanvasRatioX",
+										"value": "PlatformInfo.CanvasCssWidth / OriginalViewportWidth"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 581864708178970,
+									"parameters": {
+										"variable": "CanvasRatioY",
+										"value": "PlatformInfo.CanvasCssHeight / OriginalViewportHeight"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Convert the bottom bamboo top 3D position to 2D and create a text object there, showing the player which keys they need to press."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 401006284436615,
+									"parameters": {
+										"variable": "2DTextPositionX",
+										"value": "3DCamera.LayerToCanvasX(\"World\", BambooBottom.X, BambooBottom.Y, BambooBottom.ZElevation + BambooBottom.ZHeight) / CanvasRatioX"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 176992708564520,
+									"parameters": {
+										"variable": "2DTextPositionY",
+										"value": "3DCamera.LayerToCanvasY(\"World\", BambooBottom.X, BambooBottom.Y, BambooBottom.ZElevation + BambooBottom.ZHeight) / CanvasRatioY"
+									}
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 677678804895725,
+									"parameters": {
+										"object-to-create": "KeyText",
+										"layer": "\"UserInterface\"",
+										"x": "2DTextPositionX",
+										"y": "2DTextPositionY",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "KeyText",
+									"sid": 473043483742777,
+									"parameters": {
+										"text": "RandomKey"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "KeyText",
+									"sid": 126242675782630,
+									"parameters": {
+										"instance-variable": "Index",
+										"value": "loopindex"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create the top part of the bamboo."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 205782454431970,
+									"parameters": {
+										"object-to-create": "BambooTop",
+										"layer": "\"World\"",
+										"x": "BambooBottom.X",
+										"y": "BambooBottom.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "BambooTop",
+									"sid": 327684161257872,
+									"parameters": {
+										"z": "BambooBottom.ZElevation + BambooBottom.ZHeight"
+									}
+								},
+								{
+									"id": "set-z-height",
+									"objectClass": "BambooTop",
+									"sid": 763421325929433,
+									"parameters": {
+										"z-height": "(loopindex + 1) * BambooChunkHeight"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "BambooTop",
+									"sid": 177523441657146,
+									"parameters": {
+										"instance-variable": "Index",
+										"value": "loopindex"
+									}
+								}
+							],
+							"sid": 178605525481263,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If this is the first bamboo to be created, store its 2D position."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 828058341436146,
+											"parameters": {
+												"value": "loopindex = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 247947442108535,
+											"parameters": {
+												"variable": "2DFirstBambooX",
+												"value": "2DTextPositionX"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 120420091167038,
+											"parameters": {
+												"variable": "2DFirstBambooY",
+												"value": "2DTextPositionY"
+											}
+										}
+									],
+									"sid": 947900955649960
+								},
+								{
+									"eventType": "comment",
+									"text": "Also, if this is the last bamboo to be created, store its 2D position."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 234342705449714
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 947221019457867,
+											"parameters": {
+												"value": "loopindex = CurrentDifficulty - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 699172701475651,
+											"parameters": {
+												"variable": "2DLastBambooX",
+												"value": "2DTextPositionX"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 119103723958952,
+											"parameters": {
+												"variable": "2DLastBambooY",
+												"value": "2DTextPositionY"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Create the sword slash object using the first and last bamboo positions as reference, so it really looks like the player is cutting through the bamboo."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 124263362022681,
+											"parameters": {
+												"object-to-create": "SwordSlash",
+												"layer": "\"UserInterface\"",
+												"x": "(2DFirstBambooX + 2DLastBambooX) / 2",
+												"y": "(2DFirstBambooy + 2DLastBambooY) / 2",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "SwordSlash",
+											"sid": 890111619762482,
+											"parameters": {
+												"angle": "angle(2DFirstBambooX, 2DFirstBambooy, 2DLastBambooX, 2DLastBambooY)"
+											}
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "SwordSlash",
+											"sid": 525533509589253,
+											"parameters": {
+												"visibility": "invisible"
+											}
+										}
+									],
+									"sid": 968430954576351
+								},
+								{
+									"eventType": "comment",
+									"text": "Move the fade object to the top of the layer."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "move-to-top",
+											"objectClass": "Fade",
+											"sid": 481986031553144
+										}
+									],
+									"sid": 437583375543687
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Return a random integer number upon request."
+		},
+		{
+			"functionName": "RandomInteger",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "number",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "MinNumber",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 744252122332831
+				},
+				{
+					"name": "MaxNumber",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 875786430186489
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-function-return-value",
+					"objectClass": "Functions",
+					"sid": 997465129590102,
+					"parameters": {
+						"value": "floor(random(MinNumber, MaxNumber + 1))"
+					}
+				}
+			],
+			"sid": 756739003113598
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the fade out animation is over, allow the player to send their input again."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "Fade",
+					"sid": 749437163690081,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"FadeOut\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 392739622970829,
+					"parameters": {
+						"variable": "AllowPlayerInput",
+						"value": "1"
+					}
+				}
+			],
+			"sid": 282689914168612
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player pressed the first key in the chosen order."
+		},
+		{
+			"eventType": "variable",
+			"name": "PressedTheFirstKey",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 252652542896874
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player is allowed to send their input."
+		},
+		{
+			"eventType": "variable",
+			"name": "AllowPlayerInput",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 872202559595701
+		},
+		{
+			"eventType": "comment",
+			"text": "Which keys the player pressed."
+		},
+		{
+			"eventType": "variable",
+			"name": "PlayerKeyOrder",
+			"type": "string",
+			"initialValue": "",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 435707047448117
+		},
+		{
+			"eventType": "comment",
+			"text": "How much time the player has to execute the whole sequence."
+		},
+		{
+			"eventType": "variable",
+			"name": "RoundDuration",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 164336590201026
+		},
+		{
+			"eventType": "comment",
+			"text": "Evaluate any key pressed by the player."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 766492022994841
+				}
+			],
+			"actions": [],
+			"sid": 491289099779831,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Only proceed if the player is allowed to send their input."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 673229989563335,
+							"parameters": {
+								"value": "AllowPlayerInput = 1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 177125612107826,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the key pressed by the player is the first key to be pressed since the start of the round and is also the first key in the chosen key order, then start the end round timer. Giving the player a limited amount of time to finish the challenge."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 481009827322060,
+									"parameters": {
+										"value": "PressedTheFirstKey = 0 & Keyboard.TypedKey = left(ChosenKeyOrder, 1)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 716605865883551,
+									"parameters": {
+										"variable": "PressedTheFirstKey",
+										"value": "1"
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "PlayerModel",
+									"sid": 221028343629778,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "RoundDuration",
+										"type": "once",
+										"tag": "\"EndRound\""
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerTextures",
+									"sid": 542153864525003,
+									"parameters": {
+										"animation": "\"Preparing\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make the timer bar visible again and start its fade out animation."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "TimerBar",
+									"sid": 344490279822967,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TimerBar",
+									"sid": 545870000983925,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeOut\"",
+										"property": "offsetWidth",
+										"end-value": "0",
+										"time": "RoundDuration",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 473487911060309,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the tutorial text still is on screen, destroy it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 241719211144009,
+											"parameters": {
+												"value": "TutorialText.Alive = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "TutorialText",
+											"sid": 424304743610907,
+											"parameters": {
+												"instance-variable": "Alive",
+												"value": "false"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "TutorialText",
+											"sid": 733373799506930,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SelfDestroy\"",
+												"property": "offsetY",
+												"end-value": "-50",
+												"time": "1",
+												"ease": "easeinsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 628372173580703
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player has already pressed the first key and is currently pressing a valid key while the player key order isn't filled yet, add that key to the player key order."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 851781922131123,
+									"parameters": {
+										"value": "PressedTheFirstKey = 1 & len(PlayerKeyOrder) < len(ChosenKeyOrder) & find(PossibleKeys, Keyboard.TypedKey) <> - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 106749196935227,
+									"parameters": {
+										"variable": "PlayerKeyOrder",
+										"value": "PlayerKeyOrder&Keyboard.TypedKey"
+									}
+								}
+							],
+							"sid": 135178998507916,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the pressed key is correct, then display a greenish hit flash and destroy the related key text."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 385386382089106,
+											"parameters": {
+												"value": "PlayerKeyOrder = left(ChosenKeyOrder, len(PlayerKeyOrder))"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 626731857385468,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 307744458892510,
+													"parameters": {
+														"object": "KeyText",
+														"expression": "KeyText.Index",
+														"comparison": 0,
+														"value": "len(PlayerKeyOrder) - 1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 626788146348620,
+													"parameters": {
+														"object-to-create": "HitFlash",
+														"layer": "\"UserInterface\"",
+														"x": "KeyText.X",
+														"y": "KeyText.Y",
+														"create-hierarchy": false,
+														"template-name": "\"\""
+													}
+												},
+												{
+													"id": "set-animation",
+													"objectClass": "HitFlash",
+													"sid": 684295646558452,
+													"parameters": {
+														"animation": "\"Correct\"",
+														"from": "beginning"
+													}
+												},
+												{
+													"id": "destroy",
+													"objectClass": "KeyText",
+													"sid": 565357603448174
+												}
+											],
+											"sid": 446646737942610,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Mark the bamboo as hit correctly, so it can be cut later."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 567721976267571,
+															"parameters": {
+																"object": "BambooTop",
+																"expression": "BambooTop.Index",
+																"comparison": 0,
+																"value": "KeyText.Index"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-instvar-value",
+															"objectClass": "BambooTop",
+															"sid": 138346321548067,
+															"parameters": {
+																"instance-variable": "HitCorrectly",
+																"value": "1"
+															}
+														}
+													],
+													"sid": 113728013823279
+												},
+												{
+													"eventType": "comment",
+													"text": "Also move the stuck sword to the bamboo position."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 312049995646319,
+															"parameters": {
+																"object": "BambooTop",
+																"expression": "BambooTop.Index",
+																"comparison": 0,
+																"value": "KeyText.Index + 1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-position",
+															"objectClass": "StuckSword",
+															"sid": 245645463901572,
+															"parameters": {
+																"x": "BambooTop.X",
+																"y": "BambooTop.Y"
+															}
+														},
+														{
+															"id": "set-z-elevation",
+															"objectClass": "StuckSword",
+															"sid": 242155114063434,
+															"parameters": {
+																"z": "BambooTop.ZElevation"
+															}
+														}
+													],
+													"sid": 865966943037004
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the pressed key is wrong, then display a reddish hit flash and make the related key text red."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 268314756094572
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 134090645836425,
+											"parameters": {
+												"value": "PlayerKeyOrder <> left(ChosenKeyOrder, len(PlayerKeyOrder))"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 276788288860199,
+											"parameters": {
+												"variable": "AllowPlayerInput",
+												"value": "0"
+											}
+										}
+									],
+									"sid": 804882450127777,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 207927715991499,
+													"parameters": {
+														"object": "KeyText",
+														"expression": "KeyText.Index",
+														"comparison": 0,
+														"value": "len(PlayerKeyOrder) - 1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 342726176511970,
+													"parameters": {
+														"object-to-create": "HitFlash",
+														"layer": "\"UserInterface\"",
+														"x": "KeyText.X",
+														"y": "KeyText.Y",
+														"create-hierarchy": false,
+														"template-name": "\"\""
+													}
+												},
+												{
+													"id": "set-animation",
+													"objectClass": "HitFlash",
+													"sid": 376472005472204,
+													"parameters": {
+														"animation": "\"Wrong\"",
+														"from": "beginning"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "KeyText",
+													"sid": 653667114632104,
+													"parameters": {
+														"color": "rgbEx255(218, 32, 16)"
+													}
+												}
+											],
+											"sid": 100328940669889,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Also move the stuck sword to the bamboo position."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 582560020769291,
+															"parameters": {
+																"object": "BambooTop",
+																"expression": "BambooTop.Index",
+																"comparison": 0,
+																"value": "KeyText.Index"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-position",
+															"objectClass": "StuckSword",
+															"sid": 722031723951731,
+															"parameters": {
+																"x": "BambooTop.X",
+																"y": "BambooTop.Y"
+															}
+														},
+														{
+															"id": "set-z-elevation",
+															"objectClass": "StuckSword",
+															"sid": 389936349722312,
+															"parameters": {
+																"z": "BambooTop.ZElevation"
+															}
+														}
+													],
+													"sid": 727871656990680
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the hit flash animation is over, destroy it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-animation-finished",
+					"objectClass": "HitFlash",
+					"sid": 780772865936285
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "HitFlash",
+					"sid": 236128181715219
+				}
+			],
+			"sid": 809988090636378
+		},
+		{
+			"eventType": "comment",
+			"text": "End the round and check if the player entered the right combination of keys."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "PlayerModel",
+					"sid": 161840793313963,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"EndRound\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Prevent the player from sending new input."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 370114317871309,
+					"parameters": {
+						"variable": "AllowPlayerInput",
+						"value": "0"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Display the slashing animatino."
+				},
+				{
+					"id": "set-animation",
+					"objectClass": "PlayerTextures",
+					"sid": 181366990583588,
+					"parameters": {
+						"animation": "\"Slashing\"",
+						"from": "beginning"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Make the sword slash visible."
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "SwordSlash",
+					"sid": 956360221731749,
+					"parameters": {
+						"visibility": "visible"
+					}
+				},
+				{
+					"id": "set-animation",
+					"objectClass": "SwordSlash",
+					"sid": 724938781077851,
+					"parameters": {
+						"animation": "\"Slash\"",
+						"from": "beginning"
+					}
+				}
+			],
+			"sid": 791869085967810,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player entered the correct order, wait 0.6 seconds before starting to celebrate."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 612618089409845,
+							"parameters": {
+								"value": "PlayerKeyOrder = ChosenKeyOrder"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "PlayerModel",
+							"sid": 957510390328374,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.6",
+								"type": "once",
+								"tag": "\"Celebrate\""
+							}
+						}
+					],
+					"sid": 587927167057306
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the player entered the wrong order, immediately display the tumbling animaiton."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 990939211055406
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 953153906601129,
+							"parameters": {
+								"value": "PlayerKeyOrder <> ChosenKeyOrder"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerTextures",
+							"sid": 937274689861696,
+							"parameters": {
+								"animation": "\"Tumbling\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make the stuck sword visible."
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "StuckSword",
+							"sid": 810753469629963,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Starts a timer for the fade in animation and another one to load the next level."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "PlayerModel",
+							"sid": 260383478387518,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "CooldownDuration - FadeDuration",
+								"type": "once",
+								"tag": "\"FadeIn\""
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "PlayerModel",
+							"sid": 770523909019666,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "CooldownDuration",
+								"type": "once",
+								"tag": "\"Restart\""
+							}
+						}
+					],
+					"sid": 615688029729745
+				},
+				{
+					"eventType": "comment",
+					"text": "Pick every bamboo the player got correctly and cut them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 843242020591018,
+							"parameters": {
+								"object": "BambooTop",
+								"expression": "BambooTop.HitCorrectly",
+								"comparison": 0,
+								"value": "1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 224654608290591,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-ordered",
+									"objectClass": "System",
+									"sid": 965719515259361,
+									"parameters": {
+										"object": "BambooTop",
+										"expression": "BambooTop.Index",
+										"order": "ascending"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "CutBamboo",
+									"sid": 249610988987040,
+									"parameters": [
+										"BambooTop.Index"
+									]
+								}
+							],
+							"sid": 130403105581109
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the sword slash animation is over, destroy it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-animation-finished",
+					"objectClass": "SwordSlash",
+					"sid": 888746911101418
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "SwordSlash",
+					"sid": 486781514281062
+				}
+			],
+			"sid": 797514735423039
+		},
+		{
+			"eventType": "comment",
+			"text": "Cut a specific bamboo based on its index value."
+		},
+		{
+			"functionName": "CutBamboo",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "BambooIndex",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 891229783200500
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 424846427634920,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "A set of random values that are used to determine the bamboo trajectory once its hit by the player's sword."
+				},
+				{
+					"eventType": "variable",
+					"name": "RandomAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 981525393833658
+				},
+				{
+					"eventType": "variable",
+					"name": "RandomXYStrength",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 852393603444986
+				},
+				{
+					"eventType": "variable",
+					"name": "RandomZStrength",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 111933996314696
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 114701120218916,
+							"parameters": {
+								"object": "BambooTop",
+								"expression": "BambooTop.Index",
+								"comparison": 0,
+								"value": "BambooIndex"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Randomize the bamboo angle of motion and XYZ forces."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 216981129352424,
+							"parameters": {
+								"variable": "RandomAngle",
+								"value": "random(45 - 10, 45 + 10)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 370520878462793,
+							"parameters": {
+								"variable": "RandomXYStrength",
+								"value": "random(0.25, 0.75)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 651923103097925,
+							"parameters": {
+								"variable": "RandomZStrength",
+								"value": "random(0.75, 1.5)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Store the randomized angles inside the bamboo itself using local variables."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "BambooTop",
+							"sid": 187780464187318,
+							"parameters": {
+								"instance-variable": "VectorX",
+								"value": "cos(RandomAngle) * RandomXYStrength"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "BambooTop",
+							"sid": 130813876513655,
+							"parameters": {
+								"instance-variable": "VectorY",
+								"value": "sin(RandomAngle) * RandomXYStrength"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "BambooTop",
+							"sid": 792593815217362,
+							"parameters": {
+								"instance-variable": "VectorZ",
+								"value": "RandomZStrength"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Turn the update physics flag in the bamboo, so it move across the screen until it reaches the ground."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "BambooTop",
+							"sid": 770522516058988,
+							"parameters": {
+								"instance-variable": "UpdatePhysics",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 497720256099881
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly update the physics of each bamboo that has its physics flag turned on."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 906851435935992
+				}
+			],
+			"actions": [],
+			"sid": 915570597964542,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 858958332510165,
+							"parameters": {
+								"object": "BambooTop",
+								"expression": "BambooTop.UpdatePhysics",
+								"comparison": 0,
+								"value": "1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 810073344619752,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 771549083006559,
+									"parameters": {
+										"object": "BambooTop"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Move the bamboo forward based on its vector X and vector Y variables."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "BambooTop",
+									"sid": 833581130399907,
+									"parameters": {
+										"x": "Self.X + Self.VectorX * 60 * dt",
+										"y": "Self.Y + Self.VectorY * 60 * dt"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move the bamboo up and down based on its vector Z variable."
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "BambooTop",
+									"sid": 689291445022081,
+									"parameters": {
+										"z": "clamp(Self.ZElevation + Self.VectorZ * 60 * dt, 0, Infinity)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also decrease the vector Z value to simulate gravity."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "BambooTop",
+									"sid": 126845774125479,
+									"parameters": {
+										"instance-variable": "VectorZ",
+										"value": "Self.VectorZ - 0.05 * 60 * dt"
+									}
+								}
+							],
+							"sid": 606267131746152,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Stop the bamboo if it hits the ground."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 700548242135145,
+											"parameters": {
+												"value": "BambooTop.ZElevation = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "BambooTop",
+											"sid": 362886591252564,
+											"parameters": {
+												"instance-variable": "UpdatePhysics",
+												"value": "0"
+											}
+										}
+									],
+									"sid": 710888752823529
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "How long the player needs to wat for the next round."
+		},
+		{
+			"eventType": "variable",
+			"name": "CooldownDuration",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 268217226341935
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "PlayerModel",
+					"sid": 307216946374884,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Celebrate\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Display the celebrating animatino."
+				},
+				{
+					"id": "set-animation",
+					"objectClass": "PlayerTextures",
+					"sid": 289683014690466,
+					"parameters": {
+						"animation": "\"Celebrating\"",
+						"from": "beginning"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Starts a timer for the fade in animation and another one to load the next level."
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "PlayerModel",
+					"sid": 513583982647772,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "CooldownDuration - FadeDuration",
+						"type": "once",
+						"tag": "\"FadeIn\""
+					}
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "PlayerModel",
+					"sid": 604313182480052,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "CooldownDuration",
+						"type": "once",
+						"tag": "\"Next\""
+					}
+				}
+			],
+			"sid": 821486544679013
+		},
+		{
+			"eventType": "comment",
+			"text": "Start the fade in animation."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "PlayerModel",
+					"sid": 754694262173226,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"FadeIn\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "stop-all-tweens",
+					"objectClass": "Fade",
+					"sid": 774104023744693,
+					"behaviorType": "Tween"
+				},
+				{
+					"id": "set-opacity",
+					"objectClass": "Fade",
+					"sid": 813600682047532,
+					"parameters": {
+						"opacity": "0"
+					}
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "Fade",
+					"sid": 861676295290688,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FadeIn\"",
+						"property": "offsetOpacity",
+						"end-value": "100",
+						"time": "FadeDuration",
+						"ease": "noease",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no",
+						"repeat-count": "1"
+					}
+				}
+			],
+			"sid": 941466337808594
+		},
+		{
+			"eventType": "comment",
+			"text": "Load the next level with a increased difficulty setting."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "PlayerModel",
+					"sid": 720601234377404,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Next\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 678352204670010,
+					"parameters": {
+						"variable": "CurrentDifficulty",
+						"value": "CurrentDifficulty + 1"
+					}
+				},
+				{
+					"callFunction": "GenerateBambooSet",
+					"sid": 617750830630184
+				}
+			],
+			"sid": 333019725156644
+		},
+		{
+			"eventType": "comment",
+			"text": "Restart the game using the lowest difficulty setting."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "PlayerModel",
+					"sid": 445416083775518,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Restart\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 979539711973375,
+					"parameters": {
+						"variable": "CurrentDifficulty",
+						"value": "InitialDifficulty"
+					}
+				},
+				{
+					"callFunction": "GenerateBambooSet",
+					"sid": 596371208525132
+				}
+			],
+			"sid": 210710005556076
+		}
+	],
+	"sid": 633773451990105
+}

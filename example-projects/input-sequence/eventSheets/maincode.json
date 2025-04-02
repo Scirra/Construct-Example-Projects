@@ -1,0 +1,2286 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "variable",
+			"name": "AllowInput",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 308253034605745
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the player graphics by adding it as a child of the player collision, to make sure they're always in the same position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "PlayerGraphics",
+							"sid": 318246342573644
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "PlayerGraphics",
+							"sid": 777351749164526,
+							"parameters": {
+								"object": "PlayerCollision",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerCollision",
+							"sid": 112094570205347,
+							"parameters": {
+								"child": "PlayerGraphics",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 264437122653607
+				},
+				{
+					"eventType": "comment",
+					"text": "Also setup the player shadow by adding it as a child of the player collision, but only in the horizontal axis (X), so the shadow can always stay on the ground."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Shadow",
+							"sid": 353610607222012
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Shadow",
+							"sid": 931109813636325,
+							"parameters": {
+								"x": "PlayerGraphics.ImagePointX(\"Feet\")",
+								"y": "PlayerGraphics.ImagePointY(\"Feet\") + 16"
+							}
+						},
+						{
+							"id": "move-to-layer",
+							"objectClass": "Shadow",
+							"sid": 155499600954266,
+							"parameters": {
+								"layer": "\"Background\""
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerCollision",
+							"sid": 778405578668543,
+							"parameters": {
+								"child": "Shadow",
+								"transform-x": true,
+								"transform-y": false,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 832891906804549
+				}
+			],
+			"sid": 824092239967854
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly scroll the camera towards the player, but using interpolated value for a very smooth transition."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 270076515850549
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 810595970171985,
+							"parameters": {
+								"x": "lerp(scrollx, PlayerCollision.X, 0.1 * 60 * dt)",
+								"y": "lerp(scrollx, PlayerCollision.Y, 0.1 * 60 * dt)"
+							}
+						}
+					],
+					"sid": 847422804779627
+				}
+			],
+			"sid": 440145313787939
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "InputHandler",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player is allowed to send input, register every signal using keywords like \"Left\" and \"Right\"."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 996301530081882,
+							"parameters": {
+								"variable": "AllowInput"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 199498126599624,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Register a \"Left\" input signal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 569668633841622,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 396407759984238,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RegisterInput",
+									"sid": 934076936397442,
+									"parameters": [
+										"\"Left\""
+									]
+								}
+							],
+							"sid": 244999559907940,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Register a \"Right\" input signal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 578518235263832,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 150447298852435,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RegisterInput",
+									"sid": 121864950866232,
+									"parameters": [
+										"\"Right\""
+									]
+								}
+							],
+							"sid": 881264541193189,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Register a \"Up\" input signal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 188588040285464,
+									"parameters": {
+										"key": 38
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 996161927970084,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-up"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RegisterInput",
+									"sid": 681864405142380,
+									"parameters": [
+										"\"Up\""
+									]
+								}
+							],
+							"sid": 720669740924854,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Register a \"Down\" input signal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 325174017240736,
+									"parameters": {
+										"key": 40
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 275065093755307,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-down"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RegisterInput",
+									"sid": 766473192521466,
+									"parameters": [
+										"\"Down\""
+									]
+								}
+							],
+							"sid": 111339427742231,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Register a \"Punch\" input signal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 592439908655349,
+									"parameters": {
+										"key": 90
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 561272400764989,
+									"parameters": {
+										"gamepad": "0",
+										"button": "button-a"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RegisterInput",
+									"sid": 323650762703971,
+									"parameters": [
+										"\"Punch\""
+									]
+								}
+							],
+							"sid": 143570784039679,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Register a \"Kick\" input signal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 906802182509730,
+									"parameters": {
+										"key": 88
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 499273433985859,
+									"parameters": {
+										"gamepad": "0",
+										"button": "button-b"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RegisterInput",
+									"sid": 242325334963236,
+									"parameters": [
+										"\"Kick\""
+									]
+								}
+							],
+							"sid": 780638998972263,
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "How long each input signal can stay inside the input buffer before it gets cleared. It's important to clear the input buffer, so the player doesn't have unlimited time to perform combos and special moves."
+				},
+				{
+					"eventType": "variable",
+					"name": "INPUTDURATION",
+					"type": "number",
+					"initialValue": "1",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 308702035099936
+				},
+				{
+					"eventType": "comment",
+					"text": "The current input index value."
+				},
+				{
+					"eventType": "variable",
+					"name": "InputIndex",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 146914242071084
+				},
+				{
+					"functionName": "RegisterInput",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "InputType",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 404694253757933
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Add the input signal to the array."
+						},
+						{
+							"id": "push",
+							"objectClass": "InputBuffer",
+							"sid": 637153341735959,
+							"parameters": {
+								"where": "front",
+								"value": "InputType",
+								"axis": "x"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start a timer with the current input index, so the value can be cleared eventually. It's important to have a different name tag for each timer, so they don't overlap each other."
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 344952672328747,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ClearInput\"&InputIndex",
+								"start-value": "0",
+								"end-value": "1",
+								"time": "INPUTDURATION",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Increase the input index value, so there are no repeated timers."
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 843783251056177,
+							"parameters": {
+								"variable": "InputIndex",
+								"value": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Check all inputs."
+						},
+						{
+							"callFunction": "CheckAll",
+							"sid": 581215711667447
+						}
+					],
+					"sid": 616512660158522,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update the target Y from each input overlay object, so they always stay lined up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 573554982145084,
+									"parameters": {
+										"object": "InputOverlay"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "InputOverlay",
+									"sid": 401237699822130,
+									"parameters": {
+										"instance-variable": "TargetY",
+										"value": "Self.TargetY + 32"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "InputOverlay",
+									"sid": 702535286680208,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveDown\"",
+										"property": "offsetY",
+										"end-value": "Self.TargetY",
+										"time": "0.1",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 447217365892379,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "However, if the target Y is too high, simply destroy the input overlay object, so it doesn't get out of the screen borders."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "InputOverlay",
+											"sid": 940093056938700,
+											"parameters": {
+												"instance-variable": "TargetY",
+												"comparison": 4,
+												"value": "144"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "stop-all-tweens",
+											"objectClass": "InputOverlay",
+											"sid": 632201930331170,
+											"behaviorType": "Tween"
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "InputOverlay",
+											"sid": 654757442939975,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Disappear\"",
+												"property": "size",
+												"end-x": "0",
+												"end-y": "0",
+												"time": "0.1",
+												"ease": "default",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 380231517828186
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Create a completely new input overlay object to display the latest input signal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 839691677458081,
+									"parameters": {
+										"object-to-create": "InputOverlay",
+										"layer": "\"InputOverlay\"",
+										"x": "16",
+										"y": "50",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "InputOverlay",
+									"sid": 618602090143549,
+									"parameters": {
+										"instance-variable": "TargetY",
+										"value": "Self.Y"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "InputOverlay",
+									"sid": 840557655046386,
+									"parameters": {
+										"animation": "InputType",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also animate the input overlay object for a more polished result."
+								},
+								{
+									"id": "set-size",
+									"objectClass": "InputOverlay",
+									"sid": 486576713362437,
+									"parameters": {
+										"width": "0",
+										"height": "0"
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "InputOverlay",
+									"sid": 155502915520123,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Bounce\"",
+										"property": "size",
+										"end-x": "Self.ImageWidth",
+										"end-y": "Self.ImageHeight",
+										"time": "0.25",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "InputOverlay",
+									"sid": 920596321031547,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"SelfDestroy\"",
+										"start-value": "0",
+										"end-value": "0",
+										"time": "1",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 494699974569664
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the self destroy timer is over, move the input overlay object out of the screen and destroy it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "InputOverlay",
+							"sid": 900202708094005,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SelfDestroy\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "InputOverlay",
+							"sid": 243049854926932,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveOut\"",
+								"property": "offsetX",
+								"end-value": "-8",
+								"time": "0.25",
+								"ease": "easeinsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 123568943854877
+				},
+				{
+					"eventType": "comment",
+					"text": "Clear the oldest input signal present from the list of input signals inside the input buffer array."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-tweens-finished",
+							"objectClass": "GameManager",
+							"sid": 316179286447980,
+							"behaviorType": "Tween"
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ClearInput",
+							"sid": 564673923074778
+						}
+					],
+					"sid": 450565334216070
+				},
+				{
+					"functionName": "ClearInput",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "pop",
+							"objectClass": "InputBuffer",
+							"sid": 929032751316686,
+							"parameters": {
+								"where": "back",
+								"axis": "x"
+							}
+						}
+					],
+					"sid": 720777916509400
+				},
+				{
+					"eventType": "comment",
+					"text": "Check all stored input signals and execute a special move if specific patterns are found."
+				},
+				{
+					"functionName": "CheckAll",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 899598030659006,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Execute the fire ball special move, but only if the player is on the ground."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-at-x",
+									"objectClass": "InputBuffer",
+									"sid": 412656266960788,
+									"parameters": {
+										"x": "2",
+										"comparison": 0,
+										"value": "\"Down\""
+									}
+								},
+								{
+									"id": "compare-at-x",
+									"objectClass": "InputBuffer",
+									"sid": 917412770696103,
+									"parameters": {
+										"x": "1",
+										"comparison": 0,
+										"value": "\"Right\""
+									}
+								},
+								{
+									"id": "compare-at-x",
+									"objectClass": "InputBuffer",
+									"sid": 972581976943325,
+									"parameters": {
+										"x": "0",
+										"comparison": 0,
+										"value": "\"Punch\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 445210235324387,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-on-floor",
+											"objectClass": "PlayerCollision",
+											"sid": 909580170028887,
+											"behaviorType": "Platform"
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 403026105432478,
+											"parameters": {
+												"animation": "\"FireBall\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Flash the player sprite for a more powerful effect."
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "PlayerGraphics",
+											"sid": 511702415332419,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Flash\"",
+												"start-value": "200",
+												"end-value": "100",
+												"time": "0.25",
+												"ease": "default",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Prevent the player from performing other movement while casting the fire ball."
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 348995864301725,
+											"parameters": {
+												"variable": "AllowInput",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 767971452826577
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Execute the uppercut special move, but only if the player is on the ground."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-at-x",
+									"objectClass": "InputBuffer",
+									"sid": 169446982991422,
+									"parameters": {
+										"x": "2",
+										"comparison": 0,
+										"value": "\"Right\""
+									}
+								},
+								{
+									"id": "compare-at-x",
+									"objectClass": "InputBuffer",
+									"sid": 896124829459095,
+									"parameters": {
+										"x": "1",
+										"comparison": 0,
+										"value": "\"Right\""
+									}
+								},
+								{
+									"id": "compare-at-x",
+									"objectClass": "InputBuffer",
+									"sid": 687523180485881,
+									"parameters": {
+										"x": "0",
+										"comparison": 0,
+										"value": "\"Punch\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 984962174086561,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-on-floor",
+											"objectClass": "PlayerCollision",
+											"sid": 175336617986638,
+											"behaviorType": "Platform"
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 701116694026913,
+											"parameters": {
+												"animation": "\"Uppercut\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Reset both movement vectors."
+										},
+										{
+											"id": "set-vector-x",
+											"objectClass": "PlayerCollision",
+											"sid": 535909278294744,
+											"behaviorType": "Platform",
+											"parameters": {
+												"vector-x": "0"
+											}
+										},
+										{
+											"id": "set-vector-y",
+											"objectClass": "PlayerCollision",
+											"sid": 671075912335182,
+											"behaviorType": "Platform",
+											"parameters": {
+												"vector-y": "0"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Disable the platform behavior, so its gravity doesn't affect the uppercut animation."
+										},
+										{
+											"id": "set-enabled",
+											"objectClass": "PlayerCollision",
+											"sid": 880766267482278,
+											"behaviorType": "Platform",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "PlayerCollision",
+											"sid": 979396740693728,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Uppercut\"",
+												"property": "offsetY",
+												"end-value": "Self.Y - 64",
+												"time": "0.25",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Flash the player sprite for a more powerful effect."
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "PlayerGraphics",
+											"sid": 171860298818663,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Flash\"",
+												"start-value": "200",
+												"end-value": "100",
+												"time": "0.25",
+												"ease": "default",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Prevent the player from performing other movement while casting the uppercut."
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 771606948480920,
+											"parameters": {
+												"variable": "AllowInput",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 166809268129608
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Execute the tornado kick special move, even if the player is not on the ground."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-at-x",
+									"objectClass": "InputBuffer",
+									"sid": 580974284579458,
+									"parameters": {
+										"x": "2",
+										"comparison": 0,
+										"value": "\"Left\""
+									}
+								},
+								{
+									"id": "compare-at-x",
+									"objectClass": "InputBuffer",
+									"sid": 563582557752099,
+									"parameters": {
+										"x": "1",
+										"comparison": 0,
+										"value": "\"Right\""
+									}
+								},
+								{
+									"id": "compare-at-x",
+									"objectClass": "InputBuffer",
+									"sid": 685617764140294,
+									"parameters": {
+										"x": "0",
+										"comparison": 0,
+										"value": "\"Kick\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerGraphics",
+									"sid": 593858242968623,
+									"parameters": {
+										"animation": "\"TornadoKick\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Reset both movement vectors."
+								},
+								{
+									"id": "set-vector-x",
+									"objectClass": "PlayerCollision",
+									"sid": 173917415946052,
+									"behaviorType": "Platform",
+									"parameters": {
+										"vector-x": "0"
+									}
+								},
+								{
+									"id": "set-vector-y",
+									"objectClass": "PlayerCollision",
+									"sid": 713468371549456,
+									"behaviorType": "Platform",
+									"parameters": {
+										"vector-y": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Disable the platform behavior, so its gravity doesn't affect the tornado kick animation."
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "PlayerCollision",
+									"sid": 508626262155973,
+									"behaviorType": "Platform",
+									"parameters": {
+										"state": "disabled"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerCollision",
+									"sid": 179765758440248,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"TornadoKick\"",
+										"property": "offsetX",
+										"end-value": "Self.X + 64",
+										"time": "0.5",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Flash the player sprite for a more powerful effect."
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "PlayerGraphics",
+									"sid": 375164878898948,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Flash\"",
+										"start-value": "200",
+										"end-value": "100",
+										"time": "0.25",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Prevent the player from performing other movement while casting the tornado kick."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 312750375788660,
+									"parameters": {
+										"variable": "AllowInput",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 881034599390761
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If for some reason the player manages to overlap a solid object, remove it from inside the solid object by gradually changing its X position wish a loop."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 406028244907234,
+							"parameters": {
+								"object": "Solid"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 905108601430925,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "while",
+									"objectClass": "System",
+									"sid": 560889547357409
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerCollision",
+									"sid": 219881478060781,
+									"parameters": {
+										"object": "Solid"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-x",
+									"objectClass": "PlayerCollision",
+									"sid": 957100468404042,
+									"parameters": {
+										"x": "Self.X - 0.1"
+									}
+								}
+							],
+							"sid": 660346643083394
+						}
+					]
+				}
+			],
+			"sid": 206004509695220
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "BasicMovement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Perform basic movements like walking and punching, but only if the player is allowed to send input."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 569078624569385,
+							"parameters": {
+								"variable": "AllowInput"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 349581450139535,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move left."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 569936071916836,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 901612930621973,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 851416221879630,
+									"behaviorType": "Platform",
+									"parameters": {
+										"control": "left"
+									}
+								}
+							],
+							"sid": 558728301501312,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move right."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 588708125461268,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 281996807903740,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 655455463583471,
+									"behaviorType": "Platform",
+									"parameters": {
+										"control": "right"
+									}
+								}
+							],
+							"sid": 810014305673904,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Jump."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 579448433482847,
+									"parameters": {
+										"key": 38
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 844187248288199,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-up"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 730849194707220,
+									"behaviorType": "Platform",
+									"parameters": {
+										"control": "jump"
+									}
+								}
+							],
+							"sid": 823010567867329,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Punch."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 848597054663988,
+									"parameters": {
+										"key": 90
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 103629335449142,
+									"parameters": {
+										"gamepad": "0",
+										"button": "button-a"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerGraphics",
+									"sid": 323725873020353,
+									"parameters": {
+										"animation": "\"Punch\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 595940618739523,
+									"parameters": {
+										"variable": "AllowInput",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 255713637211281,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Kick."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 304092893097618,
+									"parameters": {
+										"key": 88
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 547244487918866,
+									"parameters": {
+										"gamepad": "0",
+										"button": "button-b"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerGraphics",
+									"sid": 856085382841638,
+									"parameters": {
+										"animation": "\"Kick\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 398641633975786,
+									"parameters": {
+										"variable": "AllowInput",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 432883741341675,
+							"isOrBlock": true
+						}
+					]
+				}
+			],
+			"sid": 405728997257692
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Animations",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Change the player animation state depending on what he's currently doing, but only if inputs are allowed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 963044265448314,
+							"parameters": {
+								"variable": "AllowInput"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 920821145279670,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-on-floor",
+									"objectClass": "PlayerCollision",
+									"sid": 861711649946006,
+									"behaviorType": "Platform"
+								}
+							],
+							"actions": [],
+							"sid": 961660169897232,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Walk animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-moving",
+											"objectClass": "PlayerCollision",
+											"sid": 395736017086091,
+											"behaviorType": "Platform"
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 578396314284553,
+											"parameters": {
+												"animation": "\"Walk\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 135989224980208
+								},
+								{
+									"eventType": "comment",
+									"text": "Idle animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 523432856667340
+										},
+										{
+											"id": "is-moving",
+											"objectClass": "PlayerCollision",
+											"sid": 772177443566316,
+											"behaviorType": "Platform",
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 920384022911535,
+											"parameters": {
+												"animation": "\"Idle\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 998099137141032
+								}
+							]
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 258268423931522
+								},
+								{
+									"id": "is-on-floor",
+									"objectClass": "PlayerCollision",
+									"sid": 440712295539434,
+									"behaviorType": "Platform",
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 192989289108238,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Jump animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-animation-playing",
+											"objectClass": "PlayerGraphics",
+											"sid": 884114925515994,
+											"parameters": {
+												"animation": "\"Jump\""
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 353927675559666,
+											"parameters": {
+												"animation": "\"Jump\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 239667808982146
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player is done with the punch animation, allow new inputs again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "PlayerGraphics",
+							"sid": 855346021023745,
+							"parameters": {
+								"animation": "\"Punch\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 328943461490941,
+							"parameters": {
+								"variable": "AllowInput",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 665437386416238
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player is done with the kick animation, allow new inputs again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "PlayerGraphics",
+							"sid": 595834245424008,
+							"parameters": {
+								"animation": "\"Kick\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 364502753807627,
+							"parameters": {
+								"variable": "AllowInput",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 876455257879686
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn the fire ball object during the third frame of the casting animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-frame-changed",
+							"objectClass": "PlayerGraphics",
+							"sid": 223127097108876
+						}
+					],
+					"actions": [],
+					"sid": 206741147901269,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-animation-playing",
+									"objectClass": "PlayerGraphics",
+									"sid": 370078237665359,
+									"parameters": {
+										"animation": "\"FireBall\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 891037619142269,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-animation-frame",
+											"objectClass": "PlayerGraphics",
+											"sid": 253815617079113,
+											"parameters": {
+												"comparison": 0,
+												"number": "2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "spawn-another-object",
+											"objectClass": "PlayerGraphics",
+											"sid": 218430774577670,
+											"parameters": {
+												"object": "FireBall",
+												"layer": "\"World\"",
+												"image-point": "\"FireBall\"",
+												"create-hierarchy": false
+											}
+										}
+									],
+									"sid": 182573092278398
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player is done with the fire ball animation, allow new inputs again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "PlayerGraphics",
+							"sid": 464324384876036,
+							"parameters": {
+								"animation": "\"FireBall\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 875813077864474,
+							"parameters": {
+								"variable": "AllowInput",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 587363911625385
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the uppercut move is over, re-enable the platform behavior and allow new inputs again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCollision",
+							"sid": 817665284701072,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Uppercut\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "PlayerCollision",
+							"sid": 787415184825438,
+							"behaviorType": "Platform",
+							"parameters": {
+								"state": "enabled"
+							}
+						},
+						{
+							"id": "set-vector-x",
+							"objectClass": "PlayerCollision",
+							"sid": 347457754181186,
+							"behaviorType": "Platform",
+							"parameters": {
+								"vector-x": "0"
+							}
+						},
+						{
+							"id": "set-vector-y",
+							"objectClass": "PlayerCollision",
+							"sid": 978043950114630,
+							"behaviorType": "Platform",
+							"parameters": {
+								"vector-y": "0"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 153093497154061,
+							"parameters": {
+								"variable": "AllowInput",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 474254319946105
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the tornado kick move is over, re-enable the platform behavior and allow new inputs again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCollision",
+							"sid": 110342734530888,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TornadoKick\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "PlayerCollision",
+							"sid": 215667063511457,
+							"behaviorType": "Platform",
+							"parameters": {
+								"state": "enabled"
+							}
+						},
+						{
+							"id": "set-vector-x",
+							"objectClass": "PlayerCollision",
+							"sid": 178611459776958,
+							"behaviorType": "Platform",
+							"parameters": {
+								"vector-x": "0"
+							}
+						},
+						{
+							"id": "set-vector-y",
+							"objectClass": "PlayerCollision",
+							"sid": 313162264269554,
+							"behaviorType": "Platform",
+							"parameters": {
+								"vector-y": "0"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 599240746359378,
+							"parameters": {
+								"variable": "AllowInput",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 923546346688873
+				}
+			],
+			"sid": 306290096865790
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Effects",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Leave a trail of shadow clones behind the player while performing an uppercut or tornado kick."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-animation-playing",
+							"objectClass": "PlayerGraphics",
+							"sid": 434767676655374,
+							"parameters": {
+								"animation": "\"TornadoKick\""
+							}
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "PlayerGraphics",
+							"sid": 197116796706640,
+							"parameters": {
+								"animation": "\"Uppercut\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 244625825724871,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 854736926551742,
+									"parameters": {
+										"interval-seconds": "0.1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 757984828690753,
+									"parameters": {
+										"object-to-create": "DrawingCanvas",
+										"layer": "\"Effects\"",
+										"x": "0",
+										"y": "0",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "DrawingCanvas",
+									"sid": 514226459103895,
+									"parameters": {
+										"width": "LayoutWidth",
+										"height": "LayoutHeight"
+									}
+								},
+								{
+									"id": "paste-object",
+									"objectClass": "DrawingCanvas",
+									"sid": 668444483780956,
+									"parameters": {
+										"object": "PlayerGraphics",
+										"effects": "with-effects"
+									}
+								}
+							],
+							"sid": 952146609016874
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Leave a trail of dust particles behind the player while walking."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-animation-playing",
+							"objectClass": "PlayerGraphics",
+							"sid": 825486797297182,
+							"parameters": {
+								"animation": "\"Walk\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 596333726564961,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 372496140546110,
+									"parameters": {
+										"interval-seconds": "0.25"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerGraphics",
+									"sid": 961227451001092,
+									"parameters": {
+										"object": "StepDust",
+										"layer": "\"World\"",
+										"image-point": "\"Feet\"",
+										"create-hierarchy": false
+									}
+								}
+							],
+							"sid": 762119057052479
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn some dust particle below the player when he jumps."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-jump",
+							"objectClass": "PlayerCollision",
+							"sid": 481024185664961,
+							"behaviorType": "Platform"
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "PlayerGraphics",
+							"sid": 922577035573264,
+							"parameters": {
+								"object": "JumpDust",
+								"layer": "\"World\"",
+								"image-point": "\"Feet\"",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 303530162982664
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn some dust particles below the player when he lands."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-landed",
+							"objectClass": "PlayerCollision",
+							"sid": 175530968168559,
+							"behaviorType": "Platform"
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "PlayerGraphics",
+							"sid": 839287416301679,
+							"parameters": {
+								"object": "LandDust",
+								"layer": "\"World\"",
+								"image-point": "\"Feet\"",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 737339241946311
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the player brightness if a \"Flash\" animation is being played."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerGraphics",
+							"sid": 149149662634594,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Flash\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "PlayerGraphics",
+							"sid": 140248624068492,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Self.Tween.Value(\"Flash\")"
+							}
+						}
+					],
+					"sid": 672031566429508
+				},
+				{
+					"eventType": "comment",
+					"text": "If the fire ball collides with a wall, destroy it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "FireBall",
+							"sid": 270204571535894,
+							"parameters": {
+								"object": "Ground"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "FireBall",
+							"sid": 462294482732932,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "FireBall",
+							"sid": 239298139174324,
+							"parameters": {
+								"animation": "\"Destroy\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 576867188171758
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy all particles objects once their animations are over, so they don't keep increasing the CPU and RAM usage."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "StepDust",
+							"sid": 437403028392558,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "StepDust",
+							"sid": 241246317482724
+						}
+					],
+					"sid": 107328840511556
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "JumpDust",
+							"sid": 244508323201285,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "JumpDust",
+							"sid": 181402169019023
+						}
+					],
+					"sid": 660206200127261
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "LandDust",
+							"sid": 311596182149330,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "LandDust",
+							"sid": 637902996268105
+						}
+					],
+					"sid": 745775076233756
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "FireBall",
+							"sid": 426073512596319,
+							"parameters": {
+								"animation": "\"Destroy\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "FireBall",
+							"sid": 259728325525991
+						}
+					],
+					"sid": 180824978588868
+				}
+			],
+			"sid": 393084356481793
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Restart the layout for testing purposes."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 713327688284310,
+							"parameters": {
+								"key": 82
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 614851638291300,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 613083493428478
+						}
+					],
+					"sid": 540636561533322,
+					"isOrBlock": true
+				}
+			],
+			"sid": 539619635437855
+		}
+	],
+	"sid": 710851876574176
+}

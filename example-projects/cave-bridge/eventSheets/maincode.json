@@ -1,0 +1,625 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the left is being held, move the player left (also works with a gamepad)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 573989780196578,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 237692792460100,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-left"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "PlayerCollision",
+							"sid": 399682203182618,
+							"behaviorType": "Platform",
+							"parameters": {
+								"control": "left"
+							}
+						}
+					],
+					"sid": 861091851412908,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If the right is being held, move the player right (also works with a gamepad)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 843645347083664,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 810778924894699,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-right"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "PlayerCollision",
+							"sid": 162008227597729,
+							"behaviorType": "Platform",
+							"parameters": {
+								"control": "right"
+							}
+						}
+					],
+					"sid": 737937181937435,
+					"isOrBlock": true
+				}
+			],
+			"sid": 968557592602100
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Animations",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player is moving faster than 128 pixels per second, change its animation to \"Walk\" and match the movement direction by mirroring the player sprite."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 999161677645839,
+							"parameters": {
+								"first-value": "abs(PlayerCollision.Platform.VectorX)",
+								"comparison": 5,
+								"second-value": "128"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerAnimations",
+							"sid": 853439414500696,
+							"parameters": {
+								"animation": "\"Walk\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "PlayerAnimations",
+							"sid": 365262129397563,
+							"parameters": {
+								"width": "sign(PlayerCollision.Platform.VectorX) * Self.ImageWidth"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also increase the rate of dust particles."
+						},
+						{
+							"id": "set-rate",
+							"objectClass": "DustTrail",
+							"sid": 311413159219994,
+							"parameters": {
+								"rate": "16"
+							}
+						}
+					],
+					"sid": 617049897164121
+				},
+				{
+					"eventType": "comment",
+					"text": "Otherwise change its animation to \"Idle\"."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 560271752069371
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 533105764102747,
+							"parameters": {
+								"first-value": "abs(PlayerCollision.Platform.VectorX)",
+								"comparison": 2,
+								"second-value": "128"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerAnimations",
+							"sid": 432065373189287,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also decrease the rate of dust particles."
+						},
+						{
+							"id": "set-rate",
+							"objectClass": "DustTrail",
+							"sid": 647553501259099,
+							"parameters": {
+								"rate": "0"
+							}
+						}
+					],
+					"sid": 311582764064525
+				}
+			],
+			"sid": 478074833138828
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Timeline",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player hits the trigger, play the \"RebuildBridge\" animation, previously composed using the timeline feature."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 505999119157408,
+							"parameters": {
+								"object": "Trigger"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Trigger",
+							"sid": 186320396307644
+						},
+						{
+							"id": "play-timeline",
+							"objectClass": "Timeline",
+							"sid": 830968204302240,
+							"parameters": {
+								"timeline": "RebuildBridge",
+								"tags": "\"RebuildBridge\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Shake the screen for a more impactful effect."
+						},
+						{
+							"id": "shake",
+							"objectClass": "PlayerCollision",
+							"sid": 576597525787964,
+							"behaviorType": "ScrollTo",
+							"parameters": {
+								"magnitude": "16",
+								"duration": "Timeline.TotalTime(\"RebuildBridge\")",
+								"mode": "reducing-magnitude"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also prevent the player from moving by ignoring any new input."
+						},
+						{
+							"id": "set-ignoring-input",
+							"objectClass": "PlayerCollision",
+							"sid": 415622725955136,
+							"behaviorType": "Platform",
+							"parameters": {
+								"input": "start-ignoring"
+							}
+						}
+					],
+					"sid": 225206919924129
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"RebuildBridge\" animation is over, allow the player to control the character once again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timeline-finished-by-tags",
+							"objectClass": "Timeline",
+							"sid": 961575510061280,
+							"parameters": {
+								"tags": "\"RebuildBridge\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-ignoring-input",
+							"objectClass": "PlayerCollision",
+							"sid": 351530378203458,
+							"behaviorType": "Platform",
+							"parameters": {
+								"input": "stop-ignoring"
+							}
+						}
+					],
+					"sid": 354616331689726,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Disable the water drops by reducing their spawn rate."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-all",
+									"objectClass": "System",
+									"sid": 971357995800730,
+									"parameters": {
+										"object": "WaterDrops"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-rate",
+									"objectClass": "WaterDrops",
+									"sid": 541893523580355,
+									"parameters": {
+										"rate": "0"
+									}
+								}
+							],
+							"sid": 961989205237589
+						}
+					]
+				}
+			],
+			"sid": 261435040569777
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Vegetation",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player collides with a vegetation object that isn't swinging already, swing it based on the player movement speed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 373681514466966,
+							"parameters": {
+								"object": "Vegetation"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 341940691799509,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-moving",
+									"objectClass": "PlayerCollision",
+									"sid": 467048833601225,
+									"behaviorType": "Platform"
+								},
+								{
+									"id": "is-playing",
+									"objectClass": "Vegetation",
+									"sid": 226192267051966,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Swing\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Vegetation",
+									"sid": 178709258257818,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Swing\"",
+										"property": "offsetAngle",
+										"end-value": "Self.Angle + sign(PlayerCollision.Platform.VectorX) * 10",
+										"time": "random(0.15, 0.25)",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "yes"
+									}
+								}
+							],
+							"sid": 813701494303122
+						}
+					]
+				}
+			],
+			"sid": 120541443005926
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Environment",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Every 0.1 seconds spawn 4 bubbles inside the river and make them float towards the surface, making the water look very hot."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 689471474452381,
+							"parameters": {
+								"interval-seconds": "0.1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 964265836634834,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 600784810121724,
+									"parameters": {
+										"count": "4"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 328648947886837,
+									"parameters": {
+										"object-to-create": "Bubble",
+										"layer": "\"Foreground\"",
+										"x": "random(River.BBoxLeft, River.BBoxRight)",
+										"y": "River.BBoxBottom",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Bubble",
+									"sid": 592727896939647,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Float\"",
+										"property": "offsetY",
+										"end-value": "River.BBoxTop + Self.Height / 2",
+										"time": "random(0.25, 0.5)",
+										"ease": "noease",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "move-to-object",
+									"objectClass": "Bubble",
+									"sid": 844951905222044,
+									"parameters": {
+										"where": "in-front",
+										"object": "River"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "Bubble",
+									"sid": 307845833734797,
+									"parameters": {
+										"opacity": "random(25, 50)"
+									}
+								}
+							],
+							"sid": 852284141287305
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once a bubble reaches the surface, display a \"Burst\" animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Bubble",
+							"sid": 948730337020282,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Float\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Bubble",
+							"sid": 844191926677021,
+							"parameters": {
+								"animation": "\"Burst\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 574807667198300
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the bubble has been popped, destroy it to prevent any sort of CPU or memory overload."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Bubble",
+							"sid": 406205593850925,
+							"parameters": {
+								"animation": "\"Burst\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Bubble",
+							"sid": 633652446296993
+						}
+					],
+					"sid": 866759827212739
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly offset the fog texture, so it looks like it's moving."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 732213772870944
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Fog",
+							"sid": 303862529422585,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + 0.5 * 60 * dt"
+							}
+						}
+					],
+					"sid": 150813972602984
+				},
+				{
+					"eventType": "comment",
+					"text": "If a bridge piece collides with the river, create a big water splash on top of it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BridgePiece",
+							"sid": 881572862489241,
+							"parameters": {
+								"object": "River"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 592054627658801,
+							"parameters": {
+								"object-to-create": "WaterSplash",
+								"layer": "\"Foreground\"",
+								"x": "BridgePiece.X",
+								"y": "River.BBoxBottom",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Point the water splash upwards."
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "WaterSplash",
+							"sid": 774897510735898,
+							"parameters": {
+								"angle": "270"
+							}
+						}
+					],
+					"sid": 740957972599353
+				}
+			],
+			"sid": 657378444862248
+		}
+	],
+	"sid": 800345309938463
+}

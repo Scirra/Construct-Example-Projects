@@ -1,0 +1,555 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "MIDI access",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On startup, attempt to request MIDI access immediately. This may show a permission prompt on startup. If permission was previously allowed, then it means MIDI access can work immediately."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 425890297657324
+						}
+					],
+					"actions": [
+						{
+							"id": "request-midi-access",
+							"objectClass": "MIDI",
+							"sid": 204974742300238,
+							"parameters": {
+								"sysex": false,
+								"software": false
+							}
+						}
+					],
+					"sid": 395131676381618,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also display if MIDI is supported, and if it is enable the 'Request MIDI access' button for use in case permission is not yet approved."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-supported",
+									"objectClass": "MIDI",
+									"sid": 837515989085114
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "StatusText",
+									"sid": 770617733870251,
+									"parameters": {
+										"text": "\"MIDI is supported. Click [i]Request MIDI access[/i] to use MIDI input.\""
+									}
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "RequestMIDIAccess",
+									"sid": 770309086453679,
+									"parameters": {
+										"mode": "enabled"
+									}
+								}
+							],
+							"sid": 319462010742335
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 650367431902916
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "StatusText",
+									"sid": 557733770454888,
+									"parameters": {
+										"text": "\"MIDI is not supported. Try using Chrome or Edge\""
+									}
+								}
+							],
+							"sid": 189082912412699
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Request MIDI access with the associated button, in case requesting access on startup does not work. This is necessary before any MIDI devices can be used. This will show a permission prompt the first time it is used."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "RequestMIDIAccess",
+							"sid": 103647713592238
+						}
+					],
+					"actions": [
+						{
+							"id": "request-midi-access",
+							"objectClass": "MIDI",
+							"sid": 846844878560858,
+							"parameters": {
+								"sysex": false,
+								"software": false
+							}
+						}
+					],
+					"sid": 418578569485279
+				},
+				{
+					"eventType": "comment",
+					"text": "Display the outcome of the MIDI access request in the status text."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-request-access-success",
+							"objectClass": "MIDI",
+							"sid": 428446510611820
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 653914340723332,
+							"parameters": {
+								"text": "\"Requested access OK\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Once MIDI access is allowed then disable the 'Request MIDI access' button as it is no longer needed."
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "RequestMIDIAccess",
+							"sid": 832337273113489,
+							"parameters": {
+								"mode": "disabled"
+							}
+						}
+					],
+					"sid": 931205119118499
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-request-access-failed",
+							"objectClass": "MIDI",
+							"sid": 980026024888504
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 796646161018727,
+							"parameters": {
+								"text": "\"Requested access failed\""
+							}
+						}
+					],
+					"sid": 655610384934260
+				}
+			],
+			"sid": 284843700025403
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "MIDI devices",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "This boolean tracks whether 'On devices state changed' is triggering for the first time. In this case it then attempts to open the first device in the list, so that MIDI input works immediately with that device."
+				},
+				{
+					"eventType": "variable",
+					"name": "FirstDeviceStateChange",
+					"type": "boolean",
+					"initialValue": "true",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 927320290732207
+				},
+				{
+					"eventType": "comment",
+					"text": "'On devices state changed' triggers after requesting MIDI access with the initial list of available devices, but also later on if any new devices are connected or existing devices disconnected. Therefore in this trigger the InputsList dropdown is cleared and repopulated with the available inputs."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-devices-state-changed",
+							"objectClass": "MIDI",
+							"sid": 287992018015901
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "InputsList",
+							"sid": 114874896280468,
+							"parameters": {
+								"mode": "enabled"
+							}
+						},
+						{
+							"id": "clear",
+							"objectClass": "InputsList",
+							"sid": 170188142061430
+						}
+					],
+					"sid": 523191335786687,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 752154507513453,
+									"parameters": {
+										"count": "MIDI.InputCount"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-item",
+									"objectClass": "InputsList",
+									"sid": 372233621332249,
+									"parameters": {
+										"text": "MIDI.InputNameAt(loopindex) & \" (\" & MIDI.InputManufacturerAt(loopindex) & \") [\" & MIDI.InputIDAt(loopindex) & \"]\""
+									}
+								}
+							],
+							"sid": 948834437634817
+						},
+						{
+							"eventType": "comment",
+							"text": "For the first time only, if any MIDI inputs are available, open the first device so we can immediately receive MIDI input from it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 964709010458403,
+									"parameters": {
+										"variable": "FirstDeviceStateChange"
+									}
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 167012548709866,
+									"parameters": {
+										"first-value": "MIDI.InputCount",
+										"comparison": 4,
+										"second-value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 566985175920511,
+									"parameters": {
+										"variable": "FirstDeviceStateChange",
+										"value": "false"
+									}
+								},
+								{
+									"id": "open-device",
+									"objectClass": "MIDI",
+									"sid": 331131232369557,
+									"parameters": {
+										"type": "input",
+										"id": "MIDI.InputIDAt(InputsList.SelectedIndex)"
+									}
+								}
+							],
+							"sid": 134663495383115
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When multiple inputs are available, changing the input dropdown should change the input being used. Closing the input device with an empty string will close the last opened device (if any), and then it opens the currently selected device, ensuring that is now the only open device."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-selection-changed",
+							"objectClass": "InputsList",
+							"sid": 223535878841842
+						}
+					],
+					"actions": [
+						{
+							"id": "close-device",
+							"objectClass": "MIDI",
+							"sid": 984984724008575,
+							"parameters": {
+								"type": "input",
+								"id": "\"\""
+							}
+						},
+						{
+							"id": "open-device",
+							"objectClass": "MIDI",
+							"sid": 961915661748984,
+							"parameters": {
+								"type": "input",
+								"id": "MIDI.InputIDAt(InputsList.SelectedIndex)"
+							}
+						}
+					],
+					"sid": 445076353257381
+				},
+				{
+					"eventType": "comment",
+					"text": "In the status text, show when any input device is opened, closed, or encounters an error."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-device-opened",
+							"objectClass": "MIDI",
+							"sid": 694084305989081,
+							"parameters": {
+								"type": "input"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 358176082122081,
+							"parameters": {
+								"text": "\"Input device [i]\" & MIDI.CurrentDeviceID & \"[/i] opened\""
+							}
+						}
+					],
+					"sid": 340435079524134
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-device-closed",
+							"objectClass": "MIDI",
+							"sid": 594419735768477,
+							"parameters": {
+								"type": "input"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 179622948021021,
+							"parameters": {
+								"text": "\"Input device [i]\" & MIDI.CurrentDeviceID & \"[/i] closed\""
+							}
+						}
+					],
+					"sid": 594939755543487
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-device-error",
+							"objectClass": "MIDI",
+							"sid": 427977244878827,
+							"parameters": {
+								"type": "input"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 717811218176989,
+							"parameters": {
+								"text": "\"Input device [i]\" & MIDI.CurrentDeviceID & \"[/i] error\""
+							}
+						}
+					],
+					"sid": 325124618522529
+				}
+			],
+			"sid": 921580861520346
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Note messages",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "In any 'Note on' or 'Note off' message, display the note information in a text object and show the velocity with a Tiled Background which is made to appear like a progress bar. All the visible notes of the keyboard are Sprite objects in the 'Keys' family; animation frame 0 shows the key not pressed, and frame 1 shows it pressed, so also switch the animation frame according to the note message. The relevant instance is identified by a family instance variable which has the note number for each individual note."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-message",
+							"objectClass": "MIDI",
+							"sid": 482603760239923,
+							"parameters": {
+								"message-type": "note-on"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "NoteInfo",
+							"sid": 877373264567273,
+							"parameters": {
+								"text": "\"Note [b]\" & MIDI.NoteName & \"[/b] (number \" & MIDI.NoteNumber & \") on\""
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "VelocityBar",
+							"sid": 185334726024780,
+							"parameters": {
+								"width": "(MIDI.Velocity / 127) * 300"
+							}
+						}
+					],
+					"sid": 982647279847445,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Keys",
+									"sid": 131140311535428,
+									"parameters": {
+										"instance-variable": "NoteNumber",
+										"comparison": 0,
+										"value": "MIDI.NoteNumber"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Keys",
+									"sid": 944419233278944,
+									"parameters": {
+										"frame-number": "1"
+									}
+								}
+							],
+							"sid": 302389983516619
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-message",
+							"objectClass": "MIDI",
+							"sid": 399395729285063,
+							"parameters": {
+								"message-type": "note-off"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "NoteInfo",
+							"sid": 254855939495751,
+							"parameters": {
+								"text": "\"Note [b]\" & MIDI.NoteName & \"[/b] (number \" & MIDI.NoteNumber & \") off\""
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "VelocityBar",
+							"sid": 998636004280793,
+							"parameters": {
+								"width": "(MIDI.Velocity / 127) * 300"
+							}
+						}
+					],
+					"sid": 410125405325810,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Keys",
+									"sid": 576468126517923,
+									"parameters": {
+										"instance-variable": "NoteNumber",
+										"comparison": 0,
+										"value": "MIDI.NoteNumber"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Keys",
+									"sid": 244023978295367,
+									"parameters": {
+										"frame-number": "0"
+									}
+								}
+							],
+							"sid": 696196957681899
+						}
+					]
+				}
+			],
+			"sid": 959561784109934
+		}
+	],
+	"sid": 643697110238196
+}

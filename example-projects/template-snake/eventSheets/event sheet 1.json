@@ -1,0 +1,1487 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Snake template\n\nA snake (composed of several instances of the Sprite object [b]snake[/b]) is moved every [i]freq[/i] seconds. The first spawned instance has its instance variable [i]head[/i] set to true.\nThe snake makes use of the [b]TileMovement behavior[/b] for its movement, as well as the [b]Flash behavior[/b] for when it has collided with itself or a [b]wall[/b]\nThe player either uses the arrow key of the keyboard or touches the Sprite [b]arrow[/b] to set the direction in which it moves.\n\nThe snake can eat [b]toEat[/b] objects which :\n[item]Add to the length of the snake (spawning a new [b]snake[/b] instance at the tail)[/item]\n[item]Add to the score (global variable [i]eaten[/i])[/item]\n[item]Modify the [i]freq[/i] value, making the snake go faster over time[/item]\n[item]Spawns new instance(s) of [b]toEat[/b] for the game to go on[/item]\n\nThe game ends if the snake [i]head[/i] :\n[item]Collides with a [b]wall[/b][/item]\n[item]Collides with another instance of [b]snake[/b][/item]\nThe snake then stops moving and flashes and a button/text allowing for the user to restart the game is displayed.",
+			"background-color": [
+				0.7450980392156863,
+				0.996078431372549,
+				0.8549019607843137,
+				1
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": ""
+		},
+		{
+			"eventType": "comment",
+			"text": "references :\n\nObject types - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/objects/object-types\nInstances - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/objects/instances\n\nGlobal variables - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/events/variables\nInstance variables - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/objects/instance-variables\n\nSprite plugin - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/sprite\nKeyboard plugin - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/keyboard\nTouch plugin - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/touch\nPlatformInfo plugin - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/platform-info\n\nFunctions system feature - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/events/functions\n\nTileMovement behavior - https://www.construct.net/en/make-games/manuals/construct-3/behavior-reference/tile-movement\nFlash behavior - https://www.construct.net/en/make-games/manuals/construct-3/behavior-reference/flash"
+		},
+		{
+			"eventType": "comment",
+			"text": ""
+		},
+		{
+			"eventType": "comment",
+			"text": "On beginning of the game, we display the current score, set the global variable [i]alive[/i] to true, which allows the game to know it has to move the snake on a regular basis and the game is not over, the we call on the function [i][b]spawnStartSnake[/b][/i] which spawns up to [i]length[/i] instances of the snake to start the game with."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 203254221356772
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "txtScore",
+					"sid": 132676520621951,
+					"parameters": {
+						"text": "\"Score: \" & eaten"
+					}
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 269089362524621,
+					"parameters": {
+						"variable": "alive",
+						"value": "true"
+					}
+				},
+				{
+					"callFunction": "spawnStartSnake",
+					"sid": 386164506862681
+				}
+			],
+			"sid": 742815210880025
+		},
+		{
+			"eventType": "comment",
+			"text": "global variables for the game"
+		},
+		{
+			"eventType": "variable",
+			"name": "length",
+			"type": "number",
+			"initialValue": "5",
+			"comment": "length of the snake (number of instances)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 106193506010678
+		},
+		{
+			"eventType": "variable",
+			"name": "freq",
+			"type": "number",
+			"initialValue": "0.35",
+			"comment": "time between snake movements (in second)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 638451955604470
+		},
+		{
+			"eventType": "variable",
+			"name": "lastUID",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "UID of the last part of the snake",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 527962042173416
+		},
+		{
+			"eventType": "variable",
+			"name": "alive",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "snake is alive and moving",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 744790642049672
+		},
+		{
+			"eventType": "variable",
+			"name": "eaten",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "number of elements eaten",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 159234205323130
+		},
+		{
+			"eventType": "variable",
+			"name": "eatenMod",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "number used in modulo comparison",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 428971750454639
+		},
+		{
+			"eventType": "variable",
+			"name": "iterations",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "number of times the modulo number has been used",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 134328408853525
+		},
+		{
+			"eventType": "comment",
+			"text": "spawn the starting snake"
+		},
+		{
+			"functionName": "spawnStartSnake",
+			"functionDescription": "",
+			"functionCategory": "init",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 392114263750090,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "headX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "head X position (X in pixels)",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 107724375361148
+				},
+				{
+					"eventType": "variable",
+					"name": "headY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "head Y position (Y in pixels)",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 167043387999481
+				},
+				{
+					"eventType": "comment",
+					"text": "a first instance exists in the layout, which is set to be the [i]head[/i] of the snake that will collide with [b]toEat[/b] objects\nwe keep in memory its current X and Y position in the layout to use as a reference for the other spawned instances"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "snake",
+							"sid": 374265999574176,
+							"parameters": {
+								"instance-variable": "head"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 241556973825551,
+							"parameters": {
+								"variable": "headX",
+								"value": "snake.X"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 148828389477263,
+							"parameters": {
+								"variable": "headY",
+								"value": "snake.Y"
+							}
+						}
+					],
+					"sid": 815295008894171
+				},
+				{
+					"eventType": "comment",
+					"text": "we make a loop from 1 (existing instance) up to [i]length[/i] to spawn the appropriate number of [b]snake[/b] instances on start of the game"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 921678070556765,
+							"parameters": {
+								"name": "\"snake\"",
+								"start-index": "1",
+								"end-index": "length"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 138115035160336,
+							"parameters": {
+								"object-to-create": "snake",
+								"layer": "0",
+								"x": "headX - (snake.Width * loopindex(\"snake\"))",
+								"y": "headY"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "we make sure we only have a single [i]head[/i] for the snake by setting the value for the instance variable to false in new instances "
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "snake",
+							"sid": 744199508925333,
+							"parameters": {
+								"instance-variable": "head",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "[i]lastUID[/i] is the Unique Identifier of the last snake instance. We keep it as reference for when we need to spawn a new [b]snake[/b] instance in the function [i][b]spawnSnakePart[/b][/i] ev.24"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 437173474509272,
+							"parameters": {
+								"variable": "lastUID",
+								"value": "snake.UID"
+							}
+						}
+					],
+					"sid": 873575391673486
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "main function to move the snake"
+		},
+		{
+			"functionName": "moveSnake",
+			"functionDescription": "",
+			"functionCategory": "move",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 400979028690916,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "we first move the head calling the dedicated [i][b]moveHead[/b][/i] function\n[i][b]setNextPos[/b][/i] is then called to keep in memory the former position of that instance which will be applied to the next instance when moving the snake"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "snake",
+							"sid": 822051873595266,
+							"parameters": {
+								"instance-variable": "head"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "moveHead",
+							"sid": 103188762904587,
+							"parameters": [
+								"snake.UID"
+							]
+						},
+						{
+							"callFunction": "setNextPos",
+							"sid": 580501862598204,
+							"parameters": [
+								"snake.UID"
+							]
+						}
+					],
+					"sid": 976487565923841
+				},
+				{
+					"eventType": "comment",
+					"text": "we then move the remaining [b]snake[/b] instances, each one by one, calling the dedicated [i][b]movePos[/b][/i] function"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "snake",
+							"sid": 827450427662105,
+							"parameters": {
+								"instance-variable": "head"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "for-each-ordered",
+							"objectClass": "System",
+							"sid": 678518367400491,
+							"parameters": {
+								"object": "snake",
+								"expression": "snake.IID",
+								"order": "ascending"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "movePos",
+							"sid": 368108351827061,
+							"parameters": [
+								"snake.UID"
+							]
+						},
+						{
+							"callFunction": "setNextPos",
+							"sid": 767646989974854,
+							"parameters": [
+								"snake.UID"
+							]
+						}
+					],
+					"sid": 223300206659462
+				}
+			]
+		},
+		{
+			"functionName": "moveHead",
+			"functionDescription": "",
+			"functionCategory": "move",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "snakeUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "UID of the snake instance to apply to",
+					"sid": 905321327746545
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 999653952120769,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "the function has been passed the UID for the instance in order to pick only that specific [b]snake[/b] instance "
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "snake",
+							"sid": 882502285735074,
+							"parameters": {
+								"unique-id": "snakeUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "we keep in memory its previous X and Y instance, in the grid coordinate"
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "snake",
+							"sid": 852851974553035,
+							"parameters": {
+								"instance-variable": "prevX",
+								"value": "snake.TileMovement.GridX"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "snake",
+							"sid": 254126526536360,
+							"parameters": {
+								"instance-variable": "prevY",
+								"value": "snake.TileMovement.GridY"
+							}
+						}
+					],
+					"sid": 938982564366411,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "depending on the current value of the [i]dir[/i] (direction) instance variable, we move the snake head in the TileMovement grid accordingly\n[i]note[/i]: in this template, we make the movement \"instant\". The TileMovement behavior can also \"animate\" the movement over time. Please refer to the manual article of the TileMovement behavior for further explanation - https://www.construct.net/en/make-games/manuals/construct-3/behavior-reference/tile-movement"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "snake",
+									"sid": 278646507912008,
+									"parameters": {
+										"instance-variable": "dir",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "right"
+								},
+								{
+									"id": "set-grid-position",
+									"objectClass": "snake",
+									"sid": 682741211073603,
+									"behaviorType": "TileMovement",
+									"parameters": {
+										"x": "Self.TileMovement.GridX + 1",
+										"y": "Self.TileMovement.GridY",
+										"instant": "instant"
+									}
+								}
+							],
+							"sid": 165923617384420
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "snake",
+									"sid": 177133420690045,
+									"parameters": {
+										"instance-variable": "dir",
+										"comparison": 0,
+										"value": "90"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "down"
+								},
+								{
+									"id": "set-grid-position",
+									"objectClass": "snake",
+									"sid": 803376938468223,
+									"behaviorType": "TileMovement",
+									"parameters": {
+										"x": "Self.TileMovement.GridX",
+										"y": "Self.TileMovement.GridY+1",
+										"instant": "instant"
+									}
+								}
+							],
+							"sid": 706924520724112
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "snake",
+									"sid": 916024006701990,
+									"parameters": {
+										"instance-variable": "dir",
+										"comparison": 0,
+										"value": "180"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "left"
+								},
+								{
+									"id": "set-grid-position",
+									"objectClass": "snake",
+									"sid": 834170795842809,
+									"behaviorType": "TileMovement",
+									"parameters": {
+										"x": "Self.TileMovement.GridX - 1",
+										"y": "Self.TileMovement.GridY",
+										"instant": "instant"
+									}
+								}
+							],
+							"sid": 195719024349781
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "snake",
+									"sid": 370365483704794,
+									"parameters": {
+										"instance-variable": "dir",
+										"comparison": 0,
+										"value": "270"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "up"
+								},
+								{
+									"id": "set-grid-position",
+									"objectClass": "snake",
+									"sid": 631799691473361,
+									"behaviorType": "TileMovement",
+									"parameters": {
+										"x": "Self.TileMovement.GridX",
+										"y": "Self.TileMovement.GridY-1",
+										"instant": "instant"
+									}
+								}
+							],
+							"sid": 220979859972079
+						}
+					]
+				}
+			]
+		},
+		{
+			"functionName": "movePos",
+			"functionDescription": "",
+			"functionCategory": "move",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "snakeUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "UID of the snake instance to apply to",
+					"sid": 132397447762496
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 569975329002016,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "the function has been passed the UID for the instance in order to pick only that specific [b]snake[/b] instance "
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "snake",
+							"sid": 418779362674245,
+							"parameters": {
+								"unique-id": "snakeUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "we keep in memory its previous X and Y instance, in the grid coordinate"
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "snake",
+							"sid": 905542062756409,
+							"parameters": {
+								"instance-variable": "prevX",
+								"value": "snake.TileMovement.GridX"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "snake",
+							"sid": 697014520777596,
+							"parameters": {
+								"instance-variable": "prevY",
+								"value": "snake.TileMovement.GridY"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "we move the current instance to the last position of the previous instance that has been treated\nthe location is kept in the global variables [i]nextX[/i] and [i]nextY[/i] which are updated in the function [i][b]setNextPos[/b][/i]"
+						},
+						{
+							"id": "set-grid-position",
+							"objectClass": "snake",
+							"sid": 781791226929632,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"x": "nextX",
+								"y": "nextY",
+								"instant": "instant"
+							}
+						}
+					],
+					"sid": 567637347850716
+				}
+			]
+		},
+		{
+			"eventType": "variable",
+			"name": "nextX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Target X in grid for next snake instance",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 560896809685225
+		},
+		{
+			"eventType": "variable",
+			"name": "nextY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Target Y in grid for next snake instance",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 182575116593396
+		},
+		{
+			"functionName": "setNextPos",
+			"functionDescription": "",
+			"functionCategory": "move",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "snakeUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "UID of the snake instance to apply to",
+					"sid": 380408210321176
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 526606610928076,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "the function has been passed the UID for the instance in order to pick only that specific [b]snake[/b] instance "
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "snake",
+							"sid": 924489756900436,
+							"parameters": {
+								"unique-id": "snakeUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "the values of the global variables [i]nextX[/i] and [i]nextY[/i] is updated with the previous location of the picked [b]snake[/b] instance"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 998602677482803,
+							"parameters": {
+								"variable": "nextX",
+								"value": "snake.prevX"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 314499213688911,
+							"parameters": {
+								"variable": "nextY",
+								"value": "snake.prevY"
+							}
+						}
+					],
+					"sid": 872586928484156
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "player input - set the direction of the snake (in degrees)"
+		},
+		{
+			"eventType": "comment",
+			"text": "using the keyboard (the object [b]Keyboard[/b] has been added to the project), we set the [i]dir[/i] instance variable of the snake [i]head[/i] in order to know in what direction the player wants the snake to move"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 984514277492828,
+					"parameters": {
+						"key": 38
+					}
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "snake",
+					"sid": 845380225357104,
+					"parameters": {
+						"instance-variable": "head"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "up"
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "snake",
+					"sid": 702272968757937,
+					"parameters": {
+						"instance-variable": "dir",
+						"value": "270"
+					}
+				}
+			],
+			"sid": 891042036376088
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 164211062727611,
+					"parameters": {
+						"key": 39
+					}
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "snake",
+					"sid": 395119498534719,
+					"parameters": {
+						"instance-variable": "head"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "right"
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "snake",
+					"sid": 371516577560651,
+					"parameters": {
+						"instance-variable": "dir",
+						"value": "0"
+					}
+				}
+			],
+			"sid": 365877663124452
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 513393089484495,
+					"parameters": {
+						"key": 40
+					}
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "snake",
+					"sid": 717196984419335,
+					"parameters": {
+						"instance-variable": "head"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "down"
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "snake",
+					"sid": 334869003876553,
+					"parameters": {
+						"instance-variable": "dir",
+						"value": "90"
+					}
+				}
+			],
+			"sid": 867497284897264
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 291105703357927,
+					"parameters": {
+						"key": 37
+					}
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "snake",
+					"sid": 523026141263952,
+					"parameters": {
+						"instance-variable": "head"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "left"
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "snake",
+					"sid": 700817366879141,
+					"parameters": {
+						"instance-variable": "dir",
+						"value": "180"
+					}
+				}
+			],
+			"sid": 677694830102882
+		},
+		{
+			"eventType": "comment",
+			"text": "touching an [b]arrow[/b] (the [b]Touch[/b] object has been added to the project), we set the [i]dir[/i] instance variable of the snake [i]head[/i] accordingly to the current [b]arrow[/b] angle"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 515745967369029,
+					"parameters": {
+						"object": "arrow"
+					}
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "snake",
+					"sid": 157773815284661,
+					"parameters": {
+						"instance-variable": "head"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "snake",
+					"sid": 711936330283673,
+					"parameters": {
+						"instance-variable": "dir",
+						"value": "arrow.Angle"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "we make the arrow flash for half a second in order to let the player know her input has been registered"
+				},
+				{
+					"id": "flash",
+					"objectClass": "arrow",
+					"sid": 769565434059888,
+					"behaviorType": "Flash",
+					"parameters": {
+						"on-time": "0.01",
+						"off-time": "0.01",
+						"duration": "0.5"
+					}
+				}
+			],
+			"sid": 877456533759348
+		},
+		{
+			"eventType": "comment",
+			"text": "when the game is over, the [b]btnRestart[/b] is visible and can be touched in order to restart the game"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 668238192981418,
+					"parameters": {
+						"object": "btnRestart"
+					}
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "btnRestart",
+					"sid": 402034443949754
+				}
+			],
+			"actions": [
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 782845250878645
+				}
+			],
+			"sid": 420251921113381
+		},
+		{
+			"eventType": "comment",
+			"text": "spawns a new snake part"
+		},
+		{
+			"functionName": "spawnSnakePart",
+			"functionDescription": "",
+			"functionCategory": "inGame",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 895237104084344,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "we pick the last [b]snake[/b] instance (its UID is kept in the global variable [i]lastUID[/i]) in order to spawn a new [b]snake instance[/b]"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "snake",
+							"sid": 990331474173040,
+							"parameters": {
+								"unique-id": "lastUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 249538583030865,
+							"parameters": {
+								"object-to-create": "snake",
+								"layer": "0",
+								"x": "snake.X",
+								"y": "snake.Y"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "we make sure we only have a single [i]head[/i] for the snake by setting the value for the instance variable to false in new instances "
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "snake",
+							"sid": 652891242445718,
+							"parameters": {
+								"instance-variable": "head",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "[i]lastUID[/i] is the Unique Identifier of the last snake instance. We keep it as reference for when we need to spawn a new [b]snake[/b] instance"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 311881152802508,
+							"parameters": {
+								"variable": "lastUID",
+								"value": "snake.UID"
+							}
+						}
+					],
+					"sid": 765610753780318
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "spawns toEat"
+		},
+		{
+			"functionName": "spawnToEat",
+			"functionDescription": "",
+			"functionCategory": "inGame",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "we create a [b]toEat[/b] instance at a random position in the game area (between the walls)"
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 821627402350212,
+					"parameters": {
+						"object-to-create": "toEat",
+						"layer": "0",
+						"x": "int(random(LayoutWidth - 32)/16) * 16",
+						"y": "int(random(LayoutHeight/2 - 32)/16) * 16"
+					}
+				}
+			],
+			"sid": 193850040617658
+		},
+		{
+			"eventType": "comment",
+			"text": "snake collisions"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "snake",
+					"sid": 739315285688723,
+					"parameters": {
+						"instance-variable": "head"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 345295282415479,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "snake",
+							"sid": 235642215477834,
+							"parameters": {
+								"object": "toEat"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "toEat",
+							"sid": 644397376511942
+						},
+						{
+							"callFunction": "spawnSnakePart",
+							"sid": 819237306380277
+						},
+						{
+							"callFunction": "spawnToEat",
+							"sid": 838311620947809
+						},
+						{
+							"callFunction": "checkEaten",
+							"sid": 663828402668707
+						}
+					],
+					"sid": 455907417653243
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "snake",
+							"sid": 269729507915933,
+							"parameters": {
+								"object": "wall"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "gameOver",
+							"sid": 332332061047521
+						}
+					],
+					"sid": 887486719974538
+				}
+			]
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "snake",
+					"sid": 442441387618773,
+					"parameters": {
+						"object": "snake"
+					}
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "snake",
+					"sid": 207154054200889,
+					"parameters": {
+						"instance-variable": "head"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "gameOver",
+					"sid": 329055722188177
+				}
+			],
+			"sid": 598834101492555
+		},
+		{
+			"eventType": "comment",
+			"text": "related to the modification of the speed of the snake"
+		},
+		{
+			"functionName": "checkEaten",
+			"functionDescription": "",
+			"functionCategory": "inGame",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "the snake speed is modified and goes up as [b]toEat[/b] objects are eaten\n[i]eaten[/i] is incremented and also acts as the general score\n[i]iterations[/i] correspond to the number of [b]toEat[/b] that have been eaten in the current \"loop\""
+				},
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 889999879177090,
+					"parameters": {
+						"variable": "eaten",
+						"value": "1"
+					}
+				},
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 350775344513719,
+					"parameters": {
+						"variable": "iterations",
+						"value": "1"
+					}
+				}
+			],
+			"sid": 593581770223707,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "if [i]iterations[/i] is bigger or equal to the value of [i]eatenMod[/i]..."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 645979944664993,
+							"parameters": {
+								"variable": "iterations",
+								"comparison": 5,
+								"value": "eatenMod"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "at first, we want 1 [b]toEat[/b] to be eaten, then the speed is modified\nthen, the number of [b]toEat[/b] objects to be eaten before modifying the speed again is increased, and checked thanks to [i]iterations[/i] and [i]eatenMod[/i] (modificator)"
+						},
+						{
+							"type": "comment",
+							"text": "increment the value of [i]eatenMod[/i] by 1"
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 666543476476166,
+							"parameters": {
+								"variable": "eatenMod",
+								"value": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "reset the value of [i]iterations[/i] to 0; this is a new \"loop\""
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 895910946019649,
+							"parameters": {
+								"variable": "iterations",
+								"value": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "lower the value of [i]freq[/i] which will have the effect of moving the snake more often, moving it faster\nthe system expression [i]clamp()[/i] is there to make sure the value of [i]freq[/i] stays in values that keep the game manageable and fun for the player. The minimum value is 0.025 (second) and when the snake is the slowest, it is moved at 0.30 second"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 589940323623272,
+							"parameters": {
+								"variable": "freq",
+								"value": "clamp(freq-dt,0.025,0.30)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "spawn an additional [b]toEat[/b] to keep the game running and offer more possibilities to the player\nthis also acts as making the game harder as the snake will keep on growing when eating [b]toEat[/b] rendering the playing space smaller for the player"
+						},
+						{
+							"callFunction": "spawnToEat",
+							"sid": 746043022307233
+						}
+					],
+					"sid": 618999935626896
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "function called when the game is over (the snake has bitten itself or a wall)"
+		},
+		{
+			"functionName": "gameOver",
+			"functionDescription": "",
+			"functionCategory": "gameOver",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "set the global variable [i]alive[/i] to false, the snake won't be moved further"
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 491131134913969,
+					"parameters": {
+						"variable": "alive",
+						"value": "false"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "the snake flashes indefinitely "
+				},
+				{
+					"id": "flash",
+					"objectClass": "snake",
+					"sid": 114131612215960,
+					"behaviorType": "Flash",
+					"parameters": {
+						"on-time": "0.1",
+						"off-time": "0.1",
+						"duration": "Infinity"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "[b]btnRestart[/b] is displayed, the player can touch it to restart the game"
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "btnRestart",
+					"sid": 189155415787124,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 858791004316158,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "if the game is not executed on mobile (we assume on desktop computer, with a keyboard) we display a text inviting the player to press F5 to restart, alternative to touching [b]btnRestart[/b]\nthis is made possible by having added the [b]PlatformInfo[/b] object to the project"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-on-mobile",
+							"objectClass": "PlatformInfo",
+							"sid": 126503253255478,
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "txtGameOver",
+							"sid": 325895910488718,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtGameOver",
+							"sid": 470629649046455,
+							"parameters": {
+								"text": "\"Press F5 to restart\""
+							}
+						}
+					],
+					"sid": 908035967745853
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "checks if [b]toEat[/b] is spawned on a snake part or a wall; if it is, destroys it and spawns a new one"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-created",
+					"objectClass": "toEat",
+					"sid": 422365088718613
+				}
+			],
+			"actions": [],
+			"sid": 765265855056133,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "we check whether, on creation, [b]toEat[/b] is overlapping a wall or a snake part"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "toEat",
+							"sid": 314222781353326,
+							"parameters": {
+								"object": "wall"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "toEat",
+							"sid": 603867808123526,
+							"parameters": {
+								"object": "snake"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "toEat",
+							"sid": 727483536917738
+						},
+						{
+							"callFunction": "spawnToEat",
+							"sid": 109223986366475
+						}
+					],
+					"sid": 518794650618956,
+					"isOrBlock": true
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "move the snake every [i]freq[/i] seconds, update the displayed score"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 838282251995867,
+					"parameters": {
+						"variable": "alive"
+					}
+				},
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 350668137156740,
+					"parameters": {
+						"interval-seconds": "freq"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "moveSnake",
+					"sid": 981801322674217
+				},
+				{
+					"id": "set-text",
+					"objectClass": "txtScore",
+					"sid": 853364042880681,
+					"parameters": {
+						"text": "\"Score: \" & eaten"
+					}
+				}
+			],
+			"sid": 508447182381046
+		}
+	],
+	"sid": 458205160109742
+}

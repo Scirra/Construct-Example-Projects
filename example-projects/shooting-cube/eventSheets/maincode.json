@@ -1,0 +1,1791 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "PlayerSetup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Reset all global variables to make sure nothing from previous sessions will interfere the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 708891816095001
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 236986035168537
+						}
+					],
+					"sid": 933831975443684
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the cube by adding its graphics as a child of the collider."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "CubeGraphics",
+							"sid": 787507869242343
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "CubeGraphics",
+							"sid": 660613152388237,
+							"parameters": {
+								"object": "CubeCollision",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "CubeCollision",
+							"sid": 263644325072512,
+							"parameters": {
+								"child": "CubeGraphics",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 668204404522370
+				}
+			],
+			"sid": 474570793335429
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Teleporter",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the teleporter collision by moving it on top of the teleporter platform."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "TeleporterCollision",
+							"sid": 691960503749229
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "TeleporterCollision",
+							"sid": 349672406811402,
+							"parameters": {
+								"object": "TeleporterPlatform",
+								"image-point-optional": "\"Collision\""
+							}
+						}
+					],
+					"sid": 998371177364058
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player collides with the teleporter while it's charged, destroy the player and display a big white flash."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "CubeCollision",
+							"sid": 632223383188225,
+							"parameters": {
+								"object": "TeleporterCollision"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "TeleporterCollision",
+							"sid": 763642753172528,
+							"parameters": {
+								"instance-variable": "Charged"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "TeleporterCollision",
+							"sid": 215487575064132,
+							"parameters": {
+								"instance-variable": "Charged",
+								"value": "false"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "CubeCollision",
+							"sid": 945050417904963
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "TeleporterPlatform",
+							"sid": 120901686084137,
+							"parameters": {
+								"object": "TeleporterFlash",
+								"layer": "\"World\"",
+								"image-point": "\"Flash\"",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 444812351366441
+				},
+				{
+					"eventType": "comment",
+					"text": "Adjust the flash size to make sure it matches the ceiling height."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "TeleporterFlash",
+							"sid": 475468299004326
+						}
+					],
+					"actions": [
+						{
+							"id": "set-size",
+							"objectClass": "TeleporterFlash",
+							"sid": 784168343081722,
+							"parameters": {
+								"width": "16",
+								"height": "0"
+							}
+						},
+						{
+							"id": "cast-ray",
+							"objectClass": "TeleporterFlash",
+							"sid": 494566479424157,
+							"behaviorType": "LineOfSight",
+							"parameters": {
+								"from-x": "Self.X",
+								"from-y": "Self.Y",
+								"to-x": "Self.X",
+								"to-y": "Self.Y-Self.LineOfSight.Range",
+								"use-collision-cells": true
+							}
+						}
+					],
+					"sid": 984648318403167,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "ray-intersected",
+									"objectClass": "TeleporterFlash",
+									"sid": 589851470152846,
+									"behaviorType": "LineOfSight"
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "TeleporterFlash",
+									"sid": 834859837215030,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HeightUp\"",
+										"property": "offsetHeight",
+										"end-value": "Self.LineOfSight.HitDistance",
+										"time": "0.25",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 852766279747460
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the flash after its animation is over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "TeleporterFlash",
+							"sid": 537162745648873,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HeightUp\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "TeleporterFlash",
+							"sid": 862260201158603,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"WidthDown\"",
+								"property": "offsetWidth",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 735183857432216
+				}
+			],
+			"sid": 865963099006963
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How fast the camera will track the player."
+				},
+				{
+					"eventType": "variable",
+					"name": "SPEED",
+					"type": "number",
+					"initialValue": "0.1",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 910891188181431
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly move the camera towards the player position, but using linear interpolation for a very smooth motion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 742960399605355
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Camera",
+							"sid": 499118357733060,
+							"parameters": {
+								"x": "lerp(Self.X, CubeCollision.X, SPEED*60*dt)",
+								"y": "lerp(Self.Y, CubeCollision.Y, SPEED*60*dt)"
+							}
+						}
+					],
+					"sid": 435649057504302
+				}
+			],
+			"sid": 552517355456284
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Cube",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How big each cell/tile in the layout is."
+				},
+				{
+					"eventType": "variable",
+					"name": "CELLSIZE",
+					"type": "number",
+					"initialValue": "16",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 974440617839277
+				},
+				{
+					"eventType": "comment",
+					"text": "How long it takes for the cube to complete a roll animation (angle only)."
+				},
+				{
+					"eventType": "variable",
+					"name": "ANIMATIONDURATION",
+					"type": "number",
+					"initialValue": "0.15",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 447254231103502
+				},
+				{
+					"eventType": "comment",
+					"text": "The angle the cube is currently looking towards."
+				},
+				{
+					"eventType": "variable",
+					"name": "CurrentAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 353439132694791
+				},
+				{
+					"eventType": "comment",
+					"text": "Whether or not the cube is on the ground."
+				},
+				{
+					"eventType": "variable",
+					"name": "IsOnGround",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 391677123435591
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly store the cube angle in a local variable."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 551866164823252
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 798326494802180,
+							"parameters": {
+								"variable": "CurrentAngle",
+								"value": "CubeGraphics.Angle"
+							}
+						}
+					],
+					"sid": 698990171499464
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly check if the cube is close the ground or not, and store the results in a local variable."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "can-move-direction",
+							"objectClass": "CubeCollision",
+							"sid": 195432340337655,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"direction": "down",
+								"distance": "1"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 968847427370605,
+							"parameters": {
+								"variable": "IsOnGround",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 868373171358361
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 661495556780685
+						},
+						{
+							"id": "can-move-direction",
+							"objectClass": "CubeCollision",
+							"sid": 132950378057883,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"direction": "down",
+								"distance": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 442283663976131,
+							"parameters": {
+								"variable": "IsOnGround",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 436798493704467
+				},
+				{
+					"eventType": "comment",
+					"text": "Since the tile movement behavior can't react to jumpthru objects like the platform behavior does, it's important to manually enable and disable the solid behavior on each metal platform depending on their Y positions in comparison with the cube Y position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 438960049605410,
+							"parameters": {
+								"object": "MetalPlatform"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 217486922903768,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Metal platform is below the cube, so enable the solid behavior."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-y",
+									"objectClass": "MetalPlatform",
+									"sid": 144735297051704,
+									"parameters": {
+										"comparison": 5,
+										"y-co-ordinate": "CubeCollision.Y + CELLSIZE"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-enabled",
+									"objectClass": "MetalPlatform",
+									"sid": 899062870347680,
+									"behaviorType": "Solid",
+									"parameters": {
+										"state": "enabled"
+									}
+								}
+							],
+							"sid": 260737799417741
+						},
+						{
+							"eventType": "comment",
+							"text": "Metal platform is above the cube, so disable the solid behavior."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 772157474145049
+								},
+								{
+									"id": "compare-y",
+									"objectClass": "MetalPlatform",
+									"sid": 443035811594806,
+									"parameters": {
+										"comparison": 2,
+										"y-co-ordinate": "CubeCollision.Y + CELLSIZE"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-enabled",
+									"objectClass": "MetalPlatform",
+									"sid": 454873163854635,
+									"behaviorType": "Solid",
+									"parameters": {
+										"state": "disabled"
+									}
+								}
+							],
+							"sid": 632859481369069
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the cube left, but only if the player is not trying to shoot, if the cube is on the ground and if there's nothing in front of the cube."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 591237411311056,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 368081273802675,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-left"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 814307728285714,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 909018397767840,
+									"parameters": {
+										"key": 32
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 869190717664656,
+									"parameters": {
+										"gamepad": "0",
+										"button": "button-a"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 473976423054110,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 161075680958562,
+											"parameters": {
+												"variable": "IsOnGround"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 875602753388411,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-moving",
+													"objectClass": "CubeCollision",
+													"sid": 492844952488622,
+													"behaviorType": "TileMovement",
+													"isInverted": true
+												},
+												{
+													"id": "can-move-direction",
+													"objectClass": "CubeCollision",
+													"sid": 422443293381819,
+													"behaviorType": "TileMovement",
+													"parameters": {
+														"direction": "left",
+														"distance": "1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "Roll",
+													"sid": 515429919098961,
+													"parameters": [
+														"-1"
+													]
+												},
+												{
+													"id": "simulate-control",
+													"objectClass": "CubeCollision",
+													"sid": 122178614649870,
+													"behaviorType": "TileMovement",
+													"parameters": {
+														"control": "left"
+													}
+												}
+											],
+											"sid": 258755803747369
+										}
+									]
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the cube right, but only if the player is not trying to shoot, if the cube is on the ground and if there's nothing in front of the cube."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 961898104794720,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 784666706939790,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-right"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 344235130693359,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 322442335481456,
+									"parameters": {
+										"key": 32
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 425085906435503,
+									"parameters": {
+										"gamepad": "0",
+										"button": "button-a"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 775425527411214,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 579904378929871,
+											"parameters": {
+												"variable": "IsOnGround"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 491277835095948,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-moving",
+													"objectClass": "CubeCollision",
+													"sid": 925115295901160,
+													"behaviorType": "TileMovement",
+													"isInverted": true
+												},
+												{
+													"id": "can-move-direction",
+													"objectClass": "CubeCollision",
+													"sid": 866116164028101,
+													"behaviorType": "TileMovement",
+													"parameters": {
+														"direction": "right",
+														"distance": "1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "Roll",
+													"sid": 744004400197786,
+													"parameters": [
+														"1"
+													]
+												},
+												{
+													"id": "simulate-control",
+													"objectClass": "CubeCollision",
+													"sid": 855985300766433,
+													"behaviorType": "TileMovement",
+													"parameters": {
+														"control": "right"
+													}
+												}
+											],
+											"sid": 740629975265786
+										}
+									]
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Shoot a bullet from the cube's gun, but only if the cube is not moving and if "
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 406184408361911,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 965228698169852,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 143198538636544,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-moving",
+									"objectClass": "CubeCollision",
+									"sid": 322744725559027,
+									"behaviorType": "TileMovement",
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 535782808827569,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Shoot right and move left, but only if the cube is on the ground and if the cell behind the cube is empty."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 503250225129922,
+											"parameters": {
+												"variable": "CurrentAngle",
+												"comparison": 0,
+												"value": "0"
+											}
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 754266895826979,
+											"parameters": {
+												"variable": "IsOnGround"
+											}
+										},
+										{
+											"id": "can-move-direction",
+											"objectClass": "CubeCollision",
+											"sid": 784084720958726,
+											"behaviorType": "TileMovement",
+											"parameters": {
+												"direction": "left",
+												"distance": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "Shoot",
+											"sid": 922064201085565,
+											"parameters": [
+												"CubeCollision.Angle+180"
+											]
+										},
+										{
+											"id": "simulate-control",
+											"objectClass": "CubeCollision",
+											"sid": 863409672220726,
+											"behaviorType": "TileMovement",
+											"parameters": {
+												"control": "left"
+											}
+										}
+									],
+									"sid": 947180603273635
+								},
+								{
+									"eventType": "comment",
+									"text": "Shoot left and move right, but only if the cube is on the ground and if the cell behind the cube is empty."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 486075365701634,
+											"parameters": {
+												"variable": "CurrentAngle",
+												"comparison": 0,
+												"value": "180"
+											}
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 454784113801305,
+											"parameters": {
+												"variable": "IsOnGround"
+											}
+										},
+										{
+											"id": "can-move-direction",
+											"objectClass": "CubeCollision",
+											"sid": 270750655133577,
+											"behaviorType": "TileMovement",
+											"parameters": {
+												"direction": "right",
+												"distance": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "Shoot",
+											"sid": 920450295958758,
+											"parameters": [
+												"CubeCollision.Angle+180"
+											]
+										},
+										{
+											"id": "simulate-control",
+											"objectClass": "CubeCollision",
+											"sid": 357058925931174,
+											"behaviorType": "TileMovement",
+											"parameters": {
+												"control": "right"
+											}
+										}
+									],
+									"sid": 474517251951430
+								},
+								{
+									"eventType": "comment",
+									"text": "Shoot down and move up, but only if the cell behind the cube is empty."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 662313061379484,
+											"parameters": {
+												"variable": "CurrentAngle",
+												"comparison": 0,
+												"value": "90"
+											}
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 863547311479677,
+											"disabled": true,
+											"parameters": {
+												"variable": "IsOnGround"
+											}
+										},
+										{
+											"id": "can-move-direction",
+											"objectClass": "CubeCollision",
+											"sid": 318060749488807,
+											"behaviorType": "TileMovement",
+											"parameters": {
+												"direction": "up",
+												"distance": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "Shoot",
+											"sid": 558980373271361,
+											"parameters": [
+												"CubeCollision.Angle+180"
+											]
+										},
+										{
+											"id": "simulate-control",
+											"objectClass": "CubeCollision",
+											"sid": 964336273714429,
+											"behaviorType": "TileMovement",
+											"parameters": {
+												"control": "up"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Prevent the cube from falling for a small period of time, just to make sure the player have enough time to shoot again if he wants to."
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "CubeCollision",
+											"sid": 245091970448223,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.25",
+												"type": "once",
+												"tag": "\"PreventFall\""
+											}
+										}
+									],
+									"sid": 167284064170348
+								},
+								{
+									"eventType": "comment",
+									"text": "Shoot up and move down, but only if the cube is on the ground and if the cell behind the cube is empty. This condition will never be met, unless the ground condition is disabled, we decided to left it this way, because since the cube will automatically be falling for most of the time, it doesn't make much sense to allow him to shoot as well."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 380310131250871,
+											"parameters": {
+												"variable": "CurrentAngle",
+												"comparison": 0,
+												"value": "270"
+											}
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 106469961684536,
+											"parameters": {
+												"variable": "IsOnGround"
+											}
+										},
+										{
+											"id": "can-move-direction",
+											"objectClass": "CubeCollision",
+											"sid": 211343388543365,
+											"behaviorType": "TileMovement",
+											"parameters": {
+												"direction": "down",
+												"distance": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "Shoot",
+											"sid": 535723036845262,
+											"parameters": [
+												"CubeCollision.Angle+180"
+											]
+										},
+										{
+											"id": "simulate-control",
+											"objectClass": "CubeCollision",
+											"sid": 271487677379152,
+											"behaviorType": "TileMovement",
+											"parameters": {
+												"control": "down"
+											}
+										}
+									],
+									"sid": 614079534731927
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If the cube is not on the ground, not in a prevent fall state and not moving already, simulate gravity by moving him down."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 732726269282018,
+							"parameters": {
+								"variable": "IsOnGround"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-timer-running",
+							"objectClass": "CubeCollision",
+							"sid": 651856506939011,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"PreventFall\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-moving",
+							"objectClass": "CubeCollision",
+							"sid": 231636349978094,
+							"behaviorType": "TileMovement",
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "CubeCollision",
+							"sid": 326322074224224,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"control": "down"
+							}
+						}
+					],
+					"sid": 184574430147334
+				},
+				{
+					"eventType": "comment",
+					"text": "Roll the cube based on a horizontal direction."
+				},
+				{
+					"functionName": "Roll",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "RollDirection",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 809486751997866
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "CubeGraphics",
+							"sid": 806833961257618,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"AngleRoll\"",
+								"property": "offsetAngle",
+								"end-value": "round((Self.Angle + 90 * RollDirection) / 90) * 90",
+								"time": "ANIMATIONDURATION",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 491765862057787
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the cube lands on the ground, spawn a small burst of dust, in order to create a more impactful effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-moving",
+							"objectClass": "CubeCollision",
+							"sid": 830858824540942,
+							"behaviorType": "TileMovement",
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 491692447384018,
+							"parameters": {
+								"variable": "IsOnGround"
+							}
+						},
+						{
+							"id": "trigger-once-while-true",
+							"objectClass": "System",
+							"sid": 762106615705084
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "CubeGraphics",
+							"sid": 188273439682814,
+							"parameters": {
+								"object": "LandDust",
+								"layer": "\"World\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make sure the dust is on top of the ground and pointing up."
+						},
+						{
+							"id": "set-y",
+							"objectClass": "LandDust",
+							"sid": 900678357901812,
+							"parameters": {
+								"y": "Self.Y + 8"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "LandDust",
+							"sid": 460110743233834,
+							"parameters": {
+								"angle": "0"
+							}
+						}
+					],
+					"sid": 246448634905075
+				},
+				{
+					"eventType": "comment",
+					"text": "shooting"
+				},
+				{
+					"functionName": "Shoot",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "ShootAngle",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 214253916405189
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "restart animation"
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "CubeGraphics",
+							"sid": 813033191294076,
+							"parameters": {
+								"animation": "\"Shooting\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "muzzle flash"
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "CubeGraphics",
+							"sid": 528550634488564,
+							"parameters": {
+								"object": "MuzzleFlash",
+								"layer": "\"World\"",
+								"image-point": "\"Gun\"",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "MuzzleFlash",
+							"sid": 139298444469565,
+							"parameters": {
+								"angle": "CubeGraphics.Angle + 90"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "CubeCollision",
+							"sid": 364323753706584,
+							"parameters": {
+								"child": "MuzzleFlash",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "bullet"
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "CubeGraphics",
+							"sid": 502437089641570,
+							"parameters": {
+								"object": "Bullet",
+								"layer": "\"World\"",
+								"image-point": "\"Gun\"",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "move-to-object",
+							"objectClass": "Bullet",
+							"sid": 228017926913085,
+							"parameters": {
+								"where": "behind",
+								"object": "CubeGraphics"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Bullet",
+							"sid": 142856210563318,
+							"parameters": {
+								"angle": "CubeGraphics.Angle "
+							}
+						},
+						{
+							"type": "comment",
+							"text": "shell ejection"
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "CubeGraphics",
+							"sid": 327499033807932,
+							"parameters": {
+								"object": "BulletShell",
+								"layer": "\"World\"",
+								"image-point": "\"\"",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "BulletShell",
+							"sid": 832534081942004,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "random(270 - 15, 270 + 15)"
+							}
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "BulletShell",
+							"sid": 525064223126695,
+							"behaviorType": "Rotate",
+							"parameters": {
+								"speed": "Self.Rotate.Speed * choose(-1, 1)"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "BulletShell",
+							"sid": 108858230536502,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ZElevationScreen\"",
+								"property": "offsetZElevation",
+								"end-value": "random(0, 64)",
+								"time": "0.5",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "shake"
+						},
+						{
+							"callFunction": "Shake",
+							"sid": 732912932885297,
+							"parameters": [
+								"0.25",
+								"3"
+							]
+						}
+					],
+					"sid": 388602895952259
+				},
+				{
+					"eventType": "comment",
+					"text": "Once any of the particles finishes their animations, destroy them to prevent the CPU from overloading at some point."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "LandDust",
+							"sid": 240520057676524,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "LandDust",
+							"sid": 190558009604625
+						}
+					],
+					"sid": 799019216682527
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "MuzzleFlash",
+							"sid": 953260650510249,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "MuzzleFlash",
+							"sid": 457338561414955
+						}
+					],
+					"sid": 792214786382824
+				},
+				{
+					"eventType": "comment",
+					"text": "Shake the camera based on a intensity and duration parameters."
+				},
+				{
+					"functionName": "Shake",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "ShakeDuration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 738089779333440
+						},
+						{
+							"name": "ShakeIntensity",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 119361441211505
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 784307878410227,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Shake\"",
+								"start-value": "ShakeIntensity",
+								"end-value": "0",
+								"time": "ShakeDuration",
+								"ease": "noease",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 973305348675952
+				},
+				{
+					"eventType": "comment",
+					"text": "To really create the shaking effect, change the layout randomize the layout angle while the shake animation is playing."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "GameManager",
+							"sid": 365867118246870,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Shake\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-angle",
+							"objectClass": "System",
+							"sid": 504812484528153,
+							"parameters": {
+								"angle": "random(-GameManager.Tween.Value(\"Shake\"), GameManager.Tween.Value(\"Shake\"))"
+							}
+						}
+					],
+					"sid": 865449793849550
+				}
+			],
+			"sid": 298743655781305
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Bullet",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If a bullet collides with the ground, destroy the bullet."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Bullet",
+							"sid": 568291609309773,
+							"parameters": {
+								"object": "Ground"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 823040468232248
+						}
+					],
+					"sid": 457403711144017
+				},
+				{
+					"eventType": "comment",
+					"text": "If a bullet collides with a dirt block, destroy both of them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Bullet",
+							"sid": 309851067247046,
+							"parameters": {
+								"object": "DirtBlock"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "DirtBlock",
+							"sid": 695870292953855
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 186130291059720
+						},
+						{
+							"type": "comment",
+							"text": "Also shake the screen a bit."
+						},
+						{
+							"callFunction": "Shake",
+							"sid": 798563450089936,
+							"parameters": [
+								"0.25",
+								"3"
+							]
+						}
+					],
+					"sid": 213325297343073
+				},
+				{
+					"eventType": "comment",
+					"text": "When a bullet is destroyed, spawn a small explosion on top of it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-destroyed",
+							"objectClass": "Bullet",
+							"sid": 781251900630880
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Bullet",
+							"sid": 541674249601207,
+							"parameters": {
+								"object": "Explosion",
+								"layer": "\"World\"",
+								"image-point": "\"Tip\"",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 610597236783234
+				},
+				{
+					"eventType": "comment",
+					"text": "When a dirt block is destroyed, spawn some dirt debris on top of it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-destroyed",
+							"objectClass": "DirtBlock",
+							"sid": 718720210616035
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "DirtBlock",
+							"sid": 144875430553883,
+							"parameters": {
+								"object": "DirtDebris",
+								"layer": "\"World\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make sure the debris are pointing up."
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "DirtDebris",
+							"sid": 658634748576349,
+							"parameters": {
+								"angle": "270"
+							}
+						}
+					],
+					"sid": 751351162690924
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the explosion finishes its animation, destroy it to prevent the CPU from overloading at some point."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Explosion",
+							"sid": 244678222642654,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Explosion",
+							"sid": 129696746344525
+						}
+					],
+					"sid": 462793327249992
+				}
+			],
+			"sid": 188936855627264
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Spike",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Restart the game if the player collides with a spike, in other words it's game over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "CubeCollision",
+							"sid": 174515758362378,
+							"parameters": {
+								"object": "Spike"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 699463130295548
+						}
+					],
+					"sid": 358273904108520
+				}
+			],
+			"sid": 269062095261804
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Force the game to restart for testing purposes only."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 886860410172297,
+							"parameters": {
+								"key": 82
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 549166494317235,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 729480740863341
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 259241878741840
+						}
+					],
+					"sid": 261502125594386,
+					"isOrBlock": true
+				}
+			],
+			"sid": 876242795795519
+		}
+	],
+	"sid": 703169307524782
+}

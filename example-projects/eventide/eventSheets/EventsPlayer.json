@@ -1,0 +1,7550 @@
+{
+	"name": "EventsPlayer",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Forsteri Studios\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com"
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "EAGERNESS_RING_BASE",
+			"type": "number",
+			"initialValue": "5",
+			"comment": "Base cooldown reduction for eagerness ring (%).",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 358376305028242
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 620262768252016
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Setup player initial position and billboards."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 213740830137756,
+							"parameters": {
+								"object-to-create": "Player",
+								"layer": "\"World\"",
+								"x": "LayoutWidth/2",
+								"y": "LayoutHeight/2",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 899316146174732,
+							"parameters": {
+								"object": "PlayerBillboard",
+								"layer": "\"World\"",
+								"image-point": "0",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Player",
+							"sid": 309426915671700,
+							"parameters": {
+								"child": "PlayerBillboard",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-o": false,
+								"transform-z-elevation": true,
+								"transform-visibility": false,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set player base stats according to profile."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 430058091994655,
+							"parameters": {
+								"instance-variable": "baseHp",
+								"value": "Self.baseHp * (1 + float(DictProfile.Get(\"ThickSkin\"))/10)"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 904990572218662,
+							"parameters": {
+								"instance-variable": "maxHp",
+								"value": "Self.baseHp"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 262580709568612,
+							"parameters": {
+								"instance-variable": "hp",
+								"value": "Self.baseHp"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 681611162643541,
+							"parameters": {
+								"instance-variable": "baseSpeed",
+								"value": "Self.baseSpeed * (1 + float(DictProfile.Get(\"PowerLegs\")) * 0.03)"
+							}
+						},
+						{
+							"id": "set-max-speed",
+							"objectClass": "Player",
+							"sid": 328060047041543,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"max-speed": "Self.baseSpeed"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 420979491603507,
+							"parameters": {
+								"instance-variable": "expPickupRange",
+								"value": "Self.expPickupRange * (1 + float(DictProfile.Get(\"TelescopicArm\")) * 0.25)"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Player",
+							"sid": 471647853080352,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1.0",
+								"type": "regular",
+								"tag": "\"GenerousHeartTick\""
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 487059177214349,
+							"parameters": {
+								"instance-variable": "numOfSlots",
+								"value": "int(DictProfile.Get(\"Slots\"))"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set initial camera position."
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 197943819234904,
+							"parameters": {
+								"cam-x": "Player.X",
+								"cam-y": "Player.Y + 384",
+								"cam-z": "448",
+								"look-x": "Player.X",
+								"look-y": "Player.Y",
+								"look-z": "Player.ZElevation",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 711227228105215
+				},
+				{
+					"eventType": "comment",
+					"text": "Create pool of projectiles / attacks."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 492265731600475
+						}
+					],
+					"actions": [],
+					"sid": 608830179327398,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 855691963220314,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "1",
+										"end-index": "20"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 315941436166850,
+									"parameters": {
+										"object-to-create": "MagicMissile",
+										"layer": "\"World\"",
+										"x": "-10000",
+										"y": "-10000",
+										"create-hierarchy": true,
+										"template-name": "\"\""
+									}
+								}
+							],
+							"sid": 227000482668673
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 659809088933604,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "1",
+										"end-index": "38"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 877699235400832,
+									"parameters": {
+										"object-to-create": "AncientBlast",
+										"layer": "\"World\"",
+										"x": "-10000",
+										"y": "-10000",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								}
+							],
+							"sid": 856575668199407
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 320960244522737,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "1",
+										"end-index": "15"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 684797061263666,
+									"parameters": {
+										"object-to-create": "Meteor",
+										"layer": "\"World\"",
+										"x": "-10000",
+										"y": "-10000",
+										"create-hierarchy": true,
+										"template-name": "\"\""
+									}
+								}
+							],
+							"sid": 879637885322030
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 443304947471169,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "1",
+										"end-index": "20"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 348574937713321,
+									"parameters": {
+										"object-to-create": "ArcaneStar",
+										"layer": "\"World\"",
+										"x": "-10000",
+										"y": "-10000",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								}
+							],
+							"sid": 964034057903683
+						}
+					]
+				}
+			],
+			"sid": 995209929634300
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player health",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update player health."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Update Health",
+					"objectClass": "Player",
+					"functionDescription": "Update player health",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "delta",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Damage / Healing value",
+							"sid": 999672645949303
+						}
+					],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 564823701015706,
+							"parameters": {
+								"instance-variable": "hp",
+								"value": "clamp(Self.hp + delta, 0, Player.maxHp)"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "PlayerHealthbar",
+							"sid": 596850591324902,
+							"parameters": {
+								"width": "lerp(0, Self.ImageWidth, Player.hp/Player.maxHp)"
+							}
+						}
+					],
+					"sid": 165527071047794
+				},
+				{
+					"eventType": "comment",
+					"text": "Player takes damage when overlapping enemies."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Player",
+							"sid": 605429091035056,
+							"parameters": {
+								"object": "EnemyHitter"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 777644307338414,
+							"parameters": {
+								"value": "inputFocus = \"Player\""
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 168015035211672,
+							"parameters": {
+								"instance-variable": "invincible"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 622251632529421,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Show hurtmark."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "HurtMarkUI",
+									"sid": 924544395722624,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowHurtMark\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "HurtMarkUI",
+									"sid": 643621884395030,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowHurtMark\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.25",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 232788674336749
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player is still alive, reduce HP."
+						},
+						{
+							"bookmark": true,
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Player",
+									"sid": 572415187598022,
+									"parameters": {
+										"instance-variable": "hp",
+										"comparison": 4,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Update Health",
+									"objectClass": "Player",
+									"sid": 686614397095049,
+									"parameters": [
+										"-100 * dt"
+									]
+								}
+							],
+							"sid": 746578561626299
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, it's game over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 978769789028397
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "gameOver",
+									"sid": 753013962710976
+								}
+							],
+							"sid": 457524843579803
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player has Generous Heart, recover a little health per second."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Player",
+							"sid": 447423763049204,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"GenerousHeartTick\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"customAction": "Update Health",
+							"objectClass": "Player",
+							"sid": 446719913616480,
+							"parameters": [
+								"0.5 * float(DictProfile.Get(\"GenerousHeart\"))"
+							]
+						}
+					],
+					"sid": 335034677159833
+				},
+				{
+					"eventType": "comment",
+					"text": "Progressively hide hurtmark."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 551942888698083
+						}
+					],
+					"actions": [
+						{
+							"id": "set-opacity",
+							"objectClass": "HurtMarkUI",
+							"sid": 871354116144474,
+							"parameters": {
+								"opacity": "max(Self.Opacity - 200 * dt, 0)"
+							}
+						}
+					],
+					"sid": 974966635113571
+				}
+			],
+			"sid": 774307260855679
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player has focus."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 407155784823151,
+							"parameters": {
+								"value": "inputFocus = \"Player\""
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 666609606601886,
+							"parameters": {
+								"value": "inputFocus = \"PauseTransition\""
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 302907250493992,
+							"parameters": {
+								"value": "inputFocus = \"SkillUpgradeTransition\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 683637088198563,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player movement (keyboard)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 588385091761102,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 666477976078338,
+									"parameters": {
+										"key": 39
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "Player",
+									"sid": 247696854401297,
+									"parameters": {
+										"comparison": 4,
+										"x-co-ordinate": "ViewportWidth(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 843735232708504,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "left"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 363624431187279,
+									"parameters": {
+										"animation": "\"180\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 754104465754617
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 658924956283975,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 702068410750839,
+									"parameters": {
+										"key": 37
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "Player",
+									"sid": 299303583230479,
+									"parameters": {
+										"comparison": 2,
+										"x-co-ordinate": "LayoutWidth - ViewportWidth(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 362427540747913,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "right"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 176175658110015,
+									"parameters": {
+										"animation": "\"0\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 302851713401142
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 985358544101743,
+									"parameters": {
+										"key": 38
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 220804755276391,
+									"parameters": {
+										"key": 40
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-y",
+									"objectClass": "Player",
+									"sid": 706128276696849,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "ViewportHeight(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 531706045637901,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "up"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 592560070208706,
+									"parameters": {
+										"animation": "right(Self.AnimationName, 3) = \"180\" ? \"180\" : \"0\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 514026959844123
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 116718041760365,
+									"parameters": {
+										"key": 40
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 131627291727489,
+									"parameters": {
+										"key": 38
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-y",
+									"objectClass": "Player",
+									"sid": 279873260508697,
+									"parameters": {
+										"comparison": 2,
+										"y-co-ordinate": "LayoutHeight - ViewportHeight(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 255605201457256,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "down"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 622220050547109,
+									"parameters": {
+										"animation": "right(Self.AnimationName, 3) = \"180\" ? \"180\" : \"0\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 536473941596591
+						},
+						{
+							"eventType": "comment",
+							"text": "Player movement (gamepad digital)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 826367646283735,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 298389152401907,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "Player",
+									"sid": 423937647103335,
+									"parameters": {
+										"comparison": 4,
+										"x-co-ordinate": "ViewportWidth(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 774329796359145,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "left"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 875476423834870,
+									"parameters": {
+										"animation": "\"180\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 918775683320825
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 544136859662490,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 741129692076517,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "Player",
+									"sid": 774759165272609,
+									"parameters": {
+										"comparison": 2,
+										"x-co-ordinate": "LayoutWidth - ViewportWidth(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 913095691528263,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "right"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 524351047761899,
+									"parameters": {
+										"animation": "\"0\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 232801503898398
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 918922941065799,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-up"
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 222062364009388,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-down"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-y",
+									"objectClass": "Player",
+									"sid": 934700256954598,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "ViewportHeight(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 341498703873669,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "up"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 372714771660863,
+									"parameters": {
+										"animation": "right(Self.AnimationName, 3) = \"180\" ? \"180\" : \"0\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 363175799696467
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 538046272723240,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-down"
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 337457835172628,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-up"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-y",
+									"objectClass": "Player",
+									"sid": 430799535645908,
+									"parameters": {
+										"comparison": 2,
+										"y-co-ordinate": "LayoutHeight - ViewportHeight(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 788100435867942,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "down"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 275347116885823,
+									"parameters": {
+										"animation": "right(Self.AnimationName, 3) = \"180\" ? \"180\" : \"0\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 586296881131308
+						},
+						{
+							"eventType": "comment",
+							"text": "Player movement (gamepad analog)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-axis",
+									"objectClass": "Gamepad",
+									"sid": 809581281680205,
+									"parameters": {
+										"gamepad": "0",
+										"axis": "left-analog-x-axis",
+										"comparison": 2,
+										"value": "-25"
+									}
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "Player",
+									"sid": 168213378780432,
+									"parameters": {
+										"comparison": 4,
+										"x-co-ordinate": "ViewportWidth(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 637059382780208,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "left"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 273272593255335,
+									"parameters": {
+										"animation": "\"180\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 395969009168281
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-axis",
+									"objectClass": "Gamepad",
+									"sid": 411213157790733,
+									"parameters": {
+										"gamepad": "0",
+										"axis": "left-analog-x-axis",
+										"comparison": 4,
+										"value": "25"
+									}
+								},
+								{
+									"id": "compare-x",
+									"objectClass": "Player",
+									"sid": 612178747464477,
+									"parameters": {
+										"comparison": 2,
+										"x-co-ordinate": "LayoutWidth - ViewportWidth(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 813268261496869,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "right"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 332871555801568,
+									"parameters": {
+										"animation": "\"0\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 231809700745084
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-axis",
+									"objectClass": "Gamepad",
+									"sid": 462741743953033,
+									"parameters": {
+										"gamepad": "0",
+										"axis": "left-analog-y-axis",
+										"comparison": 2,
+										"value": "-25"
+									}
+								},
+								{
+									"id": "compare-y",
+									"objectClass": "Player",
+									"sid": 205712654692637,
+									"parameters": {
+										"comparison": 4,
+										"y-co-ordinate": "ViewportHeight(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 995059694926689,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "up"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 586025701547737,
+									"parameters": {
+										"animation": "right(Self.AnimationName, 3) = \"180\" ? \"180\" : \"0\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 995082464048460
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-axis",
+									"objectClass": "Gamepad",
+									"sid": 106538584614589,
+									"parameters": {
+										"gamepad": "0",
+										"axis": "left-analog-y-axis",
+										"comparison": 4,
+										"value": "25"
+									}
+								},
+								{
+									"id": "compare-y",
+									"objectClass": "Player",
+									"sid": 147579208297821,
+									"parameters": {
+										"comparison": 2,
+										"y-co-ordinate": "LayoutHeight - ViewportHeight(\"World\") * 1.5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 656334561379446,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "down"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 149795977371474,
+									"parameters": {
+										"animation": "right(Self.AnimationName, 3) = \"180\" ? \"180\" : \"0\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 838533003422724
+						},
+						{
+							"eventType": "comment",
+							"text": "Player is idle."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-moving",
+									"objectClass": "Player",
+									"sid": 399757361410932,
+									"behaviorType": "8Direction",
+									"isInverted": true
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "TexPlayer",
+									"sid": 864057840495289,
+									"parameters": {
+										"animation": "\"Idle_0\""
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "TexPlayer",
+									"sid": 228585725394239,
+									"parameters": {
+										"animation": "\"Idle_180\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "TexPlayer",
+									"sid": 846231232927999,
+									"parameters": {
+										"animation": "\"Idle_\" & Self.AnimationName",
+										"from": "current-frame"
+									}
+								}
+							],
+							"sid": 866482171081779
+						}
+					],
+					"isOrBlock": true
+				}
+			],
+			"sid": 377491172526699
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player attacks",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Starting attack",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player already starts with magic missiles."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 166385082090542
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 990880867597809,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "0.1",
+										"type": "once",
+										"tag": "\"MagicMissile\""
+									}
+								}
+							],
+							"sid": 334046910473099
+						}
+					],
+					"sid": 612875382258354
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Attack upgrades",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update skill bar."
+						},
+						{
+							"functionName": "updateSkillBar",
+							"functionDescription": "Update skill bar",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "skill",
+									"type": "string",
+									"initialValue": "",
+									"comment": "Skill slot to update.",
+									"sid": 688566426696469
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [],
+							"sid": 818716309166818,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each-ordered",
+											"objectClass": "System",
+											"sid": 412844412691353,
+											"parameters": {
+												"object": "SkillSlot",
+												"expression": "SkillSlot.TagAt(0)",
+												"order": "ascending"
+											}
+										},
+										{
+											"id": "is-animation-playing",
+											"objectClass": "SkillSlot",
+											"sid": 849338529384922,
+											"parameters": {
+												"animation": "skill"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "SkillSlot",
+											"sid": 293791752704979,
+											"parameters": {
+												"child": "SkillSlotLevel",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "stop-loop",
+											"objectClass": "System",
+											"sid": 452927962226582
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "SkillSlotLevel",
+											"sid": 899765405136499,
+											"parameters": {
+												"frame-number": "Self.AnimationFrame + 1"
+											}
+										}
+									],
+									"sid": 221491972052585
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Add skill to bar."
+						},
+						{
+							"functionName": "addSkillToBar",
+							"functionDescription": "Add skill to bar",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "skill",
+									"type": "string",
+									"initialValue": "",
+									"comment": "Skill to add",
+									"sid": 637694160419720
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [],
+							"sid": 191470865026217,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each-ordered",
+											"objectClass": "System",
+											"sid": 810435899007141,
+											"parameters": {
+												"object": "SkillSlot",
+												"expression": "SkillSlot.TagAt(0)",
+												"order": "ascending"
+											}
+										},
+										{
+											"id": "is-animation-playing",
+											"objectClass": "SkillSlot",
+											"sid": 763000084825563,
+											"parameters": {
+												"animation": "\"Empty\""
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "SkillSlot",
+											"sid": 361593062891254,
+											"parameters": {
+												"child": "SkillSlotLevel",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "SkillSlot",
+											"sid": 550698129385957,
+											"parameters": {
+												"animation": "skill",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "stop-loop",
+											"objectClass": "System",
+											"sid": 696064841269300
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "SkillSlotLevel",
+											"sid": 745552095043048,
+											"parameters": {
+												"frame-number": "1"
+											}
+										}
+									],
+									"sid": 161868079013143
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Upgrade meteor shower attack."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Upgrade Meteor Shower",
+							"objectClass": "Player",
+							"functionDescription": "Upgrade meteor shower attack",
+							"functionCategory": "Upgrades",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 961839604266282,
+									"parameters": {
+										"instance-variable": "meteorShower",
+										"value": "min(Self.meteorShower + 1, 5)"
+									}
+								}
+							],
+							"sid": 769517632542192,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Start attack."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 608170730819324,
+											"parameters": {
+												"instance-variable": "meteorShower",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "start-timer",
+											"objectClass": "Player",
+											"sid": 430377599933738,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.1",
+												"type": "once",
+												"tag": "\"MeteorShower\""
+											}
+										},
+										{
+											"callFunction": "addSkillToBar",
+											"sid": 934604824876858,
+											"parameters": [
+												"\"MeteorShower\""
+											]
+										}
+									],
+									"sid": 279642961804204
+								},
+								{
+									"eventType": "comment",
+									"text": "Update skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 671944577262738
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateSkillBar",
+											"sid": 475088180109663,
+											"parameters": [
+												"\"MeteorShower\""
+											]
+										}
+									],
+									"sid": 553252374876290
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Upgrade leech aura attack."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Upgrade Leech Aura",
+							"objectClass": "Player",
+							"functionDescription": "Upgrade leech aura attack",
+							"functionCategory": "Upgrades",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 206586025117166,
+									"parameters": {
+										"instance-variable": "leechAura",
+										"value": "min(Self.leechAura + 1, 5)"
+									}
+								}
+							],
+							"sid": 196441803575337,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Start attack and pin leech aura to the player."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 725064449648585,
+											"parameters": {
+												"instance-variable": "leechAura",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "start-timer",
+											"objectClass": "Player",
+											"sid": 167037537207049,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.1",
+												"type": "once",
+												"tag": "\"LeechAura\""
+											}
+										},
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "LeechAura",
+											"sid": 934043056476921,
+											"parameters": {
+												"object": "Player",
+												"image-point-optional": "0"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Player",
+											"sid": 827837539086094,
+											"parameters": {
+												"child": "LeechAura",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": false,
+												"transform-o": false,
+												"transform-z-elevation": false,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										},
+										{
+											"id": "set-size",
+											"objectClass": "LeechAura",
+											"sid": 150813960908864,
+											"parameters": {
+												"width": "512",
+												"height": "512"
+											}
+										},
+										{
+											"callFunction": "addSkillToBar",
+											"sid": 638667506478497,
+											"parameters": [
+												"\"LeechAura\""
+											]
+										}
+									],
+									"sid": 693782339712009
+								},
+								{
+									"eventType": "comment",
+									"text": "Update skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 500441361852774
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateSkillBar",
+											"sid": 141984435903079,
+											"parameters": [
+												"\"LeechAura\""
+											]
+										}
+									],
+									"sid": 961157203222680
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Upgrade trap boots attack."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Upgrade Trap Boots",
+							"objectClass": "Player",
+							"functionDescription": "Upgrade trap boots attack",
+							"functionCategory": "Upgrades",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 640122760601686,
+									"parameters": {
+										"instance-variable": "trapBoots",
+										"value": "min(Self.trapBoots + 1, 5)"
+									}
+								}
+							],
+							"sid": 901469287412501,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Start attack."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 297758087715469,
+											"parameters": {
+												"instance-variable": "trapBoots",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "start-timer",
+											"objectClass": "Player",
+											"sid": 566734856880503,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.1",
+												"type": "once",
+												"tag": "\"TrapBoots\""
+											}
+										},
+										{
+											"callFunction": "addSkillToBar",
+											"sid": 207356403448203,
+											"parameters": [
+												"\"TrapBoots\""
+											]
+										}
+									],
+									"sid": 247948508662865
+								},
+								{
+									"eventType": "comment",
+									"text": "Update skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 494303175964381
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateSkillBar",
+											"sid": 168620010240579,
+											"parameters": [
+												"\"TrapBoots\""
+											]
+										}
+									],
+									"sid": 217392158037947
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Upgrade ancient blast attack."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Upgrade Ancient Blast",
+							"objectClass": "Player",
+							"functionDescription": "Upgrade ancient blast attack",
+							"functionCategory": "Upgrades",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 594744058610188,
+									"parameters": {
+										"instance-variable": "ancientBlast",
+										"value": "min(Self.ancientBlast + 1, 5)"
+									}
+								}
+							],
+							"sid": 818875096837175,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Start attack."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 871842045882008,
+											"parameters": {
+												"instance-variable": "ancientBlast",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "start-timer",
+											"objectClass": "Player",
+											"sid": 285978814704386,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.1",
+												"type": "once",
+												"tag": "\"AncientBlast\""
+											}
+										},
+										{
+											"callFunction": "addSkillToBar",
+											"sid": 782673342294146,
+											"parameters": [
+												"\"AncientBlast\""
+											]
+										}
+									],
+									"sid": 178389907786721
+								},
+								{
+									"eventType": "comment",
+									"text": "Update skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 220917502197499
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateSkillBar",
+											"sid": 698071824153693,
+											"parameters": [
+												"\"AncientBlast\""
+											]
+										}
+									],
+									"sid": 841177745859788
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Upgrade arcane star attack."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Upgrade Arcane Star",
+							"objectClass": "Player",
+							"functionDescription": "Upgrade arcane star attack",
+							"functionCategory": "Upgrades",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 110678009664555,
+									"parameters": {
+										"instance-variable": "arcaneStar",
+										"value": "min(Self.arcaneStar + 1, 5)"
+									}
+								}
+							],
+							"sid": 334415912875207,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Start attack."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 522562180969677,
+											"parameters": {
+												"instance-variable": "arcaneStar",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "start-timer",
+											"objectClass": "Player",
+											"sid": 619970295665329,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.1",
+												"type": "once",
+												"tag": "\"ArcaneStar\""
+											}
+										},
+										{
+											"callFunction": "addSkillToBar",
+											"sid": 940951837666552,
+											"parameters": [
+												"\"ArcaneStar\""
+											]
+										}
+									],
+									"sid": 681511040155690
+								},
+								{
+									"eventType": "comment",
+									"text": "Update skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 474236876946243
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateSkillBar",
+											"sid": 846819895326356,
+											"parameters": [
+												"\"ArcaneStar\""
+											]
+										}
+									],
+									"sid": 672599635187568
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Upgrade magic missiles attack."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Upgrade Magic Missiles",
+							"objectClass": "Player",
+							"functionDescription": "Upgrade magic missiles attack",
+							"functionCategory": "Upgrades",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 428047404828298,
+									"parameters": {
+										"instance-variable": "magicMissiles",
+										"value": "min(Self.magicMissiles + 1, 5)"
+									}
+								}
+							],
+							"sid": 776940839435812,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Start attack."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 832032201681730,
+											"parameters": {
+												"instance-variable": "magicMissiles",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "start-timer",
+											"objectClass": "Player",
+											"sid": 398362507051051,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.1",
+												"type": "once",
+												"tag": "\"MagicMissile\""
+											}
+										},
+										{
+											"callFunction": "addSkillToBar",
+											"sid": 137881700177091,
+											"parameters": [
+												"\"MagicMissiles\""
+											]
+										}
+									],
+									"sid": 562115577780982
+								},
+								{
+									"eventType": "comment",
+									"text": "Update skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 434513042157845
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateSkillBar",
+											"sid": 794978777834820,
+											"parameters": [
+												"\"MagicMissiles\""
+											]
+										}
+									],
+									"sid": 892492209957003
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Upgrade eagerness ring buff."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Upgrade Eagerness Ring",
+							"objectClass": "Player",
+							"functionDescription": "Upgrade eagerness ring buff",
+							"functionCategory": "Upgrades",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 399532080426063,
+									"parameters": {
+										"instance-variable": "eagernessRing",
+										"value": "min(Self.eagernessRing + 1, 5)"
+									}
+								}
+							],
+							"sid": 199197816368282,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Place attack in the skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 702765719263373,
+											"parameters": {
+												"instance-variable": "eagernessRing",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "addSkillToBar",
+											"sid": 309427718050839,
+											"parameters": [
+												"\"EagernessRing\""
+											]
+										}
+									],
+									"sid": 408582066934758
+								},
+								{
+									"eventType": "comment",
+									"text": "Update skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 921206758115669
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateSkillBar",
+											"sid": 380953421437382,
+											"parameters": [
+												"\"EagernessRing\""
+											]
+										}
+									],
+									"sid": 386473055840926
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Upgrade vitality pendant buff."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Upgrade Vitality Pendant",
+							"objectClass": "Player",
+							"functionDescription": "Upgrade vitality pendant buff.",
+							"functionCategory": "Upgrades",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 179713252302405,
+									"parameters": {
+										"instance-variable": "vitalityPendant",
+										"value": "min(Self.vitalityPendant + 1, 5)"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 667950831628354,
+									"parameters": {
+										"instance-variable": "maxHp",
+										"value": "(1 + (0.2 * Player.vitalityPendant)) * Self.baseHp"
+									}
+								},
+								{
+									"customAction": "Update Health",
+									"objectClass": "Player",
+									"sid": 587181863557895,
+									"parameters": [
+										"0"
+									]
+								}
+							],
+							"sid": 660879047851022,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Place attack in the skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 611276587965881,
+											"parameters": {
+												"instance-variable": "vitalityPendant",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "addSkillToBar",
+											"sid": 157211466079673,
+											"parameters": [
+												"\"VitalityPendant\""
+											]
+										}
+									],
+									"sid": 726920069681584
+								},
+								{
+									"eventType": "comment",
+									"text": "Update skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 403773420371017
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateSkillBar",
+											"sid": 542210231025393,
+											"parameters": [
+												"\"VitalityPendant\""
+											]
+										}
+									],
+									"sid": 554848642475086
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Upgrade socks of hurry buff."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Upgrade Socks Of Hurry",
+							"objectClass": "Player",
+							"functionDescription": "Upgrade socks of hurry buff",
+							"functionCategory": "Upgrades",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 200836334767037,
+									"parameters": {
+										"instance-variable": "socksOfHurry",
+										"value": "min(Self.socksOfHurry + 1, 5)"
+									}
+								},
+								{
+									"id": "set-max-speed",
+									"objectClass": "Player",
+									"sid": 167937248663283,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"max-speed": "(1 + (0.06 * Self.socksOfHurry)) * Self.baseSpeed"
+									}
+								}
+							],
+							"sid": 594335564876584,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Place attack in the skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 310198285239451,
+											"parameters": {
+												"instance-variable": "socksOfHurry",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "addSkillToBar",
+											"sid": 973696318728077,
+											"parameters": [
+												"\"SocksOfHurry\""
+											]
+										}
+									],
+									"sid": 703547706196107
+								},
+								{
+									"eventType": "comment",
+									"text": "Update skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 317340401283244
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateSkillBar",
+											"sid": 598894615716390,
+											"parameters": [
+												"\"SocksOfHurry\""
+											]
+										}
+									],
+									"sid": 468124749895429
+								}
+							]
+						}
+					],
+					"sid": 442544925989852
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Meteor Shower",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "MS_BASE_COOLDOWN",
+							"type": "number",
+							"initialValue": "1.3",
+							"comment": "Meteor shower base cooldown.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 555461826912193
+						},
+						{
+							"eventType": "variable",
+							"name": "MS_COOLDOWN_DEC",
+							"type": "number",
+							"initialValue": "0.1",
+							"comment": "Meteor shower cooldown decrement per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 227683757054395
+						},
+						{
+							"eventType": "variable",
+							"name": "MS_BASE_DAMAGE",
+							"type": "number",
+							"initialValue": "30",
+							"comment": "Meteor shower base damage.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 450684221182995
+						},
+						{
+							"eventType": "variable",
+							"name": "MS_DAMAGE_INC",
+							"type": "number",
+							"initialValue": "9",
+							"comment": "Meteor shower damage increment per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 893249944293931
+						},
+						{
+							"eventType": "variable",
+							"name": "MS_BASE_AREA",
+							"type": "number",
+							"initialValue": "224",
+							"comment": "Meteor shower base area.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 517410637238220
+						},
+						{
+							"eventType": "variable",
+							"name": "MS_AREA_INC",
+							"type": "number",
+							"initialValue": "24",
+							"comment": "Meteor shower area increment per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 295703445900593
+						},
+						{
+							"eventType": "variable",
+							"name": "meteorShowerSize",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Current size of the meteor impact.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 538972302719484
+						},
+						{
+							"eventType": "comment",
+							"text": "Bring a meteor from the pool."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Create Meteor",
+							"objectClass": "Meteor",
+							"functionDescription": "Bring a meteor from the pool",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 604654622519317,
+									"parameters": {
+										"object": "Meteor",
+										"expression": "Meteor.inPool"
+									}
+								},
+								{
+									"id": "pick-random-instance",
+									"objectClass": "System",
+									"sid": 123498838315688,
+									"parameters": {
+										"object": "Meteor"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 244894607650074,
+									"parameters": {
+										"object": "Enemy",
+										"expression": "distance(Enemy.X, Enemy.Y, Player.X, Player.Y) < 1024"
+									}
+								},
+								{
+									"id": "pick-random-instance",
+									"objectClass": "System",
+									"sid": 323781662968625,
+									"parameters": {
+										"object": "Enemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Meteor",
+									"sid": 146594465323089,
+									"parameters": {
+										"instance-variable": "inPool",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "Meteor",
+									"sid": 371694469178572,
+									"parameters": {
+										"x": "Enemy.X",
+										"y": "Enemy.Y"
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "Meteor",
+									"sid": 965997299452333,
+									"parameters": {
+										"z": "1024"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Meteor",
+									"sid": 190215252673692,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MeteorFall\"",
+										"property": "offsetZElevation",
+										"end-value": "0",
+										"time": "1",
+										"ease": "noease",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 371083447593351
+						},
+						{
+							"eventType": "comment",
+							"text": "Send a meteor back to the pool."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Destroy Meteor",
+							"objectClass": "Meteor",
+							"functionDescription": "Send a meteor back to the pool",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Meteor",
+									"sid": 119768099532464,
+									"parameters": {
+										"instance-variable": "inPool",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "Meteor",
+									"sid": 443519438749805,
+									"parameters": {
+										"x": "-10000",
+										"y": "-10000"
+									}
+								}
+							],
+							"sid": 805515719434079
+						},
+						{
+							"eventType": "comment",
+							"text": "Create meteor."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-timer",
+									"objectClass": "Player",
+									"sid": 144997718732549,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"MeteorShower\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Create Meteor",
+									"objectClass": "Meteor",
+									"sid": 596820252665252
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 572836796372438,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "(MS_BASE_COOLDOWN - MS_COOLDOWN_DEC * (Player.meteorShower - 1)) * (1 - (Player.eagernessRing * 6)/100)",
+										"type": "once",
+										"tag": "\"MeteorShower\""
+									}
+								}
+							],
+							"sid": 865171709067735
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy meteor and deal damage."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-tweens-finished",
+									"objectClass": "Meteor",
+									"sid": 189292163876761,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MeteorFall\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 970397809098549,
+									"parameters": {
+										"audio-file": "meteor_shower",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_SKILLS_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Spawn projectile hit."
+								},
+								{
+									"customAction": "Spawn ProjectileHit",
+									"objectClass": "ProjectileHit",
+									"sid": 571437508020623,
+									"parameters": [
+										"Meteor.X",
+										"Meteor.Y",
+										"Meteor.ZElevation",
+										"\"MeteorShower\""
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Set size."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 517009186046480,
+									"parameters": {
+										"variable": "meteorShowerSize",
+										"value": "MS_BASE_AREA + (Player.meteorShower - 1) * MS_AREA_INC"
+									}
+								}
+							],
+							"sid": 497043086031810,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Damage enemies in the area."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 770945842994602,
+											"parameters": {
+												"object": "Enemy",
+												"expression": "distance(Enemy.X, Enemy.Y, Meteor.X, Meteor.Y) < meteorShowerSize"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Hit",
+											"objectClass": "Enemy",
+											"sid": 752850889100655,
+											"parameters": [
+												"MS_BASE_DAMAGE + (Player.meteorShower - 1) * MS_DAMAGE_INC"
+											]
+										}
+									],
+									"sid": 196553925253751
+								},
+								{
+									"eventType": "comment",
+									"text": "Destroy meteor."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"customAction": "Destroy Meteor",
+											"objectClass": "Meteor",
+											"sid": 876216266945079
+										}
+									],
+									"sid": 154110349372944
+								}
+							]
+						}
+					],
+					"sid": 600182784781272
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Leech Aura",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "leechAuraSize",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Current size of the leech aura, not considering sine.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 226022899445131
+						},
+						{
+							"eventType": "comment",
+							"text": "Update aura size."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 893219366864418,
+									"parameters": {
+										"variable": "leechAuraSize",
+										"value": "256 + (Player.leechAura - 1) * 192"
+									}
+								}
+							],
+							"sid": 800533515889147
+						},
+						{
+							"eventType": "comment",
+							"text": "Damage enemies in the area."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-timer",
+									"objectClass": "Player",
+									"sid": 177088436054944,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"LeechAura\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 764329126566642,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "1.0 * (1 - (Player.eagernessRing * EAGERNESS_RING_BASE)/100)",
+										"type": "once",
+										"tag": "\"LeechAura\""
+									}
+								}
+							],
+							"sid": 601166585276683,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 691945533644551,
+											"parameters": {
+												"object": "Enemy",
+												"expression": "distance(Enemy.X, Enemy.Y, Player.X, Player.Y) < leechAuraSize"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Hit",
+											"objectClass": "Enemy",
+											"sid": 146611645766022,
+											"parameters": [
+												"1 + (Player.leechAura - 1) * 2"
+											]
+										},
+										{
+											"customAction": "Update Health",
+											"objectClass": "Player",
+											"sid": 721635970273517,
+											"parameters": [
+												"Self.leechAura/4"
+											]
+										}
+									],
+									"sid": 757341985827642
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Update blur, size and opacity."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-effect-parameter",
+									"objectClass": "LeechAura",
+									"sid": 581606715387776,
+									"parameters": {
+										"effect": "\"BlurHorizontal\"",
+										"parameter-index": "0",
+										"value": "100 - (Self.Sine.Value + 50)"
+									}
+								},
+								{
+									"id": "set-effect-parameter",
+									"objectClass": "LeechAura",
+									"sid": 380181018097716,
+									"parameters": {
+										"effect": "\"BlurVertical\"",
+										"parameter-index": "0",
+										"value": "100 - (Self.Sine.Value + 50)"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "LeechAura",
+									"sid": 349583791147172,
+									"parameters": {
+										"opacity": "lerp(25, 100, (Self.Sine.Value + 50)/100)"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "LeechAura",
+									"sid": 952365627449126,
+									"parameters": {
+										"width": "LeechAuraSize + Self.Sine.Value * (LeechAuraSize/800)",
+										"height": "LeechAuraSize + Self.Sine.Value * (LeechAuraSize/800)"
+									}
+								}
+							],
+							"sid": 208567057992462
+						}
+					],
+					"sid": 295011608277888
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Trap Boots",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "TB_BASE_COOLDOWN",
+							"type": "number",
+							"initialValue": "1.2",
+							"comment": "Trap boots base cooldown.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 733209135216803
+						},
+						{
+							"eventType": "variable",
+							"name": "TB_BASE_DAMAGE",
+							"type": "number",
+							"initialValue": "65",
+							"comment": "Trap boots base damage.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 434630758552797
+						},
+						{
+							"eventType": "variable",
+							"name": "TB_DAMAGE_INC",
+							"type": "number",
+							"initialValue": "30",
+							"comment": "Trap boots damage increment per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 845288252971441
+						},
+						{
+							"eventType": "comment",
+							"text": "Create a new trap."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-timer",
+									"objectClass": "Player",
+									"sid": 121033274201918,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"TrapBoots\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 608615176975852,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "TB_BASE_COOLDOWN * (1 - (Player.eagernessRing * EAGERNESS_RING_BASE)/100)",
+										"type": "once",
+										"tag": "\"TrapBoots\""
+									}
+								}
+							],
+							"sid": 484400633563382,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "canPlace",
+									"type": "boolean",
+									"initialValue": "true",
+									"comment": "Can place a trap in the current position.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 251817414649885
+								},
+								{
+									"eventType": "comment",
+									"text": "Check if it is possible to place a trap in the current position, or if it is too close to another trap."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 973131964265635,
+											"parameters": {
+												"object": "Trap"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 654291064450802,
+											"parameters": {
+												"value": "distance(Trap.X, Trap.Y, Player.X, Player.Y) < 48"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 810175319288987,
+											"parameters": {
+												"variable": "canPlace",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 888147597581067
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 973060824848361,
+											"parameters": {
+												"variable": "canPlace"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 566176305618403,
+											"parameters": {
+												"object-to-create": "Trap",
+												"layer": "\"World\"",
+												"x": "Player.X",
+												"y": "Player.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Play sound."
+										},
+										{
+											"id": "play",
+											"objectClass": "Audio",
+											"sid": 251721728606387,
+											"parameters": {
+												"audio-file": "trap_boots",
+												"loop": "not-looping",
+												"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_SKILLS_VOLUME : -Infinity",
+												"stereo-pan": "0",
+												"tag-optional": "\"sfx\""
+											}
+										}
+									],
+									"sid": 344213980229115
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Traps explode when touched by an enemy."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "Enemy",
+									"sid": 104382848825241,
+									"parameters": {
+										"object": "Trap"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Spawn ProjectileHit",
+									"objectClass": "ProjectileHit",
+									"sid": 122110277291166,
+									"parameters": [
+										"Trap.X",
+										"Trap.Y",
+										"Trap.ZElevation",
+										"\"TrapBoots\""
+									]
+								},
+								{
+									"customAction": "Hit",
+									"objectClass": "Enemy",
+									"sid": 772528016412786,
+									"parameters": [
+										"TB_BASE_DAMAGE + (Player.trapBoots - 1) * TB_DAMAGE_INC"
+									]
+								},
+								{
+									"id": "destroy",
+									"objectClass": "Trap",
+									"sid": 386179835435045
+								},
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 729224727332098,
+									"parameters": {
+										"audio-file": "trap_boots_hit",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_SKILLS_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								}
+							],
+							"sid": 540852147734927
+						}
+					],
+					"sid": 936969301786388
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Ancient Blast",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "AB_BASE_COOLDOWN",
+							"type": "number",
+							"initialValue": "1.6",
+							"comment": "Ancient blast base cooldown.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 667857372380470
+						},
+						{
+							"eventType": "variable",
+							"name": "AB_COOLDOWN_DEC",
+							"type": "number",
+							"initialValue": "0.05",
+							"comment": "Ancient blast cooldown decrement per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 995328244015641
+						},
+						{
+							"eventType": "variable",
+							"name": "AB_BASE_DAMAGE",
+							"type": "number",
+							"initialValue": "30",
+							"comment": "Ancient blast base damage.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 946350080013260
+						},
+						{
+							"eventType": "variable",
+							"name": "AB_DAMAGE_INC",
+							"type": "number",
+							"initialValue": "15",
+							"comment": "Ancient blast damage increment per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 676657367304339
+						},
+						{
+							"eventType": "variable",
+							"name": "AB_BASE_AREA",
+							"type": "number",
+							"initialValue": "128",
+							"comment": "Ancient blast base area.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 437879069819592
+						},
+						{
+							"eventType": "variable",
+							"name": "AB_AREA_INC",
+							"type": "number",
+							"initialValue": "64",
+							"comment": "Ancient blast area increment per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 525601367654815
+						},
+						{
+							"eventType": "variable",
+							"name": "AB_TWEEN_TIME_INC",
+							"type": "number",
+							"initialValue": "0.003",
+							"comment": "Ancient blast tween time increment per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 696254636727778
+						},
+						{
+							"eventType": "comment",
+							"text": "Spawn ancient blast."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-timer",
+									"objectClass": "Player",
+									"sid": 401893254544782,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"AncientBlast\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 692905571499468,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "(AB_BASE_COOLDOWN - AB_COOLDOWN_DEC * (Player.ancientBlast - 1)) * (1 - (Player.eagernessRing * EAGERNESS_RING_BASE)/100)",
+										"type": "once",
+										"tag": "\"AncientBlast\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 802094512487048,
+									"parameters": {
+										"audio-file": "ancient_blast",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_SKILLS_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								}
+							],
+							"sid": 399825136392719,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "ab_area",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Ancient blast calculated area",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 822994169645084
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 345217698064441,
+											"parameters": {
+												"variable": "ab_area",
+												"value": "AB_BASE_AREA + AB_AREA_INC * (Player.ancientBlast - 1)"
+											}
+										}
+									],
+									"sid": 415210323689864
+								},
+								{
+									"eventType": "comment",
+									"text": "Start knockback."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 486448231510368,
+											"parameters": {
+												"object": "Enemy",
+												"expression": "distance(Enemy.X, Enemy.Y, Player.X, Player.Y) < ab_area * 2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Enemy",
+											"sid": 858777548491182,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"knockback\"",
+												"property": "position",
+												"end-x": "Self.X - cos(angle(Self.X, Self.Y, Player.X, Player.Y)) * min(10000/distance(Self.X, Self.Y, Player.X, Player.Y), ab_area/2)",
+												"end-y": "Self.Y - sin(angle(Self.X, Self.Y, Player.X, Player.Y)) * min(10000/distance(Self.X, Self.Y, Player.X, Player.Y), ab_area/2)",
+												"time": "0.06 + (Player.ancientBlast - 1) * AB_TWEEN_TIME_INC",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 882916175471400
+								},
+								{
+									"eventType": "comment",
+									"text": "Damage enemies."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 747817260241547,
+											"parameters": {
+												"object": "Enemy",
+												"expression": "distance(Enemy.X, Enemy.Y, Player.X, Player.Y) < (AB_BASE_AREA + AB_AREA_INC * (Player.ancientBlast - 1))"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Hit",
+											"objectClass": "Enemy",
+											"sid": 989031178816337,
+											"parameters": [
+												"AB_BASE_DAMAGE + AB_DAMAGE_INC * (Player.ancientBlast - 1)"
+											]
+										}
+									],
+									"sid": 916779041820198
+								},
+								{
+									"eventType": "comment",
+									"text": "Spawn effects, according to Ancient Blast level."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 390567907468670,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "0",
+												"end-index": "7"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Create Blast",
+											"objectClass": "AncientBlast",
+											"sid": 750144703931744,
+											"parameters": [
+												"Player.X + cos(loopindex(\"i\") * 45) * 128",
+												"Player.Y + sin(loopindex(\"i\") * 45) * 128"
+											]
+										}
+									],
+									"sid": 787274090502617
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 249461737918658,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "0",
+												"end-index": "11"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 145411396324875,
+											"parameters": {
+												"instance-variable": "ancientBlast",
+												"comparison": 4,
+												"value": "2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Create Blast",
+											"objectClass": "AncientBlast",
+											"sid": 907671065893125,
+											"parameters": [
+												"Player.X + cos(loopindex(\"i\") * 30) * 256",
+												"Player.Y + sin(loopindex(\"i\") * 30) * 256"
+											]
+										}
+									],
+									"sid": 324572900413179
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 968483281046534,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "0",
+												"end-index": "17"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 894508079752573,
+											"parameters": {
+												"instance-variable": "ancientBlast",
+												"comparison": 4,
+												"value": "4"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Create Blast",
+											"objectClass": "AncientBlast",
+											"sid": 589530000003451,
+											"parameters": [
+												"Player.X + cos(loopindex(\"i\") * 20) * 384",
+												"Player.Y + sin(loopindex(\"i\") * 20) * 384"
+											]
+										}
+									],
+									"sid": 570307289551094
+								},
+								{
+									"eventType": "comment",
+									"text": "Start animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "start-animation",
+											"objectClass": "TexAncientBlast",
+											"sid": 724947423756894,
+											"parameters": {
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 444241428145793
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy ancient blast."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-any-animation-finished",
+									"objectClass": "TexAncientBlast",
+									"sid": 424740420073825
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Destroy Blast",
+									"objectClass": "AncientBlast",
+									"sid": 307458495762501
+								}
+							],
+							"sid": 883482485013585
+						},
+						{
+							"eventType": "comment",
+							"text": "Bring an Ancient Blast from the pool."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Create Blast",
+							"objectClass": "AncientBlast",
+							"functionDescription": "Bring an Ancient Blast from the pool",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "x",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "X position to spawn",
+									"sid": 565638289182539
+								},
+								{
+									"name": "y",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Y position to spawn",
+									"sid": 750421357650245
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 325749742668545,
+									"parameters": {
+										"object": "AncientBlast",
+										"expression": "AncientBlast.inPool"
+									}
+								},
+								{
+									"id": "pick-random-instance",
+									"objectClass": "System",
+									"sid": 819842444823144,
+									"parameters": {
+										"object": "AncientBlast"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "AncientBlast",
+									"sid": 850793748900917,
+									"parameters": {
+										"x": "x",
+										"y": "y"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "AncientBlast",
+									"sid": 814077836307142,
+									"parameters": {
+										"instance-variable": "inPool",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 721186619323099
+						},
+						{
+							"eventType": "comment",
+							"text": "Send an Ancient Blast back to the pool."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Destroy Blast",
+							"objectClass": "AncientBlast",
+							"functionDescription": "Bring an Ancient Blast from the pool",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "AncientBlast",
+									"sid": 826908225573432,
+									"parameters": {
+										"x": "-10000",
+										"y": "-10000"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "AncientBlast",
+									"sid": 642170684114187,
+									"parameters": {
+										"instance-variable": "inPool",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 995273961676987
+						}
+					],
+					"sid": 206347875415414
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Arcane Star",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "AS_BASE_COOLDOWN",
+							"type": "number",
+							"initialValue": "0.9",
+							"comment": "Arcane star base cooldown.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 844343291707402
+						},
+						{
+							"eventType": "variable",
+							"name": "AS_COOLDOWN_DEC",
+							"type": "number",
+							"initialValue": "0.1",
+							"comment": "Arcane star cooldown decrement per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 181127770184642
+						},
+						{
+							"eventType": "variable",
+							"name": "AS_BASE_DAMAGE",
+							"type": "number",
+							"initialValue": "55",
+							"comment": "Arcane star base damage.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 646845419018883
+						},
+						{
+							"eventType": "variable",
+							"name": "AS_DAMAGE_INC",
+							"type": "number",
+							"initialValue": "14",
+							"comment": "Arcane star damage increment per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 454201496746551
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-timer",
+									"objectClass": "Player",
+									"sid": 797576364686939,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"ArcaneStar\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Create Star",
+									"objectClass": "ArcaneStar",
+									"sid": 929142987545308,
+									"parameters": [
+										"Player.X",
+										"Player.Y"
+									]
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 891984361653786,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "(AS_BASE_COOLDOWN - AS_COOLDOWN_DEC * (Player.arcaneStar- 1)) * (1 - (Player.eagernessRing * EAGERNESS_RING_BASE)/100)",
+										"type": "once",
+										"tag": "\"ArcaneStar\""
+									}
+								}
+							],
+							"sid": 475079078454829
+						},
+						{
+							"eventType": "comment",
+							"text": "Bring an arcane star from the pool."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Create Star",
+							"objectClass": "ArcaneStar",
+							"functionDescription": "Bring an arcane star from the pool",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "x",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "X position to spawn",
+									"sid": 553220184273058
+								},
+								{
+									"name": "y",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Y position to spawn",
+									"sid": 709094094069716
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "is-moving",
+									"objectClass": "Player",
+									"sid": 354230099744887,
+									"behaviorType": "8Direction"
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 507682001283366,
+									"parameters": {
+										"object": "ArcaneStar",
+										"expression": "ArcaneStar.inPool"
+									}
+								},
+								{
+									"id": "pick-random-instance",
+									"objectClass": "System",
+									"sid": 543980752922311,
+									"parameters": {
+										"object": "ArcaneStar"
+									}
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "TexPlayer",
+									"sid": 863471899584575,
+									"parameters": {
+										"animation": "\"Idle\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 627536718767681,
+									"parameters": {
+										"audio-file": "arcane_star",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_SKILLS_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set star initial properties."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "ArcaneStar",
+									"sid": 560644974805097,
+									"parameters": {
+										"x": "x",
+										"y": "y"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "ArcaneStar",
+									"sid": 470291844761357,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "ArcaneStar",
+									"sid": 976292296931668,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"StarOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.25",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "ArcaneStar",
+									"sid": 910154018508789,
+									"parameters": {
+										"instance-variable": "damage",
+										"value": "AS_BASE_DAMAGE + AS_DAMAGE_INC * (Player.arcaneStar- 1)"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "ArcaneStar",
+									"sid": 245317927955458,
+									"parameters": {
+										"instance-variable": "inPool",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Spawn muzzle flash."
+								},
+								{
+									"customAction": "Spawn MuzzleFlash",
+									"objectClass": "MuzzleFlash",
+									"sid": 235406806620672,
+									"parameters": [
+										"Player.X",
+										"Player.Y",
+										"ArcaneStar.ZElevation",
+										"\"ArcaneStar\""
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Start arcane star movement."
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "ArcaneStar",
+									"sid": 115608501310759,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"StarMovement\"",
+										"property": "position",
+										"end-x": "Player.X + cos(Player.8Direction.MovingAngle) * 512",
+										"end-y": "Player.Y + sin(Player.8Direction.MovingAngle) * 512",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 704224454420723
+						},
+						{
+							"eventType": "comment",
+							"text": "Send star back to the player."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-tweens-finished",
+									"objectClass": "ArcaneStar",
+									"sid": 670586899044721,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"StarMovement\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "ArcaneStar",
+									"sid": 981693318843749,
+									"parameters": {
+										"instance-variable": "goBack",
+										"value": "true"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "ArcaneStar",
+									"sid": 877799773860770,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"StarOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.25",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 218714858835412
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 917991331276990,
+									"parameters": {
+										"object": "ArcaneStar"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "ArcaneStar",
+									"sid": 561902907977640,
+									"parameters": {
+										"instance-variable": "goBack"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "ArcaneStar",
+									"sid": 987378880693640,
+									"parameters": {
+										"x": "lerp(Self.X, Player.X, 7 * dt)",
+										"y": "lerp(Self.Y, Player.Y, 7 * dt)"
+									}
+								}
+							],
+							"sid": 550362005118851,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 264405298876193,
+											"parameters": {
+												"value": "distance(ArcaneStar.X, ArcaneStar.Y, Player.X, Player.Y) < 64"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-two-properties",
+											"objectClass": "ArcaneStar",
+											"sid": 659423529239468,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"StarMovementBack\"",
+												"property": "position",
+												"end-x": "Player.X",
+												"end-y": "Player.Y",
+												"time": "0.05",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "ArcaneStar",
+											"sid": 241562382627240,
+											"parameters": {
+												"instance-variable": "goBack",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 424270240214518
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Finish back animation and destroy the star."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-tweens-finished",
+									"objectClass": "ArcaneStar",
+									"sid": 218950448623275,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"StarMovementBack\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Destroy Star",
+									"objectClass": "ArcaneStar",
+									"sid": 490783124714573
+								}
+							],
+							"sid": 117137241046895
+						},
+						{
+							"eventType": "comment",
+							"text": "Send an arcane star back to the pool."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Destroy Star",
+							"objectClass": "ArcaneStar",
+							"functionDescription": "Send an arcane star back to the pool",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "ArcaneStar",
+									"sid": 648219320269667,
+									"parameters": {
+										"instance-variable": "inPool",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "ArcaneStar",
+									"sid": 519700684862958,
+									"parameters": {
+										"x": "-10000",
+										"y": "-10000"
+									}
+								}
+							],
+							"sid": 633512829666414
+						},
+						{
+							"eventType": "comment",
+							"text": "Arcane stars deal damage to enemies on hit."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "ArcaneStar",
+									"sid": 919894981097578,
+									"parameters": {
+										"object": "Enemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Hit",
+									"objectClass": "Enemy",
+									"sid": 172430890965206,
+									"parameters": [
+										"ArcaneStar.damage"
+									]
+								}
+							],
+							"sid": 403540689882429
+						}
+					],
+					"sid": 129878557751039
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Magic Missiles",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "MM_BASE_COOLDOWN",
+							"type": "number",
+							"initialValue": "0.5",
+							"comment": "Magic missile base cooldown.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 630310073212917
+						},
+						{
+							"eventType": "variable",
+							"name": "MM_COOLDOWN_DEC",
+							"type": "number",
+							"initialValue": "0.05",
+							"comment": "Magic missile cooldown decrement per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 510742085000428
+						},
+						{
+							"eventType": "variable",
+							"name": "MM_BASE_DAMAGE",
+							"type": "number",
+							"initialValue": "45",
+							"comment": "Magic missile base damage.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 934017121683843
+						},
+						{
+							"eventType": "variable",
+							"name": "MM_DAMAGE_INC",
+							"type": "number",
+							"initialValue": "12",
+							"comment": "Magic missile damage increment per level.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 212687977239703
+						},
+						{
+							"eventType": "comment",
+							"text": "Spawn magic missile."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-timer",
+									"objectClass": "Player",
+									"sid": 861488653991096,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"MagicMissile\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Create Missile",
+									"objectClass": "MagicMissile",
+									"sid": 169090599626836,
+									"parameters": [
+										"Player.X",
+										"Player.Y"
+									]
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Player",
+									"sid": 288528142988489,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "(MM_BASE_COOLDOWN - MM_COOLDOWN_DEC * (Player.magicMissiles - 1)) * (1 - (Player.eagernessRing * EAGERNESS_RING_BASE)/100)",
+										"type": "once",
+										"tag": "\"MagicMissile\""
+									}
+								}
+							],
+							"sid": 216286701776641
+						},
+						{
+							"eventType": "comment",
+							"text": "Bring a magic missile from the pool."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Create Missile",
+							"objectClass": "MagicMissile",
+							"functionDescription": "Bring a magic missile from the pool",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "x",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "X position to spawn",
+									"sid": 500124784748556
+								},
+								{
+									"name": "y",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Y position to spawn",
+									"sid": 237388331218204
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 940088929915995,
+									"parameters": {
+										"object": "MagicMissile",
+										"expression": "MagicMissile.inPool"
+									}
+								},
+								{
+									"id": "pick-random-instance",
+									"objectClass": "System",
+									"sid": 740635130271908,
+									"parameters": {
+										"object": "MagicMissile"
+									}
+								},
+								{
+									"id": "pick-nearestfurthest",
+									"objectClass": "Enemy",
+									"sid": 983125200500295,
+									"parameters": {
+										"which": "nearest",
+										"x": "Player.X",
+										"y": "Player.Y"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 487632242358998,
+									"parameters": {
+										"value": "distance(Enemy.X, Enemy.Y, Player.X, Player.Y) < 512"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 165181722723157,
+									"parameters": {
+										"audio-file": "magic_missiles",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_SKILLS_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set missile initial properties."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "MagicMissile",
+									"sid": 314838726659364,
+									"parameters": {
+										"x": "x",
+										"y": "y"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "MagicMissile",
+									"sid": 214584078839889,
+									"parameters": {
+										"instance-variable": "damage",
+										"value": "MM_BASE_DAMAGE + MM_DAMAGE_INC * (Player.magicMissiles - 1)"
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "MagicMissile",
+									"sid": 436050116309250,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "3.0",
+										"type": "once",
+										"tag": "\"SelfDestruct\""
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "MagicMissile",
+									"sid": 350064179610585,
+									"parameters": {
+										"instance-variable": "inPool",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "MagicMissile",
+									"sid": 496313798001536,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"state": "enabled"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "MagicMissile",
+									"sid": 925166849586849,
+									"parameters": {
+										"instance-variable": "alive",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Send missile to the closest enemy."
+								},
+								{
+									"customAction": "Redirect To Enemy",
+									"objectClass": "MagicMissile",
+									"sid": 757806957683503
+								},
+								{
+									"type": "comment",
+									"text": "Spawn muzzle flash."
+								},
+								{
+									"customAction": "Spawn MuzzleFlash",
+									"objectClass": "MuzzleFlash",
+									"sid": 945233508333861,
+									"parameters": [
+										"Player.X",
+										"Player.Y",
+										"MagicMissile.ZElevation",
+										"\"MagicMissile\""
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Attach missile to the enemy."
+								},
+								{
+									"id": "add-child",
+									"objectClass": "Enemy",
+									"sid": 993238379347283,
+									"parameters": {
+										"child": "MagicMissile",
+										"transform-x": false,
+										"transform-y": false,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-o": false,
+										"transform-z-elevation": false,
+										"transform-visibility": false,
+										"destroy-with-parent": false
+									}
+								}
+							],
+							"sid": 943473384151714
+						},
+						{
+							"eventType": "comment",
+							"text": "Send magic missile back to the pool."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Destroy Missile",
+							"objectClass": "MagicMissile",
+							"functionDescription": "Destroy magic missile",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "enemyUID",
+									"type": "number",
+									"initialValue": "-1",
+									"comment": "Enemy UID",
+									"sid": 559395722058725
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 134965523551455,
+									"parameters": {
+										"audio-file": "magic_missiles_hit",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_SKILLS_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								}
+							],
+							"sid": 699891507995939,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "enemyX",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Enemy X position.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 117070943542975
+								},
+								{
+									"eventType": "variable",
+									"name": "enemyY",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Enemy Y position.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 151151346296783
+								},
+								{
+									"eventType": "comment",
+									"text": "Missile self-destructed."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 353319037419198,
+											"parameters": {
+												"value": "enemyUID = -1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "MagicMissile",
+											"sid": 938408195020112,
+											"parameters": {
+												"instance-variable": "alive",
+												"value": "false"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "MagicMissile",
+											"sid": 649623975892107,
+											"parameters": {
+												"instance-variable": "inPool",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-enabled",
+											"objectClass": "MagicMissile",
+											"sid": 217695373479339,
+											"behaviorType": "Bullet",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"customAction": "Spawn ProjectileHit",
+											"objectClass": "ProjectileHit",
+											"sid": 110563115339936,
+											"parameters": [
+												"MagicMissile.X",
+												"MagicMissile.Y",
+												"MagicMissile.ZElevation",
+												"\"MagicMissile\""
+											]
+										},
+										{
+											"id": "set-position",
+											"objectClass": "MagicMissile",
+											"sid": 137289495252777,
+											"parameters": {
+												"x": "-10000",
+												"y": "-10000"
+											}
+										}
+									],
+									"sid": 711478842700517
+								},
+								{
+									"eventType": "comment",
+									"text": "Missile hit an enemy."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 389792821138069
+										},
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Enemy",
+											"sid": 508266899930676,
+											"parameters": {
+												"unique-id": "enemyUID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 318445992595296,
+											"parameters": {
+												"variable": "enemyX",
+												"value": "Enemy.X"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 723611163869151,
+											"parameters": {
+												"variable": "enemyY",
+												"value": "Enemy.Y"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "MagicMissile",
+											"sid": 825201362837905,
+											"parameters": {
+												"instance-variable": "alive",
+												"value": "false"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "MagicMissile",
+											"sid": 157366849782756,
+											"parameters": {
+												"instance-variable": "inPool",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-enabled",
+											"objectClass": "MagicMissile",
+											"sid": 531400162694844,
+											"behaviorType": "Bullet",
+											"parameters": {
+												"state": "disabled"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "MagicMissile",
+											"sid": 153406539608754,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"MagicMissileDeath\"",
+												"property": "position",
+												"end-x": "enemyX",
+												"end-y": "enemyY",
+												"time": "0.1",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 314094225184859
+										},
+										{
+											"id": "set-position",
+											"objectClass": "MagicMissile",
+											"sid": 780419334952498,
+											"parameters": {
+												"x": "-10000",
+												"y": "-10000"
+											}
+										},
+										{
+											"customAction": "Hit",
+											"objectClass": "Enemy",
+											"sid": 913810548567153,
+											"parameters": [
+												"MagicMissile.damage"
+											]
+										},
+										{
+											"customAction": "Spawn ProjectileHit",
+											"objectClass": "ProjectileHit",
+											"sid": 209308041628010,
+											"parameters": [
+												"enemyX",
+												"enemyY",
+												"MagicMissile.ZElevation",
+												"\"MagicMissile\""
+											]
+										}
+									],
+									"sid": 102649507786219
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Redirect magic missile to the closest enemy."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Redirect To Enemy",
+							"objectClass": "MagicMissile",
+							"functionDescription": "Redirect magic missile to the closest enemy",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-nearestfurthest",
+									"objectClass": "Enemy",
+									"sid": 880508184752181,
+									"parameters": {
+										"which": "nearest",
+										"x": "MagicMissile.X",
+										"y": "MagicMissile.Y"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "MagicMissile",
+									"sid": 212877038598947,
+									"parameters": {
+										"instance-variable": "enemyLock",
+										"value": "Enemy.UID"
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "MagicMissile",
+									"sid": 344194337771948,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "angle(Player.X, Player.Y, Enemy.X, Enemy.Y)"
+									}
+								}
+							],
+							"sid": 542142222829495
+						},
+						{
+							"eventType": "comment",
+							"text": "Move magic missiles towards the locked enemy."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 697309257138726,
+									"parameters": {
+										"object": "MagicMissile"
+									}
+								},
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Enemy",
+									"sid": 220644053642074,
+									"parameters": {
+										"unique-id": "MagicMissile.enemyLock"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "MagicMissile",
+									"sid": 948011714287762,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "angle(Self.X, Self.Y, Enemy.X, Enemy.Y)"
+									}
+								}
+							],
+							"sid": 341090048348609
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy Magic Missile and deal damage to the enemy."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "MagicMissile",
+									"sid": 991453557501811,
+									"parameters": {
+										"object": "Enemy"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "MagicMissile",
+									"sid": 612103525987873,
+									"parameters": {
+										"instance-variable": "alive"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Destroy Missile",
+									"objectClass": "MagicMissile",
+									"sid": 458426987268888,
+									"parameters": [
+										"Enemy.UID"
+									]
+								}
+							],
+							"sid": 741770016077049
+						},
+						{
+							"eventType": "comment",
+							"text": "Redirect Magic Missiles if an enemy has died because of it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-destroyed",
+									"objectClass": "Enemy",
+									"sid": 474508698027708
+								}
+							],
+							"actions": [],
+							"sid": 324176421340413,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Enemy",
+											"sid": 448371490148464,
+											"parameters": {
+												"child": "MagicMissile",
+												"which": "own"
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "MagicMissile",
+											"sid": 533387526065939,
+											"parameters": {
+												"instance-variable": "alive"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Destroy Missile",
+											"objectClass": "MagicMissile",
+											"sid": 802052600041579,
+											"parameters": [
+												"-1"
+											]
+										}
+									],
+									"sid": 501332317509474
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Magic Missile self destruct after a while."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-timer",
+									"objectClass": "MagicMissile",
+									"sid": 817133430099126,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"SelfDestruct\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Destroy Missile",
+									"objectClass": "MagicMissile",
+									"sid": 603828695554546,
+									"parameters": [
+										"-1"
+									]
+								}
+							],
+							"sid": 387084986219546
+						}
+					],
+					"sid": 505499001052460
+				}
+			],
+			"sid": 124523782695862
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player level up",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Get skill level from animation name."
+				},
+				{
+					"functionName": "getSkillLevelFromAnimation",
+					"functionDescription": "Get skill level from animation name",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": true,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 121086276504508,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "skillLevel",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Level of the currently selected skill.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 542767519126410
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillUpgradeIcon",
+									"sid": 785896097242747,
+									"parameters": {
+										"animation": "\"AncientBlast\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 315482310330431,
+									"parameters": {
+										"variable": "skillLevel",
+										"value": "Player.ancientBlast"
+									}
+								}
+							],
+							"sid": 898238277620548
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 297548402022936
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillUpgradeIcon",
+									"sid": 760789343791360,
+									"parameters": {
+										"animation": "\"ArcaneStar\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 614432451970804,
+									"parameters": {
+										"variable": "skillLevel",
+										"value": "Player.arcaneStar"
+									}
+								}
+							],
+							"sid": 181900708629107
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 142131475550888
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillUpgradeIcon",
+									"sid": 566384195338846,
+									"parameters": {
+										"animation": "\"EagernessRing\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 586664706379345,
+									"parameters": {
+										"variable": "skillLevel",
+										"value": "Player.eagernessRing"
+									}
+								}
+							],
+							"sid": 873021887405731
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 317972120644749
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillUpgradeIcon",
+									"sid": 852589309141585,
+									"parameters": {
+										"animation": "\"LeechAura\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 623857924297740,
+									"parameters": {
+										"variable": "skillLevel",
+										"value": "Player.leechAura"
+									}
+								}
+							],
+							"sid": 904161963062296
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 146802791036155
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillUpgradeIcon",
+									"sid": 468722148033678,
+									"parameters": {
+										"animation": "\"MagicMissiles\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 968375920763472,
+									"parameters": {
+										"variable": "skillLevel",
+										"value": "Player.magicMissiles"
+									}
+								}
+							],
+							"sid": 243262925701275
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 148336332763807
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillUpgradeIcon",
+									"sid": 499040011013258,
+									"parameters": {
+										"animation": "\"MeteorShower\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 450769251355125,
+									"parameters": {
+										"variable": "skillLevel",
+										"value": "Player.meteorShower"
+									}
+								}
+							],
+							"sid": 939288344394025
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 129917375047897
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillUpgradeIcon",
+									"sid": 761522716015160,
+									"parameters": {
+										"animation": "\"SocksOfHurry\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 677342751291472,
+									"parameters": {
+										"variable": "skillLevel",
+										"value": "Player.socksOfHurry"
+									}
+								}
+							],
+							"sid": 238772326643344
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 186116811981930
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillUpgradeIcon",
+									"sid": 446787861595792,
+									"parameters": {
+										"animation": "\"TrapBoots\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 702482763472198,
+									"parameters": {
+										"variable": "skillLevel",
+										"value": "Player.trapBoots"
+									}
+								}
+							],
+							"sid": 769821548779922
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 185400170630016
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillUpgradeIcon",
+									"sid": 918434360649834,
+									"parameters": {
+										"animation": "\"VitalityPendant\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 551486066156939,
+									"parameters": {
+										"variable": "skillLevel",
+										"value": "Player.vitalityPendant"
+									}
+								}
+							],
+							"sid": 423471387603623
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 209631411893803,
+									"parameters": {
+										"value": "skillLevel"
+									}
+								}
+							],
+							"sid": 312095719859001
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if the specified skill is already available to upgrade."
+				},
+				{
+					"functionName": "checkRepeatedSkill",
+					"functionDescription": "Check if the specified skill is already available to upgrade",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "skill",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Skill to be checked",
+							"sid": 700974930162882
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 790829194791330,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "returnValue",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "0 = Player does not have this skill yet | 1 = Player already has this skill.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 842413682504582
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 321797886555636,
+									"parameters": {
+										"object": "SkillUpgradeIcon"
+									}
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillUpgradeIcon",
+									"sid": 280224388115656,
+									"parameters": {
+										"animation": "skill"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 455096678995996,
+									"parameters": {
+										"variable": "returnValue",
+										"value": "1"
+									}
+								},
+								{
+									"id": "stop-loop",
+									"objectClass": "System",
+									"sid": 425984398129727
+								}
+							],
+							"sid": 302988829870450
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 269066634297594,
+									"parameters": {
+										"value": "returnValue"
+									}
+								}
+							],
+							"sid": 699382330352896
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Select 3 skills for the player to choose one for upgrading."
+				},
+				{
+					"functionName": "pick3Skills",
+					"functionDescription": "Select 3 skills for the player to choose one for upgrading",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Reset skill upgrade icons to empty."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "SkillUpgradeIcon",
+							"sid": 253392591460395,
+							"parameters": {
+								"animation": "\"Empty\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 960036419586930,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Let the player pick new skills, if that is possible (the player still has at least one empty skill slot)."
+						},
+						{
+							"eventType": "variable",
+							"name": "emptySlots",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Number of empty skill slots.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 437080086498360
+						},
+						{
+							"eventType": "comment",
+							"text": "Get the number of empty slots."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 190010870504209,
+									"parameters": {
+										"object": "SkillSlot"
+									}
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "SkillSlot",
+									"sid": 284287706783120,
+									"parameters": {
+										"animation": "\"Empty\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 848304885468802,
+									"parameters": {
+										"variable": "emptySlots",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 486291307164730
+						},
+						{
+							"eventType": "comment",
+							"text": "Get random valid skills to populate the empty slots."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 668498062783897,
+									"parameters": {
+										"value": "emptySlots > 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-size",
+									"objectClass": "ArrTemp",
+									"sid": 710195902419294,
+									"parameters": {
+										"width": "0",
+										"height": "1",
+										"depth": "1"
+									}
+								}
+							],
+							"sid": 858216602031347,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Push potential skills to upgrade to temporary array."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 584422928870532,
+											"parameters": {
+												"instance-variable": "ancientBlast",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 346821131336300,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"AncientBlast\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 992981635312814,
+											"parameters": {
+												"where": "back",
+												"value": "\"AncientBlast\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 858584809903063
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 443659050292427,
+											"parameters": {
+												"instance-variable": "arcaneStar",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 679410796106858,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"ArcaneStar\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 448914642973006,
+											"parameters": {
+												"where": "back",
+												"value": "\"ArcaneStar\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 464055555721728
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 906521017041805,
+											"parameters": {
+												"instance-variable": "eagernessRing",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 109242612810137,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"EagernessRing\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 484712693922762,
+											"parameters": {
+												"where": "back",
+												"value": "\"EagernessRing\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 634064652006405
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 513770404744347,
+											"parameters": {
+												"instance-variable": "leechAura",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 756286572872033,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"LeechAura\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 305133391646441,
+											"parameters": {
+												"where": "back",
+												"value": "\"LeechAura\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 351492420374758
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 937756668191708,
+											"parameters": {
+												"instance-variable": "magicMissiles",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 421064302817685,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"MagicMissiles\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 617910797761840,
+											"parameters": {
+												"where": "back",
+												"value": "\"MagicMissiles\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 214075460682046
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 112586862226709,
+											"parameters": {
+												"instance-variable": "meteorShower",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 242968250966986,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"MeteorShower\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 644583011517413,
+											"parameters": {
+												"where": "back",
+												"value": "\"MeteorShower\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 998780906189646
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 947411948917172,
+											"parameters": {
+												"instance-variable": "socksOfHurry",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 855939749977435,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"SocksOfHurry\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 665188408521075,
+											"parameters": {
+												"where": "back",
+												"value": "\"SocksOfHurry\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 523070826855464
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 685462885291003,
+											"parameters": {
+												"instance-variable": "trapBoots",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 111821416649898,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"TrapBoots\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 633020692305614,
+											"parameters": {
+												"where": "back",
+												"value": "\"TrapBoots\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 912686321379314
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 355210549584783,
+											"parameters": {
+												"instance-variable": "vitalityPendant",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 593722422209232,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"VitalityPendant\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 759812365838982,
+											"parameters": {
+												"where": "back",
+												"value": "\"VitalityPendant\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 180063945241726
+								},
+								{
+									"eventType": "comment",
+									"text": "Shuffle array."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "shuffle",
+											"objectClass": "ArrTemp",
+											"sid": 276032304270190,
+											"parameters": {
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 825721634782381
+								},
+								{
+									"eventType": "comment",
+									"text": "Fill in the slots."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 586001759130311,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "0",
+												"end-index": "2"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 417225876940410,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 767852659714622,
+													"parameters": {
+														"object": "SkillUpgradeIcon",
+														"expression": "int(SkillUpgradeIcon.TagAt(0)) = loopindex(\"i\")"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 412302913519895,
+													"parameters": {
+														"animation": "ArrTemp.Back",
+														"from": "beginning"
+													}
+												},
+												{
+													"id": "pop",
+													"objectClass": "ArrTemp",
+													"sid": 835792412596803,
+													"parameters": {
+														"where": "back",
+														"axis": "x"
+													}
+												}
+											],
+											"sid": 685420961632862
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If there is any remaining slot that can be filled with an upgradable skill, fill it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 757671264380773
+								}
+							],
+							"actions": [],
+							"sid": 823110635555991,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Clear array."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-size",
+											"objectClass": "ArrTemp",
+											"sid": 155736050404027,
+											"parameters": {
+												"width": "0",
+												"height": "1",
+												"depth": "1"
+											}
+										}
+									],
+									"sid": 688937532748391
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 521190563881963,
+											"parameters": {
+												"instance-variable": "ancientBlast",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 987815245043912,
+											"parameters": {
+												"instance-variable": "ancientBlast",
+												"comparison": 4,
+												"value": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 707607947837834,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"AncientBlast\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 198936964938673,
+											"parameters": {
+												"where": "back",
+												"value": "\"AncientBlast\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 898984420721450
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 399365427944510,
+											"parameters": {
+												"instance-variable": "arcaneStar",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 957477817676554,
+											"parameters": {
+												"instance-variable": "arcaneStar",
+												"comparison": 4,
+												"value": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 750933937594984,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"ArcaneStar\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 858347424438689,
+											"parameters": {
+												"where": "back",
+												"value": "\"ArcaneStar\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 145662358936364
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 899277042998283,
+											"parameters": {
+												"instance-variable": "eagernessRing",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 531801730284036,
+											"parameters": {
+												"instance-variable": "eagernessRing",
+												"comparison": 4,
+												"value": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 596027147112755,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"EagernessRing\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 971102434475837,
+											"parameters": {
+												"where": "back",
+												"value": "\"EagernessRing\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 517327667407649
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 649941962988740,
+											"parameters": {
+												"instance-variable": "leechAura",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 476903967533641,
+											"parameters": {
+												"instance-variable": "leechAura",
+												"comparison": 4,
+												"value": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 304582197718256,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"LeechAura\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 848685158244872,
+											"parameters": {
+												"where": "back",
+												"value": "\"LeechAura\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 359310809094070
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 404497671728938,
+											"parameters": {
+												"instance-variable": "magicMissiles",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 510762455218234,
+											"parameters": {
+												"instance-variable": "magicMissiles",
+												"comparison": 4,
+												"value": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 868015265384388,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"MagicMissiles\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 263664598261924,
+											"parameters": {
+												"where": "back",
+												"value": "\"MagicMissiles\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 166993902420385
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 829666666377735,
+											"parameters": {
+												"instance-variable": "meteorShower",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 534980177850431,
+											"parameters": {
+												"instance-variable": "meteorShower",
+												"comparison": 4,
+												"value": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 503947095635028,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"MeteorShower\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 896700034108057,
+											"parameters": {
+												"where": "back",
+												"value": "\"MeteorShower\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 366778843262500
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 554387557084124,
+											"parameters": {
+												"instance-variable": "socksOfHurry",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 216402485321638,
+											"parameters": {
+												"instance-variable": "socksOfHurry",
+												"comparison": 4,
+												"value": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 468472331527456,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"SocksOfHurry\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 848037985587970,
+											"parameters": {
+												"where": "back",
+												"value": "\"SocksOfHurry\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 502510528643802
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 523879899638693,
+											"parameters": {
+												"instance-variable": "trapBoots",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 415673228015080,
+											"parameters": {
+												"instance-variable": "trapBoots",
+												"comparison": 4,
+												"value": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 331945071406013,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"TrapBoots\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 824844904634155,
+											"parameters": {
+												"where": "back",
+												"value": "\"TrapBoots\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 915011461435256
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 415416510924828,
+											"parameters": {
+												"instance-variable": "vitalityPendant",
+												"comparison": 2,
+												"value": "5"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 668969603369633,
+											"parameters": {
+												"instance-variable": "vitalityPendant",
+												"comparison": 4,
+												"value": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 419971630974852,
+											"parameters": {
+												"value": "Functions.checkRepeatedSkill(\"VitalityPendant\") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ArrTemp",
+											"sid": 220451586860132,
+											"parameters": {
+												"where": "back",
+												"value": "\"VitalityPendant\"",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 169993833539124
+								},
+								{
+									"eventType": "comment",
+									"text": "Shuffle array."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "shuffle",
+											"objectClass": "ArrTemp",
+											"sid": 777379299935380,
+											"parameters": {
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 817102160916101
+								},
+								{
+									"eventType": "comment",
+									"text": "Fill the slots."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 190436237808362,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "emptySlots",
+												"end-index": "2"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 419634750563823,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 442467855236709,
+													"parameters": {
+														"object": "SkillUpgradeIcon",
+														"expression": "int(SkillUpgradeIcon.TagAt(0)) = loopindex(\"i\")"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 408786732247353,
+													"parameters": {
+														"animation": "ArrTemp.Back",
+														"from": "beginning"
+													}
+												},
+												{
+													"id": "pop",
+													"objectClass": "ArrTemp",
+													"sid": 908967795064631,
+													"parameters": {
+														"where": "back",
+														"axis": "x"
+													}
+												}
+											],
+											"sid": 823106021317000
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Player has leveled up, therefore they can upgrade a skill."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Level Up",
+					"objectClass": "Player",
+					"functionDescription": "Player has leveled up, therefore they can upgrade a skill",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Play sound."
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 742865316845639,
+							"parameters": {
+								"audio-file": "level_up",
+								"loop": "not-looping",
+								"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_SKILLS_VOLUME : -Infinity",
+								"stereo-pan": "0",
+								"tag-optional": "\"sfx\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make the player temporarily invincible."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 312617239280909,
+							"parameters": {
+								"instance-variable": "invincible",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change input focus."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 257029610861936,
+							"parameters": {
+								"variable": "inputFocus",
+								"value": "\"SkillUpgradeTransition\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Setup Exp and Level accordingly."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 704883902486554,
+							"parameters": {
+								"instance-variable": "exp",
+								"value": "Self.exp - Functions.calculateNeededExp"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 761009867987022,
+							"parameters": {
+								"instance-variable": "level",
+								"value": "min(Self.level + 1, 30)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Choose 3 random skills for the player to upgrade."
+						},
+						{
+							"callFunction": "pick3Skills",
+							"sid": 185056287869984
+						},
+						{
+							"type": "comment",
+							"text": "Show Skill upgrade UI."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "SkillUpgradeUI",
+							"sid": 518598100280608,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowSkillUpgrade\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "SubFader",
+							"sid": 886325121885137,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowSubFader\"",
+								"property": "offsetOpacity",
+								"end-value": "75",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 749338429446021,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 867523336324219,
+									"parameters": {
+										"object": "SkillUpgradeIcon",
+										"expression": "SkillUpgradeIcon.TagAt(0) = \"0\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "SkillUpgradeSelection",
+									"sid": 845589286231270,
+									"parameters": {
+										"x": "SkillUpgradeIcon.X",
+										"y": "SkillUpgradeIcon.Y"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "SkillUpgradeSelection",
+									"sid": 233991753808423,
+									"parameters": {
+										"instance-variable": "current",
+										"value": "int(SkillUpgradeIcon.TagAt(0))"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextSkillDescription",
+									"sid": 178874167004979,
+									"parameters": {
+										"text": "SkillUpgradeIcon.AnimationName = \"Empty\" ? \"\" : \"[color=#ffff00]Level \" & Functions.getSkillLevelFromAnimation + 1 & \"[/color]\" & newline & DictSkill.Get(SkillUpgradeIcon.AnimationName)"
+									}
+								}
+							],
+							"sid": 822735125472379
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Select new skill."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "SkillUpgradeUI",
+							"sid": 747347217464782,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowSkillUpgrade\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 302462680869062,
+							"parameters": {
+								"variable": "inputFocus",
+								"value": "\"SkillUpgrade\""
+							}
+						}
+					],
+					"sid": 447471526115429
+				},
+				{
+					"eventType": "comment",
+					"text": "Progressively reduce timescale."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "SkillUpgradeUI",
+							"sid": 492374082917808,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowSkillUpgrade\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-time-scale",
+							"objectClass": "System",
+							"sid": 113452725408846,
+							"parameters": {
+								"time-scale": "1 - SkillUpgradeUI.Tween.Progress(\"ShowSkillUpgrade\")"
+							}
+						},
+						{
+							"id": "set-object-time-scale",
+							"objectClass": "System",
+							"sid": 147150433876546,
+							"parameters": {
+								"object": "SkillUpgradeUI",
+								"time-scale": "1.0"
+							}
+						},
+						{
+							"id": "set-object-time-scale",
+							"objectClass": "System",
+							"sid": 207290980872785,
+							"parameters": {
+								"object": "SubFader",
+								"time-scale": "1.0"
+							}
+						}
+					],
+					"sid": 108940746846045
+				},
+				{
+					"eventType": "comment",
+					"text": "Change selection."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 942895591303992,
+							"parameters": {
+								"value": "inputFocus = \"SkillUpgrade\""
+							}
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "SkillUpgradeUI",
+							"sid": 560460626855844,
+							"behaviorType": "Tween",
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 900869638735313,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 988390895829497,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 866384975869860,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play change audio."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 716873969933934,
+									"parameters": {
+										"audio-file": "menu_change",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								}
+							],
+							"sid": 200564064231089,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 691809409956300,
+											"parameters": {
+												"object": "SkillUpgradeIcon",
+												"expression": "int(SkillUpgradeIcon.TagAt(0)) = (SkillUpgradeSelection.current = 0 ? 2 : SkillUpgradeSelection.current - 1)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "SkillUpgradeSelection",
+											"sid": 861030954298866,
+											"parameters": {
+												"object": "SkillUpgradeIcon",
+												"image-point-optional": "0"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "SkillUpgradeSelection",
+											"sid": 947085795160205,
+											"parameters": {
+												"instance-variable": "current",
+												"value": "int(SkillUpgradeIcon.TagAt(0))"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "TextSkillDescription",
+											"sid": 918378132784011,
+											"parameters": {
+												"text": "SkillUpgradeIcon.AnimationName = \"Empty\" ? \"\" : \"[color=#ffff00]Level \" & Functions.getSkillLevelFromAnimation + 1& \"[/color]\" & newline & DictSkill.Get(SkillUpgradeIcon.AnimationName)"
+											}
+										}
+									],
+									"sid": 654166998099611
+								}
+							],
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 870411558807127,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 676241814449896,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play change audio."
+								},
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 768137053588750,
+									"parameters": {
+										"audio-file": "menu_change",
+										"loop": "not-looping",
+										"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_VOLUME : -Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx\""
+									}
+								}
+							],
+							"sid": 800299849888956,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 927487801232810,
+											"parameters": {
+												"object": "SkillUpgradeIcon",
+												"expression": "int(SkillUpgradeIcon.TagAt(0)) = (SkillUpgradeSelection.current = 2 ? 0 : SkillUpgradeSelection.current + 1)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "SkillUpgradeSelection",
+											"sid": 873006505675159,
+											"parameters": {
+												"object": "SkillUpgradeIcon",
+												"image-point-optional": "0"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "SkillUpgradeSelection",
+											"sid": 297434598180311,
+											"parameters": {
+												"instance-variable": "current",
+												"value": "int(SkillUpgradeIcon.TagAt(0))"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "TextSkillDescription",
+											"sid": 651502042219679,
+											"parameters": {
+												"text": "SkillUpgradeIcon.AnimationName = \"Empty\" ? \"\" : \"[color=#ffff00]Level \" & Functions.getSkillLevelFromAnimation + 1 & \"[/color]\" & newline & DictSkill.Get(SkillUpgradeIcon.AnimationName)"
+											}
+										}
+									],
+									"sid": 659250358605973
+								}
+							],
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 631775170514899,
+									"parameters": {
+										"key": 32
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 765884463779397,
+									"parameters": {
+										"gamepad": "0",
+										"button": "button-a"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 513815362087137,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 705260119574922,
+											"parameters": {
+												"object": "SkillUpgradeIcon",
+												"expression": "int(SkillUpgradeIcon.TagAt(0)) = SkillUpgradeSelection.current"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 751596674975540,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-animation-playing",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 204506736946871,
+													"parameters": {
+														"animation": "\"AncientBlast\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Upgrade Ancient Blast",
+													"objectClass": "Player",
+													"sid": 362126389689313
+												}
+											],
+											"sid": 670444113336018
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 379037336490874
+												},
+												{
+													"id": "is-animation-playing",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 871784926442574,
+													"parameters": {
+														"animation": "\"ArcaneStar\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Upgrade Arcane Star",
+													"objectClass": "Player",
+													"sid": 305641515679031
+												}
+											],
+											"sid": 642536637004618
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 337061295573542
+												},
+												{
+													"id": "is-animation-playing",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 648693664824269,
+													"parameters": {
+														"animation": "\"EagernessRing\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Upgrade Eagerness Ring",
+													"objectClass": "Player",
+													"sid": 200790731155389
+												}
+											],
+											"sid": 939640023063205
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 120466010263697
+												},
+												{
+													"id": "is-animation-playing",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 158028898568420,
+													"parameters": {
+														"animation": "\"LeechAura\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Upgrade Leech Aura",
+													"objectClass": "Player",
+													"sid": 498130167360170
+												}
+											],
+											"sid": 466165850735905
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 686697197811368
+												},
+												{
+													"id": "is-animation-playing",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 768511221969500,
+													"parameters": {
+														"animation": "\"MagicMissiles\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Upgrade Magic Missiles",
+													"objectClass": "Player",
+													"sid": 402356649373660
+												}
+											],
+											"sid": 310327800495153
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 952275003415332
+												},
+												{
+													"id": "is-animation-playing",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 990017707305361,
+													"parameters": {
+														"animation": "\"MeteorShower\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Upgrade Meteor Shower",
+													"objectClass": "Player",
+													"sid": 808363796632041
+												}
+											],
+											"sid": 238803140733304
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 278820932608117
+												},
+												{
+													"id": "is-animation-playing",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 637645697466012,
+													"parameters": {
+														"animation": "\"SocksOfHurry\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Upgrade Socks Of Hurry",
+													"objectClass": "Player",
+													"sid": 418644150373416
+												}
+											],
+											"sid": 273923094883884
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 486634737191318
+												},
+												{
+													"id": "is-animation-playing",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 894960722240240,
+													"parameters": {
+														"animation": "\"TrapBoots\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Upgrade Trap Boots",
+													"objectClass": "Player",
+													"sid": 739336432839877
+												}
+											],
+											"sid": 596437620449096
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 663557939880617
+												},
+												{
+													"id": "is-animation-playing",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 633569934204703,
+													"parameters": {
+														"animation": "\"VitalityPendant\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Upgrade Vitality Pendant",
+													"objectClass": "Player",
+													"sid": 948897282674779
+												}
+											],
+											"sid": 852428003202363
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-animation-playing",
+													"objectClass": "SkillUpgradeIcon",
+													"sid": 195955154049029,
+													"parameters": {
+														"animation": "\"Empty\""
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Play accept audio."
+												},
+												{
+													"id": "play",
+													"objectClass": "Audio",
+													"sid": 330384917795856,
+													"parameters": {
+														"audio-file": "menu_accept",
+														"loop": "not-looping",
+														"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_VOLUME : -Infinity",
+														"stereo-pan": "0",
+														"tag-optional": "\"sfx\""
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Change input focus."
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 849802734501848,
+													"parameters": {
+														"variable": "inputFocus",
+														"value": "\"SkillUpgradeTransition\""
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Close skill upgrade UI."
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "SkillUpgradeUI",
+													"sid": 158780693606454,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"HideSkillUpgrade\"",
+														"property": "offsetOpacity",
+														"end-value": "0",
+														"time": "0.5",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "SubFader",
+													"sid": 476403291317416,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"HideSubFader\"",
+														"property": "offsetOpacity",
+														"end-value": "0",
+														"time": "0.5",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												}
+											],
+											"sid": 367172991986535
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 769042465521253
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Play cancel audio."
+												},
+												{
+													"id": "play",
+													"objectClass": "Audio",
+													"sid": 758028456257179,
+													"parameters": {
+														"audio-file": "menu_cancel",
+														"loop": "not-looping",
+														"volume": "DictProfile.Get(\"Sound\") = 1 ? SFX_VOLUME : -Infinity",
+														"stereo-pan": "0",
+														"tag-optional": "\"sfx\""
+													}
+												}
+											],
+											"sid": 857938770075318
+										}
+									]
+								}
+							],
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Go back to gameplay."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "SkillUpgradeUI",
+							"sid": 614638040809083,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideSkillUpgrade\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Remove player's invincibility."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 455218379664977,
+							"parameters": {
+								"instance-variable": "invincible",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change input focus."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 313305760370022,
+							"parameters": {
+								"variable": "inputFocus",
+								"value": "\"Player\""
+							}
+						}
+					],
+					"sid": 315320340998258
+				},
+				{
+					"eventType": "comment",
+					"text": "Progressively increase timescale."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "SkillUpgradeUI",
+							"sid": 923007726923377,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideSkillUpgrade\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-time-scale",
+							"objectClass": "System",
+							"sid": 991752271230742,
+							"parameters": {
+								"time-scale": "SkillUpgradeUI.Tween.Progress(\"HideSkillUpgrade\")"
+							}
+						},
+						{
+							"id": "set-object-time-scale",
+							"objectClass": "System",
+							"sid": 119249874912042,
+							"parameters": {
+								"object": "SkillUpgradeUI",
+								"time-scale": "1.0"
+							}
+						},
+						{
+							"id": "set-object-time-scale",
+							"objectClass": "System",
+							"sid": 794471846949907,
+							"parameters": {
+								"object": "SubFader",
+								"time-scale": "1.0"
+							}
+						}
+					],
+					"sid": 669018923499906
+				}
+			],
+			"sid": 853447632745922
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Exp Pickup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "MAX_EXP_BAR_SIZE",
+					"type": "number",
+					"initialValue": "632",
+					"comment": "Maximum Exp bar size",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 418248998559008
+				},
+				{
+					"eventType": "comment",
+					"text": "Calculate needed Exp to go to the next level (typical exp curve)."
+				},
+				{
+					"functionName": "calculateNeededExp",
+					"functionDescription": "Calculate needed Exp to go to the next level",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 905490046365914,
+							"parameters": {
+								"value": "100 * (1 + 0.070) ^ (Player.level - 1)"
+							}
+						}
+					],
+					"sid": 638109578352903
+				},
+				{
+					"eventType": "comment",
+					"text": "Player picks up close Exp Orbs."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 773407268459726,
+							"parameters": {
+								"object": "ExpOrb"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 271992535134831,
+							"parameters": {
+								"value": "distance(ExpOrb.X, ExpOrb.Y, Player.X, Player.Y) < Player.expPickupRange"
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "ExpOrb",
+							"sid": 617803657424285,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveExpToPlayer\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-two-properties",
+							"objectClass": "ExpOrb",
+							"sid": 361882829041413,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveExpToPlayer\"",
+								"property": "position",
+								"end-x": "Player.X + Player.8Direction.VectorX/4",
+								"end-y": "Player.Y + Player.8Direction.VectorY/4",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "ExpOrb",
+							"sid": 697916548423121,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideExp\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 444916452915258
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "ExpOrb",
+							"sid": 814867990872550,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveExpToPlayer\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 411576609715775,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the player is below level 30, add Exp and level up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Player",
+									"sid": 780383821624434,
+									"parameters": {
+										"instance-variable": "level",
+										"comparison": 2,
+										"value": "Player.numOfSlots * 5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Player",
+									"sid": 877141506736003,
+									"parameters": {
+										"instance-variable": "exp",
+										"value": "ExpOrb.expAmt * (1 + float(DictProfile.Get(\"AugmentedBrain\")) * 0.05)"
+									}
+								}
+							],
+							"sid": 162760545503028,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Player leveled up."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Player",
+											"sid": 533854820008008,
+											"parameters": {
+												"instance-variable": "exp",
+												"comparison": 5,
+												"value": "Functions.calculateNeededExp"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Level Up",
+											"objectClass": "Player",
+											"sid": 112582210415784
+										}
+									],
+									"sid": 749844148746847
+								},
+								{
+									"eventType": "comment",
+									"text": "Update ExpBar size."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "ExpBar",
+											"sid": 610921635194476,
+											"parameters": {
+												"width": "lerp(0, MAX_EXP_BAR_SIZE, Player.exp/Functions.calculateNeededExp)"
+											}
+										}
+									],
+									"sid": 444617200712264
+								},
+								{
+									"eventType": "comment",
+									"text": "ExpBar cannot be visible with a width of less than 8, to avoid problems with 9 patch."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-width",
+											"objectClass": "ExpBar",
+											"sid": 661065763425144,
+											"parameters": {
+												"comparison": 2,
+												"width": "8"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-visible",
+											"objectClass": "ExpBar",
+											"sid": 661388922034907,
+											"parameters": {
+												"visibility": "invisible"
+											}
+										}
+									],
+									"sid": 158785261498745
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 498600471154565
+										}
+									],
+									"actions": [
+										{
+											"id": "set-visible",
+											"objectClass": "ExpBar",
+											"sid": 917589386179448,
+											"parameters": {
+												"visibility": "visible"
+											}
+										}
+									],
+									"sid": 153542968652019
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player is already level 30, just keep the bar visible and full."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 738156764016771
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Player",
+									"sid": 820576974975152,
+									"parameters": {
+										"instance-variable": "level",
+										"comparison": 0,
+										"value": "Player.numOfSlots * 5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-width",
+									"objectClass": "ExpBar",
+									"sid": 757177834416609,
+									"parameters": {
+										"width": "MAX_EXP_BAR_SIZE"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "ExpBar",
+									"sid": 303786891396677,
+									"parameters": {
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 975019508937180
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy the Exp Orb."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"customAction": "Destroy Exp Orb",
+									"objectClass": "ExpOrb",
+									"sid": 649803111175465
+								}
+							],
+							"sid": 828913201531946
+						}
+					]
+				}
+			],
+			"sid": 428766598582468
+		}
+	],
+	"sid": 350526602376922
+}

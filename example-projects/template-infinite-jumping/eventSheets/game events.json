@@ -1,0 +1,396 @@
+{
+	"name": "Game events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "This variable holds the current scroll position, which gets smaller as the player moves upwards."
+		},
+		{
+			"eventType": "variable",
+			"name": "MinScroll",
+			"type": "number",
+			"initialValue": "999",
+			"comment": "The current scroll Y position",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 135509452303277
+		},
+		{
+			"eventType": "comment",
+			"text": "This variable holds the Y co-ordinate of the next platform to create.  When the top of the screen reaches that position, the platform is created."
+		},
+		{
+			"eventType": "variable",
+			"name": "NextPlatform",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The next Y scroll position to create a platform at",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 309483291384846
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player is above the scroll position, scroll up to the player's position."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-y",
+					"objectClass": "Player",
+					"sid": 192209948347912,
+					"parameters": {
+						"comparison": 2,
+						"y-co-ordinate": "MinScroll"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 850533693136916,
+					"parameters": {
+						"variable": "MinScroll",
+						"value": "Player.Y"
+					}
+				}
+			],
+			"sid": 659409647493024,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "As we are scrolling, if the top of the screen has reached the position of the next platform to create, create it at a random position across the top of the screen.  Then also set another platform to be created at a random distance between 20 and 100 pixels up again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 618445111174908,
+							"parameters": {
+								"first-value": "NextPlatform",
+								"comparison": 5,
+								"second-value": "ViewportTop(\"Game\")"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 296212389040061,
+							"parameters": {
+								"object-to-create": "Platform",
+								"layer": "\"Game\"",
+								"x": "random(20, LayoutWidth - 40)",
+								"y": "ViewportTop(\"Game\")"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 799649678471367,
+							"parameters": {
+								"variable": "NextPlatform",
+								"value": "ViewportTop(\"Game\") - random(20, 100)"
+							}
+						}
+					],
+					"sid": 180378242542903
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Always scroll to the current top position the player has reached, but never scroll horizontally."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 658029357676539
+				}
+			],
+			"actions": [
+				{
+					"id": "scroll-to-position",
+					"objectClass": "System",
+					"sid": 297889983391887,
+					"parameters": {
+						"x": "160",
+						"y": "MinScroll"
+					}
+				}
+			],
+			"sid": 859919684395630
+		},
+		{
+			"eventType": "comment",
+			"text": "As soon as the player lands, jump immediately."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-on-floor",
+					"objectClass": "Player",
+					"sid": 427680334074309,
+					"behaviorType": "Platform"
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Player",
+					"sid": 705751940697723,
+					"behaviorType": "Platform",
+					"parameters": {
+						"control": "jump"
+					}
+				}
+			],
+			"sid": 620880078401479
+		},
+		{
+			"eventType": "comment",
+			"text": "Use left and right arrow keys to control the player.  (This is necessary because the 'Default controls' property has been set to 'No' on the platform behavior, so we can automate jumping.)"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 782636307474209,
+					"parameters": {
+						"key": 37
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Player",
+					"sid": 540620020265715,
+					"behaviorType": "Platform",
+					"parameters": {
+						"control": "left"
+					}
+				}
+			],
+			"sid": 957707972616333
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 691440190068601,
+					"parameters": {
+						"key": 39
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Player",
+					"sid": 934479654395431,
+					"behaviorType": "Platform",
+					"parameters": {
+						"control": "right"
+					}
+				}
+			],
+			"sid": 905861084609606
+		},
+		{
+			"eventType": "comment",
+			"text": "On a mobile device, use the left-to-right tilt (Gamma) to also control movement.  This simply simulates pressing a control if the device has tilted enough to the left or right."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-orientation",
+					"objectClass": "Touch",
+					"sid": 144143859747428,
+					"parameters": {
+						"orientation": "gamma",
+						"comparison": 2,
+						"angle": "-8"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Player",
+					"sid": 326790513679216,
+					"behaviorType": "Platform",
+					"parameters": {
+						"control": "left"
+					}
+				}
+			],
+			"sid": 438895343158659
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-orientation",
+					"objectClass": "Touch",
+					"sid": 908790620477077,
+					"parameters": {
+						"orientation": "gamma",
+						"comparison": 4,
+						"angle": "8"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "Player",
+					"sid": 308906858273219,
+					"behaviorType": "Platform",
+					"parameters": {
+						"control": "right"
+					}
+				}
+			],
+			"sid": 217549011745714
+		},
+		{
+			"eventType": "comment",
+			"text": "Destroy any platforms that go off the bottom of the screen so they don't keep using up memory and CPU and cause the game to slow down."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-on-screen",
+					"objectClass": "Platform",
+					"sid": 177383110954098,
+					"isInverted": true
+				},
+				{
+					"id": "compare-y",
+					"objectClass": "Platform",
+					"sid": 165952200422818,
+					"parameters": {
+						"comparison": 4,
+						"y-co-ordinate": "ViewportBottom(\"Game\")"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Platform",
+					"sid": 764494641742587
+				}
+			],
+			"sid": 786749515048116
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player falls off the bottom of the screen, restart the layout."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-on-screen",
+					"objectClass": "Player",
+					"sid": 573399301771582,
+					"isInverted": true
+				},
+				{
+					"id": "compare-y",
+					"objectClass": "Player",
+					"sid": 161075208572572,
+					"parameters": {
+						"comparison": 4,
+						"y-co-ordinate": "ViewportBottom(\"Game\")"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "reset-global-variables",
+					"objectClass": "System",
+					"sid": 884893422869742
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 844870240733010
+				}
+			],
+			"sid": 830132229390491
+		},
+		{
+			"eventType": "comment",
+			"text": "Allow the player to wrap around to the left and right."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-x",
+					"objectClass": "Player",
+					"sid": 356135656749933,
+					"parameters": {
+						"comparison": 2,
+						"x-co-ordinate": "-10"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "Player",
+					"sid": 271870237028125,
+					"parameters": {
+						"x": "LayoutWidth + 9"
+					}
+				}
+			],
+			"sid": 555703524059581
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-x",
+					"objectClass": "Player",
+					"sid": 788671304527451,
+					"parameters": {
+						"comparison": 4,
+						"x-co-ordinate": "LayoutWidth + 10"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "Player",
+					"sid": 310887599784577,
+					"parameters": {
+						"x": "-9"
+					}
+				}
+			],
+			"sid": 541547916485668
+		}
+	],
+	"sid": 143775665834437
+}

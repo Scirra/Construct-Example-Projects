@@ -1,0 +1,1198 @@
+{
+	"name": "Gameplay",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: [ferreiramoreiramateus@gmail.com](mailto:ferreiramoreiramateus@gmail.com)\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: [wesleymatos1989@gmail.com](mailto:wesleymatos1989@gmail.com)\n\nMade with the support of our patrons on [https://www.patreon.com/viridinostudios](https://www.patreon.com/viridinostudios) and our good friends at [https://www.construct.net](https://www.construct.net/en)."
+		},
+		{
+			"eventType": "comment",
+			"text": "Which game mode is currently active (builder or driver)."
+		},
+		{
+			"eventType": "variable",
+			"name": "Mode",
+			"type": "string",
+			"initialValue": "Builder",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 126274031755124
+		},
+		{
+			"eventType": "comment",
+			"text": "How many path are present in the layout."
+		},
+		{
+			"eventType": "variable",
+			"name": "PathCount",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 252450814250788
+		},
+		{
+			"eventType": "comment",
+			"text": "Which ID the car is currently trying to reach."
+		},
+		{
+			"eventType": "variable",
+			"name": "CurrentID",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 174046555633598
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Information about the previous path line, like: position, angle and ID."
+				},
+				{
+					"eventType": "variable",
+					"name": "PreviousPositionX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 935758835291363
+				},
+				{
+					"eventType": "variable",
+					"name": "PreviousPositionY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 415651439359948
+				},
+				{
+					"eventType": "variable",
+					"name": "PreviousAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 735762155980904
+				},
+				{
+					"eventType": "variable",
+					"name": "PreviousID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 771822331719097
+				},
+				{
+					"eventType": "comment",
+					"text": "If there's any input from the player, set a new path line in front of the previous one."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 926734559852675,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 444488434311486,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						},
+						{
+							"id": "on-any-touch-start",
+							"objectClass": "Touch",
+							"sid": 368571339323010
+						}
+					],
+					"actions": [],
+					"sid": 446330215215691,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "But only if the game is currently in builder mode."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 295192764062665,
+									"parameters": {
+										"first-value": "Mode",
+										"comparison": 0,
+										"second-value": "\"Builder\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 295808630652982,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Pick the last created path line and check if it isn't currently playing the grow animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-last-created",
+											"objectClass": "System",
+											"sid": 312799192786951,
+											"parameters": {
+												"object": "PathLine"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 591619896062429,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Stop the path line rotation, change its animation to \"Line\" and store some of its information in local variables."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-playing",
+													"objectClass": "PathLine",
+													"sid": 734621635267090,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Grow\""
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"id": "set-enabled",
+													"objectClass": "PathLine",
+													"sid": 740947472304390,
+													"behaviorType": "Rotate",
+													"parameters": {
+														"state": "disabled"
+													}
+												},
+												{
+													"id": "set-animation",
+													"objectClass": "PathLine",
+													"sid": 160423406425766,
+													"parameters": {
+														"animation": "\"Line\"",
+														"from": "beginning"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 171970170686885,
+													"parameters": {
+														"variable": "PreviousPositionX",
+														"value": "PathLine.ImagePointX(\"Tip\")"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 399351933081194,
+													"parameters": {
+														"variable": "PreviousPositionY",
+														"value": "PathLine.ImagePointY(\"Tip\")"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 320036965461573,
+													"parameters": {
+														"variable": "PreviousAngle",
+														"value": "PathLine.Angle"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 824744578848274,
+													"parameters": {
+														"variable": "PreviousID",
+														"value": "PathLine.ID"
+													}
+												}
+											],
+											"sid": 341621817563463,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "If the tip of the path line is inside the parking lot (goal), change the game mode to driver and start to move the car."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-two-values",
+															"objectClass": "System",
+															"sid": 287761401843910,
+															"parameters": {
+																"first-value": "Functions.IsInsideParkingLot(PathLine.ImagePointX(\"Tip\"), PathLine.ImagePointY(\"Tip\"))",
+																"comparison": 0,
+																"second-value": "1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 981236125664155,
+															"parameters": {
+																"variable": "Mode",
+																"value": "\"Driver\""
+															}
+														},
+														{
+															"callFunction": "MoveCar",
+															"sid": 986289362037068
+														},
+														{
+															"type": "comment",
+															"text": "Also increase the smoke rate, so the car leaves some sort of trail behind it."
+														},
+														{
+															"id": "set-rate",
+															"objectClass": "Smoke",
+															"sid": 246704770865518,
+															"parameters": {
+																"rate": "24"
+															}
+														}
+													],
+													"sid": 450698667646386
+												},
+												{
+													"eventType": "comment",
+													"text": "However, if the tip of the path line isn't inside the parking lot (goal), create and setup a new path line."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 971028970541208
+														},
+														{
+															"id": "compare-two-values",
+															"objectClass": "System",
+															"sid": 851696111350320,
+															"parameters": {
+																"first-value": "Functions.IsInsideParkingLot(PathLine.ImagePointX(\"Tip\"), PathLine.ImagePointY(\"Tip\"))",
+																"comparison": 0,
+																"second-value": "0"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 306378919250557,
+															"parameters": {
+																"object-to-create": "PathLine",
+																"layer": "0",
+																"x": "PreviousPositionX",
+																"y": "PreviousPositionY",
+																"create-hierarchy": false
+															}
+														},
+														{
+															"id": "move-to-object",
+															"objectClass": "PathLine",
+															"sid": 641054160778804,
+															"parameters": {
+																"where": "in-front",
+																"object": "Ground"
+															}
+														},
+														{
+															"id": "set-angle",
+															"objectClass": "PathLine",
+															"sid": 796923477402724,
+															"parameters": {
+																"angle": "PreviousAngle - 90 - 45"
+															}
+														},
+														{
+															"id": "set-width",
+															"objectClass": "PathLine",
+															"sid": 755906735827418,
+															"parameters": {
+																"width": "0"
+															}
+														},
+														{
+															"id": "tween-one-property",
+															"objectClass": "PathLine",
+															"sid": 362677799934640,
+															"behaviorType": "Tween",
+															"parameters": {
+																"tags": "\"Grow\"",
+																"property": "offsetWidth",
+																"end-value": "40",
+																"time": "0.25",
+																"ease": "default",
+																"destroy-on-complete": "no",
+																"loop": "no",
+																"ping-pong": "no"
+															}
+														},
+														{
+															"id": "set-instvar-value",
+															"objectClass": "PathLine",
+															"sid": 117530390035179,
+															"parameters": {
+																"instance-variable": "ID",
+																"value": "PreviousID + 1"
+															}
+														}
+													],
+													"sid": 425498042763083
+												},
+												{
+													"eventType": "comment",
+													"text": "Independently of where the path line is, create a new path dot to complement its visual with a more polished look."
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 567604117046062,
+															"parameters": {
+																"object-to-create": "PathDot",
+																"layer": "0",
+																"x": "PreviousPositionX",
+																"y": "PreviousPositionY",
+																"create-hierarchy": false
+															}
+														},
+														{
+															"id": "move-to-object",
+															"objectClass": "PathDot",
+															"sid": 812464619908804,
+															"parameters": {
+																"where": "in-front",
+																"object": "Ground"
+															}
+														},
+														{
+															"id": "set-size",
+															"objectClass": "PathDot",
+															"sid": 499222238246964,
+															"parameters": {
+																"width": "0",
+																"height": "0"
+															}
+														},
+														{
+															"id": "tween-two-properties",
+															"objectClass": "PathDot",
+															"sid": 314365907861579,
+															"behaviorType": "Tween",
+															"parameters": {
+																"tags": "\"Grow\"",
+																"property": "size",
+																"end-x": "8",
+																"end-y": "8",
+																"time": "0.25",
+																"ease": "easeoutback",
+																"destroy-on-complete": "no",
+																"loop": "no",
+																"ping-pong": "no"
+															}
+														},
+														{
+															"type": "comment",
+															"text": "Also increase the path count variable."
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 987848142454810,
+															"parameters": {
+																"variable": "PathCount",
+																"value": "PathCount + 1"
+															}
+														}
+													],
+													"sid": 299018707213070
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the text tutorial still present in the layout and isn't playing the self destroy animation, start the self destroy animation, so it stop blocking the player sight."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 997903497265068,
+									"parameters": {
+										"first-value": "Text.Count",
+										"comparison": 0,
+										"second-value": "1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 550488789794997,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-playing",
+											"objectClass": "Text",
+											"sid": 417986968941105,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SelfDestroy\""
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-one-property",
+											"objectClass": "Text",
+											"sid": 315771202522549,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SelfDestroy\"",
+												"property": "offsetY",
+												"end-value": "Self.Y - 128",
+												"time": "2",
+												"ease": "easeinsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 749050343273079
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the car to the next path line."
+				},
+				{
+					"functionName": "MoveCar",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 881738244270788,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 969562299127279,
+									"parameters": {
+										"object": "PathLine",
+										"expression": "PathLine.ID",
+										"comparison": 0,
+										"value": "CurrentID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-two-properties",
+									"objectClass": "CarCollision",
+									"sid": 791789981745443,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\"",
+										"property": "position",
+										"end-x": "PathLine.ImagePointX(\"Tip\")",
+										"end-y": "PathLine.ImagePointY(\"Tip\")",
+										"time": "0.5",
+										"ease": "noease",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "CarCollision",
+									"sid": 629465933253253,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Drift\"",
+										"property": "offsetAngle",
+										"end-value": "PathLine.Angle",
+										"time": "0.25",
+										"ease": "noease",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 707283706443076
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the car animation to match its angle of motion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 433318376614889
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation-frame",
+							"objectClass": "CarAnimations",
+							"sid": 771020294511059,
+							"parameters": {
+								"frame-number": "(round(((CarCollision.Angle + 360) % 360) / 15) * 15) / 15"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also update the car's animations object to be slightly behind the collision object, creating an overall smoother look."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "CarAnimations",
+							"sid": 246414392426625,
+							"parameters": {
+								"x": "lerp(Self.X, CarCollision.X, 0.05 * 60 * dt)",
+								"y": "lerp(Self.Y, CarCollision.Y, 0.05 * 60 * dt)"
+							}
+						}
+					],
+					"sid": 253340755231222
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the car has finished moving to a path line, check if it already reached the parking lot or if it should keep moving."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "CarCollision",
+							"sid": 146279416999462,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 638845682197854,
+							"parameters": {
+								"variable": "CurrentID",
+								"value": "CurrentID + 1"
+							}
+						}
+					],
+					"sid": 825348741660022,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the current ID is equal to the path count, the car has reached the parking lot."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 626888832716318,
+									"parameters": {
+										"first-value": "CurrentID",
+										"comparison": 0,
+										"second-value": "PathCount"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 532283038405957,
+									"parameters": {
+										"seconds": "2"
+									}
+								},
+								{
+									"callFunction": "GameOver",
+									"sid": 616091069726398
+								}
+							],
+							"sid": 345039341050697
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the current ID is lower than the path count, the car needs to keep moving."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 455561620399838
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 148945209593280,
+									"parameters": {
+										"first-value": "CurrentID",
+										"comparison": 2,
+										"second-value": "PathCount"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MoveCar",
+									"sid": 503788258916502
+								}
+							],
+							"sid": 563398610287812
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If the car crashes into a solid object, disable its collision and stop its movements."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "CarCollision",
+							"sid": 722355078089077,
+							"parameters": {
+								"object": "Solid"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-collisions-enabled",
+							"objectClass": "CarCollision",
+							"sid": 643834986196329,
+							"parameters": {
+								"collisions": "disabled"
+							}
+						},
+						{
+							"id": "stop-all-tweens",
+							"objectClass": "CarCollision",
+							"sid": 126966530707035,
+							"behaviorType": "Tween"
+						}
+					],
+					"sid": 723445355972670,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Remove the car from the solid object."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "while",
+									"objectClass": "System",
+									"sid": 379624943295148
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "CarCollision",
+									"sid": 392057603020667,
+									"parameters": {
+										"object": "Solid"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "move-at-angle",
+									"objectClass": "CarCollision",
+									"sid": 700611975659109,
+									"parameters": {
+										"angle": "Self.Angle + 180",
+										"distance": "0.1"
+									}
+								}
+							],
+							"sid": 633684345307475
+						},
+						{
+							"eventType": "comment",
+							"text": "Make the car bounce out of the solid object, creating a more convincing effect."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "tween-two-properties",
+									"objectClass": "CarCollision",
+									"sid": 683954160329442,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Bounce\"",
+										"property": "position",
+										"end-x": "Self.X + cos(Self.Angle + 180) * 24",
+										"end-y": "Self.Y + sin(Self.Angle + 180) * 24",
+										"time": "1",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 658625828234748
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the bounce animation is over, restart the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "CarCollision",
+							"sid": 674578221687354,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Bounce\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 143715939986507,
+							"parameters": {
+								"seconds": "1"
+							}
+						},
+						{
+							"callFunction": "GameOver",
+							"sid": 962068762247176
+						}
+					],
+					"sid": 110102211697490
+				},
+				{
+					"eventType": "comment",
+					"text": "Returns false (0) if a specific position isn't inside the parking lot and true (1) if it's."
+				},
+				{
+					"functionName": "IsInsideParkingLot",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "PositionX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 255151498121442
+						},
+						{
+							"name": "PositionY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 307174997533078
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 872910512744803,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 815247399299470,
+									"parameters": {
+										"value": "PositionX >= ParkingLot.BBoxLeft\n&\nPositionX <= ParkingLot.BBoxRight\n&\nPositionY >= ParkingLot.BBoxTop\n&\nPositionY <= ParkingLot.BBoxBottom\n"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 905517169872634,
+									"parameters": {
+										"value": "1"
+									}
+								}
+							],
+							"sid": 529267702919973
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 860441068833010
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 639329162985205,
+									"parameters": {
+										"value": "PositionX < ParkingLot.BBoxLeft\n|\nPositionX > ParkingLot.BBoxRight\n|\nPositionY < ParkingLot.BBoxTop\n|\nPositionY > ParkingLot.BBoxBottom\n"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 236196398801373,
+									"parameters": {
+										"value": "0"
+									}
+								}
+							],
+							"sid": 614948082841029
+						}
+					]
+				}
+			],
+			"sid": 919029214456625
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 548572134702320
+						}
+					],
+					"actions": [],
+					"sid": 952897629417334,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 137695505356952,
+									"parameters": {
+										"object": "Mask"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 783437532649253,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the camera is overlapping a mask, increase the mask opacity, forcing the building behind to disappear, thanks to the \"Destination out\" blend mode."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Camera",
+											"sid": 598909861404184,
+											"parameters": {
+												"object": "Mask"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-opacity",
+											"objectClass": "Mask",
+											"sid": 968615120402040,
+											"parameters": {
+												"opacity": "clamp(Self.Opacity + 5 * 60 * dt, 0, 100)"
+											}
+										}
+									],
+									"sid": 323617290366725
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the camera isn't overlapping a mask, decrease the mask opacity, making the building reappear."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 123343925059973
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Camera",
+											"sid": 916202446566064,
+											"parameters": {
+												"object": "Mask"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-opacity",
+											"objectClass": "Mask",
+											"sid": 392018306467065,
+											"parameters": {
+												"opacity": "clamp(Self.Opacity - 5 * 60 * dt, 0, 100)"
+											}
+										}
+									],
+									"sid": 128281148701787
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the game is in builder mode, move the camera towards the last created path line."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 716387897006217,
+									"parameters": {
+										"first-value": "Mode",
+										"comparison": 0,
+										"second-value": "\"Builder\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 723787008371224,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-last-created",
+											"objectClass": "System",
+											"sid": 620444676935149,
+											"parameters": {
+												"object": "PathLine"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "Camera",
+											"sid": 926989137810919,
+											"parameters": {
+												"x": "lerp(Self.X, PathLine.X, 0.1 * 60 * dt)",
+												"y": "lerp(Self.Y, PathLine.Y, 0.1 * 60 * dt)"
+											}
+										}
+									],
+									"sid": 347596470451850
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the game is in driver mode, move the camera towards the car."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 532237099832102
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 623147226701116,
+									"parameters": {
+										"first-value": "Mode",
+										"comparison": 0,
+										"second-value": "\"Driver\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "Camera",
+									"sid": 453810325881058,
+									"parameters": {
+										"x": "lerp(Self.X, CarCollision.X, 0.1 * 60 * dt)",
+										"y": "lerp(Self.Y, CarCollision.Y, 0.1 * 60 * dt)"
+									}
+								}
+							],
+							"sid": 367293372625132
+						}
+					]
+				}
+			],
+			"sid": 251822888085792
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GameOver",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Force the game to restart, for testing purposes."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 353823743204641,
+							"parameters": {
+								"key": 82
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "GameOver",
+							"sid": 262431583717036
+						}
+					],
+					"sid": 338252576676993
+				},
+				{
+					"eventType": "comment",
+					"text": "Restart the game and reset all global variables to prevent previous events from interfering in the next session."
+				},
+				{
+					"functionName": "GameOver",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 519756381331166
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 283684574150538
+						}
+					],
+					"sid": 930259018867160
+				}
+			],
+			"sid": 939798873230820
+		}
+	],
+	"sid": 804490377587210
+}

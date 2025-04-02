@@ -1,0 +1,953 @@
+{
+	"name": "GameEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nFelipe Vaiano Calderan - Programmer\nTwitter: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "variable",
+			"name": "currentPlayer",
+			"type": "string",
+			"initialValue": "Cross",
+			"comment": "Which player is currently playing -> Cross | Nought | None",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 401190359539917
+		},
+		{
+			"eventType": "variable",
+			"name": "humanPlayer",
+			"type": "string",
+			"initialValue": "Cross",
+			"comment": "Which player the human is -> Cross | Nought",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 925817068077482
+		},
+		{
+			"eventType": "variable",
+			"name": "gameState",
+			"type": "string",
+			"initialValue": "Normal",
+			"comment": "Current game state -> Normal | Win | Draw",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 518655448894357
+		},
+		{
+			"eventType": "variable",
+			"name": "doneDrawingBoard",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Has the board been fully drawn?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 434468928738703
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "BoardDrawing",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Draw the 4 lines that compose the board"
+				},
+				{
+					"functionName": "startBoardDrawing",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 754033375271465,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "currentlyDrawing",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Which line is currently being drawn",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 887983718086544
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 422216395892453,
+									"parameters": {
+										"count": "4"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 984121972897348,
+									"parameters": {
+										"object": "BoardDrawing",
+										"expression": "BoardDrawing.drawingNumber = loopindex"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 564401204048281,
+									"parameters": {
+										"variable": "currentlyDrawing",
+										"value": "loopindex"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 245272173295602,
+									"parameters": {
+										"seconds": "0.4 * currentlyDrawing"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "BoardDrawing",
+									"sid": 224667240088149,
+									"parameters": {
+										"animation": "str(currentlyDrawing)",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "BoardDrawing",
+									"sid": 853873787663663,
+									"parameters": {
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 296999041301778
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 411753536958237,
+									"parameters": {
+										"seconds": "1.6"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 468534688072075,
+									"parameters": {
+										"variable": "doneDrawingBoard",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 971802888498529
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "On the start of the layout, draw the board"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 252929357061157
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "startBoardDrawing",
+							"sid": 163933631874941
+						}
+					],
+					"sid": 560759834401275
+				}
+			],
+			"sid": 753035253696652
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GameOver",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "winner0",
+					"type": "string",
+					"initialValue": "",
+					"comment": "First space that contains a winner piece",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 613260222056143
+				},
+				{
+					"eventType": "variable",
+					"name": "winner1",
+					"type": "string",
+					"initialValue": "",
+					"comment": "Second space that contains a winner piece",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 877305116513862
+				},
+				{
+					"eventType": "variable",
+					"name": "winner2",
+					"type": "string",
+					"initialValue": "",
+					"comment": "Third space that contains a winner piece",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 423739862753658
+				},
+				{
+					"eventType": "comment",
+					"text": "Check for game over conditions"
+				},
+				{
+					"functionName": "checkGameOver",
+					"functionDescription": "Checks if the game is over",
+					"functionCategory": "",
+					"functionReturnType": "string",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "script",
+							"script": "// Get current game situation\nconst result = checkGameOver(table);\n\n// Check if the game is over and return the result\nswitch (result.player) {\n\tcase \"Nothing\":\n\t\truntime.setReturnValue(\"Normal\");\n\t\tbreak;\n\tcase \"Draw\":\n\t\truntime.setReturnValue(\"Draw\");\n\t\tbreak;\n\tdefault:\n\t\tlocalVars.winner0 = result.spaces[0][0] + \"|\" + result.spaces[0][1];\n\t\tlocalVars.winner1 = result.spaces[1][0] + \"|\" + result.spaces[1][1];\n\t\tlocalVars.winner2 = result.spaces[2][0] + \"|\" + result.spaces[2][1];\n\t\truntime.setReturnValue(\"Win\");\n}"
+						}
+					],
+					"sid": 993910107579606
+				},
+				{
+					"eventType": "comment",
+					"text": "If a player has won, start the winning sequence"
+				},
+				{
+					"functionName": "winSequence",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 541437006285359,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "For each space that does not contain one of the winning pieces, erase it"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 472011165837893,
+									"parameters": {
+										"object": "Space"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 444717190466246,
+									"parameters": {
+										"value": "(Space.xPos = int(tokenat(winner0, 0, \"|\")) & Space.yPos = int(tokenat(winner0, 1, \"|\"))) | (Space.xPos = int(tokenat(winner1, 0, \"|\")) & Space.yPos = int(tokenat(winner1, 1, \"|\"))) | (Space.xPos = int(tokenat(winner2, 0, \"|\")) & Space.yPos = int(tokenat(winner2, 1, \"|\")))"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Space",
+									"sid": 148216901267097,
+									"parameters": {
+										"animation": "Self.AnimationName & \"Erasing\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 634937255282348
+						},
+						{
+							"eventType": "comment",
+							"text": "Wait a little and erase the whole board"
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 949000149039240,
+									"parameters": {
+										"seconds": "1.0"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "Eraser",
+									"sid": 530907702951454,
+									"parameters": {
+										"animation": "\"Erase\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 452757534188748
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Reset the board"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Eraser",
+							"sid": 663410622563306,
+							"parameters": {
+								"animation": "\"Erase\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Reset the logical table"
+						},
+						{
+							"type": "script",
+							"script": "resetTable();"
+						},
+						{
+							"type": "comment",
+							"text": "Reset gameplay variables and swap the AI and Human sides"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 735753134759118,
+							"parameters": {
+								"variable": "humanPlayer",
+								"value": "humanPlayer = \"Cross\" ? \"Nought\" : \"Cross\""
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 900528530402810,
+							"parameters": {
+								"variable": "currentPlayer",
+								"value": "\"Cross\""
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 686597517747342,
+							"parameters": {
+								"variable": "gameState",
+								"value": "\"Normal\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Redraw the board"
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Eraser",
+							"sid": 238925524938019,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Space",
+							"sid": 493330152393258,
+							"parameters": {
+								"animation": "\"Empty\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "BoardDrawing",
+							"sid": 619758263553445,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"callFunction": "startBoardDrawing",
+							"sid": 787926425198884
+						}
+					],
+					"sid": 255606003022577,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If human is playing as Noughts, the AI should play first. It chooses a random place to play"
+						},
+						{
+							"eventType": "variable",
+							"name": "randomPlaceX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Random X coordinate for the AI to make a move",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 367978492959557
+						},
+						{
+							"eventType": "variable",
+							"name": "randomPlaceY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Random Y coordinate for the AI to make a move",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 251119935525688
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 174669789071536,
+									"parameters": {
+										"value": "humanPlayer = \"Nought\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 854385403734974,
+									"parameters": {
+										"variable": "randomPlaceX",
+										"value": "int(random(2))"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 422091142697985,
+									"parameters": {
+										"variable": "randomPlaceY",
+										"value": "int(random(2))"
+									}
+								}
+							],
+							"sid": 392012591125181,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 982551538441870,
+											"parameters": {
+												"object": "Space",
+												"expression": "Space.xPos = randomPlaceX & Space.yPos = randomPlaceY"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 157995278740315,
+											"parameters": {
+												"seconds": "1.6"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "Space",
+											"sid": 495111784679041,
+											"parameters": {
+												"animation": "currentPlayer",
+												"from": "beginning"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update logic table"
+										},
+										{
+											"type": "script",
+											"script": "const space = runtime.objects.Space.getFirstPickedInstance();\ntable[space.instVars.xPos][space.instVars.yPos] = runtime.globalVars.currentPlayer;"
+										},
+										{
+											"callFunction": "finishTurn",
+											"sid": 791380927175645
+										}
+									],
+									"sid": 133920380593210
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 947690735993492
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Gameplay",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "aiX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Which X position the AI is playing",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 406771304587301
+				},
+				{
+					"eventType": "variable",
+					"name": "aiY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Which Y position the AI is playing",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 461755231260270
+				},
+				{
+					"eventType": "variable",
+					"name": "finishingTurn",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "Is the turn currently finishing?",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 822237017150494
+				},
+				{
+					"eventType": "comment",
+					"text": "Finish current turn"
+				},
+				{
+					"functionName": "finishTurn",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 374436913032817,
+							"parameters": {
+								"variable": "finishingTurn",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 111588575161792,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If there is no winner and it is not a draw, give the other player the turn"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 770527869779986,
+									"parameters": {
+										"value": "gameState = \"Normal\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 587988475659023,
+									"parameters": {
+										"variable": "currentPlayer",
+										"value": "currentPlayer = \"Cross\" ? \"Nought\" : \"Cross\""
+									}
+								}
+							],
+							"sid": 884673597470437
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, start draw/win procedures"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 463218992059332
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 996095355819059,
+									"parameters": {
+										"variable": "currentPlayer",
+										"value": "\"None\""
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 845266054598413,
+									"parameters": {
+										"variable": "doneDrawingBoard",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 827425662242540,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 152888744457760,
+											"parameters": {
+												"value": "gameState = \"Draw\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "Eraser",
+											"sid": 425667569699131,
+											"parameters": {
+												"animation": "\"Erase\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 424068563592765
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 480728607357789
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "winSequence",
+											"sid": 352566498191223
+										}
+									],
+									"sid": 961711539678534
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "AI plays"
+				},
+				{
+					"functionName": "aiPlays",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Call the Minimax algorithm to search the best possible move and update logic table"
+						},
+						{
+							"type": "script",
+							"script": "const result = minimax(table, runtime.globalVars.currentPlayer, -Infinity, Infinity, 0);\nlocalVars.aiX = result.bestMove.x;\nlocalVars.aiY = result.bestMove.y;\ntable[localVars.aiX][localVars.aiY] = runtime.globalVars.currentPlayer;"
+						}
+					],
+					"sid": 490389321633727,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 820915368086383,
+									"parameters": {
+										"object": "Space",
+										"expression": "Space.xPos = aiX & Space.yPos = aiY"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Update visual table"
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "Space",
+									"sid": 742612261172778,
+									"parameters": {
+										"animation": "currentPlayer",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Check the current game state and finish the turn"
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 755338885845136,
+									"parameters": {
+										"variable": "gameState",
+										"value": "Functions.checkGameOver"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 707472645571540,
+									"parameters": {
+										"variable": "finishingTurn",
+										"value": "true"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 993021130970269,
+									"parameters": {
+										"seconds": "0.5"
+									}
+								},
+								{
+									"callFunction": "finishTurn",
+									"sid": 817986401022842
+								}
+							],
+							"sid": 529377445086065
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Human plays"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-click",
+							"objectClass": "Mouse",
+							"sid": 164817001144657,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked"
+							}
+						},
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 209491207461987,
+							"parameters": {
+								"object": "Space"
+							}
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Space",
+							"sid": 550624951035655,
+							"parameters": {
+								"animation": "\"Empty\""
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 843198967935524,
+							"parameters": {
+								"value": "currentPlayer = humanPlayer"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 835659881391838,
+							"parameters": {
+								"variable": "doneDrawingBoard"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 325649550264669,
+							"parameters": {
+								"variable": "finishingTurn"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Update logical table"
+						},
+						{
+							"type": "script",
+							"script": "const space = runtime.objects.Space.getFirstPickedInstance();\ntable[space.instVars.xPos][space.instVars.yPos] = runtime.globalVars.currentPlayer;"
+						},
+						{
+							"type": "comment",
+							"text": "Update visual table"
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Space",
+							"sid": 338772593362693,
+							"parameters": {
+								"animation": "currentPlayer",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Check the current game state and finish the turn"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 220567310365464,
+							"parameters": {
+								"variable": "gameState",
+								"value": "Functions.checkGameOver"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 792963904362829,
+							"parameters": {
+								"variable": "finishingTurn",
+								"value": "true"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 698040885232884,
+							"parameters": {
+								"seconds": "0.5"
+							}
+						},
+						{
+							"callFunction": "finishTurn",
+							"sid": 502795805197135
+						}
+					],
+					"sid": 388180397204835,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 848955571122641,
+									"parameters": {
+										"value": "currentPlayer <> \"None\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "If the game has not ended, tell the AI to play"
+								},
+								{
+									"callFunction": "aiPlays",
+									"sid": 602422259441925
+								}
+							],
+							"sid": 237434954577840
+						}
+					]
+				}
+			],
+			"sid": 675507818835549
+		}
+	],
+	"sid": 187291797672561
+}

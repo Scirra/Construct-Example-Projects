@@ -1,0 +1,1100 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How large and tall each tile is."
+		},
+		{
+			"eventType": "variable",
+			"name": "TILESIZE",
+			"type": "number",
+			"initialValue": "32",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 676037253704060
+		},
+		{
+			"eventType": "comment",
+			"text": "The angle that points towards the camera position."
+		},
+		{
+			"eventType": "variable",
+			"name": "CameraAngle",
+			"type": "number",
+			"initialValue": "90",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 421696486477198
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the layout by updating the camera position and angle, so it's not completely top down."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 196473504275392
+						}
+					],
+					"actions": [],
+					"sid": 563538940812325,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also create a collider for each puzzle piece, so the player can interact with them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 788428012248355,
+									"parameters": {
+										"object": "PuzzlePiece"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 108686253413839,
+									"parameters": {
+										"object-to-create": "Collider",
+										"layer": "PuzzlePiece.LayerName",
+										"x": "PuzzlePiece.X",
+										"y": "PuzzlePiece.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "Collider",
+									"sid": 130620052972493,
+									"parameters": {
+										"z": "PuzzlePiece.ZElevation + PuzzlePiece.ZHeight"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Each collider also acts like the surface texture of it parent puzzle piece."
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Collider",
+									"sid": 275305199150687,
+									"parameters": {
+										"frame-number": "PuzzlePiece.Index"
+									}
+								},
+								{
+									"id": "set-face-object",
+									"objectClass": "PuzzlePiece",
+									"sid": 235483903778857,
+									"parameters": {
+										"face": "front",
+										"object": "Collider"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Collider",
+									"sid": 729476712916230,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "PuzzlePiece",
+									"sid": 886587776374583,
+									"parameters": {
+										"child": "Collider",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": true,
+										"transform-z-elevation": true,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Store the initial position of each puzzle piece, so the game knows where they must be placed."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "PuzzlePiece",
+									"sid": 220538066452457,
+									"parameters": {
+										"instance-variable": "InitialX",
+										"value": "round(Self.X)"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "PuzzlePiece",
+									"sid": 654369031602652,
+									"parameters": {
+										"instance-variable": "InitialY",
+										"value": "round(Self.Y)"
+									}
+								}
+							],
+							"sid": 831449936773284
+						},
+						{
+							"eventType": "comment",
+							"text": "Once every single puzzle piece is prepared, shuffle all of them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"callFunction": "ShufflePieces",
+									"sid": 739097984558363
+								}
+							],
+							"sid": 679254643596487
+						},
+						{
+							"eventType": "comment",
+							"text": "Wait seven seconds before removing the tutorial from the player screen."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 950530013122487,
+									"parameters": {
+										"seconds": "7"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Tutorial",
+									"sid": 514803910155204,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"SelfDestroy\"",
+										"property": "offsetY",
+										"end-value": "Self.Y + 48",
+										"time": "1",
+										"ease": "easeinsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 741558378391052
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Shuffle the puzzle pieces, by storing their data in a permutation table, that returns an out of order list."
+				},
+				{
+					"functionName": "ShufflePieces",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 382762092881726,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-size",
+									"objectClass": "ListOfPuzzlePieces",
+									"sid": 706547485167041,
+									"parameters": {
+										"width": "0",
+										"height": "1",
+										"depth": "1"
+									}
+								}
+							],
+							"sid": 501714629887763
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 760703113127053,
+									"parameters": {
+										"name": "\"\"",
+										"start-index": "0",
+										"end-index": "PuzzlePiece.Count - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 195977035775800,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 860765537774162,
+											"parameters": {
+												"object": "PuzzlePiece",
+												"expression": "PuzzlePiece.Index",
+												"comparison": 0,
+												"value": "loopindex"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "ListOfPuzzlePieces",
+											"sid": 532901947770654,
+											"parameters": {
+												"where": "back",
+												"value": "PuzzlePiece.X&\"|\"&PuzzlePiece.Y",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 173234709225755
+								}
+							]
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "createPermutationTable",
+									"objectClass": "AdvancedRandom",
+									"sid": 250854927174615,
+									"parameters": {
+										"length": "ListOfPuzzlePieces.Width",
+										"offset": "0"
+									}
+								}
+							],
+							"sid": 429235786216619
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 252832462605372,
+									"parameters": {
+										"name": "\"\"",
+										"start-index": "0",
+										"end-index": "ListOfPuzzlePieces.Width - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 141308995157379,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 531828758672472,
+											"parameters": {
+												"object": "PuzzlePiece",
+												"expression": "PuzzlePiece.Index",
+												"comparison": 0,
+												"value": "loopindex"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "PuzzlePiece",
+											"sid": 165608074150812,
+											"parameters": {
+												"x": "int(tokenat(ListOfPuzzlePieces.At(AdvancedRandom.Permutation(loopindex)), 0, \"|\"))",
+												"y": "int(tokenat(ListOfPuzzlePieces.At(AdvancedRandom.Permutation(loopindex)), 1, \"|\"))"
+											}
+										}
+									],
+									"sid": 722692972368217
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 291843646910954
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly update the camera parameters based on the current camera angle value, which is adjusted based on the sine value from the game manager, creating a more natural camera shake, like if human hands were holding the camera."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 866863457492123
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 672518512719806,
+							"parameters": {
+								"variable": "CameraAngle",
+								"value": "90 + GameManager.Sine.Value"
+							}
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 178483917913045,
+							"parameters": {
+								"cam-x": "LayoutWidth / 2 + cos(CameraAngle) * 256",
+								"cam-y": "LayoutHeight / 2 + sin(CameraAngle) * 256",
+								"cam-z": "128",
+								"look-x": "LayoutWidth / 2 + cos(CameraAngle) * 32",
+								"look-y": "LayoutHeight / 2 + sin(CameraAngle) * 32",
+								"look-z": "0",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 335146452762185
+				}
+			],
+			"sid": 584907882430405
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player clicks and touches a collider, move it towards the nearest empty cell in the grid."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 882761895487358,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Collider"
+							}
+						},
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 998512937721751,
+							"parameters": {
+								"object": "Collider"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 174680538060984,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "However, it's only possible to move a puzzle piece if no cooldown is currently being played."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "GameManager",
+									"sid": 649740961197926,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Cooldown\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 920647661259551,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "AllowMovement",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 626028543859564
+								},
+								{
+									"eventType": "variable",
+									"name": "PositionX",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 833031527201046
+								},
+								{
+									"eventType": "variable",
+									"name": "PositionY",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 639088889016412
+								},
+								{
+									"eventType": "comment",
+									"text": "Pick the collider parent puzzle piece and create a neighbor checker on top of it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-parent",
+											"objectClass": "Collider",
+											"sid": 351546804616089,
+											"parameters": {
+												"parent": "PuzzlePiece",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 825331785122860,
+											"parameters": {
+												"object-to-create": "NeighborChecker",
+												"layer": "\"World\"",
+												"x": "PuzzlePiece.X",
+												"y": "PuzzlePiece.Y",
+												"create-hierarchy": false
+											}
+										}
+									],
+									"sid": 569775209261826,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Reset the pick scope, so the neighbor checker is able to see every collider around it."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-all",
+													"objectClass": "System",
+													"sid": 251657008623506,
+													"parameters": {
+														"object": "Collider"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 770233702708597,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Move the neighbor checker around its original puzzle piece."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "for",
+															"objectClass": "System",
+															"sid": 784839889388978,
+															"parameters": {
+																"name": "\"Angle\"",
+																"start-index": "0",
+																"end-index": "3"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-position",
+															"objectClass": "NeighborChecker",
+															"sid": 776286143989412,
+															"parameters": {
+																"x": "PuzzlePiece.X + cos(loopindex(\"Angle\") * 90) * TILESIZE",
+																"y": "PuzzlePiece.Y + sin(loopindex(\"Angle\") * 90) * TILESIZE"
+															}
+														}
+													],
+													"sid": 857314795370594,
+													"children": [
+														{
+															"eventType": "comment",
+															"text": "If the neighbor checker finds a position that doesn't have a collider and is inside the box boundaries, store its current position and allow the puzzle piece to move towards that position."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "is-overlapping-another-object",
+																	"objectClass": "NeighborChecker",
+																	"sid": 101852145214146,
+																	"parameters": {
+																		"object": "Collider"
+																	},
+																	"isInverted": true
+																}
+															],
+															"actions": [],
+															"sid": 146936011754258,
+															"children": [
+																{
+																	"eventType": "block",
+																	"conditions": [
+																		{
+																			"id": "evaluate-expression",
+																			"objectClass": "System",
+																			"sid": 715497080466070,
+																			"parameters": {
+																				"value": "NeighborChecker.X > Box.BBoxLeft & NeighborChecker.X < Box.BBoxRight & NeighborChecker.Y > Box.BBoxTop & NeighborChecker.Y < Box.BBoxBottom"
+																			}
+																		}
+																	],
+																	"actions": [
+																		{
+																			"id": "set-eventvar-value",
+																			"objectClass": "System",
+																			"sid": 818443329471916,
+																			"parameters": {
+																				"variable": "PositionX",
+																				"value": "NeighborChecker.X"
+																			}
+																		},
+																		{
+																			"id": "set-eventvar-value",
+																			"objectClass": "System",
+																			"sid": 371314378331920,
+																			"parameters": {
+																				"variable": "PositionY",
+																				"value": "NeighborChecker.Y"
+																			}
+																		},
+																		{
+																			"id": "set-boolean-eventvar",
+																			"objectClass": "System",
+																			"sid": 260741956830659,
+																			"parameters": {
+																				"variable": "AllowMovement",
+																				"value": "true"
+																			}
+																		}
+																	],
+																	"sid": 799663525547647
+																}
+															]
+														}
+													]
+												},
+												{
+													"eventType": "comment",
+													"text": "Destroy the neighbor checker, since it won't be used anymore."
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "destroy",
+															"objectClass": "NeighborChecker",
+															"sid": 252280496687089
+														}
+													],
+													"sid": 566681052073954
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "If movement is allowed, slide the puzzle piece towards the empty cell position."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 783665940318604,
+													"parameters": {
+														"variable": "AllowMovement"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-two-properties",
+													"objectClass": "PuzzlePiece",
+													"sid": 677143455188591,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Slide\"",
+														"property": "position",
+														"end-x": "round(PositionX)",
+														"end-y": "round(PositionY)",
+														"time": "0.25",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Starts a cooldown, so only one piece is moved at a time."
+												},
+												{
+													"id": "tween-value",
+													"objectClass": "GameManager",
+													"sid": 727723687803407,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Cooldown\"",
+														"start-value": "0",
+														"end-value": "1",
+														"time": "0.25",
+														"ease": "default",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Also start a shine animation, so the active puzzle pieces shines for a small period of time."
+												},
+												{
+													"id": "tween-value",
+													"objectClass": "PuzzlePiece",
+													"sid": 742434659795564,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Shine\"",
+														"start-value": "150",
+														"end-value": "100",
+														"time": "0.35",
+														"ease": "default",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no"
+													}
+												}
+											],
+											"sid": 744240763718069
+										}
+									]
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "While a puzzle piece is playing a shine animation, update its HSL values to match the shine animation, making the puzzle piece itself shine."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PuzzlePiece",
+							"sid": 634269755020400,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Shine\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "PuzzlePiece",
+							"sid": 668193204653840,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "PuzzlePiece.Tween.Value(\"Shine\")"
+							}
+						}
+					],
+					"sid": 420157786326470
+				}
+			],
+			"sid": 613495500892063
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Water",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The amount of cells in the water."
+				},
+				{
+					"eventType": "variable",
+					"name": "GRIDSIZE",
+					"type": "number",
+					"initialValue": "32",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 917580826566264
+				},
+				{
+					"eventType": "comment",
+					"text": "How fast the waves in the water moves."
+				},
+				{
+					"eventType": "variable",
+					"name": "SPEED",
+					"type": "number",
+					"initialValue": "-250",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 840136323707414
+				},
+				{
+					"eventType": "comment",
+					"text": "How frequent are the waves in the water."
+				},
+				{
+					"eventType": "variable",
+					"name": "FREQUENCY",
+					"type": "number",
+					"initialValue": "100",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 199561341423338
+				},
+				{
+					"eventType": "comment",
+					"text": "How much the waves can distort the water."
+				},
+				{
+					"eventType": "variable",
+					"name": "DISTORTION",
+					"type": "number",
+					"initialValue": "1",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 371674233799192
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the water by dividing it into multiple cells."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 661055258651955
+						}
+					],
+					"actions": [
+						{
+							"id": "set-mesh-size",
+							"objectClass": "Water",
+							"sid": 625902973003779,
+							"parameters": {
+								"cols": "GRIDSIZE",
+								"rows": "GRIDSIZE"
+							}
+						}
+					],
+					"sid": 788495062015263
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly scroll the water texture while also changing the Z elevation of mesh point in a wave pattern."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 755659979237063
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Water",
+							"sid": 554669251427234,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + 0.1 * 60 * dt"
+							}
+						}
+					],
+					"sid": 494386373577220,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 831746940814409,
+									"parameters": {
+										"name": "\"X\"",
+										"start-index": "0",
+										"end-index": "GRIDSIZE - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 925422027131842,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 962214043526143,
+											"parameters": {
+												"name": "\"Y\"",
+												"start-index": "0",
+												"end-index": "GRIDSIZE - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-mesh-point",
+											"objectClass": "Water",
+											"sid": 752396866007288,
+											"parameters": {
+												"col": "loopindex(\"X\")",
+												"row": "loopindex(\"Y\")",
+												"mode": "relative",
+												"posx": "0",
+												"posy": "0",
+												"z-elevation": "1 + cos((time * SPEED) + ((loopindex(\"X\") + loopindex(\"Y\") * FREQUENCY))) * DISTORTION",
+												"texx": "0",
+												"texy": "0"
+											}
+										}
+									],
+									"sid": 960668112014030
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 184535458187168
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GameOver",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Once a cooldown is over, check if the puzzle complete."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "GameManager",
+							"sid": 180133385412319,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Cooldown\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 682278303964034,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "How many puzzle pieces are in the correct position."
+						},
+						{
+							"eventType": "variable",
+							"name": "Score",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 202538793298797
+						},
+						{
+							"eventType": "comment",
+							"text": "Loop through every single puzzle piece and check if their current positions are equal to the their initial positions. If they're, add one to the player score."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 594462452707122,
+									"parameters": {
+										"object": "PuzzlePiece"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 174895686843630,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 142137970091709,
+											"parameters": {
+												"value": "PuzzlePiece.X = PuzzlePiece.InitialX & PuzzlePiece.Y = PuzzlePiece.InitialY"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 293120894621266,
+											"parameters": {
+												"variable": "Score",
+												"value": "1"
+											}
+										}
+									],
+									"sid": 881705035677516
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player score is equal to total amount of puzzle pieces in the layout, wait five seconds and restart the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 897548738378140,
+									"parameters": {
+										"first-value": "Score",
+										"comparison": 0,
+										"second-value": "PuzzlePiece.Count"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 450649541551702,
+									"parameters": {
+										"seconds": "5"
+									}
+								},
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 325312484112277
+								},
+								{
+									"id": "restart-layout",
+									"objectClass": "System",
+									"sid": 542855818811871
+								}
+							],
+							"sid": 107736745263916
+						}
+					]
+				}
+			],
+			"sid": 248559045142275
+		}
+	],
+	"sid": 734307391369059
+}

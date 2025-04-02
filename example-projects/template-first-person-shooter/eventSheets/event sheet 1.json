@@ -1,0 +1,370 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "This is a demo of a basic first-person shooter (FPS) type game.\n[b]Controls:[/b] use arrow keys to move, and spacebar to shoot tomatoes.\n\n[h3]How it works[/h3]\nThe game is basically a 2D shooter, but uses the 3D camera object to give it a first-person perspective. You can see it in a 2D perspective if you toggle the '3D camera' group to be disabled and the '2D camera' group to be enabled. The piggies use a Bullet behavior so they move around and bounce off solids, and the player can shoot tomatoes at them.\n\nThe piggies, tomatoes and puff when piggies disappear are all a kind of \"billboard\", i.e. 2D sprites shown in 3D. To get this appearance in Construct, they are actually 3D shapes that only show their right face. (Since objects moving at 0 degrees move right, this means it only shows the face in its forwards moving direction.) Note the back face is shown in the editor to make it easier to select them, but the back face is hidden on startup. The objects are then always angled towards the player, so they always appear flat against the camera.\n\nNote an important detail is all the \"billboard\" objects are placed on their own layer named \"Billboards\", and the layer [b]Draw order[/b] is set to [b]Camera distance[/b]. This is to make sure transparency works correctly. A normal 2D drawing order could mean the transparent areas of nearby billboards obscure far away ones. The [i]Camera distance[/i] draw order means the billboards furthest away from the camera are drawn first, and nearest drawn last, ensuring everything appears correctly."
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "3D camera",
+			"description": "Enable this group to see the game from a first-person perspective.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The piggy object's back faces are visible in the editor only to make them easier to select. We only want to see the right faces in first-person mode, so hide the back faces on startup."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 612285574173979
+						}
+					],
+					"actions": [
+						{
+							"id": "set-face-visible",
+							"objectClass": "PiggyBillboard",
+							"sid": 580064563725053,
+							"parameters": {
+								"face": "back",
+								"visible": false
+							}
+						}
+					],
+					"sid": 932610097702570
+				},
+				{
+					"eventType": "comment",
+					"text": "Always set a 3D camera parallel to the layout with the position and angle of the Player sprite."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 260654089308451
+						}
+					],
+					"actions": [
+						{
+							"id": "look-parallel-to-layout",
+							"objectClass": "3DCamera",
+							"sid": 902623263862776,
+							"parameters": {
+								"cam-x": "Player.X",
+								"cam-y": "Player.Y",
+								"cam-z": "45",
+								"look-angle": "Player.Angle"
+							}
+						}
+					],
+					"sid": 683381407677210
+				}
+			],
+			"sid": 921861971621995
+		},
+		{
+			"eventType": "group",
+			"disabled": true,
+			"title": "2D camera",
+			"description": "Enable this group to see the game from a top-down 2D perspective.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "In 2D mode, just scroll to the player normally. Also set all the billboards to show their back faces instead of their right faces, to make it clearer what is going on."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 976836020072158
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-object",
+							"objectClass": "System",
+							"sid": 542018711127131,
+							"parameters": {
+								"object": "Player"
+							}
+						},
+						{
+							"id": "set-face-visible",
+							"objectClass": "PiggyBillboard",
+							"sid": 722209423778193,
+							"parameters": {
+								"face": "back",
+								"visible": true
+							}
+						},
+						{
+							"id": "set-face-visible",
+							"objectClass": "PiggyBillboard",
+							"sid": 653518519041022,
+							"parameters": {
+								"face": "right",
+								"visible": false
+							}
+						},
+						{
+							"id": "set-face-visible",
+							"objectClass": "Tomato",
+							"sid": 702689999348591,
+							"parameters": {
+								"face": "back",
+								"visible": true
+							}
+						},
+						{
+							"id": "set-face-visible",
+							"objectClass": "Tomato",
+							"sid": 135557873500326,
+							"parameters": {
+								"face": "right",
+								"visible": false
+							}
+						},
+						{
+							"id": "set-face-visible",
+							"objectClass": "PuffBillboard",
+							"sid": 297662660197486,
+							"parameters": {
+								"face": "back",
+								"visible": true
+							}
+						},
+						{
+							"id": "set-face-visible",
+							"objectClass": "PuffBillboard",
+							"sid": 346647608106950,
+							"parameters": {
+								"face": "right",
+								"visible": false
+							}
+						}
+					],
+					"sid": 889897730932243,
+					"disabled": true
+				}
+			],
+			"sid": 935830052711523
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "General",
+			"description": "Event blocks that implement the gameplay regardless of the type of view.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Always make the piggy objects look towards the player, for a billboard style appearance."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 854542785180894
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "PiggyBillboard",
+							"sid": 564598956419341,
+							"parameters": {
+								"x": "Player.X",
+								"y": "Player.Y"
+							}
+						}
+					],
+					"sid": 157540471171941
+				},
+				{
+					"eventType": "comment",
+					"text": "Shoot tomatoes when pressing spacebar. Note the tomato is also a 3D shape using just the right face for a billboard style appearance. It is also Z elevated slightly so it comes out just below the player's viewpoint."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 372000791427343,
+							"parameters": {
+								"key": 32
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 530889818370181,
+							"parameters": {
+								"object": "Tomato",
+								"layer": "\"Billboards\"",
+								"image-point": "1",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Adjust the tomato angle by a small random amount so they spread out a little rather than form a perfectly straight line."
+						},
+						{
+							"id": "rotate-clockwise",
+							"objectClass": "Tomato",
+							"sid": 513258463215917,
+							"parameters": {
+								"degrees": "random(-1, 1)"
+							}
+						}
+					],
+					"sid": 191751892972421
+				},
+				{
+					"eventType": "comment",
+					"text": "When a tomato collides with the scenery, destroy it. Note we only want tomatoes to collide with 3D shapes on the ground - they should ignore ones raised up with Z elevation, so you can still shoot tomatoes through the archway. Therefore also check that the 3D shape it collided with has a Z elevation of 0."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Tomato",
+							"sid": 195625571078721,
+							"parameters": {
+								"object": "3DShape"
+							}
+						},
+						{
+							"id": "compare-z-elevation",
+							"objectClass": "3DShape",
+							"sid": 396141966150537,
+							"parameters": {
+								"which": "z-elevation",
+								"comparison": 0,
+								"z-elevation": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Tomato",
+							"sid": 794118440864310
+						}
+					],
+					"sid": 230223098345747
+				},
+				{
+					"eventType": "comment",
+					"text": "When a tomato collides with a piggy, add to its hitcount, make it flash, and destroy the tomato."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Tomato",
+							"sid": 353616374339340,
+							"parameters": {
+								"object": "PiggyBillboard"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-instvar",
+							"objectClass": "PiggyBillboard",
+							"sid": 964783261048000,
+							"parameters": {
+								"instance-variable": "HitCount",
+								"value": "1"
+							}
+						},
+						{
+							"id": "flash",
+							"objectClass": "PiggyBillboard",
+							"sid": 791812377781330,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.05",
+								"off-time": "0.05",
+								"duration": "0.4"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Tomato",
+							"sid": 488563244776270
+						}
+					],
+					"sid": 589471865026417
+				},
+				{
+					"eventType": "comment",
+					"text": "If a piggy gets hit by a tomato 5 times, destroy it and create a \"puff\" billboard in its place as a disappearing animation (the \"puff\" object has the Fade behavior so it fades out)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "PiggyBillboard",
+							"sid": 962712083526216,
+							"parameters": {
+								"instance-variable": "HitCount",
+								"comparison": 5,
+								"value": "5"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 147589082007140,
+							"parameters": {
+								"object-to-create": "PuffBillboard",
+								"layer": "\"Billboards\"",
+								"x": "PiggyBillboard.X",
+								"y": "PiggyBillboard.Y",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "PuffBillboard",
+							"sid": 658256368332496,
+							"parameters": {
+								"angle": "PiggyBillboard.Angle"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "PiggyBillboard",
+							"sid": 990243159931533
+						}
+					],
+					"sid": 418485216908289
+				}
+			],
+			"sid": 174758099143302
+		}
+	],
+	"sid": 458750256928100
+}

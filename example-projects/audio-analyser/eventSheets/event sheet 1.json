@@ -1,0 +1,248 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "FrequencyBinCount",
+			"type": "number",
+			"initialValue": "512",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 9
+		},
+		{
+			"eventType": "comment",
+			"text": "Start the music playing on startup, and add the analyser effect."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 11
+				}
+			],
+			"actions": [
+				{
+					"id": "play",
+					"objectClass": "Audio",
+					"sid": 12,
+					"parameters": {
+						"audio-file": "EpicArpg",
+						"loop": "looping",
+						"volume": "0",
+						"tag-optional": "\"audio\""
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "FrequencyBin",
+					"sid": 13
+				},
+				{
+					"id": "add-analyser-effect",
+					"objectClass": "Audio",
+					"sid": 414522979905844,
+					"parameters": {
+						"tag": "\"audio\"",
+						"fft-size": "FrequencyBinCount * 2",
+						"smoothing": "0.2"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 672715438969295,
+					"parameters": {
+						"text": "FrequencyBinCount & \" frequency bins\""
+					}
+				}
+			],
+			"sid": 10,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Then create a tiled background for each bar in the frequency graph."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 923196183132112,
+							"parameters": {
+								"count": "FrequencyBinCount"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 600454739206752,
+							"parameters": {
+								"object-to-create": "FrequencyBin",
+								"layer": "0",
+								"x": "loopindex * WindowWidth / FrequencyBinCount",
+								"y": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "FrequencyBin",
+							"sid": 214563100539576,
+							"parameters": {
+								"instance-variable": "binNumber",
+								"value": "loopindex"
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "FrequencyBin",
+							"sid": 321327870624989,
+							"parameters": {
+								"width": "WindowWidth / FrequencyBinCount",
+								"height": "200"
+							}
+						}
+					],
+					"sid": 794258828390725
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Every tick, update each frequency bin's position depending on the data from the analyser."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 36,
+					"parameters": {
+						"object": "FrequencyBin"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-y",
+					"objectClass": "FrequencyBin",
+					"sid": 37,
+					"parameters": {
+						"y": "400 - Audio.AnalyserFreqBinAt(\"audio\", 0, FrequencyBin.binNumber) * 1.5"
+					}
+				}
+			],
+			"sid": 35
+		},
+		{
+			"eventType": "comment",
+			"text": "Play a sound on touching or clicking to help show what happens in the analyser."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-start",
+					"objectClass": "Touch",
+					"sid": 39
+				}
+			],
+			"actions": [
+				{
+					"id": "play",
+					"objectClass": "Audio",
+					"sid": 40,
+					"parameters": {
+						"audio-file": "Lazer Fire 1",
+						"loop": "not-looping",
+						"volume": "0",
+						"tag-optional": "\"audio\""
+					}
+				}
+			],
+			"sid": 38
+		},
+		{
+			"eventType": "comment",
+			"text": "Also update the peak and RMS meters. Only update the readings every 100ms to make them easier to read."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 44
+				}
+			],
+			"actions": [
+				{
+					"id": "set-height",
+					"objectClass": "PeakMeter",
+					"sid": 45,
+					"parameters": {
+						"height": "200 + Audio.AnalyserPeakLevel(\"audio\", 0) * 4"
+					}
+				},
+				{
+					"id": "set-height",
+					"objectClass": "RMSMeter",
+					"sid": 49,
+					"parameters": {
+						"height": "200 + Audio.AnalyserRMSLevel(\"audio\", 0) * 4"
+					}
+				},
+				{
+					"id": "set-size",
+					"objectClass": "Sprite",
+					"sid": 54,
+					"parameters": {
+						"width": "150 + Audio.AnalyserRMSLevel(\"audio\", 0) * 2",
+						"height": "150 + Audio.AnalyserRMSLevel(\"audio\", 0) * 2"
+					}
+				}
+			],
+			"sid": 43
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 47,
+					"parameters": {
+						"interval-seconds": "0.1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "PeakReading",
+					"sid": 48,
+					"parameters": {
+						"text": "\"Peak:\" & newline & round(Audio.AnalyserPeakLevel(\"audio\", 0)) & \" dB\""
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "RMSReading",
+					"sid": 51,
+					"parameters": {
+						"text": "\"RMS:\" & newline & round(Audio.AnalyserRMSLevel(\"audio\", 0)) & \" dB\""
+					}
+				}
+			],
+			"sid": 46
+		}
+	],
+	"sid": 548085076769485
+}

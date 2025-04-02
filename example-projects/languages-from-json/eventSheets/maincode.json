@@ -1,0 +1,569 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Which language is currently selected in a zero based index."
+		},
+		{
+			"eventType": "variable",
+			"name": "LanguageIndex",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 690066424237110
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "LoadLanguagesFromJSON",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Start by requesting access to the \"JSONLaguangeData\" file, which contains all languages information needed for the main menu."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 780296300468900
+						}
+					],
+					"actions": [
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 763182118814481,
+							"parameters": {
+								"tag": "\"LanguageData\"",
+								"file": "JSONLanguageData.json"
+							}
+						}
+					],
+					"sid": 328621856573887
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the request is complete, load the information inside an array, which can be quickly accessed at anytime while the game is running."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 193461586685372,
+							"parameters": {
+								"tag": "\"LanguageData\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "LanguageData",
+							"sid": 927100055309028,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"callFunction": "ReloadText",
+							"sid": 666828825613975
+						}
+					],
+					"sid": 266658655647813
+				},
+				{
+					"eventType": "comment",
+					"text": "Every time this function is called, all text objects will be updated with whatever language is selected in the \"LanguageIndex\" variable."
+				},
+				{
+					"functionName": "ReloadText",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 246924367372647,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 342004269698543,
+									"parameters": {
+										"object": "TextFont"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextFont",
+									"sid": 952105713548216,
+									"parameters": {
+										"text": "LanguageData.At(LanguageIndex, Self.TextIndex)"
+									}
+								}
+							],
+							"sid": 816218152061364
+						}
+					]
+				}
+			],
+			"sid": 392441152493550
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Background",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly offset the background image to make the scene a bit more alive and dynamic."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 620144818102274
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Background",
+							"sid": 411040661449449,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + 0.5 * 60 * dt"
+							}
+						}
+					],
+					"sid": 101337361329842
+				}
+			],
+			"sid": 144971859993827
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "SelectLanguage",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Slowly increase the opacity of the flag when the mouse cursor is over it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 524531656397405,
+							"parameters": {
+								"object": "Flag"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 286119218847107,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "Flag",
+									"sid": 284499042089546,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"IncreaseOpacity\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Flag",
+									"sid": 200102271188258,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"IncreaseOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.1",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 698356315449200
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Slowly decrease the opacity of the flag when the mouse cursor is not over it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 429945666456444,
+							"parameters": {
+								"object": "Flag"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 242253829803273,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "Flag",
+									"sid": 334739099867209,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DecreaseOpacity\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Flag",
+									"sid": 180262829854429,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DecreaseOpacity\"",
+										"property": "offsetOpacity",
+										"end-value": "50",
+										"time": "0.1",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 882773428575790
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When a language is selected, move the camera to the menu buttons screen while also reloading all the text present."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 464792141789420,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "Flag"
+							}
+						},
+						{
+							"id": "on-tap-object",
+							"objectClass": "Touch",
+							"sid": 260066464124485,
+							"parameters": {
+								"object": "Flag"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Camera",
+							"sid": 650156339403860,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveCameraRight\"",
+								"property": "offsetX",
+								"end-value": "480",
+								"time": "0.75",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 417368084439916,
+							"parameters": {
+								"variable": "LanguageIndex",
+								"value": "Flag.LanguageIndex"
+							}
+						},
+						{
+							"callFunction": "ReloadText",
+							"sid": 906187331012531
+						}
+					],
+					"sid": 871867618607347,
+					"isOrBlock": true
+				}
+			],
+			"sid": 382371217246300
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "MenuButtons",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How far the \"ButtonShadow\" object will be from the \"Button\" object when the mouse cursor is over it."
+				},
+				{
+					"eventType": "variable",
+					"name": "OffsetDistance",
+					"type": "number",
+					"initialValue": "4",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 471760246247470
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup all buttons by updating their Z order."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Button",
+							"sid": 740825128718562
+						}
+					],
+					"actions": [
+						{
+							"id": "move-to-object",
+							"objectClass": "Button",
+							"sid": 494396611655818,
+							"parameters": {
+								"where": "behind",
+								"object": "TextFont"
+							}
+						},
+						{
+							"id": "move-to-object",
+							"objectClass": "ButtonShadow",
+							"sid": 747448719968721,
+							"parameters": {
+								"where": "behind",
+								"object": "Button"
+							}
+						}
+					],
+					"sid": 130996964254954
+				},
+				{
+					"eventType": "comment",
+					"text": "Slowly increase the distance between the \"Button\" object and the \"ButtonShadow\" object when the mouse cursor is over \"Button\" object."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 751849616160593,
+							"parameters": {
+								"object": "Button"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 846429861269665,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "ButtonShadow",
+									"sid": 281529862801567,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"IncreaseOffset\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-two-properties",
+									"objectClass": "ButtonShadow",
+									"sid": 249585835615115,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"IncreaseOffset\"",
+										"property": "position",
+										"end-x": "Button.X+OffsetDistance",
+										"end-y": "Button.Y+OffsetDistance",
+										"time": "0.1",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 954760264729649
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Slowly decrease the distance between the \"Button\" object and the \"ButtonShadow\" object when the mouse cursor is not over \"Button\" object."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 979824267201463,
+							"parameters": {
+								"object": "Button"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 962616111599273,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "ButtonShadow",
+									"sid": 195073766355649,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DecreaseOffset\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-two-properties",
+									"objectClass": "ButtonShadow",
+									"sid": 327086600453010,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DecreaseOffset\"",
+										"property": "position",
+										"end-x": "Button.X",
+										"end-y": "Button.Y",
+										"time": "0.1",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 945228026461976
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the camera back to the language select screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 397213196539974,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked",
+								"object-clicked": "BackArrow"
+							}
+						},
+						{
+							"id": "on-tap-object",
+							"objectClass": "Touch",
+							"sid": 679496885583300,
+							"parameters": {
+								"object": "BackArrow"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Camera",
+							"sid": 218378412053100,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveCameraLeft\"",
+								"property": "offsetX",
+								"end-value": "160",
+								"time": "0.75",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 978268123883618,
+					"isOrBlock": true
+				}
+			],
+			"sid": 250231733819629
+		}
+	],
+	"sid": 166306815598374
+}

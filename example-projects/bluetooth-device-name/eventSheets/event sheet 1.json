@@ -1,0 +1,227 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Since this demo can connect to multiple devices, track the last device ID that was connected to."
+		},
+		{
+			"eventType": "variable",
+			"name": "lastDeviceId",
+			"type": "string",
+			"initialValue": "",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 372209899922775
+		},
+		{
+			"eventType": "comment",
+			"text": "Indicate if bluetooth is not supported."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 188426581334321
+				},
+				{
+					"id": "is-supported",
+					"objectClass": "Bluetooth",
+					"sid": 610661383836937,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 660990729664918,
+					"parameters": {
+						"text": "\"Bluetooth is not supported on this browser/platform. Try Chrome on Windows 10, macOS or Android 6+.\""
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "RequestDevice",
+					"sid": 469159767360453,
+					"parameters": {
+						"mode": "disabled"
+					}
+				}
+			],
+			"sid": 472625984974584
+		},
+		{
+			"eventType": "comment",
+			"text": "When the 'Request device' button is clicked, request devices with the generic_access service, which provides the device name."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "RequestDevice",
+					"sid": 658290176475789
+				}
+			],
+			"actions": [
+				{
+					"id": "request-device",
+					"objectClass": "Bluetooth",
+					"sid": 952147669190123,
+					"parameters": {
+						"services": "\"\"",
+						"device-name": "\"\"",
+						"device-name-prefix": "\"\"",
+						"optional-services": "\"generic_access\"",
+						"accept-all-devices": "yes"
+					}
+				}
+			],
+			"sid": 500649549761680
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-request-device-failed",
+					"objectClass": "Bluetooth",
+					"sid": 920958880295553
+				}
+			],
+			"actions": [
+				{
+					"id": "append-text",
+					"objectClass": "Text",
+					"sid": 553690581673004,
+					"parameters": {
+						"text": "newline & \"Requesting device failed\""
+					}
+				}
+			],
+			"sid": 971952209406695
+		},
+		{
+			"eventType": "comment",
+			"text": "Once a requested device successfully connects, display a message indicating it connected, then request the gap.device_name characteristic to get its name."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-device-connected",
+					"objectClass": "Bluetooth",
+					"sid": 426117342599325
+				}
+			],
+			"actions": [
+				{
+					"id": "append-text",
+					"objectClass": "Text",
+					"sid": 749322070738775,
+					"parameters": {
+						"text": "newline & \"Device connected! (ID: [i]\" & Bluetooth.DeviceID & \"[/i])\""
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 447737967337755,
+					"parameters": {
+						"variable": "lastDeviceId",
+						"value": "Bluetooth.DeviceID"
+					}
+				},
+				{
+					"id": "read-characteristic-value",
+					"objectClass": "Bluetooth",
+					"sid": 561704455683199,
+					"parameters": {
+						"device-id": "lastDeviceId",
+						"service": "\"generic_access\"",
+						"characteristic": "\"gap.device_name\""
+					}
+				}
+			],
+			"sid": 771642563654011
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the device name has been read, display a message saying what it is."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-characteristic-read",
+					"objectClass": "Bluetooth",
+					"sid": 783664840320930,
+					"parameters": {
+						"characteristic": "\"gap.device_name\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "append-text",
+					"objectClass": "Text",
+					"sid": 286802642298118,
+					"parameters": {
+						"text": "newline & \"Read device [i]\" & lastDeviceId & \"[/i] name: [b]\" & Bluetooth.CharacteristicText & \"[/b]\""
+					}
+				}
+			],
+			"sid": 359060980437096
+		},
+		{
+			"eventType": "comment",
+			"text": "Also display a message if the device goes wrong, or reading the device name fails."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-device-disconnected",
+					"objectClass": "Bluetooth",
+					"sid": 138295986143767
+				}
+			],
+			"actions": [
+				{
+					"id": "append-text",
+					"objectClass": "Text",
+					"sid": 983945014350815,
+					"parameters": {
+						"text": "newline & \"Device disconnected (ID: [i]\" & Bluetooth.DeviceID & \"[/i])\""
+					}
+				}
+			],
+			"sid": 566035123505045
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-characteristic-read-error",
+					"objectClass": "Bluetooth",
+					"sid": 522649814430084
+				}
+			],
+			"actions": [
+				{
+					"id": "append-text",
+					"objectClass": "Text",
+					"sid": 774669039752011,
+					"parameters": {
+						"text": "newline & \"Error reading device name\""
+					}
+				}
+			],
+			"sid": 393179366688541
+		}
+	],
+	"sid": 391525961934366
+}

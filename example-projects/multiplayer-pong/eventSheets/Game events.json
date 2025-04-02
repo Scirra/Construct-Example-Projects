@@ -1,0 +1,1305 @@
+{
+	"name": "Game events",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "GAME_NAME",
+			"type": "string",
+			"initialValue": "scirra-pong",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 2783528050303823
+		},
+		{
+			"eventType": "variable",
+			"name": "INSTANCE_NAME",
+			"type": "string",
+			"initialValue": "default",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 313861102059647
+		},
+		{
+			"eventType": "variable",
+			"name": "ROOM_NAME",
+			"type": "string",
+			"initialValue": "game",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 9805164627532192
+		},
+		{
+			"eventType": "variable",
+			"name": "GameState",
+			"type": "string",
+			"initialValue": "waiting",
+			"comment": "\"waiting\", \"getready\", \"go\" or \"started\"",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 3497618279861636
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Message log",
+			"description": "Functions to manage updating the LogText object as messages are added.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "This is similar to the chat example, but instead of keeping a log in a text box, we keep it in an ordinary Text object so we can see things behind it. However the text object cannot scroll its text, so instead we keep the last 20 messages in an array, and update the text object from that. This is a simple way to have the messages scroll up as more messages are added.\r\n\r\nFirst when adding a log we add the line to the end of an array."
+				},
+				{
+					"functionName": "AddLog",
+					"functionDescription": "Automatically converted from 'AddLog'",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "message",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 619008391010567
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "push",
+							"objectClass": "LogMessages",
+							"sid": 536244271271887,
+							"parameters": {
+								"where": "back",
+								"value": "message",
+								"axis": "x"
+							}
+						}
+					],
+					"sid": 845176812289155,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If we are over 20 messages, delete the first (oldest) message."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-size",
+									"objectClass": "LogMessages",
+									"sid": 257458252515085,
+									"parameters": {
+										"axis": "x",
+										"comparison": 4,
+										"value": "20"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "pop",
+									"objectClass": "LogMessages",
+									"sid": 902458294170691,
+									"parameters": {
+										"where": "front",
+										"axis": "x"
+									}
+								}
+							],
+							"sid": 160260188397102
+						},
+						{
+							"eventType": "comment",
+							"text": "Reset the log text to empty - we will rebuild it completely from the array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "LogText",
+									"sid": 104006189621408,
+									"parameters": {
+										"text": "\"\""
+									}
+								}
+							],
+							"sid": 408897132770982
+						},
+						{
+							"eventType": "comment",
+							"text": "For each element will repeat for each chat log we've added in order, so we can append the message with a line break."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-element",
+									"objectClass": "LogMessages",
+									"sid": 111535917771060,
+									"parameters": {
+										"axes": "x"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "append-text",
+									"objectClass": "LogText",
+									"sid": 155433267693683,
+									"parameters": {
+										"text": "LogMessages.CurValue & newline"
+									}
+								}
+							],
+							"sid": 341680731436719
+						}
+					]
+				}
+			],
+			"sid": 1791290436183513
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Signalling",
+			"description": "Manages connecting to the signalling server and joining the room.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On start of layout, connect to the signalling server. We also set up which client input values the peers will be using, and sync the Peer object with its position and additional instance variables for the look position, current inputs and player stats."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 8545342922442215
+						}
+					],
+					"actions": [
+						{
+							"id": "add-client-input-value",
+							"objectClass": "Multiplayer",
+							"sid": 7636630703004805,
+							"parameters": {
+								"tag": "\"y\"",
+								"precision": "low-int16-2-bytes",
+								"interpolation": "linear"
+							}
+						},
+						{
+							"id": "sync-object",
+							"objectClass": "Multiplayer",
+							"sid": 2351988127461845,
+							"parameters": {
+								"object": "Paddle",
+								"data": "position-only",
+								"precision": "low-int16-2-bytes",
+								"bandwidth": "normal-bandwidth-unpredictable"
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 6184510421650488,
+							"parameters": {
+								"object": "Paddle",
+								"instance-variable": {
+									"name": "points",
+									"objectClass": "Paddle"
+								},
+								"precision": "low-int16-2-bytes",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"id": "sync-object",
+							"objectClass": "Multiplayer",
+							"sid": 9035884092730128,
+							"parameters": {
+								"object": "Ball",
+								"data": "position-only",
+								"precision": "low-int16-2-bytes",
+								"bandwidth": "normal-bandwidth-unpredictable"
+							}
+						},
+						{
+							"id": "connect",
+							"objectClass": "Multiplayer",
+							"sid": 966757883683009,
+							"parameters": {
+								"server": "\"wss://multiplayer.construct.net\""
+							}
+						}
+					],
+					"sid": 4621074164691963
+				},
+				{
+					"eventType": "comment",
+					"text": "When connected, request to log in."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-connected",
+							"objectClass": "Multiplayer",
+							"sid": 633718780657259
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 114364965584067,
+							"parameters": [
+								"\"Connected, logging in...\""
+							]
+						},
+						{
+							"id": "log-in",
+							"objectClass": "Multiplayer",
+							"sid": 5152430702167834,
+							"parameters": {
+								"alias": "MyUsername"
+							}
+						}
+					],
+					"sid": 6173368493187684
+				},
+				{
+					"eventType": "comment",
+					"text": "When logged in, request to join the room. Use auto-join to assign pairs of players in to separate rooms."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-logged-in",
+							"objectClass": "Multiplayer",
+							"sid": 5883027386699968
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 569235121189024,
+							"parameters": [
+								"\"Logged in with alias: \" & Multiplayer.MyAlias & \" (\" & Multiplayer.MyID & \")\" & newline & \"Joining room...\""
+							]
+						},
+						{
+							"id": "auto-join-room",
+							"objectClass": "Multiplayer",
+							"sid": 8803625540397218,
+							"parameters": {
+								"game": "GAME_NAME",
+								"instance": "INSTANCE_NAME",
+								"first-room": "ROOM_NAME",
+								"max-peers": "2",
+								"locking": "lock-when-full"
+							}
+						}
+					],
+					"sid": 7761898484234081
+				},
+				{
+					"eventType": "comment",
+					"text": "We joined the room: activate either the Host or the Peer group."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-joined-room",
+							"objectClass": "Multiplayer",
+							"sid": 9574597696892548
+						}
+					],
+					"actions": [],
+					"sid": 1579184355259559,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "As the host, we also adopt the existing paddle object on the left of the layout as our own. We must set its peer ID to our own ID and tell the Multiplayer object it is associated with ourselves."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-host",
+									"objectClass": "Multiplayer",
+									"sid": 6151152733133221
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "AddLog",
+									"sid": 475985318803332,
+									"parameters": [
+										"\"Joined room as host, waiting for peer...\""
+									]
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 5094248200865487,
+									"parameters": {
+										"group-name": "\"Host\"",
+										"state": "activated"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Paddle",
+									"sid": 7688405092844826,
+									"parameters": {
+										"instance-variable": "peerid",
+										"value": "Multiplayer.MyID"
+									}
+								},
+								{
+									"id": "associate-object-with-peer",
+									"objectClass": "Multiplayer",
+									"sid": 4474902942186349,
+									"parameters": {
+										"object": "Paddle",
+										"peer-id": "Multiplayer.MyID"
+									}
+								}
+							],
+							"sid": 611524856039149
+						},
+						{
+							"eventType": "comment",
+							"text": "When not the host, the paddle object already in the layout is destroyed. 'Sync object' will create both paddles, and they'll be associated with the correct player using the 'On created' trigger in the 'Peer' group. Also since the game is 2-player, it can begin as soon as the peer joins since we know the host is already there, so update the game state to \"getready\"."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 4491209143547917
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "AddLog",
+									"sid": 424553118427777,
+									"parameters": [
+										"\"Joined room as peer\""
+									]
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 3086355252968577,
+									"parameters": {
+										"group-name": "\"Peer\"",
+										"state": "activated"
+									}
+								},
+								{
+									"callFunction": "AddLog",
+									"sid": 166321091619596,
+									"parameters": [
+										"\"Attempting to establish connection to host...\""
+									]
+								},
+								{
+									"id": "destroy",
+									"objectClass": "Paddle",
+									"sid": 9105323197347260
+								},
+								{
+									"id": "destroy",
+									"objectClass": "Ball",
+									"sid": 8235530725836447
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 3072757141383501,
+									"parameters": {
+										"variable": "GameState",
+										"value": "\"getready\""
+									}
+								}
+							],
+							"sid": 8025172574882813
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If we leave, get disconnected or encounter an error, add it to the log."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-disconnected",
+							"objectClass": "Multiplayer",
+							"sid": 7355024061540087
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 663861719686572,
+							"parameters": [
+								"\"Signalling disconnected\""
+							]
+						}
+					],
+					"sid": 3191386697509821
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-error",
+							"objectClass": "Multiplayer",
+							"sid": 7405991194607134
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 269539188529646,
+							"parameters": [
+								"\"Signalling error: \" & Multiplayer.ErrorMessage"
+							]
+						}
+					],
+					"sid": 7454512880658015
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-left-room",
+							"objectClass": "Multiplayer",
+							"sid": 4349773980818516
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 186772197972204,
+							"parameters": [
+								"\"Signalling: left room\""
+							]
+						}
+					],
+					"sid": 833882481570433
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-kicked",
+							"objectClass": "Multiplayer",
+							"sid": 3123559417693109
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 390950170629453,
+							"parameters": [
+								"\"Kicked (either could not connect to host or host quit)\""
+							]
+						}
+					],
+					"sid": 5945267911170749
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the NetStats text object in the bottom left with details like the peer count, inbound and outbound bandwidth, host ping and PDV."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 5568020922559877
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "NetStats",
+							"sid": 3573965697186698,
+							"parameters": {
+								"text": "Multiplayer.StatInboundCount & \" in (\" & (round(Multiplayer.StatInboundBandwidth/100)/10) & \" k) / sec\" & newline & Multiplayer.StatOutboundCount & \" out (\" & (round(Multiplayer.StatOutboundBandwidth/100)/10) & \" k) / sec\" & newline & \"Host ping \" & round(Multiplayer.PeerLatency(Multiplayer.HostID)) & \", PDV \" & round(Multiplayer.PeerPDV(Multiplayer.HostID))"
+							}
+						}
+					],
+					"sid": 6222937938240554
+				}
+			],
+			"sid": 5828038468308097
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game",
+			"description": "Manages the gameplay and synchronisation.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Peer",
+					"description": "Events specific to peers (i.e. non-host users)",
+					"isActiveOnStart": false,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When a Peer is created from 'Sync object', Multiplayer.PeerID has the ID of the peer that the object represents. This must be stored in an instance variable so we can later identify which peer the object represents."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-created",
+									"objectClass": "Paddle",
+									"sid": 128854278609083
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Paddle",
+									"sid": 5022147858615494,
+									"parameters": {
+										"instance-variable": "peerid",
+										"value": "Multiplayer.PeerID"
+									}
+								},
+								{
+									"id": "associate-object-with-peer",
+									"objectClass": "Multiplayer",
+									"sid": 5675541743454471,
+									"parameters": {
+										"object": "Paddle",
+										"peer-id": "Multiplayer.PeerID"
+									}
+								}
+							],
+							"sid": 1051554076065893
+						},
+						{
+							"eventType": "comment",
+							"text": "The peer's only input is where their paddle is, which is always the mouse Y co-ordinate. So just send our mouse position as the Y input."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-client-update",
+									"objectClass": "Multiplayer",
+									"sid": 3792084110379575
+								}
+							],
+							"actions": [
+								{
+									"id": "set-client-state",
+									"objectClass": "Multiplayer",
+									"sid": 1498586099997287,
+									"parameters": {
+										"tag": "\"y\"",
+										"value": "Mouse.Y(\"Game\")"
+									}
+								}
+							],
+							"sid": 2007320409318159
+						},
+						{
+							"eventType": "comment",
+							"text": "If the host indicates that the game state has changed, update the GameState global variable. The 'Common' group changes the display when this changes."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-peer-message",
+									"objectClass": "Multiplayer",
+									"sid": 5112850211255173,
+									"parameters": {
+										"tag": "\"gamestate-changed\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 228336959095656,
+									"parameters": {
+										"variable": "GameState",
+										"value": "Multiplayer.Message"
+									}
+								}
+							],
+							"sid": 8085045636054926
+						}
+					],
+					"sid": 3251139189519888
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Host",
+					"description": "Events specific to the host.",
+					"isActiveOnStart": false,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "As the host, when a peer joins we create a new paddle for them on the right. 'Sync object' will cause it to be created for the peer too. We also begin the game: we set the state to \"getready\" for 3 seconds, then upon \"go\" we set the ball moving and 1 second later set the state to \"started\" (so the score appears instead of \"GO!\")."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-peer-connected",
+									"objectClass": "Multiplayer",
+									"sid": 5278329796908354
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 71668082977051,
+									"parameters": {
+										"object-to-create": "Paddle",
+										"layer": "\"Game\"",
+										"x": "LayoutWidth - 38",
+										"y": "LayoutHeight / 2",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Paddle",
+									"sid": 3882820210993065,
+									"parameters": {
+										"instance-variable": "peerid",
+										"value": "Multiplayer.PeerID"
+									}
+								},
+								{
+									"id": "associate-object-with-peer",
+									"objectClass": "Multiplayer",
+									"sid": 5439525522788724,
+									"parameters": {
+										"object": "Paddle",
+										"peer-id": "Multiplayer.PeerID"
+									}
+								},
+								{
+									"callFunction": "SetGameState",
+									"sid": 849312776312460,
+									"parameters": [
+										"\"getready\""
+									]
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 5401589863544145,
+									"parameters": {
+										"seconds": "3"
+									}
+								},
+								{
+									"callFunction": "SetGameState",
+									"sid": 743489332408971,
+									"parameters": [
+										"\"go\""
+									]
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "Ball",
+									"sid": 9144919781367504,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"state": "enabled"
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "Ball",
+									"sid": 1263264710828137,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 3515869543774811,
+									"parameters": {
+										"seconds": "1"
+									}
+								},
+								{
+									"callFunction": "SetGameState",
+									"sid": 785649609336699,
+									"parameters": [
+										"\"started\""
+									]
+								}
+							],
+							"sid": 3431678512597868
+						},
+						{
+							"eventType": "comment",
+							"text": "This function updates the game state and also sends the new state to the peer so they see what the host sees."
+						},
+						{
+							"functionName": "SetGameState",
+							"functionDescription": "Automatically converted from 'SetGameState'",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "state",
+									"type": "string",
+									"initialValue": "",
+									"comment": "",
+									"sid": 132499478023976
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 397274548851410,
+									"parameters": {
+										"variable": "GameState",
+										"value": "state"
+									}
+								},
+								{
+									"id": "broadcast-message",
+									"objectClass": "Multiplayer",
+									"sid": 533082682622890,
+									"parameters": {
+										"from-id": "\"\"",
+										"tag": "\"gamestate-changed\"",
+										"message": "GameState",
+										"mode": "reliable-ordered"
+									}
+								}
+							],
+							"sid": 374841639612826
+						},
+						{
+							"eventType": "comment",
+							"text": "There is only one other peer in the game, and we keep them positioned at the peer's \"y\" input, which is the Y position of their mouse."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Paddle",
+									"sid": 4856916247078836,
+									"parameters": {
+										"instance-variable": "peerid",
+										"comparison": 1,
+										"value": "Multiplayer.MyID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-y",
+									"objectClass": "Paddle",
+									"sid": 9648398059570602,
+									"parameters": {
+										"y": "Multiplayer.PeerState(Paddle.peerid, \"y\")"
+									}
+								}
+							],
+							"sid": 4570279322295458
+						},
+						{
+							"eventType": "comment",
+							"text": "Every time the ball bounces, increase its speed a little."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "Ball",
+									"sid": 2001806660139492,
+									"parameters": {
+										"object": "Paddle"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-speed",
+									"objectClass": "Ball",
+									"sid": 8255797946942359,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"speed": "Ball.Bullet.Speed + 30"
+									}
+								}
+							],
+							"sid": 976556906738424
+						},
+						{
+							"eventType": "comment",
+							"text": "If the ball goes off the left of the screen, add one to the points for the rival (the non-host player) and reset the ball after 2 seconds."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-x",
+									"objectClass": "Ball",
+									"sid": 1539075819066631,
+									"parameters": {
+										"comparison": 2,
+										"x-co-ordinate": "0"
+									}
+								},
+								{
+									"id": "trigger-once-while-true",
+									"objectClass": "System",
+									"sid": 948836149387587
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Paddle",
+									"sid": 5941384265439786,
+									"parameters": {
+										"instance-variable": "peerid",
+										"comparison": 1,
+										"value": "Multiplayer.HostID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Paddle",
+									"sid": 3343552742104934,
+									"parameters": {
+										"instance-variable": "points",
+										"value": "1"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 16729121141262,
+									"parameters": {
+										"seconds": "2"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "Ball",
+									"sid": 7876891170458021,
+									"parameters": {
+										"x": "LayoutWidth / 2",
+										"y": "LayoutHeight / 2"
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "Ball",
+									"sid": 7897953363421803,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "Ball",
+									"sid": 6972683760382006,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"speed": "300"
+									}
+								}
+							],
+							"sid": 8214790798736758
+						},
+						{
+							"eventType": "comment",
+							"text": "If the ball goes off the right of the screen, add one to the points of the host and reset the ball after 2 seconds."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-x",
+									"objectClass": "Ball",
+									"sid": 2473744716493834,
+									"parameters": {
+										"comparison": 4,
+										"x-co-ordinate": "LayoutWidth"
+									}
+								},
+								{
+									"id": "trigger-once-while-true",
+									"objectClass": "System",
+									"sid": 3592675170481432
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Paddle",
+									"sid": 9103998714241692,
+									"parameters": {
+										"instance-variable": "peerid",
+										"comparison": 0,
+										"value": "Multiplayer.HostID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Paddle",
+									"sid": 2467645149496059,
+									"parameters": {
+										"instance-variable": "points",
+										"value": "1"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 2124002499279481,
+									"parameters": {
+										"seconds": "2"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "Ball",
+									"sid": 59328913074039,
+									"parameters": {
+										"x": "LayoutWidth / 2",
+										"y": "LayoutHeight / 2"
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "Ball",
+									"sid": 7802321595637116,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "random(360)"
+									}
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "Ball",
+									"sid": 3599903141407386,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"speed": "300"
+									}
+								}
+							],
+							"sid": 3532692207809401
+						}
+					],
+					"sid": 5993157518437331
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Common",
+					"description": "Events that are common to both the host and peers.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Whenever a peer joins or leaves, log the event so the user can see what happened."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-peer-connected",
+									"objectClass": "Multiplayer",
+									"sid": 8555101434504378
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "AddLog",
+									"sid": 317449255190204,
+									"parameters": [
+										"\"'\" & Multiplayer.PeerAlias & \"' joined\""
+									]
+								}
+							],
+							"sid": 4933736723213277
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-peer-disconnected",
+									"objectClass": "Multiplayer",
+									"sid": 8841003295953043
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "AddLog",
+									"sid": 661153670564534,
+									"parameters": [
+										"\"'\" & Multiplayer.PeerAlias & \"' left\""
+									]
+								}
+							],
+							"sid": 6299574777196556
+						},
+						{
+							"eventType": "comment",
+							"text": "Regardless of whether we are host or peer, we want our own paddle to position to the mouse."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Paddle",
+									"sid": 6037413767085703,
+									"parameters": {
+										"instance-variable": "peerid",
+										"comparison": 0,
+										"value": "Multiplayer.MyID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-y",
+									"objectClass": "Paddle",
+									"sid": 1801887774823927,
+									"parameters": {
+										"y": "Mouse.Y(\"Game\")"
+									}
+								}
+							],
+							"sid": 2538876316377638
+						},
+						{
+							"eventType": "comment",
+							"text": "Syncing objects does not necessarily put objects on the right layer, since the layer information is not synced. So always ensure game objects are on the game layer."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 4628645942487063
+								}
+							],
+							"actions": [
+								{
+									"id": "move-to-layer",
+									"objectClass": "Paddle",
+									"sid": 7434418277838572,
+									"parameters": {
+										"layer": "\"Game\""
+									}
+								},
+								{
+									"id": "move-to-layer",
+									"objectClass": "Ball",
+									"sid": 8963738103372956,
+									"parameters": {
+										"layer": "\"Game\""
+									}
+								}
+							],
+							"sid": 5649120662471453
+						},
+						{
+							"eventType": "comment",
+							"text": "Update the score display text depending on the game state."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 7493184287491467,
+									"parameters": {
+										"variable": "GameState",
+										"comparison": 0,
+										"value": "\"getready\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "ScoreDisplay",
+									"sid": 7071613643466203,
+									"parameters": {
+										"text": "\"Get ready...\""
+									}
+								}
+							],
+							"sid": 5654651542316563
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 4607931974681779,
+									"parameters": {
+										"variable": "GameState",
+										"comparison": 0,
+										"value": "\"go\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "ScoreDisplay",
+									"sid": 1015898186500768,
+									"parameters": {
+										"text": "\"GO!\""
+									}
+								}
+							],
+							"sid": 2596735365493907
+						},
+						{
+							"eventType": "comment",
+							"text": "When \"started\", display the score: host on left and peer on right."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 2790818214299881,
+									"parameters": {
+										"variable": "GameState",
+										"comparison": 0,
+										"value": "\"started\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "ScoreDisplay",
+									"sid": 5238071338692494,
+									"parameters": {
+										"text": "\"\""
+									}
+								}
+							],
+							"sid": 3728775312120144,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Paddle",
+											"sid": 1540985070825532,
+											"parameters": {
+												"instance-variable": "peerid",
+												"comparison": 0,
+												"value": "Multiplayer.HostID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "append-text",
+											"objectClass": "ScoreDisplay",
+											"sid": 7964661074155851,
+											"parameters": {
+												"text": "Multiplayer.HostAlias & \" \" & Paddle.points & \" - \""
+											}
+										}
+									],
+									"sid": 2401490947748528
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Paddle",
+											"sid": 964446949088725,
+											"parameters": {
+												"instance-variable": "peerid",
+												"comparison": 0,
+												"value": "Multiplayer.HostID"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "append-text",
+											"objectClass": "ScoreDisplay",
+											"sid": 4447902950072001,
+											"parameters": {
+												"text": "Paddle.points & \" \" & Multiplayer.PeerAliasFromID(Paddle.peerid)"
+											}
+										}
+									],
+									"sid": 9976591003827068
+								}
+							]
+						}
+					],
+					"sid": 5870562097836775
+				}
+			],
+			"sid": 8255319576193919
+		}
+	],
+	"sid": 510138085640180
+}

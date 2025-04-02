@@ -1,0 +1,377 @@
+{
+	"name": "ButtonReading",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "These IDs are from the following documentation: https://lancaster-university.github.io/microbit-docs/resources/bluetooth/bluetooth_profile.html"
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for the overall button service."
+		},
+		{
+			"eventType": "variable",
+			"name": "ButtonServiceUUID",
+			"type": "string",
+			"initialValue": "e95d9882-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 895198537285919
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for receiving the input state of button A."
+		},
+		{
+			"eventType": "variable",
+			"name": "ButtonADataUUID",
+			"type": "string",
+			"initialValue": "e95dda90-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 352840065998607
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for receiving the input state of button B."
+		},
+		{
+			"eventType": "variable",
+			"name": "ButtonBDataUUID",
+			"type": "string",
+			"initialValue": "e95dda91-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 627963059920430
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Button readings",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Upon connecting to a device, start notifications for both button A and button B in the button service."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-device-connected",
+							"objectClass": "Bluetooth",
+							"sid": 931369767531098
+						}
+					],
+					"actions": [
+						{
+							"id": "start-stop-characteristic-notifications",
+							"objectClass": "Bluetooth",
+							"sid": 462022553474109,
+							"parameters": {
+								"device-id": "Bluetooth.DeviceID",
+								"service": "ButtonServiceUUID",
+								"characteristic": "ButtonADataUUID",
+								"notifications": "start"
+							}
+						},
+						{
+							"id": "start-stop-characteristic-notifications",
+							"objectClass": "Bluetooth",
+							"sid": 407525583781277,
+							"parameters": {
+								"device-id": "Bluetooth.DeviceID",
+								"service": "ButtonServiceUUID",
+								"characteristic": "ButtonBDataUUID",
+								"notifications": "start"
+							}
+						}
+					],
+					"sid": 204677721222398
+				},
+				{
+					"eventType": "comment",
+					"text": "When receiving data about either button, the documentation states a single byte is received, which is set to 0 for not pressed, 1 for pressed, and 2 for long pressed. To make it easier to handle input logic, call a function to handle each kind of button press."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-characteristic-notification",
+							"objectClass": "Bluetooth",
+							"sid": 931182487454042,
+							"parameters": {
+								"characteristic": "ButtonADataUUID",
+								"binary-data": "BinaryData"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 487345152734089,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-value",
+									"objectClass": "BinaryData",
+									"sid": 551361971040886,
+									"parameters": {
+										"type": "uint8",
+										"offset": "0",
+										"cmp": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "OnButtonAPress",
+									"sid": 907101836837222
+								}
+							],
+							"sid": 116078814405333
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-value",
+									"objectClass": "BinaryData",
+									"sid": 769554578329887,
+									"parameters": {
+										"type": "uint8",
+										"offset": "0",
+										"cmp": 0,
+										"value": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "OnButtonALongPress",
+									"sid": 797992711172943
+								}
+							],
+							"sid": 136770012155317
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-characteristic-notification",
+							"objectClass": "Bluetooth",
+							"sid": 833534372147007,
+							"parameters": {
+								"characteristic": "ButtonBDataUUID",
+								"binary-data": "BinaryData"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 240177621580367,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-value",
+									"objectClass": "BinaryData",
+									"sid": 409491976492923,
+									"parameters": {
+										"type": "uint8",
+										"offset": "0",
+										"cmp": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "OnButtonBPress",
+									"sid": 553073697399160
+								}
+							],
+							"sid": 127266772271883
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-value",
+									"objectClass": "BinaryData",
+									"sid": 305496510467419,
+									"parameters": {
+										"type": "uint8",
+										"offset": "0",
+										"cmp": 0,
+										"value": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "OnButtonBLongPress",
+									"sid": 614577390708463
+								}
+							],
+							"sid": 150312981509125
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "These functions are called when each button is pressed or long-pressed on the micro:bit. To show feedback from the button being pressed, create a Text object that moves up the screen (done by calling another function)."
+				},
+				{
+					"functionName": "OnButtonAPress",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "ShowButtonPressMessage",
+							"sid": 352903439253608,
+							"parameters": [
+								"\"Button A pressed\""
+							]
+						}
+					],
+					"sid": 265675599693162
+				},
+				{
+					"functionName": "OnButtonALongPress",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "ShowButtonPressMessage",
+							"sid": 201930912563013,
+							"parameters": [
+								"\"Button A long pressed\""
+							]
+						}
+					],
+					"sid": 415670508847754
+				},
+				{
+					"functionName": "OnButtonBPress",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "ShowButtonPressMessage",
+							"sid": 764862253949275,
+							"parameters": [
+								"\"Button B pressed\""
+							]
+						}
+					],
+					"sid": 778771617990773
+				},
+				{
+					"functionName": "OnButtonBLongPress",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "ShowButtonPressMessage",
+							"sid": 741386174121885,
+							"parameters": [
+								"\"Button B long pressed\""
+							]
+						}
+					],
+					"sid": 822340688194235
+				},
+				{
+					"eventType": "comment",
+					"text": "To show feedback when a button has been pressed, create a ButtonPressMessage text object with the message, and make it move upwards with the Bullet behavior. It also has the Fade behavior so it will fade out after a couple of seconds."
+				},
+				{
+					"functionName": "ShowButtonPressMessage",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Message",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 496004905578248
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 316637281983458,
+							"parameters": {
+								"object-to-create": "ButtonPressMessage",
+								"layer": "0",
+								"x": "7",
+								"y": "385",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "ButtonPressMessage",
+							"sid": 213728927315018,
+							"parameters": {
+								"text": "Message"
+							}
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "ButtonPressMessage",
+							"sid": 162567265182621,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "270"
+							}
+						}
+					],
+					"sid": 793196598548831
+				}
+			],
+			"sid": 332018247574065
+		}
+	],
+	"sid": 982188846419615
+}

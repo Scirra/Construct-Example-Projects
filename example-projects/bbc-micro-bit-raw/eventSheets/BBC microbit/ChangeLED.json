@@ -1,0 +1,197 @@
+{
+	"name": "ChangeLED",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "These IDs are from the following documentation: https://lancaster-university.github.io/microbit-docs/resources/bluetooth/bluetooth_profile.html"
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for the overall LED service."
+		},
+		{
+			"eventType": "variable",
+			"name": "LEDServiceUUID",
+			"type": "string",
+			"initialValue": "e95dd91d-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 550960878939605
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for setting the LED matrix state (i.e. updating all the LEDs in one go)."
+		},
+		{
+			"eventType": "variable",
+			"name": "LEDMatrixStateUUID",
+			"type": "string",
+			"initialValue": "e95d7b77-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 455815209740011
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for setting some text to scroll through the LED display."
+		},
+		{
+			"eventType": "variable",
+			"name": "LEDTextUUID",
+			"type": "string",
+			"initialValue": "e95d93ee-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 265253464295480
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Change LED",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When clicking the 'Update LED' button, the state of all the LEDPixel sprites needs to be put in to a Binary Data object. The documentation for the LED matrix state indicates the data for the LED state must be provided as 5 bytes - one byte for each row. Within each byte, up to 5 bits are set for each LED on that row, with a 0 meaning off and a 1 meaning on. Start by setting the Binary Data object to 5 bytes, and clearing it with zeroes, meaning all LEDs are off."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "UpdateLEDButton",
+							"sid": 171979314568830
+						}
+					],
+					"actions": [
+						{
+							"id": "set-length",
+							"objectClass": "BinaryData",
+							"sid": 285746812560272,
+							"parameters": {
+								"length": "5"
+							}
+						},
+						{
+							"id": "fill",
+							"objectClass": "BinaryData",
+							"sid": 902157056906338,
+							"parameters": {
+								"type": "uint8",
+								"value": "0",
+								"offset": "0",
+								"length": "-1"
+							}
+						}
+					],
+					"sid": 144959153172609,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Now for each LEDPixel sprite, set a bit to 1 if it is on, which is the case when its animation frame is 1 (the red frame). Each LEDPixel sprite has two instance variables 'Row' and 'Col' indicating its position. The row corresponds to the byte to change, and the column corresponds to the bit to set. Note however that the leftmost column has a 'Col' of 0, but in this case bit 4 must be set in the data sent over bluetooth, so the pattern is essentially mirrored by using 4 - LEDPixel.Col."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 274095629032476,
+									"parameters": {
+										"object": "LEDPixel"
+									}
+								},
+								{
+									"id": "compare-animation-frame",
+									"objectClass": "LEDPixel",
+									"sid": 482865797734388,
+									"parameters": {
+										"comparison": 0,
+										"number": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-value",
+									"objectClass": "BinaryData",
+									"sid": 851188289619011,
+									"parameters": {
+										"type": "uint8",
+										"value": "setbit(BinaryData.GetUint8(LEDPixel.Row), 4 - LEDPixel.Col, 1)",
+										"offset": "LEDPixel.Row"
+									}
+								}
+							],
+							"sid": 884444108883149
+						},
+						{
+							"eventType": "comment",
+							"text": "Now the Binary Data object has 5 bytes of data reflecting the LED pattern to display. This can now be written to the LED matrix state characteristic over bluetooth."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "write-characteristic-binary",
+									"objectClass": "Bluetooth",
+									"sid": 278134905502786,
+									"parameters": {
+										"device-id": "Bluetooth.DeviceID",
+										"service": "LEDServiceUUID",
+										"characteristic": "LEDMatrixStateUUID",
+										"binary-data": "BinaryData"
+									}
+								}
+							],
+							"sid": 430680179441465
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When clicking the button to show text on the LED screen, set the Binary Data object to store the entered text, and then write it to the LED text characteristic over bluetooth."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "SetTextButton",
+							"sid": 567388208763020
+						}
+					],
+					"actions": [
+						{
+							"id": "set-from-text",
+							"objectClass": "BinaryData",
+							"sid": 571656397752244,
+							"parameters": {
+								"value": "TextInput.Text"
+							}
+						},
+						{
+							"id": "write-characteristic-binary",
+							"objectClass": "Bluetooth",
+							"sid": 163151479270933,
+							"parameters": {
+								"device-id": "Bluetooth.DeviceID",
+								"service": "LEDServiceUUID",
+								"characteristic": "LEDTextUUID",
+								"binary-data": "BinaryData"
+							}
+						}
+					],
+					"sid": 432678756895641
+				}
+			],
+			"sid": 257120732958679
+		}
+	],
+	"sid": 418948799135367
+}

@@ -1,0 +1,278 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "This message is shown if WebGL is not supported."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "effects-are-supported",
+					"objectClass": "System",
+					"sid": 222383595776593,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 873420127954372,
+					"parameters": {
+						"text": "\"Effects are not supported!  Try Chrome or Firefox and check graphics drivers are up to date.\""
+					}
+				},
+				{
+					"id": "set-font-color",
+					"objectClass": "Text",
+					"sid": 834232803860676,
+					"parameters": {
+						"color": "rgb(255, 0, 0)"
+					}
+				}
+			],
+			"sid": 864983439118508
+		},
+		{
+			"eventType": "comment",
+			"text": "Disable the layout effect on startup so it does not consume resources while the transition is not running."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 449531426310244
+				}
+			],
+			"actions": [
+				{
+					"id": "set-layout-effect-enabled",
+					"objectClass": "System",
+					"sid": 741041169840048,
+					"parameters": {
+						"mode": "disable",
+						"effect": "\"WarpRipple\""
+					}
+				}
+			],
+			"sid": 132548778663825
+		},
+		{
+			"eventType": "comment",
+			"text": "Start the transition when any key pressed."
+		},
+		{
+			"eventType": "variable",
+			"name": "startTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Time at which to start the transition effect.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 506421237588863
+		},
+		{
+			"eventType": "variable",
+			"name": "duration",
+			"type": "number",
+			"initialValue": "4",
+			"comment": "Length, in seconds, of the transition.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 646157599776580
+		},
+		{
+			"eventType": "variable",
+			"name": "isTransitionRunning",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "1 if the transition is running.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 473879342953832
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-start",
+					"objectClass": "Touch",
+					"sid": 534672509897277
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 395347655519146,
+					"parameters": {
+						"variable": "isTransitionRunning",
+						"comparison": 0,
+						"value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 509591768669820,
+					"parameters": {
+						"variable": "startTime",
+						"value": "time"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 350677309535357,
+					"parameters": {
+						"variable": "isTransitionRunning",
+						"value": "1"
+					}
+				},
+				{
+					"id": "set-layout-effect-enabled",
+					"objectClass": "System",
+					"sid": 814715883490520,
+					"parameters": {
+						"mode": "enable",
+						"effect": "\"WarpRipple\""
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 621201197664545,
+					"parameters": {
+						"text": "\"Transition running!\""
+					}
+				}
+			],
+			"sid": 767590968136557
+		},
+		{
+			"eventType": "comment",
+			"text": "Adjust the WarpRipple effect amplitude during the transition.  Handle the first half of the duration separately (fade in, then fade out)."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 308448090093007,
+					"parameters": {
+						"variable": "isTransitionRunning",
+						"comparison": 0,
+						"value": "1"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 853900181238038,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-time",
+							"objectClass": "System",
+							"sid": 771067571940249,
+							"parameters": {
+								"comparison": 2,
+								"time-seconds": "startTime + duration / 2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-effect-parameter",
+							"objectClass": "System",
+							"sid": 577864613734370,
+							"parameters": {
+								"effect": "\"WarpRipple\"",
+								"parameter-index": "1",
+								"value": "((time - startTime) / duration / 2) * 20"
+							}
+						}
+					],
+					"sid": 331765883875721
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 337921254903213
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-effect-parameter",
+							"objectClass": "System",
+							"sid": 411376592749569,
+							"parameters": {
+								"effect": "\"WarpRipple\"",
+								"parameter-index": "1",
+								"value": "((startTime + duration - time) / duration / 2) * 20"
+							}
+						}
+					],
+					"sid": 288489087882166
+				},
+				{
+					"eventType": "comment",
+					"text": "When the transition is finished, disable the effect again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-time",
+							"objectClass": "System",
+							"sid": 439849183800785,
+							"parameters": {
+								"comparison": 4,
+								"time-seconds": "startTime + duration"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 290477052057955,
+							"parameters": {
+								"variable": "isTransitionRunning",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-layout-effect-enabled",
+							"objectClass": "System",
+							"sid": 890740606791333,
+							"parameters": {
+								"mode": "disable",
+								"effect": "\"WarpRipple\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "Text",
+							"sid": 719372074104934,
+							"parameters": {
+								"text": "\"Transition finished. Press to run again.\""
+							}
+						}
+					],
+					"sid": 311081503177385
+				}
+			]
+		}
+	],
+	"sid": 548653331509828
+}

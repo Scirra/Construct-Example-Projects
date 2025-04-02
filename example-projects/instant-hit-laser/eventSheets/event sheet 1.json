@@ -1,0 +1,367 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Always make the player look at the mouse. The laser is also always positioned at the end of the player's gun, so it's already in the right place if it's made visible."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 921163780397001
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "Player",
+					"sid": 349847543439531,
+					"parameters": {
+						"x": "Mouse.X",
+						"y": "Mouse.Y"
+					}
+				},
+				{
+					"id": "set-opacity",
+					"objectClass": "Laser",
+					"sid": 664589125774112,
+					"parameters": {
+						"opacity": "random(30, 100)"
+					}
+				},
+				{
+					"id": "set-position-to-another-object",
+					"objectClass": "Laser",
+					"sid": 262400170337721,
+					"parameters": {
+						"object": "Player",
+						"image-point-optional": "1"
+					}
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "Laser",
+					"sid": 816000297740561,
+					"parameters": {
+						"angle": "Player.Angle"
+					}
+				}
+			],
+			"sid": 326734605741773
+		},
+		{
+			"eventType": "comment",
+			"text": "When the player first fires a laser, play a sound, and shortly afterwards start a looping sound to represent the continuous firing of the laser."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-click",
+					"objectClass": "Mouse",
+					"sid": 234424205299036,
+					"parameters": {
+						"mouse-button": "left",
+						"click-type": "clicked"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "play",
+					"objectClass": "Audio",
+					"sid": 488658268443976,
+					"parameters": {
+						"audio-file": "SFX6",
+						"loop": "not-looping",
+						"volume": "0",
+						"tag-optional": "\"laser-start\""
+					}
+				},
+				{
+					"id": "wait",
+					"objectClass": "System",
+					"sid": 887238963798453,
+					"parameters": {
+						"seconds": "0.11"
+					}
+				},
+				{
+					"id": "play",
+					"objectClass": "Audio",
+					"sid": 871602243146552,
+					"parameters": {
+						"audio-file": "LaserLoop2",
+						"loop": "looping",
+						"volume": "-5",
+						"tag-optional": "\"laser-loop\""
+					}
+				}
+			],
+			"sid": 265440024584071
+		},
+		{
+			"eventType": "comment",
+			"text": "To determine where the laser ends, when the left mouse button is held down the player uses its Line of Sight behavior to cast a ray to a position 2000 pixels in front of the player. This is far enough to guarantee that the position will be outside the layout. If the ray intersects anything, the hit position is used as the end point of the laser."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "mouse-button-is-down",
+					"objectClass": "Mouse",
+					"sid": 815743534779466,
+					"parameters": {
+						"mouse-button": "left"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "Laser",
+					"sid": 938337135024132,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 162650903042479,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Set the start point to the player's first image point (at the end of the gun) and the end point to 2000 pixels ahead, and cast a ray."
+				},
+				{
+					"eventType": "variable",
+					"name": "startX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 627364724437743
+				},
+				{
+					"eventType": "variable",
+					"name": "startY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 826333395221337
+				},
+				{
+					"eventType": "variable",
+					"name": "targetX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 332872696718336
+				},
+				{
+					"eventType": "variable",
+					"name": "targetY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 597798680134043
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 552783316642808,
+							"parameters": {
+								"variable": "startX",
+								"value": "Player.ImagePointX(1)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 744060917377541,
+							"parameters": {
+								"variable": "startY",
+								"value": "Player.ImagePointY(1)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 611561025254165,
+							"parameters": {
+								"variable": "targetX",
+								"value": "startX + cos(Player.Angle) * 2000"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 874227002394373,
+							"parameters": {
+								"variable": "targetY",
+								"value": "startY + sin(Player.Angle) * 2000"
+							}
+						},
+						{
+							"id": "cast-ray",
+							"objectClass": "Player",
+							"sid": 300695708168980,
+							"behaviorType": "LineOfSight",
+							"parameters": {
+								"from-x": "startX",
+								"from-y": "startY",
+								"to-x": "targetX",
+								"to-y": "targetY",
+								"use-collision-cells": true
+							}
+						}
+					],
+					"sid": 396678031752089
+				},
+				{
+					"eventType": "comment",
+					"text": "If the ray intersected an obstacle, update the target position to the hit position, and create explosions at the hit position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "ray-intersected",
+							"objectClass": "Player",
+							"sid": 119403178230619,
+							"behaviorType": "LineOfSight"
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 146650491644096,
+							"parameters": {
+								"variable": "targetX",
+								"value": "Player.LineOfSight.HitX"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 967185048565904,
+							"parameters": {
+								"variable": "targetY",
+								"value": "Player.LineOfSight.HitY"
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 586036305930279,
+							"parameters": {
+								"object-to-create": "Explosion",
+								"layer": "0",
+								"x": "targetX + random(-5, 5)",
+								"y": "targetY + random(-5, 5)"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Explosion",
+							"sid": 993076941356558,
+							"parameters": {
+								"angle": "random(360)"
+							}
+						}
+					],
+					"sid": 161026718018459
+				},
+				{
+					"eventType": "comment",
+					"text": "Resize the laser to reach the target position. This is either the hit position, or the original target position 2000 pixels in front of the player if it didn't hit anything."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-width",
+							"objectClass": "Laser",
+							"sid": 357776660788140,
+							"parameters": {
+								"width": "distance(startX, startY, targetX, targetY)"
+							}
+						}
+					],
+					"sid": 950619469963346
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player is not firing the laser, hide the laser and stop the looping sound."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 939124403863061
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "Laser",
+					"sid": 745182460144565,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				},
+				{
+					"id": "stop",
+					"objectClass": "Audio",
+					"sid": 208133827918513,
+					"parameters": {
+						"tag": "\"laser-loop\""
+					}
+				}
+			],
+			"sid": 438905866413477
+		},
+		{
+			"eventType": "comment",
+			"text": "Remove explosion sprites when their animation finishes."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-animation-finished",
+					"objectClass": "Explosion",
+					"sid": 171616612219000
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Explosion",
+					"sid": 491930622392864
+				}
+			],
+			"sid": 615414016522358
+		}
+	],
+	"sid": 108276198834700
+}

@@ -1,0 +1,1492 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How long the character takes to reach the highest point during a jump."
+		},
+		{
+			"eventType": "variable",
+			"name": "JUMPDURATION",
+			"type": "number",
+			"initialValue": "0.35",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 461671557807629
+		},
+		{
+			"eventType": "comment",
+			"text": "How high the character is able to jump."
+		},
+		{
+			"eventType": "variable",
+			"name": "JUMPHEIGHT",
+			"type": "number",
+			"initialValue": "32",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 895073577407098
+		},
+		{
+			"eventType": "comment",
+			"text": "How far into space the character will fall during a game over (uses both \"JUMPDURATION\" and \"JUMPHEIGHT\" as reference)."
+		},
+		{
+			"eventType": "variable",
+			"name": "DEATHMULTIPLIER",
+			"type": "number",
+			"initialValue": "4",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 326228288437697
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the player by adding its graphics to the collider as a child."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "PlayerGraphics",
+							"sid": 811687519582370
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "PlayerGraphics",
+							"sid": 694183595187628,
+							"parameters": {
+								"object": "PlayerCollision",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerCollision",
+							"sid": 654846128367461,
+							"parameters": {
+								"child": "PlayerGraphics",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": true,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 473762125015226
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the player by adding its shadow to the collider as a child."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "PlayerShadow",
+							"sid": 516717673063910
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "PlayerShadow",
+							"sid": 942238056913969,
+							"parameters": {
+								"object": "PlayerCollision",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerCollision",
+							"sid": 315959302071194,
+							"parameters": {
+								"child": "PlayerShadow",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": false
+							}
+						}
+					],
+					"sid": 123770098511035
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the jet glow by moving it to a higher layer (\"effects\")."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "JetGlow",
+							"sid": 970229769655104
+						}
+					],
+					"actions": [
+						{
+							"id": "move-to-layer",
+							"objectClass": "JetGlow",
+							"sid": 813820199534173,
+							"parameters": {
+								"layer": "\"Effects\""
+							}
+						}
+					],
+					"sid": 296946348157595
+				}
+			],
+			"sid": 639350675100619
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Animations",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Interpolate the player angle to match the directions it's moving towards."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-moving",
+							"objectClass": "PlayerCollision",
+							"sid": 404369448289606,
+							"behaviorType": "8Direction"
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle",
+							"objectClass": "PlayerGraphics",
+							"sid": 577241158735196,
+							"parameters": {
+								"angle": "anglelerp(Self.Angle, PlayerCollision.8Direction.MovingAngle, 0.25 * 60 * dt)"
+							}
+						}
+					],
+					"sid": 614027070943665
+				},
+				{
+					"eventType": "comment",
+					"text": "Change the player animation depending on the actions it's performing."
+				},
+				{
+					"eventType": "comment",
+					"text": "Jump animation while in the air."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCollision",
+							"sid": 447738923019901,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Jump\""
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCollision",
+							"sid": 292435383425008,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerGraphics",
+							"sid": 857356183269950,
+							"parameters": {
+								"animation": "\"Jump\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 481003407564635,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Fall animation while moving towards the stars."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 848512256892286
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCollision",
+							"sid": 346604763166521,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Death\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerGraphics",
+							"sid": 577552440776869,
+							"parameters": {
+								"animation": "\"Fall\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 622548892853294
+				},
+				{
+					"eventType": "comment",
+					"text": "Walking animation while moving on ground."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 914844599801355
+						},
+						{
+							"id": "is-moving",
+							"objectClass": "PlayerCollision",
+							"sid": 128064246596942,
+							"behaviorType": "8Direction"
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerGraphics",
+							"sid": 887078293344863,
+							"parameters": {
+								"animation": "\"Walk\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 255653693161091
+				},
+				{
+					"eventType": "comment",
+					"text": "Idle animation while standing on ground."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 308776567266294
+						},
+						{
+							"id": "is-moving",
+							"objectClass": "PlayerCollision",
+							"sid": 290445780027641,
+							"behaviorType": "8Direction",
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerGraphics",
+							"sid": 826898210455348,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 470066954221757
+				}
+			],
+			"sid": 246360946629030
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Only allow input if the player is currently alive."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "PlayerCollision",
+							"sid": 897003595187854,
+							"parameters": {
+								"instance-variable": "Alive"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 922478211357059,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Perform a jump, but only if the player is not already jumping."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 908521124420056,
+									"parameters": {
+										"key": 32
+									}
+								},
+								{
+									"id": "on-button-pressed",
+									"objectClass": "Gamepad",
+									"sid": 737713398490423,
+									"parameters": {
+										"gamepad": "0",
+										"button": "button-a"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 409334590957861,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-z-elevation",
+											"objectClass": "PlayerCollision",
+											"sid": 422384500799040,
+											"parameters": {
+												"which": "z-elevation",
+												"comparison": 0,
+												"z-elevation": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Increase the player Z elevation to simulate a jump."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "PlayerCollision",
+											"sid": 719445384882179,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Jump\"",
+												"property": "offsetZElevation",
+												"end-value": "JUMPHEIGHT",
+												"time": "JUMPDURATION",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Increase the size and decrease the opacity of the shadow to simulate lighting effects."
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "PlayerShadow",
+											"sid": 183427503309830,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Grow\"",
+												"property": "size",
+												"end-x": "Self.ImageWidth",
+												"end-y": "Self.ImageHeight",
+												"time": "JUMPDURATION",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "PlayerShadow",
+											"sid": 477395075921372,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"FadeOut\"",
+												"property": "offsetOpacity",
+												"end-value": "100 / 2",
+												"time": "JUMPDURATION",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 869979918563613
+								}
+							],
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move left."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 870632935795607,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 987215631458064,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 443721484165750,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "left"
+									}
+								}
+							],
+							"sid": 659738421233532,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move right."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 659038920095158,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 369328681183151,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 202457641645685,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "right"
+									}
+								}
+							],
+							"sid": 290806069752437,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 554401253828955,
+									"parameters": {
+										"key": 38
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 324522065499525,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-up"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 870556040937134,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "up"
+									}
+								}
+							],
+							"sid": 210551290093129,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move down."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 551609536282931,
+									"parameters": {
+										"key": 40
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 853581009362366,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-down"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 377380818257408,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "down"
+									}
+								}
+							],
+							"sid": 905394559878594,
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "While the player is jumping, spawn a sequence of smoke objects to create a jetpack trail."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCollision",
+							"sid": 699859868367015,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Jump\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 776403753160286,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 939777445451299,
+									"parameters": {
+										"interval-seconds": "0.01"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerCollision",
+									"sid": 469945058292224,
+									"parameters": {
+										"object": "JetpackSmoke",
+										"layer": "\"Player\"",
+										"image-point": "0",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Slightly randomize the smoke position."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "JetpackSmoke",
+									"sid": 716341970543305,
+									"parameters": {
+										"x": "Self.X + random(-2, 2)",
+										"y": "Self.Y + random(-2, 2)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize the smoke angle."
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "JetpackSmoke",
+									"sid": 732516691164118,
+									"parameters": {
+										"angle": "random(0, 360)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Match the player Z elevation, but with a small adjustment to prevent any sort of overlapping between objects."
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "JetpackSmoke",
+									"sid": 452837206592008,
+									"parameters": {
+										"z": "PlayerCollision.ZElevation -4"
+									}
+								}
+							],
+							"sid": 450350014585573
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player reaches the highest point of the jump, reset everything."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCollision",
+							"sid": 263363749187330,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Jump\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Reset the player Z elevation."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "PlayerCollision",
+							"sid": 958135462812582,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\"",
+								"property": "offsetZElevation",
+								"end-value": "0",
+								"time": "JUMPDURATION",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Reset size and opacity of the shadow."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "PlayerShadow",
+							"sid": 121270880486707,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Shrink\"",
+								"property": "size",
+								"end-x": "Self.ImageWidth / 2",
+								"end-y": "Self.ImageHeight / 2",
+								"time": "JUMPDURATION",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "PlayerShadow",
+							"sid": 512729544350623,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeIn\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "JUMPDURATION",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 848639447581358,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also spawn a burst of smoke around the player."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 108987820338131,
+									"parameters": {
+										"count": "16"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerCollision",
+									"sid": 431234681342174,
+									"parameters": {
+										"object": "JetpackSmoke",
+										"layer": "\"Player\"",
+										"image-point": "0",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Use the loopindex to define the direction of each smoke object, creating a perfect circle around the player."
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "JetpackSmoke",
+									"sid": 611865626083703,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Shuffle\"",
+										"property": "position",
+										"end-x": "Self.X + cos(22.5 * loopindex) * 16",
+										"end-y": "Self.Y + sin(22.5 * loopindex) * 16",
+										"time": "0.25",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize the smoke angle."
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "JetpackSmoke",
+									"sid": 303486046771611,
+									"parameters": {
+										"angle": "random(0, 360)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Match the player Z elevation, but with a small adjustment to prevent any sort of overlapping between objects."
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "JetpackSmoke",
+									"sid": 982545178591997,
+									"parameters": {
+										"z": "PlayerCollision.ZElevation - 4"
+									}
+								}
+							],
+							"sid": 572414145969838
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Cut the player speed in half to simulate the landing impact."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCollision",
+							"sid": 554198572698111,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-vector-x",
+							"objectClass": "PlayerCollision",
+							"sid": 824634083014118,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"vector-x": "Self.8Direction.VectorX / 2"
+							}
+						},
+						{
+							"id": "set-vector-y",
+							"objectClass": "PlayerCollision",
+							"sid": 625908682518882,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"vector-y": "Self.8Direction.VectorY / 2"
+							}
+						}
+					],
+					"sid": 258182673407296
+				}
+			],
+			"sid": 460164932038208
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The current angle of movement for the player."
+				},
+				{
+					"eventType": "variable",
+					"name": "AngleOfMovement",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 922230950524090
+				},
+				{
+					"eventType": "comment",
+					"text": "Store the latest angle of movement in a variable while the player is moving. It's important to store this value somewhere, because the native moving angle resets to zero if the player is not moving anymore, resulting in a very weird camera scrolling animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-moving",
+							"objectClass": "PlayerCollision",
+							"sid": 315076051862400,
+							"behaviorType": "8Direction"
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 513342300638651,
+							"parameters": {
+								"variable": "AngleOfMovement",
+								"value": "PlayerCollision.8Direction.MovingAngle"
+							}
+						}
+					],
+					"sid": 736328868050135
+				},
+				{
+					"eventType": "comment",
+					"text": "How far the camera will be from the player."
+				},
+				{
+					"eventType": "variable",
+					"name": "DISTANCEFROMPLAYER",
+					"type": "number",
+					"initialValue": "64",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 811836246861564
+				},
+				{
+					"eventType": "comment",
+					"text": "How fast the camera will adjust itself to match the player angle of movement."
+				},
+				{
+					"eventType": "variable",
+					"name": "STEPSIZE",
+					"type": "number",
+					"initialValue": "0.1",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 906578943438499
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the camera position to be in front of the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 340743910570141
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-x",
+							"objectClass": "System",
+							"sid": 795275599863490,
+							"parameters": {
+								"x": "lerp(scrollx, PlayerCollision.X + cos(AngleOfMovement) * DISTANCEFROMPLAYER, STEPSIZE * 60 * dt)"
+							}
+						},
+						{
+							"id": "scroll-to-y",
+							"objectClass": "System",
+							"sid": 771284621846182,
+							"parameters": {
+								"y": "lerp(scrolly, PlayerCollision.Y + sin(AngleOfMovement) * DISTANCEFROMPLAYER / 2, STEPSIZE * 60 * dt) + GameManager.Sine.Value"
+							}
+						}
+					],
+					"sid": 649049245953626
+				}
+			],
+			"sid": 931508317308020
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GameOver",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player is not jumping, but there's no ground below him, throw him into space."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 703102109996714,
+							"parameters": {
+								"object": "GroundCollision"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-z-elevation",
+							"objectClass": "PlayerCollision",
+							"sid": 127176910070857,
+							"parameters": {
+								"which": "z-elevation",
+								"comparison": 0,
+								"z-elevation": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 677241572681277,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "PlayerCollision",
+									"sid": 469893718979313,
+									"parameters": {
+										"instance-variable": "Alive"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Disable all controls by toggling the \"Alive\" variable."
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "PlayerCollision",
+									"sid": 720364943142163,
+									"parameters": {
+										"instance-variable": "Alive",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Disable the player shadow, since it won't be used anymore."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "PlayerShadow",
+									"sid": 457951803258650,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move the player to the \"Ships\" layer, so he can be rendered behind them."
+								},
+								{
+									"id": "move-to-layer",
+									"objectClass": "PlayerCollision",
+									"sid": 417035700592526,
+									"parameters": {
+										"layer": "\"Ships\""
+									}
+								},
+								{
+									"id": "move-to-layer",
+									"objectClass": "PlayerGraphics",
+									"sid": 567610059735772,
+									"parameters": {
+										"layer": "\"Ships\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Reduce the Z elevation and opacity of the player to simulate a big fall into space."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerCollision",
+									"sid": 355397677100215,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Death\"",
+										"property": "offsetZElevation",
+										"end-value": "-JUMPHEIGHT * DEATHMULTIPLIER",
+										"time": "JUMPDURATION * DEATHMULTIPLIER",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerGraphics",
+									"sid": 467378914471099,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Disappear\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "JUMPDURATION * DEATHMULTIPLIER",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 860936268791002
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "After the death animation is over, display a big flash inspired by old cartoons."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCollision",
+							"sid": 663783952611222,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Death\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 593394773021248,
+							"parameters": {
+								"object": "BigFlash",
+								"layer": "\"Ships\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Match the player Z elevation."
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "BigFlash",
+							"sid": 710735440400816,
+							"parameters": {
+								"z": "PlayerCollision.ZElevation"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start as a tiny object."
+						},
+						{
+							"id": "set-size",
+							"objectClass": "BigFlash",
+							"sid": 747916663256919,
+							"parameters": {
+								"width": "0",
+								"height": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Animate both size and angle to create the cartoon effect."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "BigFlash",
+							"sid": 966686301877238,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Size\"",
+								"property": "size",
+								"end-x": "32",
+								"end-y": "32",
+								"time": "0.25",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "yes"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "BigFlash",
+							"sid": 409899504695137,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Angle\"",
+								"property": "offsetAngle",
+								"end-value": "Self.Angle + 90",
+								"time": "0.5",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 925963796338449
+				}
+			],
+			"sid": 560560454541680
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Debug",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Reset all global variable and restart the layout for debugging porpuses."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 590336036746285,
+							"parameters": {
+								"key": 82
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 607455194654010,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 838530046041784
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 302161822852242
+						}
+					],
+					"sid": 248153917174648,
+					"isOrBlock": true
+				}
+			],
+			"sid": 670474496745313
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Hyperspace",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Spawn wind lines every 0.01 seconds."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 949027459541718,
+							"parameters": {
+								"interval-seconds": "0.01"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 717403620065270,
+							"parameters": {
+								"object-to-create": "WindLine",
+								"layer": "\"Wind\"",
+								"x": "random(0, LayoutWidth * 2)",
+								"y": "random(0, LayoutHeight)",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize the wind line Z elevation."
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "WindLine",
+							"sid": 452883843220002,
+							"parameters": {
+								"z": "random(0, -256)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Adjust the wind line angle of motion to go against the ships."
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "WindLine",
+							"sid": 748419855184748,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "180"
+							}
+						}
+					],
+					"sid": 953714827825864
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn asteroids every 0.1 seconds."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 563112421955703,
+							"parameters": {
+								"interval-seconds": "0.1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 236475832863977,
+							"parameters": {
+								"object-to-create": "Asteroid",
+								"layer": "\"Wind\"",
+								"x": "random(0, LayoutWidth * 2)",
+								"y": "random(0, LayoutHeight)",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize the wind line Z elevation."
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Asteroid",
+							"sid": 854940525616598,
+							"parameters": {
+								"z": "random(0, -64)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Adjust the wind line angle of motion to go against the ships."
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "Asteroid",
+							"sid": 788269081328411,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "180"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize the asteroid shape by choosing from a set of specific frames."
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Asteroid",
+							"sid": 630539619761635,
+							"parameters": {
+								"frame-number": "choose(0, 1, 2, 3, 4, 5)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize the asteroid rotation speed."
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "Asteroid",
+							"sid": 333935706198769,
+							"behaviorType": "Rotate",
+							"parameters": {
+								"speed": "random(-180, 180)"
+							}
+						}
+					],
+					"sid": 241007972554124
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly offset the hyperspace image to simulate the high speed of the ships."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 478458044246561
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Hyperspace",
+							"sid": 234559616876832,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX - 12 * 60 * dt"
+							}
+						}
+					],
+					"sid": 339895131847037
+				}
+			],
+			"sid": 541077649974893
+		}
+	],
+	"sid": 505512806490250
+}

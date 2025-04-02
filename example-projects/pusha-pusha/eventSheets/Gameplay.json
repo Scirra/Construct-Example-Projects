@@ -1,0 +1,4933 @@
+{
+	"name": "Gameplay",
+	"events": [
+		{
+			"eventType": "include",
+			"includeSheet": "Global"
+		},
+		{
+			"eventType": "comment",
+			"text": "The index of the currently selected level."
+		},
+		{
+			"eventType": "variable",
+			"name": "SelectedLevelIndex",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 500711086600476
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "World",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Prepare the world around the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 318084700078261
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Adjust the camera FOV to 35 degrees."
+						},
+						{
+							"id": "set-field-of-view",
+							"objectClass": "3DCamera",
+							"sid": 190885430325551,
+							"parameters": {
+								"fov": "35"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Reset the number of steps taken back to zero."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 535217636290014,
+							"parameters": {
+								"variable": "Steps",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 776065856415184,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Pick all level tilemaps that won't be used and destroy them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 212061234256388,
+									"parameters": {
+										"object": "Level",
+										"expression": "Level.LevelIndex <> SelectedLevelIndex"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 855380145311866,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 993257397922425,
+											"parameters": {
+												"object": "Level"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Level",
+											"sid": 208421253498292
+										}
+									],
+									"sid": 103024523713682
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Pick the correct level tilemap, and use it as a reference to generate world."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 119943638979347,
+									"parameters": {
+										"object": "Level",
+										"expression": "Level.LevelIndex = SelectedLevelIndex"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create a water plane."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 991382018630314,
+									"parameters": {
+										"object-to-create": "Water",
+										"layer": "\"World\"",
+										"x": "Level.X",
+										"y": "Level.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Adjust the water plane size and subdivide it into a mesh."
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Water",
+									"sid": 130736833066469,
+									"parameters": {
+										"width": "Level.Width",
+										"height": "Level.Height"
+									}
+								},
+								{
+									"id": "set-mesh-size",
+									"objectClass": "Water",
+									"sid": 983431356466139,
+									"parameters": {
+										"cols": "Level.MapDisplayWidth",
+										"rows": "Level.MapDisplayHeight"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set the water array size to contain the same amount of entries as mesh cells."
+								},
+								{
+									"id": "set-size",
+									"objectClass": "WaterPoints",
+									"sid": 784534849073498,
+									"parameters": {
+										"width": "Level.MapDisplayWidth",
+										"height": "Level.MapDisplayHeight",
+										"depth": "1"
+									}
+								}
+							],
+							"sid": 678195443923770,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Loop through every tile in the tilemap."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 963082923286274,
+											"parameters": {
+												"name": "\"x\"",
+												"start-index": "0",
+												"end-index": "Level.MapDisplayWidth - 1"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 156286053769122,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for",
+													"objectClass": "System",
+													"sid": 605393418618492,
+													"parameters": {
+														"name": "\"y\"",
+														"start-index": "0",
+														"end-index": "Level.MapDisplayHeight - 1"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 957017635903457,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "The index of the current tile."
+												},
+												{
+													"eventType": "variable",
+													"name": "CurrentTile",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 623218129310241
+												},
+												{
+													"eventType": "comment",
+													"text": "The horizontal position index of the current tile."
+												},
+												{
+													"eventType": "variable",
+													"name": "CurrentTileX",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 189386021822032
+												},
+												{
+													"eventType": "comment",
+													"text": "The vertical position index of the current tile."
+												},
+												{
+													"eventType": "variable",
+													"name": "CurrentTileY",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 360039437154115
+												},
+												{
+													"eventType": "comment",
+													"text": "Update all local variables to match the current tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 351840473758367,
+															"parameters": {
+																"variable": "CurrentTile",
+																"value": "Level.TileAt(loopindex(\"x\"), loopindex(\"y\"))"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 607564449825799,
+															"parameters": {
+																"variable": "CurrentTileX",
+																"value": "loopindex(\"x\")"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 973950564908032,
+															"parameters": {
+																"variable": "CurrentTileY",
+																"value": "loopindex(\"y\")"
+															}
+														}
+													],
+													"sid": 822724813738694
+												},
+												{
+													"eventType": "comment",
+													"text": "Store the information of the current tile in the water array, but with some variation based on the current loop index, so waves can be created with that information."
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "set-at-xy",
+															"objectClass": "WaterPoints",
+															"sid": 282587612735689,
+															"parameters": {
+																"x": "loopindex(\"x\")",
+																"y": "loopindex(\"y\")",
+																"value": "(loopindex(\"x\") * 45) % 360"
+															}
+														}
+													],
+													"sid": 162877087971139
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to zero, create a floor tile and move the player to its position."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 977931208499384,
+															"parameters": {
+																"value": "CurrentTile = 0"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 930293917443444,
+															"parameters": {
+																"object-to-create": "FloorShape",
+																"layer": "\"World\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														},
+														{
+															"id": "set-position",
+															"objectClass": "PlayerCollision",
+															"sid": 640478736957837,
+															"parameters": {
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)"
+															}
+														},
+														{
+															"type": "comment",
+															"text": "Also move the camera towards the player."
+														},
+														{
+															"callFunction": "SetCameraScale",
+															"sid": 647851591837615,
+															"parameters": [
+																"0.25"
+															]
+														},
+														{
+															"callFunction": "UpdateCamera",
+															"sid": 806537477165124,
+															"parameters": [
+																false
+															]
+														},
+														{
+															"callFunction": "SetCameraScale",
+															"sid": 529520781963293,
+															"parameters": [
+																"1"
+															]
+														}
+													],
+													"sid": 600713815773172
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to one, create a grass tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 208349929892536
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 779594596853498,
+															"parameters": {
+																"value": "CurrentTile = 1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "CreateGrassAtPosition",
+															"sid": 494398354017557,
+															"parameters": [
+																"Level.TileToPositionX(CurrentTileX)",
+																"Level.TileToPositionY(CurrentTileY)"
+															]
+														}
+													],
+													"sid": 343767019145699
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to two, create a floor tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 777482193509057
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 535703350788093,
+															"parameters": {
+																"value": "CurrentTile = 2"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 576276068352348,
+															"parameters": {
+																"object-to-create": "FloorShape",
+																"layer": "\"World\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														}
+													],
+													"sid": 855550166414323
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to three, create a floor tile and a wall tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 117851367134099
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 174085081640301,
+															"parameters": {
+																"value": "CurrentTile = 3"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 249216188872892,
+															"parameters": {
+																"object-to-create": "FloorShape",
+																"layer": "\"World\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														},
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 551023155791255,
+															"parameters": {
+																"object-to-create": "WallShape",
+																"layer": "\"World\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														},
+														{
+															"type": "comment",
+															"text": "Also play the spawn animation on the wall tile."
+														},
+														{
+															"callFunction": "PlaySpawnAnimation",
+															"sid": 322190312092006,
+															"parameters": [
+																"WallShape.UID"
+															]
+														}
+													],
+													"sid": 510364706888807
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to four, create a floor tile and a crate."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 373373816101798
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 152661021841807,
+															"parameters": {
+																"value": "CurrentTile = 4"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 310432039391373,
+															"parameters": {
+																"object-to-create": "FloorShape",
+																"layer": "\"World\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														},
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 731794779525888,
+															"parameters": {
+																"object-to-create": "CrateShape",
+																"layer": "\"World\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														},
+														{
+															"type": "comment",
+															"text": "Also play the spawn animation on the crate."
+														},
+														{
+															"callFunction": "PlaySpawnAnimation",
+															"sid": 254109936930940,
+															"parameters": [
+																"CrateShape.UID"
+															]
+														}
+													],
+													"sid": 833026443711480
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to five, create a goal tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 833853361984408
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 315651367089443,
+															"parameters": {
+																"value": "CurrentTile = 5"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 905158633871838,
+															"parameters": {
+																"object-to-create": "GoalShape",
+																"layer": "\"World\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														}
+													],
+													"sid": 195569277152180
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to six, create a grass tile and a rock tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 166859332938044
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 260870843538086,
+															"parameters": {
+																"value": "CurrentTile = 6"
+															}
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "CreateGrassAtPosition",
+															"sid": 849936467380136,
+															"parameters": [
+																"Level.TileToPositionX(CurrentTileX)",
+																"Level.TileToPositionY(CurrentTileY)"
+															]
+														},
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 224499333240006,
+															"parameters": {
+																"object-to-create": "RockShape",
+																"layer": "\"Vegetation\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														}
+													],
+													"sid": 575356574602083
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to seven, create a grass tile and a tree tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 892843563259442
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 687744708787954,
+															"parameters": {
+																"value": "CurrentTile = 7"
+															}
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "CreateGrassAtPosition",
+															"sid": 450105778774528,
+															"parameters": [
+																"Level.TileToPositionX(CurrentTileX)",
+																"Level.TileToPositionY(CurrentTileY)"
+															]
+														},
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 707299079812974,
+															"parameters": {
+																"object-to-create": "TreeShape",
+																"layer": "\"Vegetation\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														}
+													],
+													"sid": 855948950131630
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to eight, create a grass tile and a bush tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 986045232869931
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 588758198147079,
+															"parameters": {
+																"value": "CurrentTile = 8"
+															}
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "CreateGrassAtPosition",
+															"sid": 924439049034544,
+															"parameters": [
+																"Level.TileToPositionX(CurrentTileX)",
+																"Level.TileToPositionY(CurrentTileY)"
+															]
+														},
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 928323581993486,
+															"parameters": {
+																"object-to-create": "BushShape",
+																"layer": "\"Vegetation\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														}
+													],
+													"sid": 612893577355220
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to nine, create an outer wall tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 989741385476781
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 730739893594966,
+															"parameters": {
+																"value": "CurrentTile = 9"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 860977495926390,
+															"parameters": {
+																"object-to-create": "OuterWallShape",
+																"layer": "\"World\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														}
+													],
+													"sid": 190780107590174
+												},
+												{
+													"eventType": "comment",
+													"text": "If the index of the current tile is set to ten, create a grass tile and a bird."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 235184474503722
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 829647436581025,
+															"parameters": {
+																"value": "CurrentTile = 10"
+															}
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "CreateGrassAtPosition",
+															"sid": 904496172002323,
+															"parameters": [
+																"Level.TileToPositionX(CurrentTileX)",
+																"Level.TileToPositionY(CurrentTileY)"
+															]
+														},
+														{
+															"type": "comment",
+															"text": "Create a bird and randomize its height, so it faces a different direction every time."
+														},
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 402728241044063,
+															"parameters": {
+																"object-to-create": "BirdShape",
+																"layer": "\"Bird\"",
+																"x": "Level.TileToPositionX(CurrentTileX)",
+																"y": "Level.TileToPositionY(CurrentTileY)",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														},
+														{
+															"id": "set-height",
+															"objectClass": "BirdShape",
+															"sid": 369361884939757,
+															"parameters": {
+																"height": "Self.Height * choose(-1, 1)"
+															}
+														},
+														{
+															"type": "comment",
+															"text": "Also create a bird texture, and attach it to the bird shape, so it can play animations independently from the other birds."
+														},
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 815220869485799,
+															"parameters": {
+																"object-to-create": "BirdTexture",
+																"layer": "BirdShape.LayerName",
+																"x": "BirdShape.X",
+																"y": "BirdShape.Y",
+																"create-hierarchy": false,
+																"template-name": "\"\""
+															}
+														},
+														{
+															"id": "add-child",
+															"objectClass": "BirdShape",
+															"sid": 304132992449091,
+															"parameters": {
+																"child": "BirdTexture",
+																"transform-x": true,
+																"transform-y": true,
+																"transform-w": false,
+																"transform-h": false,
+																"transform-a": false,
+																"transform-o": false,
+																"transform-z-elevation": true,
+																"transform-visibility": false,
+																"destroy-with-parent": true
+															}
+														},
+														{
+															"id": "set-face-object",
+															"objectClass": "BirdShape",
+															"sid": 605541157053817,
+															"parameters": {
+																"face": "right",
+																"object": "BirdTexture"
+															}
+														}
+													],
+													"sid": 204114515511163
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Wait a single frame before generating a keyboard hint around the player, and updating the HUD."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 900682860350613,
+									"parameters": {
+										"seconds": "0"
+									}
+								},
+								{
+									"callFunction": "GenerateKeyboardHintAroundPlayer",
+									"sid": 212186467741059
+								},
+								{
+									"callFunction": "UpdateHUD",
+									"sid": 350102595309198
+								}
+							],
+							"sid": 107378657011792
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Play a spawn animation on a specific shape."
+				},
+				{
+					"functionName": "PlaySpawnAnimation",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "UID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 788810752107387
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Shape",
+							"sid": 883410987955834,
+							"parameters": {
+								"unique-id": "UID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Make the shape invisible."
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "Shape",
+							"sid": 586943378481454,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Store its default width and height, so it can be recovered later."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Shape",
+							"sid": 720763449202131,
+							"parameters": {
+								"instance-variable": "DefaultWidth",
+								"value": "Self.Width"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Shape",
+							"sid": 142383281161286,
+							"parameters": {
+								"instance-variable": "DefaultHeight",
+								"value": "Self.Height"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Wait a random amount of time before playing the animation."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Shape",
+							"sid": 789894870220100,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "random(0.25, 1.25)",
+								"type": "once",
+								"tag": "\"Spawn\""
+							}
+						}
+					],
+					"sid": 247922232983813
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the spawn timer is over, display the spawn animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Shape",
+							"sid": 885931067832061,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Spawn\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 332767579723861,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 590525260157680,
+									"parameters": {
+										"object": "Shape"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Make the shape visible again."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "Shape",
+									"sid": 522281774675894,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Reduce the shape size, and gradually expand it again with a tween animation."
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Shape",
+									"sid": 407721320335500,
+									"parameters": {
+										"width": "2",
+										"height": "2"
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Shape",
+									"sid": 325922929631602,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Expand\"",
+										"property": "size",
+										"end-x": "Self.DefaultWidth",
+										"end-y": "Self.DefaultHeight",
+										"time": "0.5",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Increase the shape Z elevation, and gradually drop it again with a tween animation."
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "Shape",
+									"sid": 601848253042604,
+									"parameters": {
+										"z": "512"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Shape",
+									"sid": 108582233640739,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Drop\"",
+										"property": "offsetZElevation",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 751659473737269
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Create a grass tile at a specific position."
+				},
+				{
+					"functionName": "CreateGrassAtPosition",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "PositionX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 858181540152050
+						},
+						{
+							"name": "PositionY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 444640996491816
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 294103378601363,
+							"parameters": {
+								"object-to-create": "GrassShape",
+								"layer": "\"World\"",
+								"x": "PositionX",
+								"y": "PositionY",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						}
+					],
+					"sid": 917913103568309,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Pick a random grass texture for the front face."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-random-instance",
+									"objectClass": "System",
+									"sid": 451367100568949,
+									"parameters": {
+										"object": "GrassTexture"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-face-object",
+									"objectClass": "GrassShape",
+									"sid": 322239798162920,
+									"parameters": {
+										"face": "front",
+										"object": "GrassTexture"
+									}
+								}
+							],
+							"sid": 885026899242849
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Load a level based on the provided index."
+				},
+				{
+					"functionName": "LoadLevel",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "LevelIndex",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 105864175002036
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 887956932639507,
+							"parameters": {
+								"variable": "SelectedLevelIndex",
+								"value": "LevelIndex"
+							}
+						},
+						{
+							"callFunction": "GoToLayout",
+							"sid": 104748185404979,
+							"parameters": [
+								"\"Gameplay\"",
+								"0"
+							]
+						}
+					],
+					"sid": 189461429018760
+				}
+			],
+			"sid": 628664798057437
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tutorial",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Display the tutorial."
+				},
+				{
+					"functionName": "DisplayTutorial",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "SetInputFocus",
+							"sid": 439798525053610,
+							"parameters": [
+								"-1"
+							]
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 463284950990789,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1",
+								"type": "once",
+								"tag": "\"TutorialModalFadeIn\""
+							}
+						}
+					],
+					"sid": 819851081924881
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"TutorialModalFadeIn\" timer is over, make the screen darker over time."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 524114917460950,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"TutorialModalFadeIn\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "TutorialModal",
+							"sid": 969413252750708,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeIn\"",
+								"property": "offsetOpacity",
+								"end-value": "50",
+								"time": "0.5",
+								"ease": "noease",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 150525682609834,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.5",
+								"type": "once",
+								"tag": "\"TutorialSignSlideIn\""
+							}
+						}
+					],
+					"sid": 896772412769612
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"TutorialSignSlideIn\" timer is over, slide in the tutorial sign."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 517178153007766,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"TutorialSignSlideIn\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "TutorialSign",
+							"sid": 797216678610639,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SlideIn\"",
+								"property": "offsetY",
+								"end-value": "-16",
+								"time": "1",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 780426019267230,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1",
+								"type": "once",
+								"tag": "\"SetInputFocusToUserInterface\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Play a rope stretching sound effect."
+						},
+						{
+							"callFunction": "PlaySFX",
+							"sid": 703484220439850,
+							"parameters": [
+								"\"RopeStretching001\"",
+								"-12"
+							]
+						}
+					],
+					"sid": 173079838241169
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"SetInputFocusToUserInterface\" timer is over, allow the player to interact with the tutorial."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 537246807273928,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SetInputFocusToUserInterface\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetInputFocus",
+							"sid": 238541179726670,
+							"parameters": [
+								"1"
+							]
+						}
+					],
+					"sid": 368681735882909
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player presses enter during the tutorial, hide it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 671187713420123,
+							"parameters": {
+								"key": 13
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 126209368222790,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 227213827352231,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 304431604580583,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(1) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "HideTutorial",
+									"sid": 722796058341616
+								},
+								{
+									"type": "comment",
+									"text": "Play a button press sound effect."
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 295490474930268,
+									"parameters": [
+										"\"ButtonPress\"",
+										"-12"
+									]
+								}
+							],
+							"sid": 247372581515729
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Hide the tutorial."
+				},
+				{
+					"functionName": "HideTutorial",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "SetInputFocus",
+							"sid": 187868770386732,
+							"parameters": [
+								"-1"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Slide out the tutorial sign."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TutorialSign",
+							"sid": 350712128326923,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SlideOut\"",
+								"property": "offsetY",
+								"end-value": "-1080",
+								"time": "1",
+								"ease": "easeinsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 599571106552962,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1",
+								"type": "once",
+								"tag": "\"TutorialModalFadeOut\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Play a rope stretching sound effect."
+						},
+						{
+							"callFunction": "PlaySFX",
+							"sid": 671656379482647,
+							"parameters": [
+								"\"RopeStretching002\"",
+								"-6"
+							]
+						}
+					],
+					"sid": 401350940188967
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"TutorialModalFadeOut\" timer is over, make the screen brighter over time."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 686667803936303,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"TutorialModalFadeOut\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "TutorialModal",
+							"sid": 555910145681547,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "noease",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 812385764317924,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.5",
+								"type": "once",
+								"tag": "\"SetInputFocusToGameplay\""
+							}
+						}
+					],
+					"sid": 872624102573473
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"SetInputFocusToGameplay\" timer is over, give full control back to the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 623107548170916,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SetInputFocusToGameplay\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetInputFocus",
+							"sid": 420307433078674,
+							"parameters": [
+								"0"
+							]
+						}
+					],
+					"sid": 569226977421984
+				}
+			],
+			"sid": 708493861381902
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Water",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How fast the water will move."
+				},
+				{
+					"eventType": "variable",
+					"name": "DISTORTIONSPEED",
+					"type": "number",
+					"initialValue": "1",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 958759258520973
+				},
+				{
+					"eventType": "comment",
+					"text": "How tall each wave will be."
+				},
+				{
+					"eventType": "variable",
+					"name": "DISTORTIONSTRENGTH",
+					"type": "number",
+					"initialValue": "16",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 390065642648224
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the values in the water array, by using the defined constants as a reference."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 220994124745281,
+							"parameters": {
+								"object": "Level",
+								"expression": "Level.LevelIndex = SelectedLevelIndex"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 806018677771144,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 932324001348133,
+									"parameters": {
+										"name": "\"x\"",
+										"start-index": "0",
+										"end-index": "Level.MapDisplayWidth - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 578577238711293,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 187580889888155,
+											"parameters": {
+												"name": "\"y\"",
+												"start-index": "0",
+												"end-index": "Level.MapDisplayHeight - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-at-xy",
+											"objectClass": "WaterPoints",
+											"sid": 668002184627293,
+											"parameters": {
+												"x": "loopindex(\"x\")",
+												"y": "loopindex(\"y\")",
+												"value": "(WaterPoints.At(loopindex(\"x\"), loopindex(\"y\")) + DISTORTIONSPEED * 60 * dt) % 360"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Translate the data from the water array to the water plane."
+										},
+										{
+											"id": "set-mesh-point",
+											"objectClass": "Water",
+											"sid": 817842474224468,
+											"parameters": {
+												"col": "loopindex(\"x\")",
+												"row": "loopindex(\"y\")",
+												"mode": "relative",
+												"posx": "0",
+												"posy": "0",
+												"z-elevation": "DISTORTIONSTRENGTH + cos(WaterPoints.At(loopindex(\"x\"), loopindex(\"y\"))) * DISTORTIONSTRENGTH",
+												"texx": "0",
+												"texy": "0"
+											}
+										}
+									],
+									"sid": 493298053762526
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 332127841980686
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly update the camera, so it follows the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 149981174334642
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "UpdateCamera",
+							"sid": 196369736121006,
+							"parameters": [
+								true
+							]
+						}
+					],
+					"sid": 518654685121084,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Rotate all billboards, so they're always facing the camera."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 720426320098677,
+									"parameters": {
+										"object": "Billboard"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-angle",
+									"objectClass": "Billboard",
+									"sid": 756367512977244,
+									"parameters": {
+										"angle": "angle(3DCamera.CameraX, 3DCamera.CameraY, 3DCamera.LookX, 3DCamera.LookY) + 180"
+									}
+								}
+							],
+							"sid": 873507149172138
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "How far the camera is from the player (normalized)."
+				},
+				{
+					"eventType": "variable",
+					"name": "CameraScale",
+					"type": "number",
+					"initialValue": "1",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 472086898786274
+				},
+				{
+					"eventType": "comment",
+					"text": "Set the camera scale to a custom value."
+				},
+				{
+					"functionName": "SetCameraScale",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Scale",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 482647193947506
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 966897893044362,
+							"parameters": {
+								"variable": "CameraScale",
+								"value": "Scale"
+							}
+						}
+					],
+					"sid": 734107312631517
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the camera, with or without interpolation."
+				},
+				{
+					"functionName": "UpdateCamera",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Interpolate",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 874779468134023
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 922622784478286,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Interpolate the values, so the camera moves smoothly."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 244575708693562,
+									"parameters": {
+										"value": "Interpolate = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "look-at-position",
+									"objectClass": "3DCamera",
+									"sid": 128063187670062,
+									"parameters": {
+										"cam-x": "lerp(3DCamera.CameraX, PlayerCollision.X + 512 * CameraScale, 0.025 * 60 * dt)",
+										"cam-y": "lerp(3DCamera.CameraY, PlayerCollision.Y + 512 * CameraScale, 0.025 * 60 * dt)",
+										"cam-z": "lerp(3DCamera.CameraZ, 1024 * CameraScale, 0.025 * 60 * dt)",
+										"look-x": "lerp(3DCamera.LookX, PlayerCollision.X, 0.1 * 60 * dt)",
+										"look-y": "lerp(3DCamera.LookY, PlayerCollision.Y, 0.1 * 60 * dt)",
+										"look-z": "PlayerShape.ZElevation + PlayerShape.ZHeight / 2",
+										"up-x": "0",
+										"up-y": "0",
+										"up-z": "1"
+									}
+								}
+							],
+							"sid": 614888933165205
+						},
+						{
+							"eventType": "comment",
+							"text": "Don't interpolate the values, so the camera moves abruptly."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 508191989565802
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 600851725632413,
+									"parameters": {
+										"value": "Interpolate = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "look-at-position",
+									"objectClass": "3DCamera",
+									"sid": 648766621061615,
+									"parameters": {
+										"cam-x": "PlayerCollision.X + 512 * CameraScale",
+										"cam-y": "PlayerCollision.Y + 512 * CameraScale",
+										"cam-z": "1024 * CameraScale",
+										"look-x": "PlayerCollision.X",
+										"look-y": "PlayerCollision.Y",
+										"look-z": "PlayerShape.ZElevation + PlayerShape.ZHeight / 2",
+										"up-x": "0",
+										"up-y": "0",
+										"up-z": "1"
+									}
+								}
+							],
+							"sid": 890934543242917
+						}
+					]
+				}
+			],
+			"sid": 667338876419710
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player presses ESC, go back to the title screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 536015745144378,
+							"parameters": {
+								"key": 27
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 619326951324339,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 599216104931946,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 978817140937347,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(0) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "GoToLayout",
+									"sid": 713002233591613,
+									"parameters": [
+										"\"TitleScreen\"",
+										"0"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Also player a button press sound effect."
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 467921029190013,
+									"parameters": [
+										"\"ButtonPress\"",
+										"-6"
+									]
+								}
+							],
+							"sid": 739788033002676
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player presses R, restart the current level."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 844514664029269,
+							"parameters": {
+								"key": 82
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 640035413561267,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-x"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 598746196202897,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 246451328200292,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(0) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "LoadLevel",
+									"sid": 622996315356495,
+									"parameters": [
+										"SelectedLevelIndex"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Also player a button press sound effect."
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 696484485448667,
+									"parameters": [
+										"\"ButtonPress\"",
+										"-6"
+									]
+								}
+							],
+							"sid": 261288166572873
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player presses M, toggle the audio between on and off."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 855746202536000,
+							"parameters": {
+								"key": 77
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 526414632842908,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-b"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 625047087219801,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 897092919384666,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(0) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "ToggleMute",
+									"sid": 787473176027998
+								},
+								{
+									"type": "comment",
+									"text": "Also player a button press sound effect."
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 539572634707597,
+									"parameters": [
+										"\"ButtonPress\"",
+										"-6"
+									]
+								}
+							],
+							"sid": 583533912008308
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player presses the left arrow key, move the player left."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 181859708242678,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 481145364641685,
+							"parameters": {
+								"key": 65
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 382988363881081,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-left"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 569928724037529,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 266532414894506,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(0) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MovePlayerAtAngle",
+									"sid": 473793654500502,
+									"parameters": [
+										"180"
+									]
+								}
+							],
+							"sid": 514268944618770
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player presses the right arrow key, move the player right."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 712717894517413,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 894638132488652,
+							"parameters": {
+								"key": 68
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 333917641280771,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-right"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 876436863228930,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 319913262407340,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(0) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MovePlayerAtAngle",
+									"sid": 757334318537661,
+									"parameters": [
+										"0"
+									]
+								}
+							],
+							"sid": 887757805614963
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player presses the up arrow key, move the player up."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 607217574490136,
+							"parameters": {
+								"key": 38
+							}
+						},
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 612162048240204,
+							"parameters": {
+								"key": 87
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 682753849830898,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-up"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 482381937972450,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 802349180540906,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(0) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MovePlayerAtAngle",
+									"sid": 404471747790188,
+									"parameters": [
+										"270"
+									]
+								}
+							],
+							"sid": 995662654691703
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player presses the down arrow key, move the player down."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 883964278807125,
+							"parameters": {
+								"key": 40
+							}
+						},
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 977582912903192,
+							"parameters": {
+								"key": 83
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 928072879961793,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-down"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 777835291571876,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 268824966149945,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(0) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "MovePlayerAtAngle",
+									"sid": 280142258044980,
+									"parameters": [
+										"90"
+									]
+								}
+							],
+							"sid": 374703808189111
+						}
+					],
+					"isOrBlock": true
+				}
+			],
+			"sid": 956587080629377
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Crate",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Set the luminosity of a crate to a custom level."
+				},
+				{
+					"functionName": "SetCrateLuminosity",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "CrateUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 466004797490396
+						},
+						{
+							"name": "Luminosity",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 465974325695223
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "CrateShape",
+							"sid": 113709484364857,
+							"parameters": {
+								"unique-id": "CrateUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "CrateShape",
+							"sid": 943254746066947,
+							"parameters": {
+								"instance-variable": "Luminosity",
+								"value": "Luminosity"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update the crate luminosity level."
+						},
+						{
+							"callFunction": "UpdateCrateLuminosity",
+							"sid": 723731985007317,
+							"parameters": [
+								"CrateShape.UID"
+							]
+						}
+					],
+					"sid": 257035720252526
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the luminosity level of all crates."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 971044542691423,
+							"parameters": {
+								"object": "CrateShape",
+								"expression": "CrateShape.Luminosity > 100"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 257861301607816,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 141355173898756,
+									"parameters": {
+										"object": "CrateShape"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Gradually drop the luminosity level back to 100."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "CrateShape",
+									"sid": 578408485314351,
+									"parameters": {
+										"instance-variable": "Luminosity",
+										"value": "clamp(Self.Luminosity - 3 * 60 * dt, 100, Infinity)"
+									}
+								},
+								{
+									"callFunction": "UpdateCrateLuminosity",
+									"sid": 266881802293120,
+									"parameters": [
+										"CrateShape.UID"
+									]
+								}
+							],
+							"sid": 484846565842230
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the luminosity level of a specific crate."
+				},
+				{
+					"functionName": "UpdateCrateLuminosity",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "CrateUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 859546222714604
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "CrateShape",
+							"sid": 353867270496286,
+							"parameters": {
+								"unique-id": "CrateUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "CrateShape",
+							"sid": 647397715784302,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Self.Luminosity"
+							}
+						}
+					],
+					"sid": 677202804208119
+				}
+			],
+			"sid": 776795132640684
+		},
+		{
+			"eventType": "comment",
+			"text": "How many steps the player took while playing the current level."
+		},
+		{
+			"eventType": "variable",
+			"name": "Steps",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 365462939544358
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Move the player at a specific angle."
+				},
+				{
+					"functionName": "MovePlayerAtAngle",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "AngleOfMotion",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 757030869757984
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 596487716838370,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Only moves the player if it's not moving already."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 211271148254034,
+									"parameters": {
+										"value": "PlayerCollision.IsMoving = 0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 255910229809908,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "How long it takes for the player to reach its destination."
+								},
+								{
+									"eventType": "variable",
+									"name": "ANIMATIONDURATION",
+									"type": "number",
+									"initialValue": "0.1",
+									"comment": "",
+									"isStatic": true,
+									"isConstant": true,
+									"sid": 453631614704665
+								},
+								{
+									"eventType": "comment",
+									"text": "Whether or not the player will move."
+								},
+								{
+									"eventType": "variable",
+									"name": "MovePlayer",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 520958879660612
+								},
+								{
+									"eventType": "comment",
+									"text": "Whether or not a crate will move."
+								},
+								{
+									"eventType": "variable",
+									"name": "MoveCrate",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 837334110469470
+								},
+								{
+									"eventType": "comment",
+									"text": "The UID of the crate that might be moved."
+								},
+								{
+									"eventType": "variable",
+									"name": "CrateUID",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 285250349183218
+								},
+								{
+									"eventType": "comment",
+									"text": "Whether or not there's a wall one cell away from the player."
+								},
+								{
+									"eventType": "variable",
+									"name": "IsOverlappingWallOneCellAway",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 248909174316168
+								},
+								{
+									"eventType": "comment",
+									"text": "Whether or not there's a wall two cells away from the player."
+								},
+								{
+									"eventType": "variable",
+									"name": "IsOverlappingWallTwoCellsAway",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 341508794374825
+								},
+								{
+									"eventType": "comment",
+									"text": "Whether or not there's a crate one cell away from the player."
+								},
+								{
+									"eventType": "variable",
+									"name": "IsOverlappingCrateOneCellAway",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 161989108435829
+								},
+								{
+									"eventType": "comment",
+									"text": "Whether or not there's a crate two cells away from the player."
+								},
+								{
+									"eventType": "variable",
+									"name": "IsOverlappingCrateTwoCellsAway",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 616501508478471
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player is overlapping a wall one cell away from it, store the result."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-at-offset",
+											"objectClass": "PlayerCollision",
+											"sid": 755708524490463,
+											"parameters": {
+												"object": "WallShape",
+												"offset-x": "cos(AngleOfMotion) * 128",
+												"offset-y": "sin(AngleOfMotion) * 128"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 552068463818184,
+											"parameters": {
+												"variable": "IsOverlappingWallOneCellAway",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 536633130421130
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player is overlapping a wall two cells away from it, store the result."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-at-offset",
+											"objectClass": "PlayerCollision",
+											"sid": 406810142926181,
+											"parameters": {
+												"object": "WallShape",
+												"offset-x": "cos(AngleOfMotion) * 256",
+												"offset-y": "sin(AngleOfMotion) * 256"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 426775903251354,
+											"parameters": {
+												"variable": "IsOverlappingWallTwoCellsAway",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 548282405062110
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player is overlapping a crate one cell away from it, store the result."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-at-offset",
+											"objectClass": "PlayerCollision",
+											"sid": 823149244628112,
+											"parameters": {
+												"object": "CrateShape",
+												"offset-x": "cos(AngleOfMotion) * 128",
+												"offset-y": "sin(AngleOfMotion) * 128"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 401595554586514,
+											"parameters": {
+												"variable": "IsOverlappingCrateOneCellAway",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 253719768431897,
+											"parameters": {
+												"variable": "CrateUID",
+												"value": "CrateShape.UID"
+											}
+										}
+									],
+									"sid": 446080416981780
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player is overlapping a crate two cells away from it, store the result."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-at-offset",
+											"objectClass": "PlayerCollision",
+											"sid": 525065251533591,
+											"parameters": {
+												"object": "CrateShape",
+												"offset-x": "cos(AngleOfMotion) * 256",
+												"offset-y": "sin(AngleOfMotion) * 256"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 747010051704999,
+											"parameters": {
+												"variable": "IsOverlappingCrateTwoCellsAway",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 962865730651764
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player isn't overlapping a wall one cell away from it, and isn't overlapping a crate one cell away from it, move the player."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 135083377681540,
+											"parameters": {
+												"value": "IsOverlappingWallOneCellAway = 0 & IsOverlappingCrateOneCellAway = 0\n"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 273407948403207,
+											"parameters": {
+												"variable": "MovePlayer",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 507412428700713
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player is overlapping a crate one cell away from it, and isn't overlapping a crate two cells away from it nor is overlapping a wall two cells away from it, move both the player and the crate."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 924058453634881,
+											"parameters": {
+												"value": "IsOverlappingCrateOneCellAway = 1 & IsOverlappingCrateTwoCellsAway = 0 & IsOverlappingWallTwoCellsAway = 0\n"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 793976350133780,
+											"parameters": {
+												"variable": "MovePlayer",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 678938204339539,
+											"parameters": {
+												"variable": "MoveCrate",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 363457425907054
+								},
+								{
+									"eventType": "comment",
+									"text": "Move the player forward."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 689233643031438,
+											"parameters": {
+												"value": "MovePlayer = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "PlayerCollision",
+											"sid": 376072289765271,
+											"parameters": {
+												"instance-variable": "IsMoving",
+												"value": "true"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move the player using a tween animation."
+										},
+										{
+											"id": "stop-tweens",
+											"objectClass": "PlayerCollision",
+											"sid": 906193216072712,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Move\""
+											}
+										},
+										{
+											"id": "set-position",
+											"objectClass": "PlayerCollision",
+											"sid": 988431391246430,
+											"parameters": {
+												"x": "Self.X",
+												"y": "Self.Y"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "PlayerCollision",
+											"sid": 105240252092500,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Move\"",
+												"property": "position",
+												"end-x": "Self.X + cos(AngleOfMotion) * 128",
+												"end-y": "Self.Y + sin(AngleOfMotion) * 128",
+												"time": "ANIMATIONDURATION",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Start a cooldown timer to reset the player movement."
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "PlayerCollision",
+											"sid": 126124475823308,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "ANIMATIONDURATION",
+												"type": "once",
+												"tag": "\"Cooldown\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Change the player's angle of motion and update its animation to match it."
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "PlayerCollision",
+											"sid": 323124397619013,
+											"parameters": {
+												"instance-variable": "AngleOfMotion",
+												"value": "AngleOfMotion"
+											}
+										},
+										{
+											"callFunction": "SetPlayerAnimation",
+											"sid": 860289185105547,
+											"parameters": [
+												"\"Walk\"",
+												true
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Increase the number of steps taken by the player by one."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 907890256939678,
+											"parameters": {
+												"variable": "Steps",
+												"value": "Steps + 1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Bounce the feet icon the HUD."
+										},
+										{
+											"callFunction": "BounceHUDIcon",
+											"sid": 360229619866993,
+											"parameters": [
+												"\"Moves\""
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Update the HUD."
+										},
+										{
+											"callFunction": "UpdateHUD",
+											"sid": 541747285798511
+										},
+										{
+											"type": "comment",
+											"text": "Play a random footstep sound effect."
+										},
+										{
+											"callFunction": "PlaySFX",
+											"sid": 484208628850298,
+											"parameters": [
+												"\"Footstep00\" & Functions.RandomInteger(1, 3)",
+												"-12"
+											]
+										}
+									],
+									"sid": 822470467076642,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Destroy all keyboard hints currently present in the layout."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for-each",
+													"objectClass": "System",
+													"sid": 991663249132784,
+													"parameters": {
+														"object": "KeyboardHint"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-one-property",
+													"objectClass": "KeyboardHint",
+													"sid": 277038266676562,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"FadeOut\"",
+														"property": "offsetOpacity",
+														"end-value": "0",
+														"time": "0.125",
+														"ease": "easeinsine",
+														"destroy-on-complete": "yes",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												}
+											],
+											"sid": 497626110323592
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Move the crate forward."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 556954948737827,
+											"parameters": {
+												"value": "MoveCrate = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Change the player's animation to \"pushing\"."
+										},
+										{
+											"callFunction": "SetPlayerAnimation",
+											"sid": 279269148209292,
+											"parameters": [
+												"\"Push\"",
+												true
+											]
+										}
+									],
+									"sid": 214173753971703,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 403010862001456,
+													"parameters": {
+														"object": "CrateShape",
+														"expression": "CrateShape.UID = CrateUID"
+													}
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Move the crate using a tween animation."
+												},
+												{
+													"id": "stop-tweens",
+													"objectClass": "CrateShape",
+													"sid": 282568171372906,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Move\""
+													}
+												},
+												{
+													"id": "set-position",
+													"objectClass": "CrateShape",
+													"sid": 196229697220481,
+													"parameters": {
+														"x": "Self.X",
+														"y": "Self.Y"
+													}
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "CrateShape",
+													"sid": 929053263940294,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Move\"",
+														"property": "position",
+														"end-x": "Self.X + cos(AngleOfMotion) * 128",
+														"end-y": "Self.Y + sin(AngleOfMotion) * 128",
+														"time": "ANIMATIONDURATION",
+														"ease": "easeoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Rotate the crate 90 degrees using a tween animation."
+												},
+												{
+													"id": "stop-tweens",
+													"objectClass": "CrateShape",
+													"sid": 563640172110509,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Rotate\""
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "CrateShape",
+													"sid": 619528594566775,
+													"parameters": {
+														"angle": "Functions.CustomRound(Self.Angle, 90)"
+													}
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "CrateShape",
+													"sid": 376666092741439,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Rotate\"",
+														"property": "offsetAngle",
+														"end-value": "Self.Angle + 90",
+														"time": "ANIMATIONDURATION",
+														"ease": "easeoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Make the crate bounce using a tween animation."
+												},
+												{
+													"id": "stop-tweens",
+													"objectClass": "CrateShape",
+													"sid": 245086768745593,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Bounce\""
+													}
+												},
+												{
+													"id": "set-size",
+													"objectClass": "CrateShape",
+													"sid": 903860250320973,
+													"parameters": {
+														"width": "96",
+														"height": "96"
+													}
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "CrateShape",
+													"sid": 280278895868493,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Bounce\"",
+														"property": "size",
+														"end-x": "Self.Width + 16",
+														"end-y": "Self.Height + 16",
+														"time": "ANIMATIONDURATION",
+														"ease": "easeoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "yes",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Start a timer to check if the game is over."
+												},
+												{
+													"id": "start-timer",
+													"objectClass": "CrateShape",
+													"sid": 857883645526849,
+													"behaviorType": "Timer",
+													"parameters": {
+														"duration": "ANIMATIONDURATION",
+														"type": "once",
+														"tag": "\"CheckIfGameIsOver\""
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Play a random crate drag sound effect."
+												},
+												{
+													"callFunction": "PlaySFX",
+													"sid": 801031272980149,
+													"parameters": [
+														"\"CrateDrag00\" & Functions.RandomInteger(1, 3)",
+														"-18"
+													]
+												}
+											],
+											"sid": 486617983605872
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"Cooldown\" timer is over, give control back to the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "PlayerCollision",
+							"sid": 213240055537200,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Cooldown\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "PlayerCollision",
+							"sid": 275927575273520,
+							"parameters": {
+								"instance-variable": "IsMoving",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Display the idle animation."
+						},
+						{
+							"callFunction": "SetPlayerAnimation",
+							"sid": 734990842343161,
+							"parameters": [
+								"\"Idle\"",
+								true
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Generate a new set of keyboard hints around the player."
+						},
+						{
+							"callFunction": "GenerateKeyboardHintAroundPlayer",
+							"sid": 694079629714198
+						},
+						{
+							"type": "comment",
+							"text": "Start \"Bored\" timer, so the player displays a special animation after staying still for too long."
+						},
+						{
+							"id": "stop-timer",
+							"objectClass": "PlayerCollision",
+							"sid": 574766665411229,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Bored\""
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "PlayerCollision",
+							"sid": 682049238831099,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "5",
+								"type": "once",
+								"tag": "\"Bored\""
+							}
+						}
+					],
+					"sid": 247079727920459,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Pick all nearby birds and send them flying away."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 518425112944700,
+									"parameters": {
+										"object": "BirdShape",
+										"expression": "BirdShape.Scared = 0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 796861980515034,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 125761405194432,
+											"parameters": {
+												"object": "BirdShape",
+												"expression": "distance(PlayerCollision.X, PlayerCollision.Y, BirdShape.X, BirdShape.Y) <= 384"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 850904679444655,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for-each",
+													"objectClass": "System",
+													"sid": 661785641824840,
+													"parameters": {
+														"object": "BirdShape"
+													}
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Tag the bird as scared."
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "BirdShape",
+													"sid": 348647792031054,
+													"parameters": {
+														"instance-variable": "Scared",
+														"value": "true"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Move the bird away using two twin animation, one for the Z elevation and another one for the position."
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "BirdShape",
+													"sid": 580015012828926,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"ZElevation\"",
+														"property": "offsetZElevation",
+														"end-value": "Self.ZElevation + 512",
+														"time": "2",
+														"ease": "easeinsine",
+														"destroy-on-complete": "yes",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "BirdShape",
+													"sid": 142063135260753,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Position\"",
+														"property": "position",
+														"end-x": "Self.X + cos(angle(PlayerCollision.X, PlayerCollision.Y, Self.X, Self.Y)) * 512",
+														"end-y": "Self.Y + sin(angle(PlayerCollision.X, PlayerCollision.Y, Self.X, Self.Y)) * 512",
+														"time": "2",
+														"ease": "easeinsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Play a bird chirping sound effect."
+												},
+												{
+													"callFunction": "PlaySFX",
+													"sid": 254084693338785,
+													"parameters": [
+														"\"BirdChirping\"",
+														"-12"
+													]
+												}
+											],
+											"sid": 751629786813386,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Pick the bird's texture, and change it \"Flying\"."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-children",
+															"objectClass": "BirdShape",
+															"sid": 548324928129792,
+															"parameters": {
+																"child": "BirdTexture",
+																"which": "own"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-animation",
+															"objectClass": "BirdTexture",
+															"sid": 790747137375950,
+															"parameters": {
+																"animation": "\"Flying\"",
+																"from": "beginning"
+															}
+														}
+													],
+													"sid": 551083682472253
+												},
+												{
+													"eventType": "comment",
+													"text": "If the bird is on the left side of the player, flip it horizontally."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 246880654644770,
+															"parameters": {
+																"value": "3DCamera.LayerToLayerX(\"World\", \"3Dto2D\", BirdShape.X, BirdShape.Y, BirdShape.ZElevation) < 3DCamera.LayerToLayerX(\"Player\", \"3Dto2D\", PlayerCollision.X, PlayerCollision.Y, PlayerCollision.ZElevation)"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-height",
+															"objectClass": "BirdShape",
+															"sid": 554830244494076,
+															"parameters": {
+																"height": "-128"
+															}
+														}
+													],
+													"sid": 720298451661199
+												},
+												{
+													"eventType": "comment",
+													"text": "However, if the bird is on the right side of the player, don't flip it horizontally."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 814406848322595
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 346100689078815,
+															"parameters": {
+																"value": "3DCamera.LayerToLayerX(\"World\", \"3Dto2D\", BirdShape.X, BirdShape.Y, BirdShape.ZElevation) > 3DCamera.LayerToLayerX(\"Player\", \"3Dto2D\", PlayerCollision.X, PlayerCollision.Y, PlayerCollision.ZElevation)"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-height",
+															"objectClass": "BirdShape",
+															"sid": 749040899974811,
+															"parameters": {
+																"height": "128"
+															}
+														}
+													],
+													"sid": 944924015633676
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"Bored\" timer is over, play a bored animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "PlayerCollision",
+							"sid": 757707435578562,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Bored\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetPlayerAnimation",
+							"sid": 437304069440608,
+							"parameters": [
+								"\"Bored\"",
+								true
+							]
+						}
+					],
+					"sid": 225199342534094
+				},
+				{
+					"eventType": "comment",
+					"text": "Generate a set of keyboard hints around the player to assist the player."
+				},
+				{
+					"functionName": "GenerateKeyboardHintAroundPlayer",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 542677747293124,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 925815504513758,
+									"parameters": {
+										"name": "\"Angle\"",
+										"start-index": "0",
+										"end-index": "3"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 867106638339015,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If there's no wall nor crate next to the player, create a keyboard hint at that location."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-at-offset",
+											"objectClass": "PlayerCollision",
+											"sid": 183850450222775,
+											"parameters": {
+												"object": "WallShape",
+												"offset-x": "cos(loopindex(\"Angle\") * 90) * 128",
+												"offset-y": "sin(loopindex(\"Angle\") * 90) * 128"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "is-overlapping-at-offset",
+											"objectClass": "PlayerCollision",
+											"sid": 365221409226869,
+											"parameters": {
+												"object": "CrateShape",
+												"offset-x": "cos(loopindex(\"Angle\") * 90) * 128",
+												"offset-y": "sin(loopindex(\"Angle\") * 90) * 128"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 280649135842617,
+											"parameters": {
+												"object-to-create": "KeyboardHint",
+												"layer": "\"KeyboardHint\"",
+												"x": "PlayerCollision.X + cos(loopindex(\"Angle\") * 90) * 128",
+												"y": "PlayerCollision.Y + sin(loopindex(\"Angle\") * 90) * 128",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Display the correct key by playing a matching animation."
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "KeyboardHint",
+											"sid": 186704577461621,
+											"parameters": {
+												"animation": "str(round(loopindex(\"Angle\") * 90))",
+												"from": "beginning"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update the Z elevation, opacity and size of the keyboard hint."
+										},
+										{
+											"id": "set-z-elevation",
+											"objectClass": "KeyboardHint",
+											"sid": 427649534271492,
+											"parameters": {
+												"z": "1"
+											}
+										},
+										{
+											"id": "set-opacity",
+											"objectClass": "KeyboardHint",
+											"sid": 789894093409433,
+											"parameters": {
+												"opacity": "0"
+											}
+										},
+										{
+											"id": "set-size",
+											"objectClass": "KeyboardHint",
+											"sid": 743196554022597,
+											"parameters": {
+												"width": "Self.ImageWidth / 4",
+												"height": "Self.ImageHeight / 4"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Play a tween animation to gradually change the Z elevation, opacity and size of the keyboard hint."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "KeyboardHint",
+											"sid": 299901195692373,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ZElevation\"",
+												"property": "offsetZElevation",
+												"end-value": "8",
+												"time": "0.125",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "KeyboardHint",
+											"sid": 363525536077683,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Opacity\"",
+												"property": "offsetOpacity",
+												"end-value": "50",
+												"time": "0.125",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "KeyboardHint",
+											"sid": 457963162441015,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Size\"",
+												"property": "size",
+												"end-x": "Self.ImageWidth / 2",
+												"end-y": "Self.ImageHeight / 2",
+												"time": "0.125",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 554715411093816
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"CheckIfGameIsOver\" timer if over, check if the game is over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "CrateShape",
+							"sid": 874796373384371,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"CheckIfGameIsOver\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "CheckIfGameIsOver",
+							"sid": 108078608002256
+						}
+					],
+					"sid": 845442172803192,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the crate if overlapping a goal, change its luminosity level and bounce the crate icon in the HUD."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "CrateShape",
+									"sid": 748727796039644,
+									"parameters": {
+										"object": "GoalShape"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "SetCrateLuminosity",
+									"sid": 861677155030989,
+									"parameters": [
+										"CrateShape.UID",
+										"150"
+									]
+								},
+								{
+									"callFunction": "BounceHUDIcon",
+									"sid": 947727356482208,
+									"parameters": [
+										"\"Crates\""
+									]
+								}
+							],
+							"sid": 935665720846909
+						}
+					]
+				}
+			],
+			"sid": 107243054801251
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Animations",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Set the player animation based on custom parameter."
+				},
+				{
+					"functionName": "SetPlayerAnimation",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "AnimationName",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 502434871863020
+						},
+						{
+							"name": "UseAngleOfMotion",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "",
+							"sid": 119507698878225
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 458669012971313,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the \"UseAngleOfMotion\" option is enabled, use the current angle of motion to partially determine which animation will be played."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 682294022101170,
+									"parameters": {
+										"value": "UseAngleOfMotion = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerTexture",
+									"sid": 279622869130337,
+									"parameters": {
+										"animation": "AnimationName&PlayerCollision.AngleOfMotion",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 889514811167162
+						},
+						{
+							"eventType": "comment",
+							"text": "However if the \"UseAngleOfMotion\" option is disabled, use only the specified animation name to determine which animation will be played."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 973774975623318
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 870285261217859,
+									"parameters": {
+										"value": "UseAngleOfMotion = 0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerTexture",
+									"sid": 461856542884497,
+									"parameters": {
+										"animation": "AnimationName",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 117289583475542
+						}
+					]
+				}
+			],
+			"sid": 952973624821464
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GameOver",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Check if the game is over."
+				},
+				{
+					"functionName": "CheckIfGameIsOver",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 983948942039354,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the number of crates in the correct place is equal to total number of crates in the layout, then it's game over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 344653643626636,
+									"parameters": {
+										"value": "Functions.GetCorrectCrates = CrateShape.Count"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Make the player display a celebratory animaiton."
+								},
+								{
+									"callFunction": "SetPlayerAnimation",
+									"sid": 851937219897265,
+									"parameters": [
+										"\"Celebrate\"",
+										false
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Make the camera zoom in."
+								},
+								{
+									"callFunction": "SetCameraScale",
+									"sid": 473403350616380,
+									"parameters": [
+										"0.5"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Disable the player's controls."
+								},
+								{
+									"callFunction": "SetInputFocus",
+									"sid": 920382669756183,
+									"parameters": [
+										"-1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Bounce the star icon in the HUD."
+								},
+								{
+									"callFunction": "BounceHUDIcon",
+									"sid": 849169360564748,
+									"parameters": [
+										"\"Level\""
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Display a \"Level complete!\" message in the middle of the screen."
+								},
+								{
+									"callFunction": "SetText",
+									"sid": 320876374436410,
+									"parameters": [
+										"\"Level complete!\"",
+										"\"Notification\"",
+										"1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Create a star above the player and gradually move it towards the player's hands."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 602833438573717,
+									"parameters": {
+										"object-to-create": "StarShape",
+										"layer": "\"Star\"",
+										"x": "PlayerCollision.X + 16",
+										"y": "PlayerCollision.Y + 16",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "StarShape",
+									"sid": 341356633650362,
+									"parameters": {
+										"angle": "PlayerShape.Angle"
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "StarShape",
+									"sid": 184131335070957,
+									"parameters": {
+										"z": "192 + 512"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "StarShape",
+									"sid": 562494683591834,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\"",
+										"property": "offsetZElevation",
+										"end-value": "192 + 16 + 8",
+										"time": "1.5",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play a confetti pop sound effect."
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 126159988905288,
+									"parameters": [
+										"\"ConfettiPop\"",
+										"-6"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Play a sparkling star sound effect."
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 767756955777949,
+									"parameters": [
+										"\"SparklingStar\"",
+										"-6"
+									]
+								}
+							],
+							"sid": 867448528446340,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Spawn a bunch of confetti on both sides of the screen."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 174437895181217,
+											"parameters": {
+												"count": "20"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "SpawnConfetti",
+											"sid": 118508224627712,
+											"parameters": [
+												"0",
+												"OriginalViewportHeight",
+												"315 - 25"
+											]
+										},
+										{
+											"callFunction": "SpawnConfetti",
+											"sid": 264646502965329,
+											"parameters": [
+												"OriginalViewportWidth",
+												"OriginalViewportHeight",
+												"225 + 25"
+											]
+										}
+									],
+									"sid": 700852927641436
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player isn't playing the last level, increase the number of completed levels and save the player profile."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 119900095450470,
+											"parameters": {
+												"value": "CompletedLevels < LASTLEVELINDEX"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 462754321319460,
+											"parameters": {
+												"variable": "CompletedLevels",
+												"value": "clamp(CompletedLevels + 1, 0, LASTLEVELINDEX)"
+											}
+										},
+										{
+											"callFunction": "SavePlayerProfile",
+											"sid": 744724527658729
+										},
+										{
+											"type": "comment",
+											"text": "Wait two seconds before loading the next level."
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "GameManager",
+											"sid": 970895152321826,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "2",
+												"type": "once",
+												"tag": "\"LoadNextLevel\""
+											}
+										}
+									],
+									"sid": 862971039457042
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the player is playing the last level, wait one seconds before loading the credits."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 998795040137106
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 119656026954063,
+											"parameters": {
+												"value": "CompletedLevels = LASTLEVELINDEX"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "start-timer",
+											"objectClass": "GameManager",
+											"sid": 577013215872748,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "2",
+												"type": "once",
+												"tag": "\"LoadCredits\""
+											}
+										}
+									],
+									"sid": 382174776759908
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Update the HUD."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"callFunction": "UpdateHUD",
+									"sid": 718190598921883
+								}
+							],
+							"sid": 512800080630560
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"LoadNextLevel\" timer is over, load the next level."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 539910238071639,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"LoadNextLevel\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "LoadLevel",
+							"sid": 350936413743243,
+							"parameters": [
+								"CompletedLevels"
+							]
+						}
+					],
+					"sid": 921254865733165
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"LoadCredits\" timer is over, load the credits."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 699333338882613,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"LoadCredits\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "GoToLayout",
+							"sid": 479962958771626,
+							"parameters": [
+								"\"Credits\"",
+								"0"
+							]
+						}
+					],
+					"sid": 640953524525203
+				},
+				{
+					"eventType": "comment",
+					"text": "Return the number of crates in the correct place."
+				},
+				{
+					"functionName": "GetCorrectCrates",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 775124020557462,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The number of crates in the correct place."
+						},
+						{
+							"eventType": "variable",
+							"name": "CorrectCrates",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 637381220297679
+						},
+						{
+							"eventType": "comment",
+							"text": "Loop through every crate in the layout and check if it's overlapping a goal."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 650131411518760,
+									"parameters": {
+										"object": "CrateShape"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 528444064053331,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the crate is overlapping a goal, increase the number of correct crates by one."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "CrateShape",
+											"sid": 942353120999120,
+											"parameters": {
+												"object": "GoalShape"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 864911567811320,
+											"parameters": {
+												"variable": "CorrectCrates",
+												"value": "CorrectCrates + 1"
+											}
+										}
+									],
+									"sid": 719665223908228
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Return the final number of correct crates."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 589243514245883,
+									"parameters": {
+										"value": "CorrectCrates"
+									}
+								}
+							],
+							"sid": 336766708421364
+						}
+					]
+				}
+			],
+			"sid": 889693846659973
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Confetti",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Spawn a single confetto in a specific position."
+				},
+				{
+					"functionName": "SpawnConfetti",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "PositionX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 287536079195474
+						},
+						{
+							"name": "PositionY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 162143181331526
+						},
+						{
+							"name": "AngleOfMotion",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 794914055303409
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 622905078502506,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "A random scale that will be used to change the confetto's width and height."
+						},
+						{
+							"eventType": "variable",
+							"name": "RandomScale",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 741109778993464
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 999276003601750,
+									"parameters": {
+										"object-to-create": "Confetto",
+										"layer": "\"Confetti\"",
+										"x": "PositionX",
+										"y": "PositionY",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set a random scale."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 786079186273265,
+									"parameters": {
+										"variable": "RandomScale",
+										"value": "random(0.75, 1)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Update the confetto's size using the random scale."
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Confetto",
+									"sid": 894735267257999,
+									"parameters": {
+										"width": "Self.ImageWidth * RandomScale",
+										"height": "Self.ImageHeight * RandomScale * 0.1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize the confetto's angle."
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Confetto",
+									"sid": 731765072798821,
+									"parameters": {
+										"angle": "random(0, 360)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize the confetto's animation."
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Confetto",
+									"sid": 622143817557288,
+									"parameters": {
+										"frame-number": "Functions.RandomInteger(0, Self.AnimationFrameCount - 1)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Using a tween animation to gradually make the confetto longer."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Confetto",
+									"sid": 246900806054792,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Height\"",
+										"property": "offsetHeight",
+										"end-value": "Self.ImageHeight * RandomScale",
+										"time": "random(1, 2)",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "yes",
+										"ping-pong": "yes",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize the confetto's rotation speed."
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "Confetto",
+									"sid": 386802811107245,
+									"behaviorType": "Rotate",
+									"parameters": {
+										"speed": "random(90, 180) * choose(-1, 1)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize the confetto's speed."
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "Confetto",
+									"sid": 725550252769664,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"speed": "random(768, 2560)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize the confetto's angle of motion."
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "Confetto",
+									"sid": 279797721300191,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "AngleOfMotion + random(-7.5, 7.5)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize the confetto's gravity."
+								},
+								{
+									"id": "set-gravity",
+									"objectClass": "Confetto",
+									"sid": 168262830399707,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"gravity": "random(2560, 4096)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Start a time to destroy the confetto after a few seconds."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Confetto",
+									"sid": 363710859419275,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "2.5",
+										"type": "once",
+										"tag": "\"SelfDestroy\""
+									}
+								}
+							],
+							"sid": 877672358299579
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"SelfDestroy\" timer is over, destroy the confetto."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Confetto",
+							"sid": 566115212727152,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SelfDestroy\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 687187339132101,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 760640027081245,
+									"parameters": {
+										"object": "Confetto"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Confetto",
+									"sid": 992256484526496
+								}
+							],
+							"sid": 851847945178334
+						}
+					]
+				}
+			],
+			"sid": 749827795770177
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "HUD",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Make a specific icon in the HUD bounce using a tween animation."
+				},
+				{
+					"functionName": "BounceHUDIcon",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "HUDIconID",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 174570701429922
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 367227157029764,
+							"parameters": {
+								"object": "HUDIcon",
+								"expression": "HUDIcon.ID = HUDIconID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "stop-tweens",
+							"objectClass": "HUDIcon",
+							"sid": 137012969045404,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Bounce\""
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "HUDIcon",
+							"sid": 946509436506263,
+							"parameters": {
+								"width": "Self.ImageWidth",
+								"height": "Self.ImageHeight"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "HUDIcon",
+							"sid": 220393794209454,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Bounce\"",
+								"property": "size",
+								"end-x": "Self.ImageWidth + 16",
+								"end-y": "Self.ImageHeight + 16",
+								"time": "0.125",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 574359871977769
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the HUD, by display the current number of steps taken, crates in the correct place and completed levels."
+				},
+				{
+					"functionName": "UpdateHUD",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "SetText",
+							"sid": 683901601608527,
+							"parameters": [
+								"zeropad(SelectedLevelIndex + 1, 2) & \"/\" & LASTLEVELINDEX + 1",
+								"\"Level\"",
+								"0"
+							]
+						},
+						{
+							"callFunction": "SetText",
+							"sid": 998318614732097,
+							"parameters": [
+								"Functions.GetCorrectCrates & \"/\" & GoalShape.Count",
+								"\"Crates\"",
+								"0"
+							]
+						},
+						{
+							"callFunction": "SetText",
+							"sid": 849503888848607,
+							"parameters": [
+								"zeropad(Steps, 3)",
+								"\"Moves\"",
+								"0"
+							]
+						}
+					],
+					"sid": 709571567605625
+				}
+			],
+			"sid": 971048443623600
+		}
+	],
+	"sid": 287515942773032
+}

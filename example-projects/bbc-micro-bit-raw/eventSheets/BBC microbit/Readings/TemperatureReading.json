@@ -1,0 +1,128 @@
+{
+	"name": "TemperatureReading",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "These IDs are from the following documentation: https://lancaster-university.github.io/microbit-docs/resources/bluetooth/bluetooth_profile.html"
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for the overall temperature service."
+		},
+		{
+			"eventType": "variable",
+			"name": "TemperatureServiceUUID",
+			"type": "string",
+			"initialValue": "e95d6100-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 399259236065883
+		},
+		{
+			"eventType": "comment",
+			"text": "ID for receiving temperature readings."
+		},
+		{
+			"eventType": "variable",
+			"name": "TemperatureDataUUID",
+			"type": "string",
+			"initialValue": "e95d9250-251d-470a-a062-fa1922dfa9a8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 234312232467744
+		},
+		{
+			"eventType": "comment",
+			"text": "A global variable with the last temperature reading in degrees celcius."
+		},
+		{
+			"eventType": "variable",
+			"name": "TemperatureReadingCelcius",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 880731125863631
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Temperature readings",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Upon connecting to a device, start notifications for the temperature reading in the temperature service."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-device-connected",
+							"objectClass": "Bluetooth",
+							"sid": 643888452471494
+						}
+					],
+					"actions": [
+						{
+							"id": "start-stop-characteristic-notifications",
+							"objectClass": "Bluetooth",
+							"sid": 581774636664962,
+							"parameters": {
+								"device-id": "Bluetooth.DeviceID",
+								"service": "TemperatureServiceUUID",
+								"characteristic": "TemperatureDataUUID",
+								"notifications": "start"
+							}
+						}
+					],
+					"sid": 766885402590947
+				},
+				{
+					"eventType": "comment",
+					"text": "When a temperature reading is received, read the value from the Binary Data object. The documentation indicates this is a signed 8-bit integer representing the temperature in degrees celcius, so read it with the GetInt8 expression, and display the result."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-characteristic-notification",
+							"objectClass": "Bluetooth",
+							"sid": 340236182053784,
+							"parameters": {
+								"characteristic": "TemperatureDataUUID",
+								"binary-data": "BinaryData"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 834669737942419,
+							"parameters": {
+								"variable": "TemperatureReadingCelcius",
+								"value": "BinaryData.GetInt8(0)"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TemperatureReadingText",
+							"sid": 327297168810075,
+							"parameters": {
+								"text": "\"Temperature: \" & TemperatureReadingCelcius & \"°C\""
+							}
+						}
+					],
+					"sid": 211784031817138
+				}
+			],
+			"sid": 564077531748448
+		}
+	],
+	"sid": 367862416568278
+}

@@ -1,0 +1,1205 @@
+{
+	"name": "Code",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of our patrons on https://www.patreon.com/viridinostudios and our good friends at https://www.construct.net."
+		},
+		{
+			"eventType": "comment",
+			"text": "What action the player is currently performing."
+		},
+		{
+			"eventType": "variable",
+			"name": "Mode",
+			"type": "string",
+			"initialValue": "Inspecting",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 364018215549210
+		},
+		{
+			"eventType": "comment",
+			"text": "The UID of the currently selected crate."
+		},
+		{
+			"eventType": "variable",
+			"name": "SelectedUID",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 922476166568855
+		},
+		{
+			"eventType": "comment",
+			"text": "How big each tile is."
+		},
+		{
+			"eventType": "variable",
+			"name": "TILESIZE",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 144864952335150
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the layout by refreshing the state of each ground tile and adjusting the camera position and projection type."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 733235754681572
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "RefreshGroundTiles",
+							"sid": 526948587597126
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 487974037404951,
+							"parameters": {
+								"cam-x": "Camera.X + 128",
+								"cam-y": "Camera.Y + 128",
+								"cam-z": "64",
+								"look-x": "Camera.X",
+								"look-y": "Camera.Y",
+								"look-z": "8",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"id": "set-layout-projection",
+							"objectClass": "System",
+							"sid": 451528985455736,
+							"parameters": {
+								"projection": "orthographic"
+							}
+						}
+					],
+					"sid": 611422181536543,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also setup each crate collision by creating a textured 3D model on top of it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 508151823597890,
+									"parameters": {
+										"object": "CrateCollision"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create and attach a 3D model."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 849303016097943,
+									"parameters": {
+										"object-to-create": "CrateShape",
+										"layer": "\"World\"",
+										"x": "CrateCollision.X",
+										"y": "CrateCollision.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "CrateCollision",
+									"sid": 988023274118313,
+									"parameters": {
+										"child": "CrateShape",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create and attach a texture."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 276558962546769,
+									"parameters": {
+										"object-to-create": "CrateTexture",
+										"layer": "\"World\"",
+										"x": "CrateShape.X",
+										"y": "CrateShape.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "CrateTexture",
+									"sid": 315002747913629,
+									"parameters": {
+										"animation": "CrateCollision.SeedType",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "CrateTexture",
+									"sid": 371296598933470,
+									"parameters": {
+										"z": "CrateShape.ZHeight + 1"
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "CrateShape",
+									"sid": 167813537250520,
+									"parameters": {
+										"child": "CrateTexture",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Replace previous textures."
+								},
+								{
+									"id": "set-face-object",
+									"objectClass": "CrateShape",
+									"sid": 747062574091058,
+									"parameters": {
+										"face": "bottom",
+										"object": "CrateTexture"
+									}
+								},
+								{
+									"id": "set-face-object",
+									"objectClass": "CrateShape",
+									"sid": 491187015309375,
+									"parameters": {
+										"face": "right",
+										"object": "CrateTexture"
+									}
+								}
+							],
+							"sid": 886223247770019
+						},
+						{
+							"eventType": "comment",
+							"text": "Wait 10 seconds before removing the tutorial from the player screen, so it has enough time to read it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 157965780112412,
+									"parameters": {
+										"seconds": "10"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Text",
+									"sid": 790763601445605,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"SelfDestroy\"",
+										"property": "offsetY",
+										"end-value": "Self.Y + 160",
+										"time": "2",
+										"ease": "easeinsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 783536972607162
+						}
+					]
+				}
+			],
+			"sid": 961734721120380
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If a crate is touched while in inspecting mode, select it and change to editing mode."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 433492338592514,
+							"parameters": {
+								"object": "CrateCollision"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 331348369623442,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 280157538108139,
+									"parameters": {
+										"first-value": "Mode",
+										"comparison": 0,
+										"second-value": "\"Inspecting\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 274289653885523,
+									"parameters": {
+										"variable": "Mode",
+										"value": "\"Editing\""
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 585334471951653,
+									"parameters": {
+										"variable": "SelectedUID",
+										"value": "CrateCollision.UID"
+									}
+								}
+							],
+							"sid": 817244140151087
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "While in editing mode, constantly check if the selected crate is able to move to a nearby empty tile."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 851784270528868,
+							"parameters": {
+								"first-value": "Mode",
+								"comparison": 0,
+								"second-value": "\"Editing\""
+							}
+						},
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "CrateCollision",
+							"sid": 545235392116163,
+							"parameters": {
+								"unique-id": "SelectedUID"
+							}
+						},
+						{
+							"id": "is-touching-object",
+							"objectClass": "Touch",
+							"sid": 280405293030718,
+							"parameters": {
+								"object": "GroundTile"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 755021038546406,
+							"parameters": {
+								"value": "round(distance(CrateCollision.X, CrateCollision.Y, GroundTile.X, GroundTile.Y)) = 16"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 934100629038295,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the crate is moved to a tile that contains the same type of vegetable as the crate itself, destroy all connected vegetables in the chain."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "GroundTile",
+									"sid": 277771269982986,
+									"parameters": {
+										"object": "SeedCollision"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 855982571245015,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 874150325560364,
+											"parameters": {
+												"value": "SeedCollision.ParentUID = CrateCollision.UID"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 163254323671663,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for",
+													"objectClass": "System",
+													"sid": 154466753026039,
+													"parameters": {
+														"name": "\"Destroy\"",
+														"start-index": "SeedCollision.Index",
+														"end-index": "CrateCollision.TrailCount - 1"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 762286539329871,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-all",
+															"objectClass": "System",
+															"sid": 260563007578153,
+															"parameters": {
+																"object": "SeedCollision"
+															}
+														},
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 574378997892344,
+															"parameters": {
+																"object": "SeedCollision",
+																"expression": "SeedCollision.ParentUID",
+																"comparison": 0,
+																"value": "CrateCollision.UID"
+															}
+														},
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 367973009636166,
+															"parameters": {
+																"object": "SeedCollision",
+																"expression": "SeedCollision.Index",
+																"comparison": 0,
+																"value": "loopindex(\"Destroy\")"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "destroy",
+															"objectClass": "SeedCollision",
+															"sid": 461141799113791
+														},
+														{
+															"id": "set-instvar-value",
+															"objectClass": "CrateCollision",
+															"sid": 646238013310995,
+															"parameters": {
+																"instance-variable": "TrailCount",
+																"value": "Self.TrailCount - 1"
+															}
+														}
+													],
+													"sid": 182012827884538
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Also move the crate to its new position and refresh the ground tiles once more."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-position",
+													"objectClass": "CrateCollision",
+													"sid": 512924436540965,
+													"parameters": {
+														"x": "GroundTile.X",
+														"y": "GroundTile.Y"
+													}
+												},
+												{
+													"callFunction": "RefreshGroundTiles",
+													"sid": 116256733582708
+												}
+											],
+											"sid": 344968078875950
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the crate is moved to a completely empty tile, create a new seed on the previous crate position."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 478171210439433
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "GroundTile",
+									"sid": 580788219165049,
+									"parameters": {
+										"object": "SeedCollision"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "GroundTile",
+									"sid": 831585231439657,
+									"parameters": {
+										"instance-variable": "Busy"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create and attach the seed collision."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 863472919134926,
+									"parameters": {
+										"object-to-create": "SeedCollision",
+										"layer": "\"World\"",
+										"x": "CrateCollision.X",
+										"y": "CrateCollision.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "CrateCollision",
+									"sid": 846852611208028,
+									"parameters": {
+										"x": "GroundTile.X",
+										"y": "GroundTile.Y"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "SeedCollision",
+									"sid": 255835944137851,
+									"parameters": {
+										"instance-variable": "ParentUID",
+										"value": "CrateCollision.UID"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "SeedCollision",
+									"sid": 561514421030712,
+									"parameters": {
+										"instance-variable": "Index",
+										"value": "CrateCollision.TrailCount"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "CrateCollision",
+									"sid": 435719086490055,
+									"parameters": {
+										"instance-variable": "TrailCount",
+										"value": "Self.TrailCount + 1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create and attach the seed 3D model."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 211922372050523,
+									"parameters": {
+										"object-to-create": "SeedShape",
+										"layer": "\"World\"",
+										"x": "SeedCollision.X",
+										"y": "SeedCollision.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "SeedCollision",
+									"sid": 172210863334705,
+									"parameters": {
+										"child": "SeedShape",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "SeedShape",
+									"sid": 357462011306485,
+									"parameters": {
+										"angle": "45"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "SeedShape",
+									"sid": 969545912593937,
+									"parameters": {
+										"width": "8",
+										"height": "0"
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "SeedShape",
+									"sid": 834185425084339,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Transition\"",
+										"property": "size",
+										"end-x": "Self.Width",
+										"end-y": "16",
+										"time": "0.25",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create and attach the seed texture."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 536400068161496,
+									"parameters": {
+										"object-to-create": "SeedTexture",
+										"layer": "\"World\"",
+										"x": "SeedShape.X",
+										"y": "SeedShape.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "SeedTexture",
+									"sid": 754785341213627,
+									"parameters": {
+										"animation": "CrateCollision.SeedType",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "SeedTexture",
+									"sid": 783636658285094,
+									"parameters": {
+										"z": "SeedShape.ZHeight + 1"
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "SeedShape",
+									"sid": 234878703882317,
+									"parameters": {
+										"child": "SeedTexture",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Replace the previous texture."
+								},
+								{
+									"id": "set-face-object",
+									"objectClass": "SeedShape",
+									"sid": 702048049634341,
+									"parameters": {
+										"face": "right",
+										"object": "SeedTexture"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also refresh the ground tile and check the player progress."
+								},
+								{
+									"callFunction": "RefreshGroundTiles",
+									"sid": 202810491169380
+								},
+								{
+									"callFunction": "CheckProgress",
+									"sid": 281781574040718
+								}
+							],
+							"sid": 989378842714473
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player stops touching the screen while in editing mode, change it back to inspecting mode and reset the selected crate."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-touch-end",
+							"objectClass": "Touch",
+							"sid": 650493129253642
+						}
+					],
+					"actions": [],
+					"sid": 442030239668204,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 942467579662661,
+									"parameters": {
+										"first-value": "Mode",
+										"comparison": 0,
+										"second-value": "\"Editing\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 869521777045680,
+									"parameters": {
+										"variable": "Mode",
+										"value": "\"Inspecting\""
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 899352114689109,
+									"parameters": {
+										"variable": "SelectedUID",
+										"value": "-1"
+									}
+								}
+							],
+							"sid": 594083256543403
+						}
+					]
+				}
+			],
+			"sid": 947711430602246
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Utilities",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Round a value to the nearest multiple of 16."
+				},
+				{
+					"functionName": "RoundValue",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Value",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 438869219067643
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 905684673078068,
+							"parameters": {
+								"value": "round(Value / TILESIZE) * TILESIZE"
+							}
+						}
+					],
+					"sid": 644419647395917
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the busy state of each ground tile."
+				},
+				{
+					"functionName": "RefreshGroundTiles",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 564089428165479,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 234810980187925,
+									"parameters": {
+										"object": "GroundTile"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 346952007182399,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the ground tile is overlapping a crate, then it's busy."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "GroundTile",
+											"sid": 578517957196138,
+											"parameters": {
+												"object": "CrateCollision"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "GroundTile",
+											"sid": 258270377996296,
+											"parameters": {
+												"instance-variable": "Busy",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 400657367273346
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the ground tile isn't overlapping a crate, then it isn't busy."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 985424662413614
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "GroundTile",
+											"sid": 472378391821133,
+											"parameters": {
+												"object": "CrateCollision"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "GroundTile",
+											"sid": 805696728856334,
+											"parameters": {
+												"instance-variable": "Busy",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 607232724579334
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if the player has won the game."
+				},
+				{
+					"functionName": "CheckProgress",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 650321374449596,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "Total",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 801264090700823
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 661273022181708,
+									"parameters": {
+										"object": "CrateCollision"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 828190123089301,
+									"parameters": {
+										"variable": "Total",
+										"value": "Total + CrateCollision.TrailCount + 1"
+									}
+								}
+							],
+							"sid": 986779958363606
+						},
+						{
+							"eventType": "comment",
+							"text": "If the total number of crates in the correct place is equal to the overall total number of crates in the layout, then change it to the celebrating mode."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 683327579485372,
+									"parameters": {
+										"value": "Total = GroundTile.Count"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 352610005065932,
+									"parameters": {
+										"variable": "Mode",
+										"value": "\"Celebrating\""
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 461335919095061,
+									"parameters": {
+										"variable": "SelectedUID",
+										"value": "-1"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 344796426303141,
+									"parameters": {
+										"seconds": "0"
+									}
+								}
+							],
+							"sid": 551728270892034,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "PositionX",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 430552462443817
+								},
+								{
+									"eventType": "variable",
+									"name": "WaitTime",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 296601142894853
+								},
+								{
+									"eventType": "comment",
+									"text": "Apply a bounce and flash effect on each vegetable, but with a small delay between each one of them, creating some sort of wave effect."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 604656742318416,
+											"parameters": {
+												"name": "\"Chunk\"",
+												"start-index": "0",
+												"end-index": "LayoutWidth / TILESIZE - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 724466807345426,
+											"parameters": {
+												"variable": "PositionX",
+												"value": "TILESIZE / 2 + loopindex(\"Chunk\") * TILESIZE"
+											}
+										}
+									],
+									"sid": 709068314491572,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 657850111574690,
+													"parameters": {
+														"object": "SeedShape",
+														"expression": "SeedShape.X",
+														"comparison": 0,
+														"value": "PositionX"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 503567926274604,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-two-values",
+															"objectClass": "System",
+															"sid": 536654615876904,
+															"parameters": {
+																"first-value": "SeedShape.PickedCount",
+																"comparison": 5,
+																"second-value": "1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 294898273319137,
+															"parameters": {
+																"variable": "WaitTime",
+																"value": "WaitTime + 0.1"
+															}
+														},
+														{
+															"id": "wait",
+															"objectClass": "System",
+															"sid": 275325795586899,
+															"parameters": {
+																"seconds": "WaitTime"
+															}
+														},
+														{
+															"id": "tween-one-property",
+															"objectClass": "SeedShape",
+															"sid": 752137158562144,
+															"behaviorType": "Tween",
+															"parameters": {
+																"tags": "\"Bounce\"",
+																"property": "offsetZElevation",
+																"end-value": "2",
+																"time": "0.15",
+																"ease": "easeoutsine",
+																"destroy-on-complete": "no",
+																"loop": "no",
+																"ping-pong": "yes"
+															}
+														},
+														{
+															"id": "tween-value",
+															"objectClass": "SeedShape",
+															"sid": 397228877700456,
+															"behaviorType": "Tween",
+															"parameters": {
+																"tags": "\"Flash\"",
+																"start-value": "150",
+																"end-value": "100",
+																"time": "0.5",
+																"ease": "default",
+																"destroy-on-complete": "no",
+																"loop": "no",
+																"ping-pong": "no"
+															}
+														}
+													],
+													"sid": 804695021122425
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the flash effect while it's playing."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "SeedShape",
+							"sid": 998000678942194,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Flash\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "SeedShape",
+							"sid": 952533258544927,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "0",
+								"value": "Self.Tween.Value(\"Flash\")"
+							}
+						}
+					],
+					"sid": 923040952132037
+				}
+			],
+			"sid": 644148229148166
+		}
+	],
+	"sid": 252193631855446
+}

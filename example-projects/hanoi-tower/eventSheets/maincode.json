@@ -1,0 +1,1167 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the layout by changing the camera projection mode to orthographic."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 236149713133481
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-projection",
+							"objectClass": "System",
+							"sid": 855099849507846,
+							"parameters": {
+								"projection": "orthographic"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also move the camera away from the layout center, in order to make the game pieces visible."
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 705049498822266,
+							"parameters": {
+								"cam-x": "LayoutWidth / 2  + 256",
+								"cam-y": "LayoutHeight / 2 + 256",
+								"cam-z": "128 + 2",
+								"look-x": "LayoutWidth / 2 ",
+								"look-y": "LayoutHeight / 2 ",
+								"look-z": "2",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Destroy the tutorial text after a few seconds, so it doesn't stay on-screen forever."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 684246111938559,
+							"parameters": {
+								"seconds": "18"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Tutorial",
+							"sid": 133400307126094,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SelfDestroy\"",
+								"property": "offsetY",
+								"end-value": "Self.Y + 256",
+								"time": "2",
+								"ease": "easeinsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 995818022817143
+				}
+			],
+			"sid": 183063461155306
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the mouse cursor is over a tower collision, make the highlight visible and move it over the same tower."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 919884948738829,
+							"parameters": {
+								"object": "TowerCollision"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Highlight",
+							"sid": 576994833490170,
+							"parameters": {
+								"x": "TowerCollision.X",
+								"y": "TowerCollision.Y"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "Highlight",
+							"sid": 693053928352550,
+							"parameters": {
+								"visibility": "visible"
+							}
+						}
+					],
+					"sid": 106502996459366
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the mouse cursor isn't over a tower collision, make the highlight invisible."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 214534653635702
+						},
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 488804455725356,
+							"parameters": {
+								"object": "TowerCollision"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "Highlight",
+							"sid": 605578510877392,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 499319517706028
+				},
+				{
+					"eventType": "comment",
+					"text": "If a tower collision is touched, pick a disc from it or put a floating disc on it, depending on the situation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 362234977461398,
+							"parameters": {
+								"object": "TowerCollision"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 527516037910158,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "But only if there's no cooldown running at the time."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "GameManager",
+									"sid": 968506762193255,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Cooldown\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 181204647302221,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "How many discs are currently floating."
+								},
+								{
+									"eventType": "variable",
+									"name": "TotalFloating",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 121704308690727
+								},
+								{
+									"eventType": "comment",
+									"text": "Count how many discs are floating."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 330794413964134,
+											"parameters": {
+												"object": "Disc"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 326781429997111,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "Disc",
+													"sid": 334407751820828,
+													"parameters": {
+														"instance-variable": "IsFloating"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "add-to-eventvar",
+													"objectClass": "System",
+													"sid": 700297120149247,
+													"parameters": {
+														"variable": "TotalFloating",
+														"value": "1"
+													}
+												}
+											],
+											"sid": 325222387702314
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "If there's one disc floating, move it down to the selected tower."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 269905545548725,
+											"parameters": {
+												"variable": "TotalFloating",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 560661051933583,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "The size of the currently floating disc."
+										},
+										{
+											"eventType": "variable",
+											"name": "FloatingDiscSize",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 636323675654780
+										},
+										{
+											"eventType": "comment",
+											"text": "The size of the currently grounded disc."
+										},
+										{
+											"eventType": "variable",
+											"name": "GroundedDiscSize",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 763886886468758
+										},
+										{
+											"eventType": "comment",
+											"text": "By default, set the grounded disc size to be infinity, so if there are no grounded discs in the tower, the floating one will still be considered the biggest and also eligible for being moved down."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 694106135448650,
+													"parameters": {
+														"variable": "GroundedDiscSize",
+														"value": "Infinity"
+													}
+												}
+											],
+											"sid": 404676286582478
+										},
+										{
+											"eventType": "comment",
+											"text": "Calculate and store the size of the floating disc."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 344018202122616,
+													"parameters": {
+														"object": "Disc",
+														"expression": "Disc.IsFloating",
+														"comparison": 0,
+														"value": "1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 362702562779719,
+													"parameters": {
+														"variable": "FloatingDiscSize",
+														"value": "Disc.Width * Disc.Height"
+													}
+												}
+											],
+											"sid": 783212620324281
+										},
+										{
+											"eventType": "comment",
+											"text": "Calculate and store the size of the grounded disc."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 910250738579162,
+													"parameters": {
+														"object": "Disc",
+														"expression": "Disc.IsFloating",
+														"comparison": 0,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 339376064478438,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 611998053652578,
+															"parameters": {
+																"object": "Disc",
+																"expression": "Disc.CurrentTowerIndex",
+																"comparison": 0,
+																"value": "TowerCollision.TowerIndex"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 105406165375230,
+													"children": [
+														{
+															"eventType": "comment",
+															"text": "But only if the tower has at least one disc available."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "compare-two-values",
+																	"objectClass": "System",
+																	"sid": 526771174750222,
+																	"parameters": {
+																		"first-value": "Disc.PickedCount",
+																		"comparison": 4,
+																		"second-value": "0"
+																	}
+																}
+															],
+															"actions": [],
+															"sid": 138109705096645,
+															"children": [
+																{
+																	"eventType": "comment",
+																	"text": "Use a descending loop to make sure the highest disc is picked."
+																},
+																{
+																	"eventType": "block",
+																	"conditions": [
+																		{
+																			"id": "for-each-ordered",
+																			"objectClass": "System",
+																			"sid": 490422455480798,
+																			"parameters": {
+																				"object": "Disc",
+																				"expression": "Disc.ZElevation",
+																				"order": "descending"
+																			}
+																		}
+																	],
+																	"actions": [
+																		{
+																			"id": "set-eventvar-value",
+																			"objectClass": "System",
+																			"sid": 774032656924991,
+																			"parameters": {
+																				"variable": "GroundedDiscSize",
+																				"value": "Disc.Width * Disc.Height"
+																			}
+																		},
+																		{
+																			"type": "comment",
+																			"text": "Stop the loop, so it only happens a single time."
+																		},
+																		{
+																			"id": "stop-loop",
+																			"objectClass": "System",
+																			"sid": 608747276024697
+																		}
+																	],
+																	"sid": 540778293901237
+																}
+															]
+														}
+													]
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "If the floating disc has the same size of the grounded one, or is at least smaller than it, compare the size of both discs and only allow the floating disc to be moved down, if it's bigger than the grounded one."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 935998233971886,
+													"parameters": {
+														"first-value": "FloatingDiscSize",
+														"comparison": 3,
+														"second-value": "GroundedDiscSize"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 319042776548428,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 140181857629148,
+															"parameters": {
+																"object": "Disc",
+																"expression": "Disc.IsFloating",
+																"comparison": 0,
+																"value": "1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"type": "comment",
+															"text": "Add one to the total discs in the tower, this number is used to calculate the height of each disc."
+														},
+														{
+															"id": "add-to-instvar",
+															"objectClass": "TowerCollision",
+															"sid": 711293169613201,
+															"parameters": {
+																"instance-variable": "TotalDiscs",
+																"value": "1"
+															}
+														},
+														{
+															"id": "set-boolean-instvar",
+															"objectClass": "Disc",
+															"sid": 788802159671263,
+															"parameters": {
+																"instance-variable": "IsFloating",
+																"value": "false"
+															}
+														},
+														{
+															"id": "set-instvar-value",
+															"objectClass": "Disc",
+															"sid": 407045236411030,
+															"parameters": {
+																"instance-variable": "CurrentTowerIndex",
+																"value": "TowerCollision.TowerIndex"
+															}
+														},
+														{
+															"id": "tween-one-property",
+															"objectClass": "Disc",
+															"sid": 570073740286546,
+															"behaviorType": "Tween",
+															"parameters": {
+																"tags": "\"Move\"",
+																"property": "offsetX",
+																"end-value": "TowerCollision.X",
+																"time": "0.25",
+																"ease": "easeinoutsine",
+																"destroy-on-complete": "no",
+																"loop": "no",
+																"ping-pong": "no"
+															}
+														},
+														{
+															"type": "comment",
+															"text": "Store the next Z elevation in a local variable."
+														},
+														{
+															"id": "set-instvar-value",
+															"objectClass": "Disc",
+															"sid": 388683059228569,
+															"parameters": {
+																"instance-variable": "NextZElevation",
+																"value": "(TowerCollision.TotalDiscs - 1) * 6"
+															}
+														},
+														{
+															"type": "comment",
+															"text": "Start a cooldown to temporarily prevent the player from making other moves."
+														},
+														{
+															"callFunction": "StartCooldown",
+															"sid": 647928188971824,
+															"parameters": [
+																"0.5"
+															]
+														}
+													],
+													"sid": 185747540361995
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "However, if the floating disc is bigger than the grounded one, execute a simple bounce animation towards the selected tower, showing to the player that such action isn't allowed."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 944704584880120
+												},
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 679753714766139,
+													"parameters": {
+														"first-value": "FloatingDiscSize",
+														"comparison": 4,
+														"second-value": "GroundedDiscSize"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 544372690367896,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 399307643200698,
+															"parameters": {
+																"object": "Disc",
+																"expression": "Disc.IsFloating",
+																"comparison": 0,
+																"value": "1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "tween-two-properties",
+															"objectClass": "Disc",
+															"sid": 514840925967681,
+															"behaviorType": "Tween",
+															"parameters": {
+																"tags": "\"Bounce\"",
+																"property": "position",
+																"end-x": "Self.X + cos(angle(Self.X, Self.Y, TowerCollision.X, TowerCollision.Y)) * 16",
+																"end-y": "Self.Y + sin(angle(Self.X, Self.Y, TowerCollision.X, TowerCollision.Y)) * 16",
+																"time": "0.15",
+																"ease": "easeoutsine",
+																"destroy-on-complete": "no",
+																"loop": "no",
+																"ping-pong": "yes"
+															}
+														},
+														{
+															"type": "comment",
+															"text": "Start a cooldown to temporarily prevent the player from making other moves."
+														},
+														{
+															"callFunction": "StartCooldown",
+															"sid": 776366574690501,
+															"parameters": [
+																"0.3"
+															]
+														}
+													],
+													"sid": 910142703078573
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if there's no floating disc, pick one from the selected tower."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 407745748817929
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 926697509384643,
+											"parameters": {
+												"variable": "TotalFloating",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 977598749928589,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 297449978283714,
+													"parameters": {
+														"object": "Disc",
+														"expression": "Disc.IsFloating",
+														"comparison": 0,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 747246138183375,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 565657563697622,
+															"parameters": {
+																"object": "Disc",
+																"expression": "Disc.CurrentTowerIndex",
+																"comparison": 0,
+																"value": "TowerCollision.TowerIndex"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 363666257829643,
+													"children": [
+														{
+															"eventType": "comment",
+															"text": "But only if the tower has at least one disc available."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "compare-two-values",
+																	"objectClass": "System",
+																	"sid": 710513888328328,
+																	"parameters": {
+																		"first-value": "Disc.PickedCount",
+																		"comparison": 4,
+																		"second-value": "0"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "subtract-from-instvar",
+																	"objectClass": "TowerCollision",
+																	"sid": 518595902915072,
+																	"parameters": {
+																		"instance-variable": "TotalDiscs",
+																		"value": "1"
+																	}
+																}
+															],
+															"sid": 923979535849481,
+															"children": [
+																{
+																	"eventType": "comment",
+																	"text": "Use a descending loop to make sure the highest disc is picked."
+																},
+																{
+																	"eventType": "block",
+																	"conditions": [
+																		{
+																			"id": "for-each-ordered",
+																			"objectClass": "System",
+																			"sid": 974443531832530,
+																			"parameters": {
+																				"object": "Disc",
+																				"expression": "Disc.ZElevation",
+																				"order": "descending"
+																			}
+																		}
+																	],
+																	"actions": [
+																		{
+																			"id": "set-boolean-instvar",
+																			"objectClass": "Disc",
+																			"sid": 340830757342650,
+																			"parameters": {
+																				"instance-variable": "IsFloating",
+																				"value": "true"
+																			}
+																		},
+																		{
+																			"id": "tween-one-property",
+																			"objectClass": "Disc",
+																			"sid": 429809697007869,
+																			"behaviorType": "Tween",
+																			"parameters": {
+																				"tags": "\"Ascend\"",
+																				"property": "offsetZElevation",
+																				"end-value": "40",
+																				"time": "0.25",
+																				"ease": "easeinoutsine",
+																				"destroy-on-complete": "no",
+																				"loop": "no",
+																				"ping-pong": "no"
+																			}
+																		},
+																		{
+																			"type": "comment",
+																			"text": "Start a cooldown to temporarily prevent the player from making other moves."
+																		},
+																		{
+																			"callFunction": "StartCooldown",
+																			"sid": 972517956712804,
+																			"parameters": [
+																				"0.25"
+																			]
+																		},
+																		{
+																			"type": "comment",
+																			"text": "Stop the loop, so it only happens a single time."
+																		},
+																		{
+																			"id": "stop-loop",
+																			"objectClass": "System",
+																			"sid": 203227884439592
+																		}
+																	],
+																	"sid": 934724793897415
+																}
+															]
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the disc has finished moving in the X axis, move it down the Z axis, based on the previously stored Z elevation value."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Disc",
+							"sid": 540291170604804,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Disc",
+							"sid": 326525332150654,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Descend\"",
+								"property": "offsetZElevation",
+								"end-value": "Self.NextZElevation",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 449490672713469
+				},
+				{
+					"eventType": "comment",
+					"text": "Start a cooldown timer with a pre-defined duration."
+				},
+				{
+					"functionName": "StartCooldown",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Duration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 373952677031240
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 960642162353302,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Cooldown\"",
+								"start-value": "0",
+								"end-value": "1",
+								"time": "Duration",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 451455124521900
+				}
+			],
+			"sid": 313199004630803
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Effects",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Once a disc is done moving down, create a bunch of smoke particles around it for a more impactful effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Disc",
+							"sid": 286187177376524,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Descend\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 292118749272551,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "How long it will take for the smoke to disappear."
+						},
+						{
+							"eventType": "variable",
+							"name": "RandomTime",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 777593022499173
+						},
+						{
+							"eventType": "comment",
+							"text": "The direction the smoke will move towards."
+						},
+						{
+							"eventType": "variable",
+							"name": "RandomAngle",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 612187687716158
+						},
+						{
+							"eventType": "comment",
+							"text": "How far the smoke will move from its original position."
+						},
+						{
+							"eventType": "variable",
+							"name": "RandomDistance",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 327439796489745
+						},
+						{
+							"eventType": "comment",
+							"text": "The amount of smoke particles is calculated based on the disc's width and height."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 485232655184391,
+									"parameters": {
+										"count": "(Disc.Width * Disc.Height) / 32"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 704282043348026,
+									"parameters": {
+										"object-to-create": "Smoke",
+										"layer": "\"3DObjects\"",
+										"x": "Disc.X + random(-Disc.Width / 2, Disc.Width / 2)",
+										"y": "Disc.Y + random(-Disc.Height / 2, Disc.Height / 2)",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make sure the smoke is on the same level as the disc."
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "Smoke",
+									"sid": 328822172627468,
+									"parameters": {
+										"z": "Disc.ZElevation"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize and store each parameter."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 554616622993183,
+									"parameters": {
+										"variable": "RandomTime",
+										"value": "random(0.5, 1)"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 573549553475684,
+									"parameters": {
+										"variable": "RandomAngle",
+										"value": "angle(Disc.X, Disc.Y, Smoke.X, Smoke.Y)"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 845338182449346,
+									"parameters": {
+										"variable": "RandomDistance",
+										"value": "random(4, 16)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Tween each parameter, based on the previously stored values, for a more natural looking effect."
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Smoke",
+									"sid": 666032588597566,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\"",
+										"property": "position",
+										"end-x": "Self.X + cos(RandomAngle) * RandomDistance",
+										"end-y": "Self.Y + sin(RandomAngle) * RandomDistance",
+										"time": "RandomTime",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Smoke",
+									"sid": 974079207315061,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShrinkWidthHeight\"",
+										"property": "size",
+										"end-x": "0",
+										"end-y": "0",
+										"time": "RandomTime",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "Smoke",
+									"sid": 234621326205011,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShrinkZHeight\"",
+										"start-value": "Self.ZHeight",
+										"end-value": "0",
+										"time": "RandomTime",
+										"ease": "default",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 240178281888319
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Manually apply the new Z height value."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 430587368276088
+						}
+					],
+					"actions": [],
+					"sid": 853601554051798,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 353035667773588,
+									"parameters": {
+										"object": "Smoke"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-z-height",
+									"objectClass": "Smoke",
+									"sid": 648697758976011,
+									"parameters": {
+										"z-height": "Self.Tween.Value(\"ShrinkZHeight\")"
+									}
+								}
+							],
+							"sid": 346367970964312
+						}
+					]
+				}
+			],
+			"sid": 981045156389976
+		}
+	],
+	"sid": 528580247850069
+}

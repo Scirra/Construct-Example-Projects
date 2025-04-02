@@ -1,0 +1,2772 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "objective",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Amount of grass to be mowed",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 641771835666954
+		},
+		{
+			"eventType": "variable",
+			"name": "quota",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Actual amount of grass mowed by the player",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 537640644653922
+		},
+		{
+			"eventType": "variable",
+			"name": "orbitSpeed",
+			"type": "number",
+			"initialValue": "240",
+			"comment": "How fast lawn mowers orbit",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 748688127479916
+		},
+		{
+			"eventType": "variable",
+			"name": "orbitDirection",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "1 = Clockwise, -1 = Counter-clockwise",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 933984392174275
+		},
+		{
+			"eventType": "variable",
+			"name": "gameOver",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the game over?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 616387990637510
+		},
+		{
+			"eventType": "variable",
+			"name": "levelBeaten",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Did the player beat the level?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 750139071144606
+		},
+		{
+			"eventType": "variable",
+			"name": "levelTransition",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "Level transition playing",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 348903712557864
+		},
+		{
+			"eventType": "variable",
+			"name": "tutorial",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "Is the tutorial being displayed?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 510513916278176
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "BERRY_SIZE",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "Size of the berry",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 766204771551397
+		},
+		{
+			"eventType": "variable",
+			"name": "QUOTA_PERCENTAGE",
+			"type": "number",
+			"initialValue": "75",
+			"comment": "% of total amount of grass necessary to meet the quota",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 826098727770266
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup initial layout state."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 250099992541261
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Camera starts looking at pivot harvester."
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 828590189344739,
+							"parameters": {
+								"cam-x": "Harvester1.X",
+								"cam-y": "Harvester1.Y + 196",
+								"cam-z": "256",
+								"look-x": "Harvester1.X",
+								"look-y": "Harvester1.Y",
+								"look-z": "Harvester1.ZElevation",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set initial state of UI."
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextGameOver",
+							"sid": 201010425584059,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextVictory",
+							"sid": 607910526814145,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextVictoryFinal",
+							"sid": 157333402796985,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextTutorial",
+							"sid": 853961091396984,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "Fader",
+							"sid": 535959272152615,
+							"parameters": {
+								"opacity": "100"
+							}
+						}
+					],
+					"sid": 955050396679837,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "First level displays the tutorial."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 801078606042396,
+									"parameters": {
+										"value": "LayoutName = \"Level1\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Fade tutorial in."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 639847663864497,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "95",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextTutorial",
+									"sid": 387208928569037,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowTextTutorial\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Level transition finished."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 568239398331445
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 481800731537943,
+									"parameters": {
+										"variable": "levelTransition",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 240069004664117
+						},
+						{
+							"eventType": "comment",
+							"text": "The other levels do not."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 612932907075328
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Disable tutorial state."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 497955886648595,
+									"parameters": {
+										"variable": "tutorial",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide Fader."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 899595083226835,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Level transition finished."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 299896660536942
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 762559549854020,
+									"parameters": {
+										"variable": "levelTransition",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 958347377257966
+						},
+						{
+							"eventType": "comment",
+							"text": "Fill the surface of each terrain object with berry billboards."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 269443229300198,
+									"parameters": {
+										"object": "Terrain"
+									}
+								},
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 617535679280915,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "Terrain.Width / BERRY_SIZE - 1"
+									}
+								},
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 808058724140247,
+									"parameters": {
+										"name": "\"j\"",
+										"start-index": "0",
+										"end-index": "Terrain.Height/ BERRY_SIZE - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create tall berry bush."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 161680191051791,
+									"parameters": {
+										"object-to-create": "Berry",
+										"layer": "\"Game\"",
+										"x": "max(\n    min(\n        Terrain.X + BERRY_SIZE * loopindex(\"i\") + BERRY_SIZE/2 - Terrain.Width/2,\n        Terrain.X + Terrain.Width/2 - BERRY_SIZE/2\n    ),\n    Terrain.X - Terrain.Width/2 + BERRY_SIZE/2\n)",
+										"y": "max(   \n   min(\n        Terrain.Y + BERRY_SIZE * loopindex(\"j\") + BERRY_SIZE/2 - Terrain.Height/2,\n        Terrain.Y + Terrain.Height/2 - BERRY_SIZE/2\n    ),\n    Terrain.Y - Terrain.Height/2 + BERRY_SIZE/2\n)",
+										"create-hierarchy": false,
+										"template-name": "\"Tall\" & choose(0, 1, 2, 3)"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Berry",
+									"sid": 588777811005807,
+									"parameters": {
+										"width": "Self.Width + random(8) - 4",
+										"height": "Self.Height + random(8) - 4"
+									}
+								},
+								{
+									"id": "set-z-height",
+									"objectClass": "Berry",
+									"sid": 149041645974040,
+									"parameters": {
+										"z-height": "Self.ZHeight + random(8)"
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "Berry",
+									"sid": 205992656310330,
+									"parameters": {
+										"z": "(Terrain.ZElevation + Terrain.ZHeight)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create short berry bush."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 715742659899115,
+									"parameters": {
+										"object-to-create": "BerryShort",
+										"layer": "\"Game\"",
+										"x": "Berry.X",
+										"y": "Berry.Y",
+										"create-hierarchy": false,
+										"template-name": "\"Short\" & choose(0, 1, 2, 3)"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "BerryShort",
+									"sid": 365132279731035,
+									"parameters": {
+										"width": "Berry.Width - 2",
+										"height": "Berry.Height - 2"
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "BerryShort",
+									"sid": 199836136039394,
+									"parameters": {
+										"z": "Berry.ZElevation"
+									}
+								}
+							],
+							"sid": 682059720589514,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Destroy berry if it overlaps an obstacle."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Berry",
+											"sid": 425268480808128,
+											"parameters": {
+												"object": "Obstacle"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Berry",
+											"sid": 474205324623216
+										}
+									],
+									"sid": 158484393901793
+								},
+								{
+									"eventType": "comment",
+									"text": "Destroy berry if it overlaps a mushroom block."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Berry",
+											"sid": 437301561639890,
+											"parameters": {
+												"object": "Mushroom"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Berry",
+											"sid": 243386183626061
+										}
+									],
+									"sid": 864849207378810
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Set objective value, as well as starting quota progress bar size."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 812312980073345,
+									"parameters": {
+										"seconds": "0"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 622118853042572,
+									"parameters": {
+										"variable": "objective",
+										"value": "int(Berry.Count * QUOTA_PERCENTAGE/100)"
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "ProgressBar",
+									"sid": 600299595636470,
+									"parameters": {
+										"width": "min(quota/objective * 240, 240)"
+									}
+								}
+							],
+							"sid": 191856655141863
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Hide tutorial."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tap",
+							"objectClass": "Touch",
+							"sid": 633845198158423
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 723011021172614,
+							"parameters": {
+								"variable": "tutorial"
+							}
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "Fader",
+							"sid": 626426602434750,
+							"behaviorType": "Tween",
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Deactivate tutorial state."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 427400850601375,
+							"parameters": {
+								"variable": "tutorial",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide tutorial screen."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 105793303619490,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTutorial",
+							"sid": 625914541957513,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideTextTutorial\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 474947147145680
+				}
+			],
+			"sid": 401552464443871
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game Over",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Harvester collision and Game Over."
+				},
+				{
+					"functionName": "CollideHarvester",
+					"functionDescription": "Harvester collision and Game Over",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 249048475273048,
+							"parameters": {
+								"variable": "gameOver"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 547331975657058,
+							"parameters": {
+								"variable": "levelBeaten"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 392451319105556,
+							"parameters": {
+								"variable": "tutorial"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set game over state."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 650421989069562,
+							"parameters": {
+								"variable": "gameOver",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Stop orbiting."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 704351914022172,
+							"parameters": {
+								"variable": "orbitDirection",
+								"value": "orbitDirection * (-1)"
+							}
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "HarvesterSaw",
+							"sid": 760829935399862,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BrakeHarvester\"",
+								"start-value": "orbitSpeed",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeoutquint",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Game Over."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 643718425960969,
+							"parameters": {
+								"seconds": "1.25"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 398790927498528,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "95",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextGameOver",
+							"sid": 534570737106268,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowGameOver\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 384583059918337
+				},
+				{
+					"eventType": "comment",
+					"text": "Smoothly reduce harvester orbiting speed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "HarvesterSaw",
+							"sid": 827781368892289,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BrakeHarvester\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 603653396331848,
+							"parameters": {
+								"variable": "orbitSpeed",
+								"value": "HarvesterSaw.Tween.Value(\"BrakeHarvester\")"
+							}
+						}
+					],
+					"sid": 656649149895565
+				},
+				{
+					"eventType": "comment",
+					"text": "Harvester sink animation and Game Over."
+				},
+				{
+					"functionName": "SinkHarvester",
+					"functionDescription": "Harvester sink animation and Game Over",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "whichHarvester",
+							"type": "number",
+							"initialValue": "1",
+							"comment": "Which harvester should sink?",
+							"sid": 264272297224672
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set game over state."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 609929721302788,
+							"parameters": {
+								"variable": "gameOver",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Stop orbiting."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Harvester1",
+							"sid": 138345554141065,
+							"parameters": {
+								"instance-variable": "orbiting",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Harvester2",
+							"sid": 101903213703896,
+							"parameters": {
+								"instance-variable": "orbiting",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide HarvesterSaw."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "HarvesterSaw",
+							"sid": 412949391376745,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideHarvesterSaw\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 725681957386281,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Sink Harvester 1."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 863260549271701,
+									"parameters": {
+										"value": "whichHarvester = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Harvester1",
+									"sid": 127779063320578,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"SinkHarvester\"",
+										"property": "offsetZElevation",
+										"end-value": "-4",
+										"time": "1",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 758613230566206
+						},
+						{
+							"eventType": "comment",
+							"text": "Sink Harvester 2."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 674517797433442
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Harvester2",
+									"sid": 759160820882768,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"SinkHarvester\"",
+										"property": "offsetZElevation",
+										"end-value": "-4",
+										"time": "1",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 700598856258973
+						},
+						{
+							"eventType": "comment",
+							"text": "Game Over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 802410530219082,
+									"parameters": {
+										"seconds": "1.25"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show Game Over screen."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 789610928056334,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "95",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextGameOver",
+									"sid": 778228535385109,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowGameOver\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 537269582688434
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Restart level."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tap",
+							"objectClass": "Touch",
+							"sid": 472397362985135
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 595751792314774,
+							"parameters": {
+								"variable": "gameOver"
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "Fader",
+							"sid": 169607389286185,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "95"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Fade out to black."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 723850146807597,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextGameOver",
+							"sid": 101406898518171,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideTextGameOver\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Restart the level."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 370262196975017
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 928974289671664
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 680720175115862
+						}
+					],
+					"sid": 333514941092276
+				}
+			],
+			"sid": 530179869773018
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Success",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player has succesfully reached current level's objective."
+				},
+				{
+					"functionName": "levelSuccess",
+					"functionDescription": "Player has succesfully reached current level's objective",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 792993740375801,
+							"parameters": {
+								"value": "floor(min(quota/objective * 100, 100)) = 100"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 185031033315991,
+							"parameters": {
+								"variable": "gameOver"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 296992254239313,
+							"parameters": {
+								"variable": "tutorial"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 805393491704421,
+							"parameters": {
+								"variable": "levelBeaten"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 917907152984186,
+							"parameters": {
+								"variable": "levelTransition"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set levelBeaten state."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 179743042264290,
+							"parameters": {
+								"variable": "levelBeaten",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Brake currently orbiting harvester."
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "HarvesterSaw",
+							"sid": 780751535798302,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BrakeHarvester\"",
+								"start-value": "orbitSpeed",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeoutquint",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show Victory screen."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 911829214459610,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "95",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 990147690696081,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If all 3 levels were completed, offer the player the possibility to restart the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 772211617674567,
+									"parameters": {
+										"value": "LayoutName = \"Level3\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextVictoryFinal",
+									"sid": 315114704118362,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowTextVictoryFinal\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 398419552836951
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player managed to beat a level, offer the option to go to the next one."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 427440112338202
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextVictory",
+									"sid": 210815348775627,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowTextVictory\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 439856580136282
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Go to the next level."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tap",
+							"objectClass": "Touch",
+							"sid": 556799481387072
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 889306788293472,
+							"parameters": {
+								"variable": "levelBeaten"
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "Fader",
+							"sid": 752280099246224,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "95"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Fade out to black."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 199392445819409,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextVictory",
+							"sid": 585784669958211,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideTextGameOver\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextVictoryFinal",
+							"sid": 614440798851070,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideTextGameOver\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 979355173970644,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Restart the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 356685970460715,
+									"parameters": {
+										"value": "LayoutName = \"Level3\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 220086093976072,
+									"parameters": {
+										"seconds": "0.5"
+									}
+								},
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 267482072835076
+								},
+								{
+									"id": "go-to-layout",
+									"objectClass": "System",
+									"sid": 646839142101220,
+									"parameters": {
+										"layout": "Level1"
+									}
+								}
+							],
+							"sid": 773149676811719
+						},
+						{
+							"eventType": "comment",
+							"text": "Go to the next level."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 936081687539286
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 616561441555235,
+									"parameters": {
+										"seconds": "0.5"
+									}
+								},
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 404192463990512
+								},
+								{
+									"id": "go-to-nextprevious-layout",
+									"objectClass": "System",
+									"sid": 383360932196786,
+									"parameters": {
+										"which": "next"
+									}
+								}
+							],
+							"sid": 944933727788852
+						}
+					]
+				}
+			],
+			"sid": 281760664064607
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Harvester Movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Make one harvester orbit the other."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Harvester1",
+							"sid": 514013999819460,
+							"parameters": {
+								"instance-variable": "orbiting"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 280621456206844,
+							"parameters": {
+								"variable": "tutorial"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Make Harvester 1 orbit around Harvester 2."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "Harvester1",
+							"sid": 372656755392104,
+							"parameters": {
+								"x": "Harvester2.X + cos(Self.orbitAngle) * 64",
+								"y": "Harvester2.Y + sin(Self.orbitAngle) * 64"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Harvester1",
+							"sid": 476407649669932,
+							"parameters": {
+								"instance-variable": "orbitAngle",
+								"value": "(Self.orbitAngle + orbitSpeed * dt * orbitDirection) % 360"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Guarantee that both harvesters are linked by HarvesterSaw object."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "HarvesterSaw",
+							"sid": 590785189037164,
+							"parameters": {
+								"x": "Harvester2.X",
+								"y": "Harvester2.Y"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "HarvesterSaw",
+							"sid": 975057122759855,
+							"parameters": {
+								"angle": "angle(Harvester2.X, Harvester2.Y, Harvester1.X, Harvester1.Y)"
+							}
+						}
+					],
+					"sid": 789482822462981
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 713408723133632
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Harvester2",
+							"sid": 765612494598498,
+							"parameters": {
+								"instance-variable": "orbiting"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 759375487606652,
+							"parameters": {
+								"variable": "tutorial"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Make Harvester 2 orbit around Harvester 1."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "Harvester2",
+							"sid": 765431762111333,
+							"parameters": {
+								"x": "Harvester1.X + cos(Self.orbitAngle) * 64",
+								"y": "Harvester1.Y + sin(Self.orbitAngle) * 64"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Harvester2",
+							"sid": 978246134001551,
+							"parameters": {
+								"instance-variable": "orbitAngle",
+								"value": "(Self.orbitAngle + orbitSpeed * dt * orbitDirection) % 360"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Guarantee that both harvesters are linked by HarvesterSaw object."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "HarvesterSaw",
+							"sid": 606005098758908,
+							"parameters": {
+								"x": "Harvester1.X",
+								"y": "Harvester1.Y"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "HarvesterSaw",
+							"sid": 537756857209359,
+							"parameters": {
+								"angle": "angle(Harvester1.X, Harvester1.Y, Harvester2.X, Harvester2.Y)"
+							}
+						}
+					],
+					"sid": 741283595628142
+				},
+				{
+					"eventType": "comment",
+					"text": "Change currently orbiting harvester."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "has-nth-touch",
+							"objectClass": "Touch",
+							"sid": 985357566215309,
+							"parameters": {
+								"touch-number": "0"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 297045255157391,
+							"parameters": {
+								"variable": "tutorial"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 967805555290802,
+							"parameters": {
+								"variable": "gameOver"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 338799232867326,
+							"parameters": {
+								"variable": "levelBeaten"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "HarvesterSaw",
+							"sid": 821796137315167,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HarvesterOrbitInvert\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "HarvesterSaw",
+							"sid": 159391365663235,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HarvesterSwapPivot\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "trigger-once-while-true",
+							"objectClass": "System",
+							"sid": 164313896438136
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Small cooldown before pivot can be changed again."
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "HarvesterSaw",
+							"sid": 378330795767580,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HarvesterSwapPivot\"",
+								"start-value": "0",
+								"end-value": "1",
+								"time": "0.2",
+								"ease": "noease",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 803946568707328,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Make Harvester 2 orbit Harvester 1."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Harvester1",
+									"sid": 824675204646011,
+									"parameters": {
+										"instance-variable": "orbiting"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Harvester2",
+									"sid": 627111990327106,
+									"parameters": {
+										"instance-variable": "orbitAngle",
+										"value": "angle(Harvester1.X, Harvester1.Y, Harvester2.X, Harvester2.Y)"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Harvester1",
+									"sid": 391860711482463,
+									"parameters": {
+										"instance-variable": "orbiting",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Harvester2",
+									"sid": 402991438834672,
+									"parameters": {
+										"instance-variable": "orbiting",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 154282520634411,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Check if Harvester 1 fell into the water."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Harvester1",
+											"sid": 530278337794539,
+											"parameters": {
+												"object": "Terrain"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "SinkHarvester",
+											"sid": 145441158696955,
+											"parameters": [
+												"1"
+											]
+										}
+									],
+									"sid": 262783837972548
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Make Harvester 1 orbit Harvester 2."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 348527222698546
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Harvester1",
+									"sid": 791333323632728,
+									"parameters": {
+										"instance-variable": "orbitAngle",
+										"value": "angle(Harvester2.X, Harvester2.Y, Harvester1.X, Harvester1.Y)"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Harvester1",
+									"sid": 492223860372904,
+									"parameters": {
+										"instance-variable": "orbiting",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Harvester2",
+									"sid": 799899749205602,
+									"parameters": {
+										"instance-variable": "orbiting",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 237094007241923,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Check if Harvester 2 fell into the water."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Harvester2",
+											"sid": 219740559640511,
+											"parameters": {
+												"object": "Terrain"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "SinkHarvester",
+											"sid": 970244199982469,
+											"parameters": [
+												"2"
+											]
+										}
+									],
+									"sid": 325675990148674
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 892333019695298
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Harvester Collision",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Invert current harvester orbit direction."
+				},
+				{
+					"functionName": "invertOrbit",
+					"functionDescription": "Invert current lawn mower orbit direction",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": true,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 812363782346283,
+							"parameters": {
+								"variable": "gameOver"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 591572500722033,
+							"parameters": {
+								"variable": "levelBeaten"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Pu mushroom on cooldown."
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Mushroom",
+							"sid": 982126531737546,
+							"parameters": {
+								"instance-variable": "onCooldown",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Stop all tweens."
+						},
+						{
+							"id": "stop-all-tweens",
+							"objectClass": "Mushroom",
+							"sid": 386248707191937,
+							"behaviorType": "Tween"
+						},
+						{
+							"type": "comment",
+							"text": "Change orbit direction."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 898488905969842,
+							"parameters": {
+								"variable": "orbitDirection",
+								"value": "orbitDirection * (-1)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Play mushroom's bounce animation."
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "Mushroom",
+							"sid": 596153497115981,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MushroomBounce\"",
+								"start-value": "1",
+								"end-value": "1.5",
+								"time": "0.1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Small cooldown before orbit can be inverted again."
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "HarvesterSaw",
+							"sid": 630302441791000,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HarvesterOrbitInvert\"",
+								"start-value": "0",
+								"end-value": "1",
+								"time": "0.2",
+								"ease": "noease",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 504049436154787,
+							"parameters": {
+								"seconds": "0.1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make mushroom tiny."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Mushroom",
+							"sid": 861567941164145,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MushroomDestroy\"",
+								"property": "offsetZElevation",
+								"end-value": "Mushroom.ZElevation - Mushroom.ZHeight",
+								"time": "0.5",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Mushroom",
+							"sid": 434524347996648,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MushroomDestroySize\"",
+								"property": "size",
+								"end-x": "0.01",
+								"end-y": "0.01",
+								"time": "0.5",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start respawn time."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Mushroom",
+							"sid": 603990829307946,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "2.0",
+								"type": "once",
+								"tag": "\"RespawnMushroom\""
+							}
+						}
+					],
+					"sid": 208527461993123
+				},
+				{
+					"eventType": "comment",
+					"text": "Play mushroom bounce animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Mushroom",
+							"sid": 389112081549997,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MushroomBounce\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-size",
+							"objectClass": "Mushroom",
+							"sid": 688323683877896,
+							"parameters": {
+								"width": "24 * 1/Self.Tween.Value(\"MushroomBounce\")",
+								"height": "24 * 1/Self.Tween.Value(\"MushroomBounce\")"
+							}
+						},
+						{
+							"id": "set-z-height",
+							"objectClass": "Mushroom",
+							"sid": 171774249460263,
+							"parameters": {
+								"z-height": "32 * Self.Tween.Value(\"MushroomBounce\")"
+							}
+						}
+					],
+					"sid": 567867352721117
+				},
+				{
+					"eventType": "comment",
+					"text": "\"Respawn\" (show) mushroom."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Mushroom",
+							"sid": 350549113374590,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"RespawnMushroom\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 561152313201222,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Respawn if player is not too close."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 999039616621193,
+									"parameters": {
+										"value": "distance(Mushroom.X, Mushroom.Y, Harvester1.X, Harvester1.Y) > 72 &\ndistance(Mushroom.X, Mushroom.Y, Harvester2.X, Harvester2.Y) > 72 &\ndistance(Mushroom.X, Mushroom.Y, HarvesterSaw.X, HarvesterSaw.Y) > 72 \n"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Mushroom",
+									"sid": 210207008545668,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MushroomDestroy\"",
+										"property": "offsetZElevation",
+										"end-value": "16",
+										"time": "1",
+										"ease": "easeoutbounce",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Mushroom",
+									"sid": 981374322391773,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MushroomDestroySize\"",
+										"property": "size",
+										"end-x": "24",
+										"end-y": "24",
+										"time": "1",
+										"ease": "easeoutbounce",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-z-height",
+									"objectClass": "Mushroom",
+									"sid": 289723352735597,
+									"parameters": {
+										"z-height": "32"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Mushroom",
+									"sid": 887688227773725,
+									"parameters": {
+										"instance-variable": "onCooldown",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 149451309665265
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, wait a little longer."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 800416123131014
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "Mushroom",
+									"sid": 762950331460376,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "0.5",
+										"type": "once",
+										"tag": "\"RespawnMushroom\""
+									}
+								}
+							],
+							"sid": 506201446156472
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Collision with obstacle leads to Game Over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Obstacle",
+							"sid": 553615887653449,
+							"parameters": {
+								"object": "HarvesterSaw"
+							}
+						},
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Obstacle",
+							"sid": 304776353945266,
+							"parameters": {
+								"object": "Harvester1"
+							}
+						},
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Obstacle",
+							"sid": 622037806863828,
+							"parameters": {
+								"object": "Harvester2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "CollideHarvester",
+							"sid": 388391531837968
+						}
+					],
+					"sid": 973443945188931,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Collision with mushroom leads to change of orbit direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Mushroom",
+							"sid": 924825823869255,
+							"parameters": {
+								"object": "HarvesterSaw"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Mushroom",
+							"sid": 502601479365373,
+							"parameters": {
+								"instance-variable": "onCooldown"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "invertOrbit",
+							"sid": 127080080199070
+						}
+					],
+					"sid": 837721708373918
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Mushroom",
+							"sid": 875044535612591,
+							"parameters": {
+								"object": "Harvester1"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Harvester1",
+							"sid": 217358105236290,
+							"parameters": {
+								"instance-variable": "orbiting"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Mushroom",
+							"sid": 166915867713725,
+							"parameters": {
+								"instance-variable": "onCooldown"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "invertOrbit",
+							"sid": 994688031399696
+						}
+					],
+					"sid": 675216194862481
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Mushroom",
+							"sid": 881392941764934,
+							"parameters": {
+								"object": "Harvester2"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Harvester2",
+							"sid": 328772603340285,
+							"parameters": {
+								"instance-variable": "orbiting"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Mushroom",
+							"sid": 486665774089050,
+							"parameters": {
+								"instance-variable": "onCooldown"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "invertOrbit",
+							"sid": 721338536197127
+						}
+					],
+					"sid": 185161061139952
+				},
+				{
+					"eventType": "comment",
+					"text": "For each berry, check if it's overlapping a harvester. Is so, collect it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 497744788122913,
+							"parameters": {
+								"object": "Berry"
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "Berry",
+							"sid": 127440146345835,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Destroy\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 407933358825288,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Berry",
+									"sid": 202759511897547,
+									"parameters": {
+										"object": "Harvester1"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Berry",
+									"sid": 621325159162459,
+									"parameters": {
+										"object": "Harvester2"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Berry",
+									"sid": 325395269672454,
+									"parameters": {
+										"object": "HarvesterSaw"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Destroy tall berry."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Berry",
+									"sid": 354803561816412,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Destroy\"",
+										"property": "offsetZElevation",
+										"end-value": "Self.ZElevation - Self.ZHeight",
+										"time": "0.25",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Add to quota."
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 358893818405199,
+									"parameters": {
+										"variable": "quota",
+										"value": "1"
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "ProgressBar",
+									"sid": 855054078059341,
+									"parameters": {
+										"width": "min(quota/objective * 240, 240)"
+									}
+								},
+								{
+									"callFunction": "levelSuccess",
+									"sid": 348607406010891
+								}
+							],
+							"sid": 282198415922588,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Spawn particles when berry is cut."
+								},
+								{
+									"eventType": "variable",
+									"name": "RandomAngle",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Random angle for the tween",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 936613501769681
+								},
+								{
+									"eventType": "variable",
+									"name": "RandomDistance",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Random distance for the tween",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 566298471699672
+								},
+								{
+									"eventType": "variable",
+									"name": "RandomDuration",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Random duration for the tween.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 338167155489049
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 337047821992133,
+											"parameters": {
+												"count": "choose(2, 3)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Create the particle at the correct position."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 673621918988031,
+											"parameters": {
+												"object-to-create": "Particles",
+												"layer": "\"Game\"",
+												"x": "Berry.X",
+												"y": "Berry.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-z-elevation",
+											"objectClass": "Particles",
+											"sid": 714813498407859,
+											"parameters": {
+												"z": "Berry.ZElevation"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Set randomized values to create diversity."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 181931622416882,
+											"parameters": {
+												"variable": "RandomAngle",
+												"value": "random(0, 360)"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 540407698898516,
+											"parameters": {
+												"variable": "RandomDistance",
+												"value": "random(0, 32)"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 669382008689680,
+											"parameters": {
+												"variable": "RandomDuration",
+												"value": "random(0.4, 0.8)"
+											}
+										},
+										{
+											"id": "set-speed",
+											"objectClass": "Particles",
+											"sid": 606062407646054,
+											"behaviorType": "Rotate",
+											"parameters": {
+												"speed": "int(random(1440)) - 720"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Apply movement tweens using randomized values."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Particles",
+											"sid": 661676433694266,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Z Elevation\"",
+												"property": "offsetZElevation",
+												"end-value": "Self.ZElevation + random(8, 32)",
+												"time": "RandomDuration / 2",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "yes",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Particles",
+											"sid": 630789384431771,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Position\"",
+												"property": "position",
+												"end-x": "Self.X + cos(RandomAngle) * RandomDistance",
+												"end-y": "Self.Y + sin(RandomAngle) * RandomDistance",
+												"time": "RandomDuration",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 101455945135960
+								}
+							],
+							"isOrBlock": true
+						}
+					]
+				}
+			],
+			"sid": 444343596263985
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Water Movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Make water slowly scroll."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 579600684763163
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "WaterTexture",
+							"sid": 783569240323337,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + 2 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "WaterTexture",
+							"sid": 879439026049308,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY - 2 * dt"
+							}
+						}
+					],
+					"sid": 217278979668654
+				}
+			],
+			"sid": 915976495602164
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Camera always look at the pivot harvester."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Harvester1",
+							"sid": 727290602163885,
+							"parameters": {
+								"instance-variable": "orbiting"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 477977367286108,
+							"parameters": {
+								"cam-x": "lerp(3DCamera.CameraX, Harvester2.X, 0.95 * dt)",
+								"cam-y": "lerp(3DCamera.CameraY, Harvester2.Y + 196, 0.95 * dt)",
+								"cam-z": "256",
+								"look-x": "lerp(3DCamera.LookX, Harvester2.X, 0.95 * dt)",
+								"look-y": "lerp(3DCamera.LookY, Harvester2.Y, 0.95 * dt)",
+								"look-z": "Harvester2.ZElevation",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 780954124785095
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 698166207268966
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 536923262349475,
+							"parameters": {
+								"cam-x": "lerp(3DCamera.CameraX, Harvester1.X, 0.95 * dt)",
+								"cam-y": "lerp(3DCamera.CameraY, Harvester1.Y + 196, 0.95 * dt)",
+								"cam-z": "256",
+								"look-x": "lerp(3DCamera.LookX, Harvester1.X, 0.95 * dt)",
+								"look-y": "lerp(3DCamera.LookY, Harvester1.Y, 0.95 * dt)",
+								"look-z": "Harvester1.ZElevation",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 214563538875739
+				}
+			],
+			"sid": 681104567042572
+		}
+	],
+	"sid": 322237474430559
+}

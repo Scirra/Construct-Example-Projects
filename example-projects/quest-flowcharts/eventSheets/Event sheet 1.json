@@ -1,0 +1,1848 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "***************************************************************************************************************************************************************************************************\n***************************************************************************************************************************************************************************************************\n***************************************************************************************************************************************************************************************************\n\nThis example models moving from different locations of a village, talking to different NPCs and completing quests. This is primarily done by arranging the information using flow charts.\n\nAt runtime the FlowchartController plugin is used to move through the different nodes of the currently active flow chart. Various actions, conditions and expressions are then used to extract the information of the current node for display, which include a description associated with the current node as well as various options to navigate to other nodes and dialog options with NPC characters, which are also defined as flow charts of their own. There are three example quests, with steps also modelled using flow charts.\n\n-----------------------------------------------------------------------------------------------\nOutput Naming -----------------------------------------------------------------------------\n-----------------------------------------------------------------------------------------------\n\nA few arbitrary decision are made across the whole example so all nodes can be processed in a consistent way, any other convention could be used as needed.\n\nThese are the types of node output names that can be found:\n\n\"Message\" => Every node which when visited needs to display a message, has an output named \"Message\", this kind of output is not connected to anything and is just used to store information. \n\n\"Talk\" => Some of the nodes in the main \"navigation\" flow chart have outputs named \"Talk\", when pressed a flow chart with the name of the node's tag is created and the current flow chart moves from the main one into one of these \"sub\" flow charts. This is meant as an example of a possible way to break up potentially very large flow charts into smaller ones.\n\n\"Quest Option\" => These kind of outputs can be found in the first node of flow charts that are modelling a step in a quest which triggers the appearance of a new dialog option in another node.\n\n\"Link\" =>  These outputs have two different uses in this example.\n                       => They can appear in a node as a place holder for an option that will only become available when a quest step is made active. In this case the value of the output indicates the name of the quest step the link refers to. When the button for this option is pressed, flow goes to the flow chart indicated in the value of the output.\n                       => They also appear in conjunction with \"Quest Option\" outputs and serve as an indicator to decide were to go when pressing the \"Back\" button  when the current node is the first one of a quest step.\n\n\"Option\" => This is just a name given to all other outputs which don't have a special meaning.\n\nSome outputs are named after one of the three main quests in the example, \"bandits\", \"forest\" and \"caves\". The purpose of this is two fold. First to be able to highlight those options and second is to be able to hide the options once the associated quest is completed.\n\n-----------------------------------------------------------------------------------------------\nQuest progression --------------------------------------------------------------------------\n-----------------------------------------------------------------------------------------------\n\nThe last important detail about how this example is setup are node tags. Flow charts associated with NPCs have some nodes with a tag name, those names are the same as the starting step of each quest. When the nodes are reached, the tag of the node is picked up and the corresponding flow chart is created, along with some other state that allows the example to continue the chain of steps in a quest until it is completed. Every step in each quest has at some point a node that allows the quest to either continue or be completed.\n\n***************************************************************************************************************************************************************************************************\n***************************************************************************************************************************************************************************************************\n***************************************************************************************************************************************************************************************************",
+			"background-color": [
+				0.996078431372549,
+				0.8901960784313725,
+				0.7450980392156863,
+				1
+			]
+		},
+		{
+			"eventType": "variable",
+			"name": "BUTTON_WIDTH",
+			"type": "number",
+			"initialValue": "500",
+			"comment": "The width of the main option buttons ",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 719970446193803
+		},
+		{
+			"eventType": "variable",
+			"name": "BUTTON_HEIGHT",
+			"type": "number",
+			"initialValue": "24",
+			"comment": "The height of the main option buttons ",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 553858459698291
+		},
+		{
+			"eventType": "variable",
+			"name": "GO_BACK_PRESSED",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 493086916756336
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Initialization",
+			"description": "Create an instance of the main \"navigation\" flow chart",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 937845402443740
+						}
+					],
+					"actions": [
+						{
+							"id": "start-flowchart",
+							"objectClass": "FlowchartController",
+							"sid": 569938486596077,
+							"parameters": {
+								"flowchart-name": "navigation",
+								"start-node-tag": "\"\"",
+								"flowchart-tag": "\"navigation\"",
+								"set-as-current": true
+							}
+						},
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 367290161499190,
+							"parameters": {
+								"tag": "\"quest-names\"",
+								"file": "QuestNames.json"
+							}
+						}
+					],
+					"sid": 762042526328432
+				},
+				{
+					"eventType": "comment",
+					"text": "Load a dictionary to translate from quest IDs to a name for display"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 137162253149686,
+							"parameters": {
+								"tag": "\"quest-names\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "QuestNamesDictionary",
+							"sid": 261147940231594,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						}
+					],
+					"sid": 688877704303947
+				}
+			],
+			"sid": 497509938565915
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Refresh view",
+			"description": "Functions to refresh the view according to the current node the application is in",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Refresh the view when anything changes"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-node-change",
+							"objectClass": "FlowchartController",
+							"sid": 582658632953567
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "OptionButton",
+							"sid": 433792333326823
+						},
+						{
+							"callFunction": "RefreshNode",
+							"sid": 739557674104869
+						},
+						{
+							"callFunction": "RefreshBackButton",
+							"sid": 275741877137141
+						}
+					],
+					"sid": 273088903975946,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When reaching a node which is also a starting one, check if it has q \"Quest Option\" output and if it has a \"Link\" output. If all conditions are met, change the current flow chart to the value of the \"Link\" output  "
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-at-start-node",
+									"objectClass": "FlowchartController",
+									"sid": 107005719842450
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 242980297487407,
+									"parameters": {
+										"value": "Functions.GetFirstLinkOption"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 297022066238343,
+									"parameters": {
+										"value": "Functions.HasQuestOption"
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 442146745053211,
+									"parameters": {
+										"variable": "GO_BACK_PRESSED"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-flowchart",
+									"objectClass": "FlowchartController",
+									"sid": 198077372069215,
+									"parameters": {
+										"flowchart-tag": "Functions.GetFirstLinkOption"
+									}
+								}
+							],
+							"sid": 746949383425930
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 709029035895692,
+									"parameters": {
+										"variable": "GO_BACK_PRESSED",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 311253976305340
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-flowchart-change",
+							"objectClass": "FlowchartController",
+							"sid": 264261483211752
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "OptionButton",
+							"sid": 191843283746110
+						},
+						{
+							"callFunction": "RefreshNode",
+							"sid": 195696709004398
+						},
+						{
+							"callFunction": "RefreshBackButton",
+							"sid": 275731118769001
+						}
+					],
+					"sid": 492058328393368
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tap",
+							"objectClass": "Touch",
+							"sid": 897449740551055
+						}
+					],
+					"actions": [
+						{
+							"id": "typewriter-finish",
+							"objectClass": "CurrentNodeMessage",
+							"sid": 431001367323979
+						}
+					],
+					"sid": 339891042721924
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "CompletedQuests",
+							"sid": 347463040427643
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "CompletedQuestsDisplay",
+							"sid": 355779023955457,
+							"parameters": {
+								"visibility": "toggle"
+							}
+						}
+					],
+					"sid": 506489005230607
+				},
+				{
+					"eventType": "comment",
+					"text": "This functions handles all the refreshing, including picking up the main message of the current node and updating the option buttons"
+				},
+				{
+					"functionName": "RefreshNode",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "typewriter-finish",
+							"objectClass": "CurrentNodeMessage",
+							"sid": 365901887795453
+						},
+						{
+							"id": "typewriter-text",
+							"objectClass": "CurrentNodeMessage",
+							"sid": 625524999747569,
+							"parameters": {
+								"text": "FlowchartController.OutputValue(\"Message\")",
+								"duration": "len(FlowchartController.OutputValue(\"Message\")) * 0.01"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Display the currently active flow chart, just for clarity"
+						},
+						{
+							"id": "set-text",
+							"objectClass": "CurrentFlowchartName",
+							"sid": 499532544776205,
+							"parameters": {
+								"text": "\"Flow chart: \" & FlowchartController.FlowchartTag"
+							}
+						}
+					],
+					"sid": 693002108543494,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "TotalOptionIndex",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "The amount of none quest options in the current node.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 852074797145592
+						},
+						{
+							"eventType": "variable",
+							"name": "TotalQuestIndex",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "The total amount of quests in the current node.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 209651045753248
+						},
+						{
+							"eventType": "comment",
+							"text": "Create all the buttons for each option in the current node"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 496260250012679,
+									"parameters": {
+										"name": "\"options\"",
+										"start-index": "0",
+										"end-index": "FlowchartController.OutputCount - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 558252013905350,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 406525675853594,
+											"parameters": {
+												"value": "Functions.CanAddOptionForOutput(loopindex)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Create the button and set a few instance variables to later decide what needs to happen when the button is pressed"
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 306277632970823,
+											"parameters": {
+												"object-to-create": "OptionButton",
+												"layer": "0",
+												"x": "ViewportMidX(0) - (BUTTON_WIDTH / 2)",
+												"y": "270 + ((BUTTON_HEIGHT + 10) * TotalOptionIndex)",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "OptionButton",
+											"sid": 986418656729622,
+											"parameters": {
+												"text": "FlowchartController.OutputValue(loopindex)"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "OptionButton",
+											"sid": 717142540655361,
+											"parameters": {
+												"instance-variable": "option",
+												"value": "loopindex"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "OptionButton",
+											"sid": 576637064568310,
+											"parameters": {
+												"instance-variable": "optionName",
+												"value": "FlowchartController.OutputNameAt(loopindex)"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "OptionButton",
+											"sid": 923255083589230,
+											"parameters": {
+												"instance-variable": "flowchartTag",
+												"value": "FlowchartController.FlowchartTag"
+											}
+										},
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 475294264223207,
+											"parameters": {
+												"variable": "TotalOptionIndex",
+												"value": "1"
+											}
+										}
+									],
+									"sid": 727148971375508,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Set a style to distinguish options that can start quests. These are outputs which have one of the main three quest names as the output name"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 749299246906568,
+													"parameters": {
+														"value": "find(FlowchartController.OutputNameAt(loopindex), \"Message\") = -1\n"
+													}
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 440064236799542,
+													"parameters": {
+														"value": "find(FlowchartController.OutputNameAt(loopindex), \"Quest Option\") = -1"
+													}
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 747580781912466,
+													"parameters": {
+														"value": "find(FlowchartController.OutputNameAt(loopindex), \"Link\") = -1"
+													}
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 433351248953597,
+													"parameters": {
+														"value": "find(FlowchartController.OutputNameAt(loopindex), \"Option\") = -1"
+													}
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 278945256759769,
+													"parameters": {
+														"value": "find(FlowchartController.OutputNameAt(loopindex), \"Talk\") = -1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-elem-attribute",
+													"objectClass": "OptionButton",
+													"sid": 593727891607973,
+													"parameters": {
+														"attribute-name": "\"quest-trigger\"",
+														"attribute-value": "\"\""
+													}
+												}
+											],
+											"sid": 258543053350773
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Check all active quests to create any possible quest options that might have become available in the current node as a result of visiting other nodes. This can only happen on nodes which have the special \"Link\" outputs."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-element",
+									"objectClass": "ActiveQuestsArray",
+									"sid": 510937123674584,
+									"parameters": {
+										"axes": "x"
+									}
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 552902946731967,
+									"parameters": {
+										"first-value": "Functions.HasLinkOption(ActiveQuestsArray.CurValue)",
+										"comparison": 0,
+										"second-value": "1"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 446614604147608,
+									"parameters": {
+										"value": "FlowchartController.OutputValueInFlowchart(\"Quest Option\", ActiveQuestsArray.CurValue)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create the button and set a few instance variables to later decide what needs to happen when the button is pressed"
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 311499031110124,
+									"parameters": {
+										"object-to-create": "OptionButton",
+										"layer": "0",
+										"x": "ViewportMidX(0) - (BUTTON_WIDTH / 2)",
+										"y": "270 + ((BUTTON_HEIGHT + 10) * (TotalQuestIndex + TotalOptionIndex))",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "OptionButton",
+									"sid": 497216671643457,
+									"parameters": {
+										"text": "FlowchartController.OutputValueInFlowchart(\"Quest Option\", ActiveQuestsArray.CurValue)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "In this example all quests have a starting node with a single option, so we set the option index to 0 every time"
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "OptionButton",
+									"sid": 719267290896266,
+									"parameters": {
+										"instance-variable": "option",
+										"value": "0"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "OptionButton",
+									"sid": 710408867517990,
+									"parameters": {
+										"instance-variable": "optionName",
+										"value": "FlowchartController.OutputNameAtInFlowchart(loopindex, ActiveQuestsArray.CurValue)"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "OptionButton",
+									"sid": 682315936170632,
+									"parameters": {
+										"instance-variable": "flowchartTag",
+										"value": "ActiveQuestsArray.CurValue"
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 735931057430857,
+									"parameters": {
+										"variable": "TotalQuestIndex",
+										"value": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set a style to distinguish options that are only shown as part of a quest"
+								},
+								{
+									"id": "set-elem-attribute",
+									"objectClass": "OptionButton",
+									"sid": 527810610936113,
+									"parameters": {
+										"attribute-name": "\"quest-option\"",
+										"attribute-value": "\"\""
+									}
+								}
+							],
+							"sid": 764783942875076
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Refresh the state of the back button depending on the position in the flow chart"
+				},
+				{
+					"functionName": "RefreshBackButton",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 170052994118556,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Hide the back button when the \"navigation\" flowchart is at the first node"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-at-start-node",
+									"objectClass": "FlowchartController",
+									"sid": 465081794133422
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 284870869116005,
+									"parameters": {
+										"first-value": "FlowchartController.FlowchartTag",
+										"comparison": 0,
+										"second-value": "\"navigation\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "BackButton",
+									"sid": 483854774782940,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								}
+							],
+							"sid": 943755634118229
+						},
+						{
+							"eventType": "comment",
+							"text": "Show the back button otherwise"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 953448023944139
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "BackButton",
+									"sid": 524151880800758,
+									"parameters": {
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 390042028276596
+						}
+					]
+				}
+			],
+			"sid": 861160676155712
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Navigation buttons",
+			"description": "Handle the navigation between the different states defined in the flow charts",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "OptionButton",
+							"sid": 521685934272777
+						}
+					],
+					"actions": [],
+					"sid": 235624136318380,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When a button with the \"optionName\" instance variable set to \"Talk\" is pressed, move the the corresponding flowcharts according to the tag of the current node."
+						},
+						{
+							"eventType": "comment",
+							"text": " Always reset the flow chart for each conversation before it starts, to make sure it is always at the beginning"
+						},
+						{
+							"eventType": "comment",
+							"text": "New flow charts are created as needed"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "OptionButton",
+									"sid": 688687696660984,
+									"parameters": {
+										"instance-variable": "optionName",
+										"comparison": 0,
+										"value": "\"Talk\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 133821299711281,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "has-flow-chart",
+											"objectClass": "FlowchartController",
+											"sid": 566071300327793,
+											"parameters": {
+												"flowchart-tag": "FlowchartController.NodeTag"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "reset-flowchart-by-tag",
+											"objectClass": "FlowchartController",
+											"sid": 408179505653880,
+											"parameters": {
+												"flowchart-tag": "FlowchartController.NodeTag"
+											}
+										},
+										{
+											"id": "set-flowchart",
+											"objectClass": "FlowchartController",
+											"sid": 611576454798874,
+											"parameters": {
+												"flowchart-tag": "FlowchartController.NodeTag"
+											}
+										}
+									],
+									"sid": 266070046234294
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 604909515380211
+										}
+									],
+									"actions": [
+										{
+											"id": "start-flowchart-by-name",
+											"objectClass": "FlowchartController",
+											"sid": 484115830274824,
+											"parameters": {
+												"flowchart-name": "FlowchartController.NodeTag",
+												"start-node-tag": "\"\"",
+												"flowchart-tag": "FlowchartController.NodeTag",
+												"set-as-current": true
+											}
+										}
+									],
+									"sid": 621251881700005
+								}
+							]
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 618631984575603
+								}
+							],
+							"actions": [],
+							"sid": 513566966532093,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "has-flow-chart",
+											"objectClass": "FlowchartController",
+											"sid": 498319409328044,
+											"parameters": {
+												"flowchart-tag": "OptionButton.flowchartTag"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-flowchart",
+											"objectClass": "FlowchartController",
+											"sid": 347977358280198,
+											"parameters": {
+												"flowchart-tag": "OptionButton.flowchartTag"
+											}
+										},
+										{
+											"id": "goto-next-flowchart-node",
+											"objectClass": "FlowchartController",
+											"sid": 745904824003764,
+											"parameters": {
+												"index-or-name": "OptionButton.option"
+											}
+										}
+									],
+									"sid": 376068245419406
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 140965136366106
+										}
+									],
+									"actions": [
+										{
+											"id": "start-flowchart-by-name",
+											"objectClass": "FlowchartController",
+											"sid": 469104740278509,
+											"parameters": {
+												"flowchart-name": "OptionButton.flowchartTag",
+												"start-node-tag": "\"\"",
+												"flowchart-tag": "OptionButton.flowchartTag",
+												"set-as-current": true
+											}
+										},
+										{
+											"id": "goto-next-flowchart-node",
+											"objectClass": "FlowchartController",
+											"sid": 285065914127139,
+											"parameters": {
+												"index-or-name": "OptionButton.option"
+											}
+										}
+									],
+									"sid": 191426277704615
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Pressing the back button when the current node is a starting one, will change the current flowchart to \"navigation\". The node at the \"navigation\" flow chart will be the one it was before changing from it"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "BackButton",
+							"sid": 726387892401198
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 286996586757555,
+							"parameters": {
+								"variable": "GO_BACK_PRESSED",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 168089857330771,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-at-start-node",
+									"objectClass": "FlowchartController",
+									"sid": 607960752095959
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 719606132557187,
+									"parameters": {
+										"first-value": "FlowchartController.FlowchartTag",
+										"comparison": 1,
+										"second-value": "\"navigation\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-flowchart",
+									"objectClass": "FlowchartController",
+									"sid": 308723281849030,
+									"parameters": {
+										"flowchart-tag": "\"navigation\""
+									}
+								}
+							],
+							"sid": 478460507474903
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise just go to the previous node in the current flow chart"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 431732710773792
+								}
+							],
+							"actions": [
+								{
+									"id": "goto-previous-flowchart-node",
+									"objectClass": "FlowchartController",
+									"sid": 349802407853377
+								}
+							],
+							"sid": 798298750311596
+						}
+					]
+				}
+			],
+			"sid": 340727148823415
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Quests",
+			"description": "Logic to handle creating quests when certain nodes are reached",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "IsQuestCompleted",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Whether this is a node indicating a quest is completed or not",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 998077562420386
+				},
+				{
+					"eventType": "variable",
+					"name": "IsQuestReward",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Whether this is a node indicating a quest reward or not",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 886398804544775
+				},
+				{
+					"eventType": "variable",
+					"name": "IsQuestStep",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Whether this is a node indicating a quest step or not",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 991551987802127
+				},
+				{
+					"eventType": "variable",
+					"name": "QuestLine",
+					"type": "string",
+					"initialValue": "\"\"",
+					"comment": "The base name of the quest this node refers to, if any",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 586157451587262
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-node-change",
+							"objectClass": "FlowchartController",
+							"sid": 670782089765490
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 572332247321181,
+							"parameters": {
+								"value": "find(FlowchartController.NodeTag, \"-quest-\") >= 0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Extract the base name of the quest from the current tag if any"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 695377745127685,
+							"parameters": {
+								"variable": "QuestLine",
+								"value": "tokenat(FlowchartController.NodeTag, 0, \"-quest-\")"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Check if the sub string \"-quest-\" is present in the tag to see if this is a quest step"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 339520257264205,
+							"parameters": {
+								"variable": "IsQuestStep",
+								"value": "find(FlowchartController.NodeTag, \"-quest-\") >= 0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Check if the sub string \"-quest-complete\" is present in the tag to see if this is a quest complete step"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 663096695520211,
+							"parameters": {
+								"variable": "IsQuestCompleted",
+								"value": "find(FlowchartController.NodeTag, \"-quest-complete\") >= 0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Check if the sub string \"-quest-reward\" is present in the tag to see if this is a quest reward step"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 953754967666311,
+							"parameters": {
+								"variable": "IsQuestReward",
+								"value": "find(FlowchartController.NodeTag, \"-quest-reward\") >= 0"
+							}
+						}
+					],
+					"sid": 736952007421451,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Set a new current quest line, if there is no active quest going on"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "ActiveQuestsArray",
+									"sid": 633799929717692,
+									"parameters": {
+										"instance-variable": "CurrentQuestLine",
+										"comparison": 0,
+										"value": "\"\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "ActiveQuestsArray",
+									"sid": 256529396902953,
+									"parameters": {
+										"instance-variable": "CurrentQuestLine",
+										"value": "QuestLine"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "CurrentQuestName",
+									"sid": 256615161735374,
+									"parameters": {
+										"text": "\"Quest: \" & QuestNamesDictionary.Get(ActiveQuestsArray.CurrentQuestLine)"
+									}
+								}
+							],
+							"sid": 375091654718251
+						},
+						{
+							"eventType": "comment",
+							"text": "Only continue further if the quest line referenced by the current node is the same as the active one"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "ActiveQuestsArray",
+									"sid": 897766959191178,
+									"parameters": {
+										"instance-variable": "CurrentQuestLine",
+										"comparison": 0,
+										"value": "QuestLine"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 172774080904207,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "When entering a node with a \"-quest-complete\" tag, the last step of the quest is created, where the player will get the reward. The current quest line is added to a \"completed\" array to be able identify which options need to be removed elsewhere"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 192273185759288,
+											"parameters": {
+												"value": "isQuestCompleted"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "push",
+											"objectClass": "CompletedQuestsArray",
+											"sid": 731656030156597,
+											"parameters": {
+												"where": "back",
+												"value": "ActiveQuestsArray.CurrentQuestLine",
+												"axis": "x"
+											}
+										},
+										{
+											"id": "push",
+											"objectClass": "ActiveQuestsArray",
+											"sid": 766819036796888,
+											"parameters": {
+												"where": "front",
+												"value": "FlowchartController.NodeTag",
+												"axis": "x"
+											}
+										},
+										{
+											"id": "start-flowchart-by-name",
+											"objectClass": "FlowchartController",
+											"sid": 406948691350243,
+											"parameters": {
+												"flowchart-name": "FlowchartController.NodeTag",
+												"start-node-tag": "\"\"",
+												"flowchart-tag": "FlowchartController.NodeTag",
+												"set-as-current": false
+											}
+										}
+									],
+									"sid": 493457247710044
+								},
+								{
+									"eventType": "comment",
+									"text": "When entering a node with a \"-quest-reward\" tag, all state associated with the quest is cleared to make it possible to start a different one."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 868125886446078,
+											"parameters": {
+												"value": "IsQuestReward"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Add the completed quest to an HTML element for display "
+										},
+										{
+											"id": "insert-content",
+											"objectClass": "CompletedQuestsDisplay",
+											"sid": 489787934081066,
+											"parameters": {
+												"content-type": "html",
+												"string": "\"<li>\" & QuestNamesDictionary.Get(ActiveQuestsArray.CurrentQuestLine)  & \"</li>\"",
+												"position": "start",
+												"selector": "\".questList\"",
+												"type": "one"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Save the names of the flow charts that need to be released to be able to do so, when the flow goes back to a place where they are no longer needed "
+										},
+										{
+											"id": "load",
+											"objectClass": "QuestFlowchartsToRelease",
+											"sid": 607778943515559,
+											"parameters": {
+												"json": "ActiveQuestsArray.AsJSON"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Clear other state associated with the completed quest"
+										},
+										{
+											"id": "set-size",
+											"objectClass": "ActiveQuestsArray",
+											"sid": 908706808048768,
+											"parameters": {
+												"width": "0",
+												"height": "1",
+												"depth": "1"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "ActiveQuestsArray",
+											"sid": 668641723547813,
+											"parameters": {
+												"instance-variable": "CurrentQuestLine",
+												"value": "\"\""
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "CurrentQuestName",
+											"sid": 521610426714899,
+											"parameters": {
+												"text": "\"\""
+											}
+										}
+									],
+									"sid": 708064650504816
+								},
+								{
+									"eventType": "comment",
+									"text": "When entering a regular quest step create the required flow chart and save the tag in an array to be able later check where new options need to be created."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 783679232590790,
+											"parameters": {
+												"value": "IsQuestStep"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 991670151900183,
+											"parameters": {
+												"value": "IsQuestCompleted"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 489563612599626,
+											"parameters": {
+												"value": "IsQuestReward"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "contains-value",
+											"objectClass": "ActiveQuestsArray",
+											"sid": 818714696981500,
+											"parameters": {
+												"value": "FlowchartController.NodeTag"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "start-flowchart-by-name",
+											"objectClass": "FlowchartController",
+											"sid": 911048190716100,
+											"parameters": {
+												"flowchart-name": "FlowchartController.NodeTag",
+												"start-node-tag": "\"\"",
+												"flowchart-tag": "FlowchartController.NodeTag",
+												"set-as-current": false
+											}
+										},
+										{
+											"id": "push",
+											"objectClass": "ActiveQuestsArray",
+											"sid": 318053766217639,
+											"parameters": {
+												"where": "front",
+												"value": "FlowchartController.NodeTag",
+												"axis": "x"
+											}
+										}
+									],
+									"sid": 866024538068743
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When a flow chart changes, check if the new flow chart relates to a quest or not, by checking if it's tag matches the string \"-quest-\""
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-flowchart-change",
+							"objectClass": "FlowchartController",
+							"sid": 721447969310364
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 482413061532254,
+							"parameters": {
+								"value": "find(FlowchartController.FlowchartTag, \"-quest-\") = -1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 126612601614818,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the string \"-quest-\" is not found we are at a point where it is ok to release any flow charts that are no longer needed."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-element",
+									"objectClass": "QuestFlowchartsToRelease",
+									"sid": 923248585250013,
+									"parameters": {
+										"axes": "x"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "end-flowchart-by-tag",
+									"objectClass": "FlowchartController",
+									"sid": 954529209016833,
+									"parameters": {
+										"flowchart-tag": "QuestFlowchartsToRelease.CurValue"
+									}
+								}
+							],
+							"sid": 501339978067283
+						},
+						{
+							"eventType": "comment",
+							"text": "Add a blank sub event here to do actions after the previous loop finishes"
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-size",
+									"objectClass": "QuestFlowchartsToRelease",
+									"sid": 633118295895961,
+									"parameters": {
+										"width": "0",
+										"height": "1",
+										"depth": "1"
+									}
+								}
+							],
+							"sid": 954390605250582
+						}
+					]
+				}
+			],
+			"sid": 613692909797414
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Helper functions",
+			"description": "Miscellaneous helper functions",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Checks if a node has a \"Link\" output",
+					"text-color": [
+						1,
+						1,
+						1,
+						1
+					],
+					"background-color": [
+						0.4196078431372549,
+						0.5176470588235295,
+						1,
+						1
+					]
+				},
+				{
+					"functionName": "HasLinkOption",
+					"functionDescription": "Used to check if a node has a \"Link\" to an active quest",
+					"functionCategory": "Misc",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "questId",
+							"type": "string",
+							"initialValue": "",
+							"comment": "A quest name to check for in the output names of the current node",
+							"sid": 193878877930574
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 218058585120023,
+							"parameters": {
+								"name": "\"options\"",
+								"start-index": "0",
+								"end-index": "FlowchartController.OutputCount - 1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 165514016907464,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 770273012464579,
+									"parameters": {
+										"value": "find(FlowchartController.OutputNameAt(loopindex), \"Link\") >= 0\n"
+									}
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 208746058351209,
+									"parameters": {
+										"first-value": "FlowchartController.OutputValue(loopindex)",
+										"comparison": 0,
+										"second-value": "questId"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 822996964693003,
+									"parameters": {
+										"value": "1"
+									}
+								}
+							],
+							"sid": 499435136166298
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Get the value of the first \"Link\" output of a node",
+					"text-color": [
+						1,
+						1,
+						1,
+						1
+					],
+					"background-color": [
+						0.4196078431372549,
+						0.5176470588235295,
+						1,
+						1
+					]
+				},
+				{
+					"functionName": "GetFirstLinkOption",
+					"functionDescription": "Get the value of the first \"Link\" a node might have",
+					"functionCategory": "Misc",
+					"functionReturnType": "string",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 261803017479614,
+							"parameters": {
+								"name": "\"options\"",
+								"start-index": "0",
+								"end-index": "FlowchartController.OutputCount - 1"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 805984323145265,
+							"parameters": {
+								"value": "find(FlowchartController.OutputNameAt(loopindex), \"Link\") >= 0\n"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 967714068868203,
+							"parameters": {
+								"value": "FlowchartController.OutputValue(loopindex)"
+							}
+						}
+					],
+					"sid": 810503801546981
+				},
+				{
+					"eventType": "comment",
+					"text": "Checks if a node has a \"Quest Option\" output",
+					"text-color": [
+						1,
+						1,
+						1,
+						1
+					],
+					"background-color": [
+						0.4196078431372549,
+						0.5176470588235295,
+						1,
+						1
+					]
+				},
+				{
+					"functionName": "HasQuestOption",
+					"functionDescription": "Check if the current node has a \"Quest Option\" output",
+					"functionCategory": "Misc",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 812842717915504,
+							"parameters": {
+								"name": "\"options\"",
+								"start-index": "0",
+								"end-index": "FlowchartController.OutputCount - 1"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 158688643358242,
+							"parameters": {
+								"value": "find(FlowchartController.OutputNameAt(loopindex), \"Quest Option\") >= 0\n"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 418868070614423,
+							"parameters": {
+								"value": "1"
+							}
+						}
+					],
+					"sid": 863458396154969
+				},
+				{
+					"eventType": "comment",
+					"text": "Run various checks to decide if an option should be created for the output at the provided index of the current node",
+					"text-color": [
+						1,
+						1,
+						1,
+						1
+					],
+					"background-color": [
+						0.4196078431372549,
+						0.5176470588235295,
+						1,
+						1
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "First make sure the option\n\nDoes not correspond to a completed quest\n\nSkip outputs with a name that matches this string \"Message\"\nSkip outputs with a name that matches this string  \"Quest Option\"\nSkip outputs with a name that matches this string  \"Link\""
+				},
+				{
+					"functionName": "CanAddOptionForOutput",
+					"functionDescription": "Performs various checks to decide if an option needs to be created for an output in the current node",
+					"functionCategory": "Misc",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "outputIndex",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Used to look up an output in the current node",
+							"sid": 666858799402855
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "contains-value",
+							"objectClass": "CompletedQuestsArray",
+							"sid": 735388706338817,
+							"parameters": {
+								"value": "FlowchartController.OutputNameAt(outputIndex)"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 215153219141141,
+							"parameters": {
+								"value": "find(FlowchartController.OutputNameAt(outputIndex), \"Message\") = -1\n"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 831083072738486,
+							"parameters": {
+								"value": "find(FlowchartController.OutputNameAt(outputIndex), \"Quest Option\") = -1\n"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 678224617890161,
+							"parameters": {
+								"value": "find(FlowchartController.OutputNameAt(outputIndex), \"Link\") = -1\n"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 503184749236949,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If there is an active quest line..."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 358160560276631,
+									"parameters": {
+										"first-value": "ActiveQuestsArray.CurrentQuestLine",
+										"comparison": 1,
+										"second-value": "\"\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 707770095746653,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the option has a name that matches the string \"Option\" OR \"Talk\", add it "
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 478916119369591,
+											"parameters": {
+												"value": "find(FlowchartController.OutputNameAt(outputIndex), \"Option\") >= 0\n"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 874394776367203,
+											"parameters": {
+												"value": "find(FlowchartController.OutputNameAt(outputIndex), \"Talk\") >= 0\n"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-function-return-value",
+											"objectClass": "Functions",
+											"sid": 867464431418133,
+											"parameters": {
+												"value": "1"
+											}
+										}
+									],
+									"sid": 782230670157060,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "comment",
+									"text": "The option has a name that doesn't match the string \"Option\" or \"Talk\", then check if the name is the same as the current quest line before adding the option"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 514265821922127
+										},
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 876911111608487,
+											"parameters": {
+												"first-value": "ActiveQuestsArray.CurrentQuestLine",
+												"comparison": 0,
+												"second-value": "FlowchartController.OutputNameAt(outputIndex)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-function-return-value",
+											"objectClass": "Functions",
+											"sid": 178086949228006,
+											"parameters": {
+												"value": "1"
+											}
+										}
+									],
+									"sid": 756208723641853
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If there is no active quest line, add the option"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 105365493178297
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 250866220673590,
+									"parameters": {
+										"value": "1"
+									}
+								}
+							],
+							"sid": 545798855077067
+						}
+					]
+				}
+			],
+			"sid": 809305686510366
+		}
+	],
+	"sid": 238842876442430
+}

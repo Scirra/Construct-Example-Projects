@@ -1,0 +1,572 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "IsMoving",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "True while the snake is able to move.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 829279132331634
+		},
+		{
+			"eventType": "variable",
+			"name": "MoveRate",
+			"type": "number",
+			"initialValue": "0.4",
+			"comment": "How often in seconds the snake moves.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 533230306835459
+		},
+		{
+			"eventType": "variable",
+			"name": "Score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Number of squares eaten.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 874112665908974
+		},
+		{
+			"eventType": "variable",
+			"name": "GRID_SIZE",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "Size of each square in the grid.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 761325171648013
+		},
+		{
+			"eventType": "variable",
+			"name": "SnakeHeadLastX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Last snake head X.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 927133039906984
+		},
+		{
+			"eventType": "variable",
+			"name": "SnakeHeadLastY",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Last snake head Y.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 875073149573973
+		},
+		{
+			"eventType": "comment",
+			"text": "On startup, make the initial snake body segment follow the head."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 456027674852630
+				}
+			],
+			"actions": [
+				{
+					"id": "follow-object",
+					"objectClass": "SnakeBody",
+					"sid": 121699521813497,
+					"behaviorType": "Follow",
+					"parameters": {
+						"object": "SnakeHead",
+						"from-current-position": false
+					}
+				},
+				{
+					"id": "set-position",
+					"objectClass": "SnakeBody",
+					"sid": 407841398943266,
+					"parameters": {
+						"x": "snakeHead.X",
+						"y": "snakeHead.Y"
+					}
+				}
+			],
+			"sid": 453450774539777
+		},
+		{
+			"eventType": "comment",
+			"text": "While the snake is moving, periodically move the snake head forward at its current angle. All the snake body segments have the Follow behavior, and so will move with it. Also save the last snake head position, as it's needed when creating a new body segment."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 860013773802416,
+					"parameters": {
+						"variable": "IsMoving"
+					}
+				},
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 393083601641803,
+					"parameters": {
+						"interval-seconds": "MoveRate"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 919951525567960,
+					"parameters": {
+						"variable": "SnakeHeadLastX",
+						"value": "snakeHead.X"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 571609222732522,
+					"parameters": {
+						"variable": "SnakeHeadLastY",
+						"value": "snakeHead.Y"
+					}
+				},
+				{
+					"id": "move-forward",
+					"objectClass": "SnakeHead",
+					"sid": 594334451406848,
+					"parameters": {
+						"distance": "GRID_SIZE"
+					}
+				}
+			],
+			"sid": 758542089926733,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The snake head just moved. If the snake head is now over one of its own body segments, or the wall, then the game is over. Stop the snake moving and make it flash to indicate a collision."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "SnakeHead",
+							"sid": 527667061094234,
+							"parameters": {
+								"object": "SnakeBody"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "SnakeHead",
+							"sid": 216243273779728,
+							"parameters": {
+								"object": "Wall"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 546211489969768,
+							"parameters": {
+								"variable": "IsMoving",
+								"value": "false"
+							}
+						},
+						{
+							"id": "flash",
+							"objectClass": "SnakeHead",
+							"sid": 763029095356375,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.1",
+								"off-time": "0.1",
+								"duration": "1.0"
+							}
+						}
+					],
+					"sid": 372336801001814,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Note that normally only the snake body segment that was collided with will flash. To make sure all the snake body segments flash, use a 'Pick all' condition in a sub-event to make sure the action applies to all of them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-all",
+									"objectClass": "System",
+									"sid": 402383434749896,
+									"parameters": {
+										"object": "SnakeBody"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "flash",
+									"objectClass": "SnakeBody",
+									"sid": 334894374887452,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.1",
+										"off-time": "0.1",
+										"duration": "1.0"
+									}
+								}
+							],
+							"sid": 123854228234642
+						},
+						{
+							"eventType": "comment",
+							"text": "After making the whole snake flash, wait 2 seconds and then restart the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 158151842423467,
+									"parameters": {
+										"seconds": "2"
+									}
+								},
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 998254598653566
+								},
+								{
+									"id": "restart-layout",
+									"objectClass": "System",
+									"sid": 159317187184717
+								}
+							],
+							"sid": 519947310342670
+						}
+					],
+					"isOrBlock": true
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Use the arrow keys to set the snake head direction. Note that the player cannot make the snake move in the opposite direction to its current angle - for example if the snake is pointing right and the player presses the left arrow, then nothing should happen."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 343890726303958,
+					"parameters": {
+						"key": 39
+					}
+				},
+				{
+					"id": "is-within-angle",
+					"objectClass": "SnakeHead",
+					"sid": 456046636307245,
+					"parameters": {
+						"within": "0.5",
+						"angle": "180"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "SnakeHead",
+					"sid": 261049365737576,
+					"parameters": {
+						"angle": "0"
+					}
+				}
+			],
+			"sid": 356135860733427
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 215208848129581,
+					"parameters": {
+						"key": 40
+					}
+				},
+				{
+					"id": "is-within-angle",
+					"objectClass": "SnakeHead",
+					"sid": 222334611032469,
+					"parameters": {
+						"within": "0.5",
+						"angle": "270"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "SnakeHead",
+					"sid": 421258350240951,
+					"parameters": {
+						"angle": "90"
+					}
+				}
+			],
+			"sid": 992038185318517
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 767043559447510,
+					"parameters": {
+						"key": 37
+					}
+				},
+				{
+					"id": "is-within-angle",
+					"objectClass": "SnakeHead",
+					"sid": 982789018755207,
+					"parameters": {
+						"within": "0.5",
+						"angle": "0"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "SnakeHead",
+					"sid": 709145344958026,
+					"parameters": {
+						"angle": "180"
+					}
+				}
+			],
+			"sid": 976509776835805
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 705094200493979,
+					"parameters": {
+						"key": 38
+					}
+				},
+				{
+					"id": "is-within-angle",
+					"objectClass": "SnakeHead",
+					"sid": 444429119535892,
+					"parameters": {
+						"within": "0.5",
+						"angle": "90"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "SnakeHead",
+					"sid": 615450498516416,
+					"parameters": {
+						"angle": "270"
+					}
+				}
+			],
+			"sid": 412465727687279
+		},
+		{
+			"eventType": "comment",
+			"text": "When the snake head collides with one of the squares to be eaten, then it increases the score, moves the square to be eaten to a random new position, and increases the length of the snake."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "SnakeHead",
+					"sid": 179850900652984,
+					"parameters": {
+						"object": "ToEat"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 120206766975831,
+					"parameters": {
+						"variable": "Score",
+						"value": "1"
+					}
+				},
+				{
+					"id": "set-position",
+					"objectClass": "ToEat",
+					"sid": 687917133797954,
+					"parameters": {
+						"x": "floor(random(1, (LayoutWidth / 16) - 1)) * 16 + 8",
+						"y": "floor(random(1, (LayoutHeight / 16) - 1)) * 16 + 8"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "To increase the length of the snake, first increase the delay of all the snake body segments. This moves them all back a square, opening up a gap just behind the head. (Note that the max delay is also increased, as it must be one square larger than the delay to be able to increase the delay.)"
+				},
+				{
+					"id": "set-max-delay",
+					"objectClass": "SnakeBody",
+					"sid": 534563886876398,
+					"behaviorType": "Follow",
+					"parameters": {
+						"max-delay": "Self.Follow.MaxDelay + GRID_SIZE"
+					}
+				},
+				{
+					"id": "set-delay",
+					"objectClass": "SnakeBody",
+					"sid": 295476267259881,
+					"behaviorType": "Follow",
+					"parameters": {
+						"delay": "Self.Follow.Delay + GRID_SIZE"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Then create a new snake body segment in the gap behind the head. This is done by creating it at the snake head's previous position, before it collided with the square to be eaten. The new body segment is also set to follow the head."
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 878745285417260,
+					"parameters": {
+						"object-to-create": "SnakeBody",
+						"layer": "0",
+						"x": "SnakeHeadLastX",
+						"y": "SnakeHeadLastY",
+						"create-hierarchy": false,
+						"template-name": "\"\""
+					}
+				},
+				{
+					"id": "follow-object",
+					"objectClass": "SnakeBody",
+					"sid": 982588383202795,
+					"behaviorType": "Follow",
+					"parameters": {
+						"object": "SnakeHead",
+						"from-current-position": false
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Move the head to the top of the layer so it appears on top of anything it collides with."
+				},
+				{
+					"id": "move-to-top",
+					"objectClass": "SnakeHead",
+					"sid": 363569907669643
+				},
+				{
+					"type": "comment",
+					"text": "Increase the move rate by 1%. This means the snake gradually speeds up as it gets longer, further increasing the difficultly."
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 388613639950083,
+					"parameters": {
+						"variable": "MoveRate",
+						"value": "MoveRate * 0.99"
+					}
+				}
+			],
+			"sid": 945181406077126
+		},
+		{
+			"eventType": "comment",
+			"text": "By chance, the square to be eaten may be positioned on top of one of the snake's body segments. To avoid this, reposition it again if it is overlapping the snake body."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-overlapping-another-object",
+					"objectClass": "ToEat",
+					"sid": 508904681594822,
+					"parameters": {
+						"object": "SnakeBody"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-position",
+					"objectClass": "ToEat",
+					"sid": 265410591068066,
+					"parameters": {
+						"x": "floor(random(1, (LayoutWidth / 16) - 1)) * 16 + 8",
+						"y": "floor(random(1, (LayoutHeight / 16) - 1)) * 16 + 8"
+					}
+				}
+			],
+			"sid": 347994591539486
+		},
+		{
+			"eventType": "comment",
+			"text": "Keep the score text up-to-date showing the current score."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 162700853083804
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "ScoreText",
+					"sid": 876292480952059,
+					"parameters": {
+						"text": "\"Score: \" & Score"
+					}
+				}
+			],
+			"sid": 590951158442596
+		}
+	],
+	"sid": 458205160109742
+}

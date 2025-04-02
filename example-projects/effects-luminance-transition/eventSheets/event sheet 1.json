@@ -1,0 +1,233 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "This message is shown if WebGL is not supported."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "effects-are-supported",
+					"objectClass": "System",
+					"sid": 271389515432306,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 167876257362966,
+					"parameters": {
+						"text": "\"Effects are not supported!  Try Chrome or Firefox and check graphics drivers are up to date.\""
+					}
+				},
+				{
+					"id": "set-font-color",
+					"objectClass": "Text",
+					"sid": 547930601948614,
+					"parameters": {
+						"color": "rgb(255, 0, 0)"
+					}
+				}
+			],
+			"sid": 135697112766858
+		},
+		{
+			"eventType": "comment",
+			"text": "Start the transition immediately, fading the luminance from 200 to 100."
+		},
+		{
+			"eventType": "variable",
+			"name": "startTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Time at which to start the transition effect.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 940496728632275
+		},
+		{
+			"eventType": "variable",
+			"name": "duration",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "Length, in seconds, of the transition.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 463221583454654
+		},
+		{
+			"eventType": "variable",
+			"name": "isTransitionRunning",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "1 if the transition is running.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 374237210228077
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 986580582165600
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 321708590955147,
+					"parameters": {
+						"variable": "startTime",
+						"value": "time"
+					}
+				}
+			],
+			"sid": 563616670067595
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-time",
+					"objectClass": "System",
+					"sid": 682443738528144,
+					"parameters": {
+						"comparison": 2,
+						"time-seconds": "startTime + duration"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-layout-effect-parameter",
+					"objectClass": "System",
+					"sid": 316529369957818,
+					"parameters": {
+						"effect": "\"AdjustHSL\"",
+						"parameter-index": "2",
+						"value": "lerp(200, 100, (time - startTime) / duration)"
+					}
+				}
+			],
+			"sid": 393858060958613
+		},
+		{
+			"eventType": "comment",
+			"text": "Fade the luminance from 100 to 0 after pressing a key."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 624852437394248
+				},
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 993028652326652,
+					"parameters": {
+						"variable": "isTransitionRunning",
+						"comparison": 0,
+						"value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 593159747585501,
+					"parameters": {
+						"variable": "startTime",
+						"value": "time"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 410003947442478,
+					"parameters": {
+						"variable": "isTransitionRunning",
+						"value": "1"
+					}
+				}
+			],
+			"sid": 685790048781686
+		},
+		{
+			"eventType": "comment",
+			"text": "Adjust the effect intensity during the transition.  Handle the first half of the duration separately (fade in, then fade out)."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-eventvar",
+					"objectClass": "System",
+					"sid": 306454206734775,
+					"parameters": {
+						"variable": "isTransitionRunning",
+						"comparison": 0,
+						"value": "1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-layout-effect-parameter",
+					"objectClass": "System",
+					"sid": 779060870989161,
+					"parameters": {
+						"effect": "\"AdjustHSL\"",
+						"parameter-index": "2",
+						"value": "100 - ((time - startTime) / duration) * 100"
+					}
+				}
+			],
+			"sid": 651898794371150,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the transition is finished, restart the layout."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-time",
+							"objectClass": "System",
+							"sid": 567216430437464,
+							"parameters": {
+								"comparison": 4,
+								"time-seconds": "startTime + duration"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 712915880017565
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 193994226709140
+						}
+					],
+					"sid": 141224831473409
+				}
+			]
+		}
+	],
+	"sid": 314761745802057
+}

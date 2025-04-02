@@ -1,0 +1,240 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Store the piggy bounding box area in global variables. Changing the mesh also changes the object bounding box. Since we do calculations involving the box when moving MeshPoints, we need to use the original values, not the values that changed because the mesh updated."
+		},
+		{
+			"eventType": "variable",
+			"name": "PiggyLeft",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 640851324426759
+		},
+		{
+			"eventType": "variable",
+			"name": "PiggyTop",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 480981780985602
+		},
+		{
+			"eventType": "variable",
+			"name": "PiggyRight",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 523180273503989
+		},
+		{
+			"eventType": "variable",
+			"name": "PiggyBottom",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 184834980083701
+		},
+		{
+			"eventType": "comment",
+			"text": "On startup, destroy the initial MeshPoint instance, and create a 5x5 mesh on the Piggy object."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 542666800189467
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "MeshPoint",
+					"sid": 690490361876248
+				},
+				{
+					"id": "set-mesh-size",
+					"objectClass": "Piggy",
+					"sid": 326577346567286,
+					"parameters": {
+						"cols": "5",
+						"rows": "5"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 961239065104798,
+					"parameters": {
+						"variable": "PiggyLeft",
+						"value": "Piggy.BBoxLeft"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 380494516568404,
+					"parameters": {
+						"variable": "PiggyTop",
+						"value": "Piggy.BBoxTop"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 425280289621763,
+					"parameters": {
+						"variable": "PiggyRight",
+						"value": "Piggy.BBoxRight"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 598274950022160,
+					"parameters": {
+						"variable": "PiggyBottom",
+						"value": "Piggy.BBoxBottom"
+					}
+				}
+			],
+			"sid": 776074584390058,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "For each point on the piggy's mesh, create a corresponding MeshPoint sprite."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 490808447671874,
+							"parameters": {
+								"name": "\"x\"",
+								"start-index": "0",
+								"end-index": "Piggy.MeshColumns - 1"
+							}
+						},
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 719561999016473,
+							"parameters": {
+								"name": "\"y\"",
+								"start-index": "0",
+								"end-index": "Piggy.MeshRows - 1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 152099603928189,
+							"parameters": {
+								"object-to-create": "MeshPoint",
+								"layer": "0",
+								"x": "lerp(PiggyLeft, PiggyRight, loopindex(\"x\") / (Piggy.MeshColumns - 1))",
+								"y": "lerp(PiggyTop, PiggyBottom, loopindex(\"y\") / (Piggy.MeshRows - 1))"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "MeshPoint",
+							"sid": 268674640817855,
+							"parameters": {
+								"instance-variable": "MeshColumn",
+								"value": "loopindex(\"x\")"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "MeshPoint",
+							"sid": 386684396278358,
+							"parameters": {
+								"instance-variable": "MeshRow",
+								"value": "loopindex(\"y\")"
+							}
+						}
+					],
+					"sid": 111083135558176
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When a MeshPoint is being dragged, set the corresponding mesh point on the piggy to the same position. Note the 'Set mesh point' action works in terms of normalized co-ordinates, i.e. ranging from 0-1 across the object. Therefore use the 'unlerp' expression to convert the MeshPoint's position to a fraction of the way along the bounding box."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-dragging",
+					"objectClass": "MeshPoint",
+					"sid": 224361140994998,
+					"behaviorType": "DragDrop"
+				}
+			],
+			"actions": [
+				{
+					"id": "set-mesh-point",
+					"objectClass": "Piggy",
+					"sid": 182265087913752,
+					"parameters": {
+						"col": "MeshPoint.MeshColumn",
+						"row": "MeshPoint.MeshRow",
+						"posx": "unlerp(PiggyLeft, PiggyRight, MeshPoint.X)",
+						"posy": "unlerp(PiggyTop, PiggyBottom, MeshPoint.Y)",
+						"texx": "-1",
+						"texy": "-1"
+					}
+				},
+				{
+					"id": "set-opacity",
+					"objectClass": "MeshPoint",
+					"sid": 549228541053057,
+					"parameters": {
+						"opacity": "100"
+					}
+				}
+			],
+			"sid": 138196275807038
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 515672546349446
+				}
+			],
+			"actions": [
+				{
+					"id": "set-opacity",
+					"objectClass": "MeshPoint",
+					"sid": 507070099302816,
+					"parameters": {
+						"opacity": "60"
+					}
+				}
+			],
+			"sid": 300936316017309
+		}
+	],
+	"sid": 591591979430897
+}

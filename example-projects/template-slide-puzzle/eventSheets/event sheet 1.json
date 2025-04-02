@@ -1,0 +1,688 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "References :\n\n[b]Plugin[/b]\n[item]Sprite - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/sprite\n[item]Text - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/text\n[item]Touch - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/touch\n\n[b][i]Behavior[/i][/b]\n[item]MoveTo - https://www.construct.net/en/make-games/manuals/construct-3/behavior-reference/move\n\n[u]System[/u]\n[item]Object types - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/objects/object-types\n[item]Instances - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/objects/instances\n[item]Global variables/Local variables - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/events/variables\n[item]Instance variables - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/objects/instance-variables\n[item]Families - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/objects/families",
+			"background-color": [
+				0.7450980392156863,
+				0.996078431372549,
+				0.8431372549019608,
+				1
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "[b][i]Slider puzzle Template[/i][/b]\n\nAn [b]image[/b] ([b]Sprite[/b]) is divided into [b]pieces[/b]. There is one less [b]piece[/b] in order to leave a blank space.\nThe player can [b]touch[/b] [b]pieces[/b] around the blank space to move the piece (thanks to the [b][i]MoveTo[/i][/b] behavior) in that space.\nBy doing so, the player is to order the [b]piece[/b] instances to recompose the original [b]image[/b].\n\n[b]cell[/b] instances are a [b]Sprite[/b] plugin, used to determine the original order thanks to the instance variable [i]ID[/i]. They make a grid that covers [b]image[/b]\n[b]image[/b] is set as a square to help out with the game mechanic. You can replace the texture of [b]image[/b] to a 640X640 texture.\n[b]help[/b] is a [b]Sprite[/b] that displays the same texture as [b]image[/b] (although [b]help[/b] and its texture are 256X256 pixels).\n[b]piece[/b] is a [b]Sprite[/b] that contains the 14 animation frames that make the various pieces of the [b]image[/b]. [b]piece[/b] instances have been manually placed in a random order in the layout view.\n[u]pieces[/u] is a family that only contains [b]piece[/b]. It is used to check the overlapping offset when a [b]piece[/b] is touched.\n\nWhen all [b]piece[/b] instances have been correctly ordered and positioned over their respective [b]cell[/b] instance, the game stops and displays the number of [i]moves[/i] it took to the player to complete the puzzle.\nThe [b]Sprite[/b] [b]btnRestart[/b] then appears, allowing the player to restart the layout and play again.",
+			"background-color": [
+				0.7686274509803922,
+				0.8862745098039215,
+				0.996078431372549,
+				1
+			]
+		},
+		{
+			"eventType": "variable",
+			"name": "canTouch",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "can the player touch a piece (no piece is in movement)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 485948464370295
+		},
+		{
+			"eventType": "variable",
+			"name": "Moves",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Number of moves the player used so far",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 711794356092916
+		},
+		{
+			"eventType": "comment",
+			"text": "On start of the layout, display the number of moves in [b]txtMoves[/b] instead of the default \"text\""
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 754195075706345
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "txtMoves",
+					"sid": 491499995842067,
+					"parameters": {
+						"text": "\"Moves: \" & Moves"
+					}
+				}
+			],
+			"sid": 541014276657225
+		},
+		{
+			"eventType": "comment",
+			"text": "When the player touches a [b]piece[/b] and the player can touch ([i]canTouch[/i] global boolean variable value is True, no [b]piece[/b] is currently moving)"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 406539734775917,
+					"parameters": {
+						"object": "piece"
+					}
+				},
+				{
+					"id": "compare-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 859879405498040,
+					"parameters": {
+						"variable": "canTouch"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 197229649265302,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "moving piece down"
+				},
+				{
+					"eventType": "comment",
+					"text": "Makes sure the touched [b]piece[/b] is not in the last row (Y < 592).\nChecks if the [b]piece[/b] is NOT overlapping another [b]piece[/b] on the board (as member of the family [b]pieces[/b]) 160 pixels bottom from its current Y position."
+				},
+				{
+					"eventType": "comment",
+					"text": "[i]NOTE: the X cross in the condition is achieved by right-clicking the condition and selecting \"Invert\"[/i]"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-y",
+							"objectClass": "piece",
+							"sid": 104981236207821,
+							"parameters": {
+								"comparison": 2,
+								"y-co-ordinate": "592"
+							}
+						},
+						{
+							"id": "is-overlapping-at-offset",
+							"objectClass": "piece",
+							"sid": 880482928453701,
+							"parameters": {
+								"object": "pieces",
+								"offset-x": "0",
+								"offset-y": "160"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Move the [b]piece[/b] thanks to the [b][i]MoveTo[/i][/b] behavior. Move the [b]piece[/b] 160 pixels down from its current Y position keeping the same X value."
+						},
+						{
+							"id": "move-to-position",
+							"objectClass": "piece",
+							"sid": 199989433090684,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"x": "piece.X",
+								"y": "piece.Y + 160",
+								"mode": "direct"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Prevent the player from making another touch while the [b]piece[/b] is moving"
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 431497438128981,
+							"parameters": {
+								"variable": "canTouch",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Add 1 to the global variable [i]Moves[/i] and display an update of [b]txtMoves[/b]"
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 869105288620243,
+							"parameters": {
+								"variable": "Moves",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtMoves",
+							"sid": 372006141714362,
+							"parameters": {
+								"text": "\"Moves: \" & Moves"
+							}
+						}
+					],
+					"sid": 266980095326424
+				},
+				{
+					"eventType": "comment",
+					"text": "moving piece up"
+				},
+				{
+					"eventType": "comment",
+					"text": "Makes sure the touched [b]piece[/b] is not in the first row (Y > 112).\nChecks if the [b]piece[/b] is NOT overlapping another [b]piece[/b] on the board (as member of the family [b]pieces[/b]) 160 pixels top from its current Y position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-y",
+							"objectClass": "piece",
+							"sid": 656453716605086,
+							"parameters": {
+								"comparison": 4,
+								"y-co-ordinate": "112"
+							}
+						},
+						{
+							"id": "is-overlapping-at-offset",
+							"objectClass": "piece",
+							"sid": 380364419565919,
+							"parameters": {
+								"object": "pieces",
+								"offset-x": "0",
+								"offset-y": "-160"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Move the [b]piece[/b] thanks to the [b][i]MoveTo[/i][/b] behavior. Move the [b]piece[/b] 160 pixels up from its current Y position keeping the same X value."
+						},
+						{
+							"id": "move-to-position",
+							"objectClass": "piece",
+							"sid": 319247444608148,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"x": "piece.X",
+								"y": "piece.Y - 160",
+								"mode": "direct"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Prevent the player from making another touch while the [b]piece[/b] is moving"
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 539851429599660,
+							"parameters": {
+								"variable": "canTouch",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Add 1 to the global variable [i]Moves[/i] and display an update of [b]txtMoves[/b]"
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 734867437896027,
+							"parameters": {
+								"variable": "Moves",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtMoves",
+							"sid": 231525827846559,
+							"parameters": {
+								"text": "\"Moves: \" & Moves"
+							}
+						}
+					],
+					"sid": 856686672149754
+				},
+				{
+					"eventType": "comment",
+					"text": "moving piece left"
+				},
+				{
+					"eventType": "comment",
+					"text": "Makes sure the touched [b]piece[/b] is not in the first column (X > 400).\nChecks if the [b]piece[/b] is NOT overlapping another [b]piece[/b] on the board (as member of the family [b]pieces[/b]) 160 pixels to the left from its current X position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-x",
+							"objectClass": "piece",
+							"sid": 491986405835389,
+							"parameters": {
+								"comparison": 4,
+								"x-co-ordinate": "400"
+							}
+						},
+						{
+							"id": "is-overlapping-at-offset",
+							"objectClass": "piece",
+							"sid": 886518806944436,
+							"parameters": {
+								"object": "pieces",
+								"offset-x": "-160",
+								"offset-y": "0"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Move the [b]piece[/b] thanks to the [b][i]MoveTo[/i][/b] behavior. Move the [b]piece[/b] 160 pixels left from its current X position, keeping the same Y value."
+						},
+						{
+							"id": "move-to-position",
+							"objectClass": "piece",
+							"sid": 898666059944837,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"x": "piece.X - 160",
+								"y": "piece.Y",
+								"mode": "direct"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Prevent the player from making another touch while the [b]piece[/b] is moving"
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 791346703634657,
+							"parameters": {
+								"variable": "canTouch",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Add 1 to the global variable [i]Moves[/i] and display an update of [b]txtMoves[/b]"
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 967993803392157,
+							"parameters": {
+								"variable": "Moves",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtMoves",
+							"sid": 130132584100899,
+							"parameters": {
+								"text": "\"Moves: \" & Moves"
+							}
+						}
+					],
+					"sid": 226165881596579
+				},
+				{
+					"eventType": "comment",
+					"text": "moving piece right"
+				},
+				{
+					"eventType": "comment",
+					"text": "Makes sure the touched [b]piece[/b] is not in the last column (X < 880).\nChecks if the [b]piece[/b] is NOT overlapping another [b]piece[/b] on the board (as member of the family [b]pieces[/b]) 160 pixels to the right from its current X position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-x",
+							"objectClass": "piece",
+							"sid": 692923566049960,
+							"parameters": {
+								"comparison": 2,
+								"x-co-ordinate": "880"
+							}
+						},
+						{
+							"id": "is-overlapping-at-offset",
+							"objectClass": "piece",
+							"sid": 616691501490627,
+							"parameters": {
+								"object": "pieces",
+								"offset-x": "160",
+								"offset-y": "0"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Move the [b]piece[/b] thanks to the [b][i]MoveTo[/i][/b] behavior. Move the [b]piece[/b] 160 pixels right from its current X position, keeping the same Y value."
+						},
+						{
+							"id": "move-to-position",
+							"objectClass": "piece",
+							"sid": 990371528042787,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"x": "piece.X + 160",
+								"y": "piece.Y",
+								"mode": "direct"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Prevent the player from making another touch while the [b]piece[/b] is moving"
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 943125953353472,
+							"parameters": {
+								"variable": "canTouch",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Add 1 to the global variable [i]Moves[/i] and display an update of [b]txtMoves[/b]"
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 938655776781092,
+							"parameters": {
+								"variable": "Moves",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtMoves",
+							"sid": 609188237881130,
+							"parameters": {
+								"text": "\"Moves: \" & Moves"
+							}
+						}
+					],
+					"sid": 136867891297647
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When a moving [b]piece[/b] has arrived to its destination"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-arrived",
+					"objectClass": "piece",
+					"sid": 618917792350448,
+					"behaviorType": "MoveTo"
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Allow the player to touch another [b]piece[/b] to move"
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 214790855136204,
+					"parameters": {
+						"variable": "canTouch",
+						"value": "true"
+					}
+				}
+			],
+			"sid": 644411132727874,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Check if all the [b]piece[/b] instances have been correctly positioned over their respective [b]cell[/b]"
+				},
+				{
+					"eventType": "variable",
+					"name": "check",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "number of pieces correctly placed over a cell",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 576757279468708
+				},
+				{
+					"eventType": "comment",
+					"text": "Loop through each [b]cell[/b]\nCheck if there is a [b]piece[/b] (as member of the family [b]pieces[/b]) that is overlapping the current [b]cell[/b]\nCheck if [b]piece[/b] (as member of the family [b]pieces[/b])'s animation frame is equal to the value of the [i]ID[/i] instance variable of the [b]cell[/b]"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 409873709895692,
+							"parameters": {
+								"object": "cell"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "cell",
+							"sid": 954701713979072,
+							"parameters": {
+								"object": "pieces"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "cell",
+							"sid": 384550472410905,
+							"parameters": {
+								"instance-variable": "ID",
+								"comparison": 0,
+								"value": "pieces.AnimationFrame"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "If the conditions check out, add 1 to the local variable [b]check[/b]"
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 956620206970264,
+							"parameters": {
+								"variable": "check",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 316182594520231
+				},
+				{
+					"eventType": "comment",
+					"text": "Game over"
+				},
+				{
+					"eventType": "comment",
+					"text": "Once all [b]cell[/b] have been looped through, if the value of the local variable [i]check[/i] is equal to the number of existing [b]cell[/b] instances the game is over, the puzzle has been completed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 506701965251736,
+							"parameters": {
+								"variable": "check",
+								"comparison": 0,
+								"value": "cell.Count"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Prevent the player from doing any further touch to a [b]piece[/b]"
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 279994870981490,
+							"parameters": {
+								"variable": "canTouch",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "txtMoves",
+							"sid": 310834927438978,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "piece",
+							"sid": 747516175923825,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "help",
+							"sid": 689172902980746,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show [b]image[/b] (set its opacity to 100)"
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "image",
+							"sid": 606495221427081,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "image",
+							"sid": 442747464934544,
+							"parameters": {
+								"opacity": "100"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show [b]txtGame[/b] and update its message with a congratulations message indicated the number of moves it took"
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "txtGameOver",
+							"sid": 688576242245237,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtGameOver",
+							"sid": 332421226076242,
+							"parameters": {
+								"text": "\"You completed the puzzle in \" & Moves & \" moves !\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Position [b]btnRestart[/b] so it can be touched by the player"
+						},
+						{
+							"id": "set-position",
+							"objectClass": "btnRestart",
+							"sid": 889534446305780,
+							"parameters": {
+								"x": "1280/2",
+								"y": "544"
+							}
+						}
+					],
+					"sid": 478026844469963
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When touching [b]btnRestart[/b] reset the global variables values and restart the layout"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 479389008004451,
+					"parameters": {
+						"object": "btnRestart"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "reset-global-variables",
+					"objectClass": "System",
+					"sid": 335169652629593
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 638830651569402
+				}
+			],
+			"sid": 112020788512825
+		}
+	],
+	"sid": 240608088812542
+}

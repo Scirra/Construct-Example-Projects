@@ -1,0 +1,1884 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the camera by moving it very high at the of the layout, creating a very cinematographic effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 653904041642679
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 987470033404907,
+							"parameters": {
+								"cam-x": "PlayerCollision.X - 128",
+								"cam-y": "PlayerCollision.Y",
+								"cam-z": "PlayerCollision.ZElevation ",
+								"look-x": "PlayerCollision.X",
+								"look-y": "PlayerCollision.Y",
+								"look-z": "PlayerCollision.ZElevation + 16",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Destroy the tutorial text after four seconds, so it doesn't stay on screen forever."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 645969717956346,
+							"parameters": {
+								"seconds": "4"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Tutorial",
+							"sid": 381519748890246,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SelfDestroy\"",
+								"property": "offsetX",
+								"end-value": "Self.X - 64",
+								"time": "1",
+								"ease": "easeinsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 508562661280596
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the camera to make sure it's always behind the player, even while it's jumping."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 343218213734633
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 364203034454080,
+							"parameters": {
+								"cam-x": "lerp(3DCamera.CameraX, PlayerCollision.X - 128, 0.1 * 60 * dt)",
+								"cam-y": "lerp(3DCamera.CameraY, PlayerCollision.Y, 0.5 * 60 * dt)",
+								"cam-z": "lerp(3DCamera.CameraZ, PlayerCollision.ZElevation + 32, 0.1 * 60 * dt)",
+								"look-x": "PlayerCollision.X",
+								"look-y": "PlayerCollision.Y",
+								"look-z": "PlayerCollision.ZElevation + 16",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 133599944890382
+				}
+			],
+			"sid": 697435207047720
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The initial X any Y positions of a touch interaction."
+				},
+				{
+					"eventType": "variable",
+					"name": "InitialX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 682777569708193
+				},
+				{
+					"eventType": "variable",
+					"name": "InitialY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 807645228690357
+				},
+				{
+					"eventType": "comment",
+					"text": "Once a new touch is started, store its position for later comparisons."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-nth-touch-start",
+							"objectClass": "Touch",
+							"sid": 616306659762119,
+							"parameters": {
+								"touch-number": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 175319494400986,
+							"parameters": {
+								"variable": "InitialX",
+								"value": "Touch.X"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 744097054462553,
+							"parameters": {
+								"variable": "InitialY",
+								"value": "Touch.Y"
+							}
+						}
+					],
+					"sid": 805905712445879
+				},
+				{
+					"eventType": "comment",
+					"text": "Whether or not the player is allowed to perform any movement."
+				},
+				{
+					"eventType": "variable",
+					"name": "AllowMovement",
+					"type": "boolean",
+					"initialValue": "true",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 244525557160695
+				},
+				{
+					"eventType": "comment",
+					"text": "After the touch has ended, check which angle it's pointing towards in comparison with the previously store initial position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "has-nth-touch",
+							"objectClass": "Touch",
+							"sid": 427276267949896,
+							"parameters": {
+								"touch-number": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 972160637298655,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the distance between both points is long enough, perform an action based on the resulting angle. But, only if movement is allowed."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 385114432870292,
+									"parameters": {
+										"first-value": "distance(InitialX, InitialY, Touch.X, Touch.Y)",
+										"comparison": 5,
+										"second-value": "16"
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 424982024283561,
+									"parameters": {
+										"variable": "AllowMovement"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 928690583414298,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Move the player left."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-within-angle",
+											"objectClass": "System",
+											"sid": 893266792704584,
+											"parameters": {
+												"angle-1": "angle(InitialX, InitialY, Touch.X, Touch.Y) - 90",
+												"within": "30",
+												"angle-2": "180"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "ChangeLane",
+											"sid": 654784467234185,
+											"parameters": [
+												"-1"
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Prevent the player from preforming another movement before releasing the screen."
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 447650141918476,
+											"parameters": {
+												"variable": "AllowMovement",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 776160012660200
+								},
+								{
+									"eventType": "comment",
+									"text": "Move the player right."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-within-angle",
+											"objectClass": "System",
+											"sid": 192671471491173,
+											"parameters": {
+												"angle-1": "angle(InitialX, InitialY, Touch.X, Touch.Y) - 90",
+												"within": "30",
+												"angle-2": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "ChangeLane",
+											"sid": 963748319575089,
+											"parameters": [
+												"1"
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Prevent the player from preforming another movement before releasing the screen."
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 336855839930905,
+											"parameters": {
+												"variable": "AllowMovement",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 215365937379719
+								},
+								{
+									"eventType": "comment",
+									"text": "Make the player jump."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-within-angle",
+											"objectClass": "System",
+											"sid": 856342218194378,
+											"parameters": {
+												"angle-1": "angle(InitialX, InitialY, Touch.X, Touch.Y) - 90",
+												"within": "30",
+												"angle-2": "270"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "Jump",
+											"sid": 975727078915318
+										},
+										{
+											"type": "comment",
+											"text": "Prevent the player from preforming another movement before releasing the screen."
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 816415052432334,
+											"parameters": {
+												"variable": "AllowMovement",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 920080240085322
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player has released the screen, allow it to perform other movements again."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-nth-touch-end",
+							"objectClass": "Touch",
+							"sid": 747190258675014,
+							"parameters": {
+								"touch-number": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 496667941458523,
+							"parameters": {
+								"variable": "AllowMovement",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 368539755352313
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the player left."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 645421824091838,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 398736191642184,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-left"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ChangeLane",
+							"sid": 263458701480682,
+							"parameters": [
+								"-1"
+							]
+						}
+					],
+					"sid": 857261716754709,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the player right."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 619601778179325,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 370323687389480,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-right"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ChangeLane",
+							"sid": 975081935174708,
+							"parameters": [
+								"1"
+							]
+						}
+					],
+					"sid": 888924020169842,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Make the player jump, but only if it's not jumping already."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 399917303221561,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 996786041737176,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "Jump",
+							"sid": 837296662117204
+						}
+					],
+					"sid": 841259851707202,
+					"isOrBlock": true
+				},
+				{
+					"functionName": "Jump",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCollision",
+							"sid": 564893479941389,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Jump\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCollision",
+							"sid": 839292679991179,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "PlayerCollision",
+							"sid": 951524130191054,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Jump\"",
+								"property": "offsetZElevation",
+								"end-value": "24",
+								"time": "0.35",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 612114602595076
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCollision",
+							"sid": 183289408870913,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Jump\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "PlayerCollision",
+							"sid": 139067140348003,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\"",
+								"property": "offsetZElevation",
+								"end-value": "0",
+								"time": "0.35",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 593687103484780
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player lands on the ground, spawn a circle of dust around it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCollision",
+							"sid": 849375494591954,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 396701196294983,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The direction each particle will move towards."
+						},
+						{
+							"eventType": "variable",
+							"name": "AngleOfMotion",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 269638237760843
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 525803606329124,
+									"parameters": {
+										"count": "16"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 254746010130819,
+									"parameters": {
+										"variable": "AngleOfMotion",
+										"value": "random(0, 360)"
+									}
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 236308133850544,
+									"parameters": {
+										"object-to-create": "Dust",
+										"layer": "\"World\"",
+										"x": "PlayerCollision.X + 20 + cos(AngleOfMotion) * 4",
+										"y": "PlayerCollision.Y + sin(AngleOfMotion) * 4",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "Dust",
+									"sid": 821750153288320,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "180"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Dust",
+									"sid": 452567219194849,
+									"parameters": {
+										"angle": "random(0, 360)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "How long it takes for the dust to move up and shrink is slightly randomized, resulting in a more dynamic composition."
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Dust",
+									"sid": 427267326613769,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Spread\"",
+										"property": "position",
+										"end-x": "Self.X + cos(AngleOfMotion) * random(16, 20)",
+										"end-y": "Self.Y + sin(AngleOfMotion) * random(16, 20)",
+										"time": "0.5",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Dust",
+									"sid": 304844879993191,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Ascend\"",
+										"property": "offsetZElevation",
+										"end-value": "random(4, 8)",
+										"time": "0.5",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "yes",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Dust",
+									"sid": 507752697541283,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"SelfDestroy\"",
+										"property": "size",
+										"end-x": "0",
+										"end-y": "0",
+										"time": "0.5",
+										"ease": "easeinsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 690351153270007
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn a trail of dust behind the player while it's moving on the ground."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCollision",
+							"sid": 328341036470131,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Jump\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCollision",
+							"sid": 562151019971560,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 228776757719394,
+							"parameters": {
+								"object": "Ground"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 369143294674206,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 689982477299711,
+									"parameters": {
+										"interval-seconds": "0.05"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 607594632644372,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "An offset value (-1 and 1) is used to adjust the dust position to each one of the back tires."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 518478162532002,
+											"parameters": {
+												"name": "\"X\"",
+												"start-index": "-1",
+												"end-index": "1"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 355501898240319,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 192671645928433,
+													"parameters": {
+														"first-value": "loopindex(\"X\")",
+														"comparison": 1,
+														"second-value": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 672073874315871,
+													"parameters": {
+														"object-to-create": "Dust",
+														"layer": "\"World\"",
+														"x": "PlayerCollision.X",
+														"y": "PlayerCollision.Y + random(-0.5, 0.5) + loopindex(\"X\") * 6",
+														"create-hierarchy": false
+													}
+												},
+												{
+													"id": "set-z-elevation",
+													"objectClass": "Dust",
+													"sid": 587774790775709,
+													"parameters": {
+														"z": "random(0, 1)"
+													}
+												},
+												{
+													"id": "set-angle-of-motion",
+													"objectClass": "Dust",
+													"sid": 405958129839230,
+													"behaviorType": "Bullet",
+													"parameters": {
+														"angle": "180"
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "Dust",
+													"sid": 342595938144981,
+													"parameters": {
+														"angle": "random(0, 360)"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "How long it takes for the dust to move up and shrink is slightly randomized, resulting in a more dynamic composition."
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "Dust",
+													"sid": 936573042997797,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"Ascend\"",
+														"property": "offsetZElevation",
+														"end-value": "random(8, 16)",
+														"time": "random(0.35, 0.5)",
+														"ease": "easeinsine",
+														"destroy-on-complete": "no",
+														"loop": "yes",
+														"ping-pong": "no"
+													}
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "Dust",
+													"sid": 793469580447979,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"SelfDestroy\"",
+														"property": "size",
+														"end-x": "0",
+														"end-y": "0",
+														"time": "0.25",
+														"ease": "easeinsine",
+														"destroy-on-complete": "yes",
+														"loop": "no",
+														"ping-pong": "no"
+													}
+												}
+											],
+											"sid": 589840087456350
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the player to another language based on the direction passed (\"-1\" is left and \"1\" is right)."
+				},
+				{
+					"functionName": "ChangeLane",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Direction",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 317037520289459
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 160039831058024,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "PlayerCollision",
+									"sid": 775576631989100,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerCollision",
+									"sid": 477016358048513,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Move\"",
+										"property": "offsetY",
+										"end-value": "round(Self.Y + sign(Direction) * 40)",
+										"time": "0.25",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Also use the same direction parameter to update the player animation."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerAnimations",
+									"sid": 511619804617633,
+									"parameters": {
+										"animation": "str(Direction)",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 974548261032945
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player is done moving, reset its animation back to the default one."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerCollision",
+							"sid": 592692208963238,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerAnimations",
+							"sid": 790001521329371,
+							"parameters": {
+								"animation": "\"0\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 261291883162902
+				}
+			],
+			"sid": 230353670249984
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Hazards",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCollision",
+							"sid": 246381846488011,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Jump\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerCollision",
+							"sid": 203476348102402,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 546948775605298,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the player isn't jumping and isn't standing on the ground, then it mean the player is falling into the void, so it's game over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerCollision",
+									"sid": 106458359566745,
+									"parameters": {
+										"object": "Ground"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "GameOver",
+									"sid": 494216350136972
+								}
+							],
+							"sid": 710487962486424
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player isn't jumping and is overlapping a spike, then it's also game over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 487830088421662
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerCollision",
+									"sid": 227844123717463,
+									"parameters": {
+										"object": "Ground"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerCollision",
+									"sid": 202734403013459,
+									"parameters": {
+										"object": "Spike"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "stop-all-tweens",
+									"objectClass": "PlayerCollision",
+									"sid": 455676811402176,
+									"behaviorType": "Tween"
+								},
+								{
+									"callFunction": "GameOver",
+									"sid": 391644802461825
+								}
+							],
+							"sid": 295085740381760
+						}
+					]
+				}
+			],
+			"sid": 825826454968098
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the ground moves."
+		},
+		{
+			"eventType": "variable",
+			"name": "GroundSpeed",
+			"type": "number",
+			"initialValue": "8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 992839907620445
+		},
+		{
+			"eventType": "comment",
+			"text": "How large each tile/lane is."
+		},
+		{
+			"eventType": "variable",
+			"name": "TILESIZE",
+			"type": "number",
+			"initialValue": "40",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 715597936911200
+		},
+		{
+			"eventType": "comment",
+			"text": "Minimum distance between the player and the last created platform, before spawning a new platform."
+		},
+		{
+			"eventType": "variable",
+			"name": "MINDISTANCE",
+			"type": "number",
+			"initialValue": "64",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 873132170882392
+		},
+		{
+			"eventType": "comment",
+			"text": "Min and max amount of tiles per platform."
+		},
+		{
+			"eventType": "variable",
+			"name": "MINTILES",
+			"type": "number",
+			"initialValue": "8",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 618594854830511
+		},
+		{
+			"eventType": "variable",
+			"name": "MAXTILES",
+			"type": "number",
+			"initialValue": "24",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 962278636739601
+		},
+		{
+			"eventType": "comment",
+			"text": "Min and max gap length between each platform."
+		},
+		{
+			"eventType": "variable",
+			"name": "MINLENGTH",
+			"type": "number",
+			"initialValue": "128",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 853919974591921
+		},
+		{
+			"eventType": "variable",
+			"name": "MAXLENGTH",
+			"type": "number",
+			"initialValue": "256",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 801598510839084
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ProdecuralGeneration",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Generate new platforms in front of the platform, so the game technically never ends."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 569686107889052
+						}
+					],
+					"actions": [],
+					"sid": 693636341850785,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-last-created",
+									"objectClass": "System",
+									"sid": 484205618129344,
+									"parameters": {
+										"object": "Ground"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 368451278729763,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the last created platform is far enough from the player, create a new with slightly randomized parameters, like size and position."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 542530438671319,
+											"parameters": {
+												"first-value": "distance(clamp((Ground.X + Ground.Width / 2), -Infinity, GroundSpawnPoint.X), 0, GroundSpawnPoint.X, 0)",
+												"comparison": 5,
+												"second-value": "MINDISTANCE"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 184750720122773,
+											"parameters": {
+												"object-to-create": "Ground",
+												"layer": "\"World\"",
+												"x": "GroundSpawnPoint.X",
+												"y": "GroundSpawnPoint.Y",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-width",
+											"objectClass": "Ground",
+											"sid": 584805015426711,
+											"parameters": {
+												"width": "floor(random(MINTILES, MAXTILES + 1)) * TILESIZE"
+											}
+										},
+										{
+											"id": "set-x",
+											"objectClass": "Ground",
+											"sid": 506129257631393,
+											"parameters": {
+												"x": "(GroundSpawnPoint.X + Self.Width / 2) - MINDISTANCE + random(128, 256)"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move the platform up with a tween animation for a more visually interesting look."
+										},
+										{
+											"id": "set-z-elevation",
+											"objectClass": "Ground",
+											"sid": 129823478368955,
+											"parameters": {
+												"z": "-128"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Ground",
+											"sid": 307738242243071,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Ascend\"",
+												"property": "offsetZElevation",
+												"end-value": "-64",
+												"time": "1",
+												"ease": "easeoutback",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 267055138646363,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Spawn one spike on each of the threes lanes of the platform. These will be used as obstacles for the player."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for",
+													"objectClass": "System",
+													"sid": 705626139186791,
+													"parameters": {
+														"name": "\"Spikes\"",
+														"start-index": "-1",
+														"end-index": "1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 980668616667125,
+													"parameters": {
+														"object-to-create": "Spike",
+														"layer": "\"World\"",
+														"x": "Ground.X - Ground.Width / 2 - 20 + floor(random(1, (Ground.Width / TILESIZE) + 1)) * TILESIZE",
+														"y": "Ground.Y + TILESIZE * loopindex(\"Spikes\")",
+														"create-hierarchy": false
+													}
+												},
+												{
+													"id": "set-z-elevation",
+													"objectClass": "Spike",
+													"sid": 731802538144443,
+													"parameters": {
+														"z": "Ground.ZElevation + Ground.ZHeight"
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "Spike",
+													"sid": 680225725858722,
+													"parameters": {
+														"angle": "random(-5, 5)"
+													}
+												},
+												{
+													"id": "add-child",
+													"objectClass": "Ground",
+													"sid": 628171205018258,
+													"parameters": {
+														"child": "Spike",
+														"transform-x": true,
+														"transform-y": true,
+														"transform-w": false,
+														"transform-h": false,
+														"transform-a": false,
+														"transform-z-elevation": true,
+														"destroy-with-parent": true
+													}
+												}
+											],
+											"sid": 244911545255812
+										},
+										{
+											"eventType": "comment",
+											"text": "Also spawn a pillar on each side of the track, only for aesthetics reasons."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for",
+													"objectClass": "System",
+													"sid": 640194019702833,
+													"parameters": {
+														"name": "\"X\"",
+														"start-index": "-1",
+														"end-index": "1"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 207966395887123,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-two-values",
+															"objectClass": "System",
+															"sid": 200624918920531,
+															"parameters": {
+																"first-value": "loopindex(\"X\")",
+																"comparison": 1,
+																"second-value": "0"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "create-object",
+															"objectClass": "System",
+															"sid": 514107009661754,
+															"parameters": {
+																"object-to-create": "Pillar",
+																"layer": "\"World\"",
+																"x": "Ground.X + random(-((Ground.Width / 2) - 8),((Ground.Width / 2) - 8))",
+																"y": "Ground.Y + loopindex(\"X\") * 68",
+																"create-hierarchy": false
+															}
+														},
+														{
+															"id": "set-z-elevation",
+															"objectClass": "Pillar",
+															"sid": 192047123037787,
+															"parameters": {
+																"z": "Ground.ZElevation"
+															}
+														},
+														{
+															"id": "add-child",
+															"objectClass": "Ground",
+															"sid": 270721435692198,
+															"parameters": {
+																"child": "Pillar",
+																"transform-x": true,
+																"transform-y": true,
+																"transform-w": false,
+																"transform-h": false,
+																"transform-a": false,
+																"transform-z-elevation": true,
+																"destroy-with-parent": true
+															}
+														}
+													],
+													"sid": 809416802911032
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly move the platforms towards the player, creating a feeling/illusion of motion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 318713059723371
+						}
+					],
+					"actions": [],
+					"sid": 357894094751174,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 409730019662548,
+									"parameters": {
+										"object": "Ground"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-x",
+									"objectClass": "Ground",
+									"sid": 507735707922610,
+									"parameters": {
+										"x": "Self.X - GroundSpeed * 60 * dt"
+									}
+								}
+							],
+							"sid": 695752064038122,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If any of the platforms are too far away from the player, destroy them to avoid any sort of CPU/Memory overload."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 114198106821794,
+											"parameters": {
+												"first-value": "Ground.X + Ground.Width / 2",
+												"comparison": 3,
+												"second-value": "-256"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Ground",
+											"sid": 216742162188937
+										}
+									],
+									"sid": 596912119865591
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 316683161044595
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Decoration",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly scroll the clouds in the background, creating a feeling of motion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 239250156813693
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "SkyTexture",
+							"sid": 429530744320340,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + 1 * 60 * dt"
+							}
+						}
+					],
+					"sid": 923488365678205,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also make sure every billboard in the layout is facing the camera position."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 443987866004808,
+									"parameters": {
+										"object": "Plant"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-angle-toward-position",
+									"objectClass": "Plant",
+									"sid": 539007492885051,
+									"parameters": {
+										"x": "3DCamera.CameraX",
+										"y": "3DCamera.CameraY"
+									}
+								}
+							],
+							"sid": 594718079148684
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 217445650594176,
+									"parameters": {
+										"object": "Zeppelin"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-angle-toward-position",
+									"objectClass": "Zeppelin",
+									"sid": 435718152177783,
+									"parameters": {
+										"x": "3DCamera.CameraX",
+										"y": "3DCamera.CameraY"
+									}
+								}
+							],
+							"sid": 144653058500254
+						}
+					]
+				}
+			],
+			"sid": 475173796716900
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Zeppelin",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How long it takes for the zeppelin to move from point A to point B."
+				},
+				{
+					"eventType": "variable",
+					"name": "TRAVELTIME",
+					"type": "number",
+					"initialValue": "30",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 102355655903637
+				},
+				{
+					"eventType": "comment",
+					"text": "How long it takes for the zeppelin to turn around."
+				},
+				{
+					"eventType": "variable",
+					"name": "TURNTIME",
+					"type": "number",
+					"initialValue": "5",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 762320472289079
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the zeppelin by moving it to the right side of the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Zeppelin",
+							"sid": 896453119700322
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Zeppelin",
+							"sid": 111843805864981,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveRight\"",
+								"property": "offsetY",
+								"end-value": "1114",
+								"time": "TRAVELTIME",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 333275808535011
+				},
+				{
+					"eventType": "comment",
+					"text": "Once each movement is finished, start the next one in an infinite sequence."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Zeppelin",
+							"sid": 351307080911414,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveRight\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Zeppelin",
+							"sid": 435210428195602,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TurnLeft\"",
+								"property": "offsetHeight",
+								"end-value": "-256",
+								"time": "TURNTIME",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 119181692267302
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Zeppelin",
+							"sid": 585293178287559,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TurnLeft\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Zeppelin",
+							"sid": 437594811928950,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveLeft\"",
+								"property": "offsetY",
+								"end-value": "-1114",
+								"time": "TRAVELTIME",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 957086094693424
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Zeppelin",
+							"sid": 291537464572805,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveLeft\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Zeppelin",
+							"sid": 153191285224999,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TurnRight\"",
+								"property": "offsetHeight",
+								"end-value": "256",
+								"time": "TURNTIME",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 386733819830041
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Zeppelin",
+							"sid": 305766354408972,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TurnRight\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "Zeppelin",
+							"sid": 438753560830975,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveRight\"",
+								"property": "offsetY",
+								"end-value": "1114",
+								"time": "TRAVELTIME",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 132039025592729
+				}
+			],
+			"sid": 442959164389411
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GameOver",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Restart the layout while also changing all global variables back to their default values."
+				},
+				{
+					"functionName": "GameOver",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 129742051860223
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 157338908936622
+						}
+					],
+					"sid": 477345006221670
+				}
+			],
+			"sid": 356917175268631
+		}
+	],
+	"sid": 209627101559036
+}

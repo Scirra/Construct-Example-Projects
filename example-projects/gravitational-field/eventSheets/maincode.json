@@ -1,0 +1,1828 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "BasicSetup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 915088075595238
+						}
+					],
+					"actions": [],
+					"sid": 811662872711633,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update the minimum distance a missile needs to be from a planet before being a attracted by it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 969500796433647,
+									"parameters": {
+										"object": "Planet"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Planet",
+									"sid": 890082379050228,
+									"parameters": {
+										"instance-variable": "MinDistanceFromPlanet",
+										"value": "((Planet.Width + Planet.Height) / 4) * 8"
+									}
+								}
+							],
+							"sid": 433747675434351
+						},
+						{
+							"eventType": "comment",
+							"text": "Setup each satellite by attaching a target indicator on top of them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 223759696208502,
+									"parameters": {
+										"object": "Satellite"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 214614686638833,
+									"parameters": {
+										"object-to-create": "TargetIndicator",
+										"layer": "\"Environment\"",
+										"x": "Satellite.X",
+										"y": "Satellite.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "TargetIndicator",
+									"sid": 446691834510418,
+									"parameters": {
+										"object": "Satellite",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "Satellite",
+									"sid": 866869049543822,
+									"parameters": {
+										"child": "TargetIndicator",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"id": "flash",
+									"objectClass": "TargetIndicator",
+									"sid": 154905014155122,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.1",
+										"off-time": "0.1",
+										"duration": "Infinity"
+									}
+								}
+							],
+							"sid": 656768781557344
+						},
+						{
+							"eventType": "comment",
+							"text": "Setup each player by attaching a target indicator on top of them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 264090808942796,
+									"parameters": {
+										"object": "Player"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 971511363839289,
+									"parameters": {
+										"object-to-create": "PlayerIndicator",
+										"layer": "\"Environment\"",
+										"x": "Player.X",
+										"y": "Player.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "PlayerIndicator",
+									"sid": 746477915423469,
+									"parameters": {
+										"object": "Player",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "Player",
+									"sid": 654282976611015,
+									"parameters": {
+										"child": "PlayerIndicator",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"id": "flash",
+									"objectClass": "PlayerIndicator",
+									"sid": 769323303772615,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.5",
+										"off-time": "0.25",
+										"duration": "Infinity"
+									}
+								}
+							],
+							"sid": 280827590923332
+						}
+					]
+				}
+			],
+			"sid": 457754464183180
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GravitationalField",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 912707991215191
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Clear both canvases before drawing anything new."
+						},
+						{
+							"id": "clear-canvas",
+							"objectClass": "GravitationalField",
+							"sid": 284214968531431,
+							"parameters": {
+								"color": "rgba255(0, 0, 0, 0)"
+							}
+						},
+						{
+							"id": "clear-canvas",
+							"objectClass": "Light",
+							"sid": 327301706637569,
+							"parameters": {
+								"color": "rgba255(0, 0, 0, 0)"
+							}
+						}
+					],
+					"sid": 901320463619206,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Loop through each missile and check if it's close enough to a planet. If it's, rotate the missile angle of motion towards the planet based on the distance between both."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 888884521289114,
+									"parameters": {
+										"object": "Missile"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 762632394233176,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-enabled",
+											"objectClass": "Missile",
+											"sid": 433477658182130,
+											"behaviorType": "Bullet"
+										}
+									],
+									"actions": [],
+									"sid": 551001724247727,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for-each",
+													"objectClass": "System",
+													"sid": 107029768613487,
+													"parameters": {
+														"object": "Planet"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 273866671774109,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-two-values",
+															"objectClass": "System",
+															"sid": 898969283929964,
+															"parameters": {
+																"first-value": "distance(Missile.X, Missile.Y, Planet.X, Planet.Y)",
+																"comparison": 2,
+																"second-value": "Planet.MinDistanceFromPlanet"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "rotate-toward-position",
+															"objectClass": "Missile",
+															"sid": 429251128472679,
+															"parameters": {
+																"degrees": "(((Planet.MinDistanceFromPlanet) - (distance(Missile.X, Missile.Y, Planet.X, Planet.Y))) / 32) * 60 * dt",
+																"x": "Planet.X",
+																"y": "Planet.Y"
+															}
+														},
+														{
+															"type": "comment",
+															"text": "Also draw a dashed line between the missile and the planet."
+														},
+														{
+															"id": "line-dashed",
+															"objectClass": "GravitationalField",
+															"sid": 469764585334551,
+															"parameters": {
+																"x1": "Planet.X",
+																"y1": "Planet.Y",
+																"x2": "Missile.X",
+																"y2": "Missile.Y",
+																"color": "rgbEx255(168, 255, 165)",
+																"line-thickness": "1",
+																"dash-length": "4",
+																"line-cap": "butt"
+															}
+														}
+													],
+													"sid": 255962998503878
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Draw a standard ellipse around the planet which will be used as a stroke effect, and a sort of low poly dashed ellipse as a visual representation of the planet's gravitational field."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 996840529544116,
+									"parameters": {
+										"object": "Planet"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "outline-ellipse",
+									"objectClass": "GravitationalField",
+									"sid": 720116483077273,
+									"parameters": {
+										"x": "Planet.X",
+										"y": "Planet.Y",
+										"radius-x": "Planet.Width / 2 + 2",
+										"radius-y": "Planet.Height / 2 + 2",
+										"color": "rgbEx255(168, 255, 165)",
+										"line-thickness": "1",
+										"edge": "hard"
+									}
+								}
+							],
+							"sid": 186030792639600,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 871604388464493,
+											"parameters": {
+												"count": "16"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-poly-point",
+											"objectClass": "GravitationalField",
+											"sid": 184227044358263,
+											"parameters": {
+												"x": "Planet.X + cos((360 / 16) * loopindex) * (Planet.MinDistanceFromPlanet)",
+												"y": "Planet.Y + sin((360 / 16) * loopindex) * (Planet.MinDistanceFromPlanet)"
+											}
+										}
+									],
+									"sid": 504398248057582
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "line-dashed-poly",
+											"objectClass": "GravitationalField",
+											"sid": 451146111493028,
+											"parameters": {
+												"color": "rgbEx255(50, 23, 84)",
+												"line-thickness": "1",
+												"dash-length": "8",
+												"line-cap": "butt"
+											}
+										},
+										{
+											"id": "reset-poly",
+											"objectClass": "GravitationalField",
+											"sid": 719616442050921
+										}
+									],
+									"sid": 921585920324312
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Draw a solid ellipse around all light sources, which are used as mask on top of each gravitational field, to make it look like they're being lighten up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 186153409202043,
+									"parameters": {
+										"object": "LightSource"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "fill-ellipse",
+									"objectClass": "Light",
+									"sid": 283654911678049,
+									"parameters": {
+										"x": "LightSource.X",
+										"y": "LightSource.Y",
+										"radius-x": "LightSource.RadiusSize",
+										"radius-y": "LightSource.RadiusSize",
+										"color": "rgbEx255(168, 255, 165)",
+										"edge": "hard"
+									}
+								}
+							],
+							"sid": 699976065596043
+						}
+					]
+				}
+			],
+			"sid": 788105279621331
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the player is currently aiming."
+		},
+		{
+			"eventType": "variable",
+			"name": "Aiming",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 919223161731654
+		},
+		{
+			"eventType": "comment",
+			"text": "The angle for the next shot missile."
+		},
+		{
+			"eventType": "variable",
+			"name": "NextAngleOfMotion",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 454642532592442
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player touches the screen and is not aiming already, toggle the aiming mode and display a preview arrow."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-nth-touch-start",
+							"objectClass": "Touch",
+							"sid": 677616883182306,
+							"parameters": {
+								"touch-number": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 915623100956966,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 446128013421588,
+									"parameters": {
+										"variable": "Aiming"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Enable aiming mode."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 251299314533703,
+									"parameters": {
+										"variable": "Aiming",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Display preview."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 356955364230013,
+									"parameters": {
+										"object-to-create": "Preview",
+										"layer": "\"Preview\"",
+										"x": "Player.X",
+										"y": "Player.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "Preview",
+									"sid": 502244736627060,
+									"parameters": {
+										"object": "Player",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "Player",
+									"sid": 390424605838225,
+									"parameters": {
+										"child": "Preview",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "Preview",
+									"sid": 118661192290969,
+									"parameters": {
+										"width": "0"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Preview",
+									"sid": 349246106365623,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"IncreaseWidth\"",
+										"property": "offsetWidth",
+										"end-value": "Self.ImageWidth",
+										"time": "0.25",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 282456652060967
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "While the player is aiming, update the next angle of motion and display it in the preview."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 156080608363222,
+							"parameters": {
+								"variable": "Aiming"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 459972923102409,
+							"parameters": {
+								"variable": "NextAngleOfMotion",
+								"value": "angle(Touch.X, Touch.Y, Player.X, Player.Y)"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Preview",
+							"sid": 942685647184380,
+							"parameters": {
+								"angle": "NextAngleOfMotion"
+							}
+						}
+					],
+					"sid": 680781382529148
+				},
+				{
+					"eventType": "comment",
+					"text": "When the player releases the screen, release a missile towards the chosen direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-nth-touch-end",
+							"objectClass": "Touch",
+							"sid": 414056987749855,
+							"parameters": {
+								"touch-number": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 751465036994327,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 436592418517940,
+									"parameters": {
+										"variable": "Aiming"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Disable aiming mode."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 304790139537184,
+									"parameters": {
+										"variable": "Aiming",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Destroy preview."
+								},
+								{
+									"id": "destroy",
+									"objectClass": "Preview",
+									"sid": 198449579940816
+								},
+								{
+									"type": "comment",
+									"text": "Center the player, so it doesn't affect the missile direction."
+								},
+								{
+									"id": "set-cycle-position",
+									"objectClass": "Player",
+									"sid": 938265558232870,
+									"behaviorType": "Sine",
+									"parameters": {
+										"cycle-position": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Spawn and setup a missile."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 954694505662535,
+									"parameters": {
+										"object-to-create": "Missile",
+										"layer": "\"Environment\"",
+										"x": "Player.X",
+										"y": "Player.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "Missile",
+									"sid": 692760451038189,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "NextAngleOfMotion"
+									}
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "Missile",
+									"sid": 876699003156384,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"speed": "384"
+									}
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "Missile",
+									"sid": 738383707826526,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Speed\"",
+										"start-value": "Self.Bullet.Speed",
+										"end-value": "256",
+										"time": "0.25",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Flash the player UFO very quickly."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "Player",
+									"sid": 997957072623226,
+									"parameters": {
+										"animation": "\"Shoot\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Self destroy the missile if it stays in the air for too long."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Missile",
+									"sid": 109648231112409,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "15",
+										"type": "once",
+										"tag": "\"SelfDestroy\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Attach a light source to the missile."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 808963818860456,
+									"parameters": {
+										"object-to-create": "LightSource",
+										"layer": "\"Canvas\"",
+										"x": "Missile.X",
+										"y": "Missile.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "LightSource",
+									"sid": 187678990030489,
+									"parameters": {
+										"object": "Missile",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "Missile",
+									"sid": 530580973691830,
+									"parameters": {
+										"child": "LightSource",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": false
+									}
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "LightSource",
+									"sid": 845281073170422,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"RadiusSize\"",
+										"start-value": "Self.RadiusSize",
+										"end-value": "128",
+										"time": "1",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 268822469421185,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Update the missile angle of motion one more time if cinematic mode is enabled."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 688845317139527,
+											"parameters": {
+												"variable": "CinematicMode"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-angle-of-motion",
+											"objectClass": "Missile",
+											"sid": 737705506644426,
+											"behaviorType": "Bullet",
+											"parameters": {
+												"angle": "Array.At(CinematicStep)"
+											}
+										},
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 659867720365808,
+											"parameters": {
+												"variable": "CinematicStep",
+												"value": "1"
+											}
+										}
+									],
+									"sid": 875666676967828,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-eventvar",
+													"objectClass": "System",
+													"sid": 498686113156249,
+													"parameters": {
+														"variable": "CinematicStep",
+														"comparison": 0,
+														"value": "Array.Width"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 231219648283620,
+													"parameters": {
+														"variable": "CinematicMode",
+														"value": "false"
+													}
+												}
+											],
+											"sid": 920550326771849
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the source light radius size while the respective tween animation is playing."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "LightSource",
+							"sid": 840735756972379,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"RadiusSize\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "LightSource",
+							"sid": 377024294300732,
+							"parameters": {
+								"instance-variable": "RadiusSize",
+								"value": "Self.Tween.Value(\"RadiusSize\")"
+							}
+						}
+					],
+					"sid": 582133256797910
+				},
+				{
+					"eventType": "comment",
+					"text": "Reset the player UFO animation to idle after the shoot animation is over."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Player",
+							"sid": 253692000036569,
+							"parameters": {
+								"animation": "\"Shoot\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Player",
+							"sid": 423042962306381,
+							"parameters": {
+								"animation": "\"Idle\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 723718743731245
+				},
+				{
+					"eventType": "comment",
+					"text": "If the missile self destroy timer reaches its limit, destroy the missile."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Missile",
+							"sid": 454729816347137,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SelfDestroy\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Missile",
+							"sid": 565001889309155
+						}
+					],
+					"sid": 570774969467577
+				},
+				{
+					"eventType": "comment",
+					"text": "Leave a smoke trail behind each missile if there are any on the scene."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 686493917841089,
+							"parameters": {
+								"first-value": "Missile.Count",
+								"comparison": 4,
+								"second-value": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 810313299840496,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 472526041794982,
+									"parameters": {
+										"interval-seconds": "0.05"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Missile",
+									"sid": 565945171720984,
+									"parameters": {
+										"object": "Smoke",
+										"layer": "\"Background\"",
+										"image-point": "0",
+										"create-hierarchy": false
+									}
+								}
+							],
+							"sid": 859638012380123
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When a smoke animation is over, destroy the object to prevent any sort of CPU overload."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Smoke",
+							"sid": 231462349205887,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Smoke",
+							"sid": 914822297812273
+						}
+					],
+					"sid": 373041580567881
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the missile speed while the respective tween animation is playing."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Missile",
+							"sid": 905066567537718,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Speed\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-speed",
+							"objectClass": "Missile",
+							"sid": 879661325308013,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"speed": "Self.Tween.Value(\"Speed\")"
+							}
+						}
+					],
+					"sid": 903957649900554
+				}
+			],
+			"sid": 406828698729721
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Collision",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Missile",
+							"sid": 742346138461522,
+							"parameters": {
+								"object": "Planet"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 453440541548063,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If a missile collides with a planet, slowly remove it from the surface of the planet by repeatedly moving it 0.1 pixels in the opposite direction."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "while",
+									"objectClass": "System",
+									"sid": 394819501978730
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Missile",
+									"sid": 909147365880578,
+									"parameters": {
+										"object": "Planet"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "move-at-angle",
+									"objectClass": "Missile",
+									"sid": 258952653004903,
+									"parameters": {
+										"angle": "Self.Bullet.AngleOfMotion + 180",
+										"distance": "0.1"
+									}
+								}
+							],
+							"sid": 329438998318585
+						},
+						{
+							"eventType": "comment",
+							"text": "Then disable the missile movement and detonate it after a second."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-enabled",
+									"objectClass": "Missile",
+									"sid": 370243036534136,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"state": "disabled"
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Missile",
+									"sid": 217624908439730,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "1.0",
+										"type": "once",
+										"tag": "\"Detonate\""
+									}
+								},
+								{
+									"callFunction": "ShakeScreen",
+									"sid": 201038266229111,
+									"parameters": [
+										"1",
+										"0.25"
+									]
+								}
+							],
+							"sid": 742709316578071
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Detonate the missile while also shaking the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Missile",
+							"sid": 168978000785994,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Detonate\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Missile",
+							"sid": 584816494635123
+						},
+						{
+							"callFunction": "ShakeScreen",
+							"sid": 345091626118161,
+							"parameters": [
+								"2.5",
+								"0.5"
+							]
+						}
+					],
+					"sid": 945108954889059
+				},
+				{
+					"eventType": "comment",
+					"text": "If a missile collides with a satellite, destroy both the missile and the satellite, while also shaking the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Missile",
+							"sid": 462414692834373,
+							"parameters": {
+								"object": "Satellite"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Missile",
+							"sid": 582396555091710
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Satellite",
+							"sid": 194974805528753
+						},
+						{
+							"callFunction": "ShakeScreen",
+							"sid": 104437611182872,
+							"parameters": [
+								"5",
+								"1"
+							]
+						}
+					],
+					"sid": 995504622475159
+				},
+				{
+					"eventType": "comment",
+					"text": "When a missile is destroyed, spawn a few explosion particles around the area."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-destroyed",
+							"objectClass": "Missile",
+							"sid": 384406287345464
+						}
+					],
+					"actions": [],
+					"sid": 944977443963676,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 787552570750707,
+									"parameters": {
+										"count": "6"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 484299031999395,
+									"parameters": {
+										"object-to-create": "Explosion",
+										"layer": "\"Environment\"",
+										"x": "Missile.X",
+										"y": "Missile.Y",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "Explosion",
+									"sid": 638267222194276,
+									"parameters": {
+										"x": "Self.X + cos(30 + 60 * loopindex) * 24",
+										"y": "Self.Y + sin(30 + 60 * loopindex) * 24"
+									}
+								}
+							],
+							"sid": 531368334627672
+						},
+						{
+							"eventType": "comment",
+							"text": "Also turn off the light source by slowly reducing its size until it's gone."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Missile",
+									"sid": 607315003172507,
+									"parameters": {
+										"child": "LightSource",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-value",
+									"objectClass": "LightSource",
+									"sid": 282553343445501,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"RadiusSize\"",
+										"start-value": "Self.RadiusSize",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "remove-child",
+									"objectClass": "Missile",
+									"sid": 360738942534694,
+									"parameters": {
+										"child": "LightSource"
+									}
+								}
+							],
+							"sid": 224255060456442
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When an explosion animation is over, destroy the object to prevent any sort of CPU overload."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Explosion",
+							"sid": 753050294549360,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Explosion",
+							"sid": 507118433656144
+						}
+					],
+					"sid": 271880285956573
+				}
+			],
+			"sid": 553556821365259
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the cinematic mode is activated."
+		},
+		{
+			"eventType": "variable",
+			"name": "CinematicMode",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 838371195821771
+		},
+		{
+			"eventType": "comment",
+			"text": "What's the current step of the cinematic mode (array index)."
+		},
+		{
+			"eventType": "variable",
+			"name": "CinematicStep",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 170588828811443
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "CinematicMode",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Load a sequence of angle values stored in a JSON file."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 342067400665775
+						}
+					],
+					"actions": [
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 813242511209104,
+							"parameters": {
+								"tag": "\"CinematicMode\"",
+								"file": "CinematicMode.json"
+							}
+						}
+					],
+					"sid": 814225527063544
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 395387864974576,
+							"parameters": {
+								"tag": "\"CinematicMode\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "Array",
+							"sid": 147697648338304,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						}
+					],
+					"sid": 841214276376284
+				},
+				{
+					"eventType": "comment",
+					"text": "Activate the cinematic mode, which will take the angle values and force them into the next shot missiles. This should be used for testing reasons only and not gameplay."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 446342088233626,
+							"parameters": {
+								"key": 67
+							}
+						}
+					],
+					"actions": [],
+					"sid": 180514063487379,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 185059944289009,
+									"parameters": {
+										"variable": "CinematicMode"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 559344064785625,
+									"parameters": {
+										"variable": "CinematicMode",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 152706494664843,
+									"parameters": {
+										"variable": "CinematicStep",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 176866065915496
+						}
+					]
+				}
+			],
+			"sid": 736469532392014
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Temporarily stored strength value for the current screen shake call."
+				},
+				{
+					"eventType": "variable",
+					"name": "StrengthBuffer",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 311773359644884
+				},
+				{
+					"eventType": "comment",
+					"text": "Shake the screen by changing the layout angle with a descending strength value."
+				},
+				{
+					"functionName": "ShakeScreen",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Strength",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 261761550304773
+						},
+						{
+							"name": "Duration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 986664160186611
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "stop-tweens",
+							"objectClass": "GameManager",
+							"sid": 415527399843219,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShakeScreen\""
+							}
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 905298289681597,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShakeScreen\"",
+								"start-value": "Strength",
+								"end-value": "0",
+								"time": "Duration",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 408398250981164
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "GameManager",
+							"sid": 569958380069215,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShakeScreen\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-angle",
+							"objectClass": "System",
+							"sid": 564051854999729,
+							"parameters": {
+								"angle": "random(-GameManager.Tween.Value(\"ShakeScreen\"), GameManager.Tween.Value(\"ShakeScreen\"))"
+							}
+						}
+					],
+					"sid": 840755162555296
+				}
+			],
+			"sid": 903325178165755
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Background",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly offset the space texture to make the rest of the scene look like it's floating."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 716766616584629
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Space",
+							"sid": 908396369933055,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + 0.1 * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Space",
+							"sid": 913175048184022,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + 0.025 * 60 * dt"
+							}
+						}
+					],
+					"sid": 375161364680434
+				}
+			],
+			"sid": 630689347251693
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "DebugTools",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Restart the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 904133868183525,
+							"parameters": {
+								"key": 82
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 708488615160645
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 700394251853785
+						}
+					],
+					"sid": 343828995882966
+				},
+				{
+					"eventType": "comment",
+					"text": "Close the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 604851187650173,
+							"parameters": {
+								"key": 27
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "close",
+							"objectClass": "Browser",
+							"sid": 434822484822732
+						}
+					],
+					"sid": 164608339997267
+				}
+			],
+			"sid": 819056693708044
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ShootingStar",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Spawn a shooting star from the top of the screen every 3-4 seconds, which will quickly cross the screen and disappear."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 280945890901927,
+							"parameters": {
+								"interval-seconds": "random(3, 4)"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 403733930873441,
+							"parameters": {
+								"object-to-create": "ShootingStar",
+								"layer": "\"Background\"",
+								"x": "random(280, 816)",
+								"y": "- ShootingStar.Height / 2",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "ShootingStar",
+							"sid": 708346330192167,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fall\"",
+								"property": "position",
+								"end-x": "Self.X + cos(135) * 1024",
+								"end-y": "Self.Y + sin(135) * 1024",
+								"time": "1",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 444560661397159
+				}
+			],
+			"sid": 275186056456232
+		}
+	],
+	"sid": 469243609621780
+}

@@ -1,0 +1,994 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "The base angle every rotatable object uses as a reference."
+		},
+		{
+			"eventType": "variable",
+			"name": "BaseAngle",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 325617138471287
+		},
+		{
+			"eventType": "comment",
+			"text": "The UID from the currently selected car."
+		},
+		{
+			"eventType": "variable",
+			"name": "SelectedCarUID",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 424668180466755
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the UI has been updated at least once."
+		},
+		{
+			"eventType": "variable",
+			"name": "InitialUIUpdate",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 305268672389600
+		},
+		{
+			"eventType": "comment",
+			"text": "How many time the vertical position of each rotatable object will be divided, giving the scene a more realistic perspective look and feel."
+		},
+		{
+			"eventType": "variable",
+			"name": "VerticalDivider",
+			"type": "number",
+			"initialValue": "4",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 906999779549760
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup each rotatable object by calculating and storing their distance from the center of the screen and their angle in comparison with the center of the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Rotate",
+							"sid": 253241201735160
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Rotate",
+							"sid": 301667879790434,
+							"parameters": {
+								"instance-variable": "DistanceFromCenter",
+								"value": "distance(Self.X,Self.Y,ReferenceMarker.X,ReferenceMarker.Y)"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Rotate",
+							"sid": 569214351794875,
+							"parameters": {
+								"instance-variable": "StartingAngle",
+								"value": "angle(ReferenceMarker.X, ReferenceMarker.Y, Self.X, Self.Y)"
+							}
+						}
+					],
+					"sid": 859324093858432
+				}
+			],
+			"sid": 920388555768506
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Select the next car on the left side."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 950827843651760,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 551564928541843,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-left"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "MoveCars",
+							"sid": 111854819171469,
+							"parameters": [
+								"-1"
+							]
+						}
+					],
+					"sid": 604160820110036,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Select the next car on the right side."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 776915179634631,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 170905728463063,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-right"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "MoveCars",
+							"sid": 430060357539094,
+							"parameters": [
+								"1"
+							]
+						}
+					],
+					"sid": 515675890986638,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Move all cars by changing the base angle in the scene."
+				},
+				{
+					"functionName": "MoveCars",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Direction",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 982354826539050
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "GameManager",
+							"sid": 447150704716498,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 701952029978304,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\"",
+								"start-value": "BaseAngle",
+								"end-value": "BaseAngle + (90 * Direction)",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 370302531946632,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Disable the since movement and reset the angle of all cars."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-all",
+									"objectClass": "System",
+									"sid": 103076996217503,
+									"parameters": {
+										"object": "Cars"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-active",
+									"objectClass": "Cars",
+									"sid": 926856207700176,
+									"behaviorType": "Sine",
+									"parameters": {
+										"state": "inactive"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Cars",
+									"sid": 485539771688392,
+									"parameters": {
+										"angle": "0"
+									}
+								}
+							],
+							"sid": 776909559108838
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Whenever the move animation is being played, update the base angle value."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "GameManager",
+							"sid": 135435077967146,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 999370492076229,
+							"parameters": {
+								"variable": "BaseAngle",
+								"value": "GameManager.Tween.Value(\"Move\")"
+							}
+						}
+					],
+					"sid": 251499601944591
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the position of each rotatable object and the order which they're displayed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 663531808628187
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Update position."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "Rotate",
+							"sid": 688716251742050,
+							"parameters": {
+								"x": "ReferenceMarker.X+cos(BaseAngle+Self.StartingAngle)*Self.DIstanceFromCenter",
+								"y": "ReferenceMarker.Y+sin(BaseAngle+Self.StartingAngle)*Self.DIstanceFromCenter/VerticalDivider"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update Z order."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "ZOrder",
+							"sid": 620896950927502,
+							"parameters": {
+								"instance-variable": "ZOrder",
+								"value": "Self.Y"
+							}
+						},
+						{
+							"id": "sort-z-order",
+							"objectClass": "System",
+							"sid": 489578001538280,
+							"parameters": {
+								"object": "ZOrder",
+								"instance-variable": {
+									"name": "ZOrder",
+									"objectClass": "ZOrder"
+								}
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also scroll the background elements to really sell the fake rotating effect."
+						},
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "GarageDoor",
+							"sid": 140243402287212,
+							"parameters": {
+								"offset-x": "BaseAngle*8"
+							}
+						},
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "BrickWall",
+							"sid": 262448503426024,
+							"parameters": {
+								"offset-x": "BaseAngle*8"
+							}
+						}
+					],
+					"sid": 183324149073240
+				}
+			],
+			"sid": 281280324696410
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "UserInterface",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "To make sure everything looks correct when the scene is first started, perform a single UI update as soon as possible."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 348500104802970,
+							"parameters": {
+								"variable": "InitialUIUpdate"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 882961834313884,
+							"parameters": {
+								"variable": "InitialUIUpdate",
+								"value": "true"
+							}
+						},
+						{
+							"callFunction": "UpdateUI",
+							"sid": 524475534842583
+						}
+					],
+					"sid": 775722872553747
+				},
+				{
+					"eventType": "comment",
+					"text": "Also update the UI when the cars has finished moving."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "GameManager",
+							"sid": 890787234845127,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "UpdateUI",
+							"sid": 237107278589871
+						}
+					],
+					"sid": 950843875970111
+				},
+				{
+					"eventType": "comment",
+					"text": "Update all UI elements in the scene, like the car stats and name."
+				},
+				{
+					"functionName": "UpdateUI",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 486921190386205,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Loop through all cars in layout and pick the lowest one, which is the one on the podium."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-ordered",
+									"objectClass": "System",
+									"sid": 120236102506234,
+									"parameters": {
+										"object": "Cars",
+										"expression": "Cars.ZOrder",
+										"order": "ascending"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 418833504035664,
+									"parameters": {
+										"variable": "SelectedCarUID",
+										"value": "Cars.UID"
+									}
+								}
+							],
+							"sid": 809241326701214
+						},
+						{
+							"eventType": "comment",
+							"text": "Enable the sine behavior in the selected car, so it look like its engine is on."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Cars",
+									"sid": 490440381599205,
+									"parameters": {
+										"unique-id": "SelectedCarUID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-active",
+									"objectClass": "Cars",
+									"sid": 279999968137194,
+									"behaviorType": "Sine",
+									"parameters": {
+										"state": "active"
+									}
+								}
+							],
+							"sid": 981458140515396,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Load the car name from the car into the text box."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 374131367987846,
+											"parameters": {
+												"object": "Text",
+												"expression": "Text.ContextName",
+												"comparison": 0,
+												"value": "\"fon_car_name\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "Text",
+											"sid": 632544604822056,
+											"parameters": {
+												"text": "Cars.Name"
+											}
+										}
+									],
+									"sid": 756944610812419
+								},
+								{
+									"eventType": "comment",
+									"text": "Load and translate the car speed into the respective status bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 354620008642475,
+											"parameters": {
+												"object": "StatusBar",
+												"expression": "StatusBar.ContextName",
+												"comparison": 0,
+												"value": "\"pat_car_speed\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "UpdateStatusBar",
+											"sid": 548290706444396,
+											"parameters": [
+												"StatusBar.UID",
+												"Cars.Speed"
+											]
+										}
+									],
+									"sid": 399518063625698
+								},
+								{
+									"eventType": "comment",
+									"text": "Load and translate the car acceleration into the respective status bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 733353082804285,
+											"parameters": {
+												"object": "StatusBar",
+												"expression": "StatusBar.ContextName",
+												"comparison": 0,
+												"value": "\"pat_car_acceleration\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "UpdateStatusBar",
+											"sid": 791077454614191,
+											"parameters": [
+												"StatusBar.UID",
+												"Cars.Acceleration"
+											]
+										}
+									],
+									"sid": 639398807667176
+								},
+								{
+									"eventType": "comment",
+									"text": "Load and translate the car handling into the respective status bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 446554475609577,
+											"parameters": {
+												"object": "StatusBar",
+												"expression": "StatusBar.ContextName",
+												"comparison": 0,
+												"value": "\"pat_car_handling\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "UpdateStatusBar",
+											"sid": 495104382095297,
+											"parameters": [
+												"StatusBar.UID",
+												"Cars.Handling"
+											]
+										}
+									],
+									"sid": 808271732467501
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the width of a specific status bar based on a units value."
+				},
+				{
+					"functionName": "UpdateStatusBar",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "StatusBarUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 806469677436359
+						},
+						{
+							"name": "Units",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 777651971390682
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "StatusBar",
+							"sid": 277208786796927,
+							"parameters": {
+								"unique-id": "StatusBarUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "StatusBar",
+							"sid": 621845160376963,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ChangeWidth\"",
+								"property": "offsetWidth",
+								"end-value": "(14 * Units) + 4",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 610845903553879
+				}
+			],
+			"sid": 759389788395029
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "FadeAnimation",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Make the white bar initially invisible by reducing its height to zero."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "WhiteBar",
+							"sid": 493857681214702
+						}
+					],
+					"actions": [
+						{
+							"id": "set-height",
+							"objectClass": "WhiteBar",
+							"sid": 965066009352260,
+							"parameters": {
+								"height": "0"
+							}
+						}
+					],
+					"sid": 592710371406290
+				},
+				{
+					"eventType": "comment",
+					"text": "Theoretically select a car and start a whole transition animation sequence."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 592611143431145,
+							"parameters": {
+								"key": 13
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 488997616225926,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "WhiteBar",
+							"sid": 419998492311404,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"IncreaseHeight\"",
+								"property": "offsetHeight",
+								"end-value": "64",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 455820964538645,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the white bar animation is complete, wait 0.25 seconds and then create a grid of fade blocks that will slowly cover the whole screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "WhiteBar",
+							"sid": 930691403327517,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"IncreaseHeight\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "delay"
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 523078391926437,
+							"parameters": {
+								"seconds": "0.25"
+							}
+						}
+					],
+					"sid": 123448157098265,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 109621785350581,
+									"parameters": {
+										"name": "\"Y\"",
+										"start-index": "0",
+										"end-index": "5"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 209484172046429,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 554528213565953,
+											"parameters": {
+												"name": "\"X\"",
+												"start-index": "0",
+												"end-index": "9"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 494476184103029,
+											"parameters": {
+												"object-to-create": "Fade",
+												"layer": "\"Fade\"",
+												"x": "16 + loopindex(\"X\") * 32",
+												"y": "16 + loopindex(\"Y\") * 32",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Set the initial size to 0, then slowly increase it with a tween animation."
+										},
+										{
+											"id": "set-size",
+											"objectClass": "Fade",
+											"sid": 868844619260059,
+											"parameters": {
+												"width": "0",
+												"height": "0"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Fade",
+											"sid": 416088848838133,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"IncreaseSize\"",
+												"property": "size",
+												"end-x": "32",
+												"end-y": "32",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Set the initial angle to 45, then slowly decrease it with a tween animation."
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Fade",
+											"sid": 330207971691246,
+											"parameters": {
+												"angle": "45"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Fade",
+											"sid": 442671149231238,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Rotate\"",
+												"property": "offsetAngle",
+												"end-value": "0",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 510248605066932
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 433942991796700
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Restart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Force the game to restart for testing purposes only."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 857337958524217,
+							"parameters": {
+								"key": 82
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 833102612960336,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 987634260261264
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 207285657836674
+						}
+					],
+					"sid": 668827807351137,
+					"isOrBlock": true
+				}
+			],
+			"sid": 278212841212304
+		}
+	],
+	"sid": 747842576038938
+}

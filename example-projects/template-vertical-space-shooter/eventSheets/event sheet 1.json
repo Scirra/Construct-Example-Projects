@@ -1,0 +1,346 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "If the player is touching the screen, move towards the touch position.  Only move the player if they are further away from the touch than it is going to move - this avoids an unpleasent jittering when reaching the touch position."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-in-touch",
+					"objectClass": "Touch",
+					"sid": 891613718316484
+				},
+				{
+					"id": "compare-two-values",
+					"objectClass": "System",
+					"sid": 635942766476127,
+					"parameters": {
+						"first-value": "distance(Player.X, Player.Y, Touch.X, Touch.Y)",
+						"comparison": 5,
+						"second-value": "300 * dt"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "move-at-angle",
+					"objectClass": "Player",
+					"sid": 494748947254577,
+					"parameters": {
+						"angle": "angle(Self.X, Self.Y, Touch.X, Touch.Y)",
+						"distance": "300 * dt"
+					}
+				}
+			],
+			"sid": 204873708276287
+		},
+		{
+			"eventType": "comment",
+			"text": "Make a random enemy shoot every 1 second."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 813782378378459,
+					"parameters": {
+						"interval-seconds": "1.0"
+					}
+				},
+				{
+					"id": "pick-random-instance",
+					"objectClass": "System",
+					"sid": 299515660303047,
+					"parameters": {
+						"object": "Enemy"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Enemy",
+					"sid": 168927240573209,
+					"parameters": {
+						"object": "EnemyBullet",
+						"layer": "\"Game\"",
+						"image-point": "1"
+					}
+				}
+			],
+			"sid": 584404571774690
+		},
+		{
+			"eventType": "comment",
+			"text": "Every 2 seconds make a new enemy spawn at a random horizontal position at the top of the screen."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 477847091463605,
+					"parameters": {
+						"interval-seconds": "2"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 896726900212288,
+					"parameters": {
+						"object-to-create": "Enemy",
+						"layer": "\"Game\"",
+						"x": "random(30, 450)",
+						"y": "-20"
+					}
+				}
+			],
+			"sid": 214482832195371
+		},
+		{
+			"eventType": "comment",
+			"text": "If any enemies are above the player, make the player automatically shoot 10 times a second."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-y",
+					"objectClass": "Enemy",
+					"sid": 460668321409540,
+					"parameters": {
+						"comparison": 2,
+						"y-co-ordinate": "Player.Y"
+					}
+				},
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 549317901400007,
+					"parameters": {
+						"interval-seconds": "0.1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Player",
+					"sid": 710866296756764,
+					"parameters": {
+						"object": "Bullet",
+						"layer": "\"Game\"",
+						"image-point": "1"
+					}
+				}
+			],
+			"sid": 890380364103034
+		},
+		{
+			"eventType": "comment",
+			"text": "If a player bullet hits an enemy, subtract 1 from their health.  If the enemy runs out of health, destroy it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Bullet",
+					"sid": 417971709649222,
+					"parameters": {
+						"object": "Enemy"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "subtract-from-instvar",
+					"objectClass": "Enemy",
+					"sid": 357992762794021,
+					"parameters": {
+						"instance-variable": "Health",
+						"value": "1"
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Bullet",
+					"sid": 202206947635546
+				}
+			],
+			"sid": 752905285755058
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "Enemy",
+					"sid": 430772445315971,
+					"parameters": {
+						"instance-variable": "Health",
+						"comparison": 3,
+						"value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Enemy",
+					"sid": 850638065600304
+				}
+			],
+			"sid": 483531298881085
+		},
+		{
+			"eventType": "comment",
+			"text": "If an enemy bullet hits the player, just destroy the bullet.  TODO: player health!"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "EnemyBullet",
+					"sid": 354837976475959,
+					"parameters": {
+						"object": "Player"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "EnemyBullet",
+					"sid": 414816230293838
+				}
+			],
+			"sid": 350184216114619
+		},
+		{
+			"eventType": "comment",
+			"text": "Destroy any enemies which make it to the bottom of the screen and leave the layout."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-y",
+					"objectClass": "Enemy",
+					"sid": 102028992532284,
+					"parameters": {
+						"comparison": 5,
+						"y-co-ordinate": "LayoutHeight"
+					}
+				},
+				{
+					"id": "is-outside-layout",
+					"objectClass": "Enemy",
+					"sid": 485554814675109
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Enemy",
+					"sid": 146219448483705
+				}
+			],
+			"sid": 377704374316061
+		},
+		{
+			"eventType": "comment",
+			"text": "Destroy the initial star object in the layout."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 939773733880185
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Star",
+					"sid": 177982197629720
+				}
+			],
+			"sid": 277833068202127
+		},
+		{
+			"eventType": "comment",
+			"text": "Create 50 random stars with different speeds and sizes on startup to create a space background effect.  The stars have a wrap behavior which keeps them on-screen."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 213649686657152
+				},
+				{
+					"id": "repeat",
+					"objectClass": "System",
+					"sid": 411016147499356,
+					"parameters": {
+						"count": "50"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 364455592763822,
+					"parameters": {
+						"object-to-create": "Star",
+						"layer": "\"Background\"",
+						"x": "random(LayoutWidth)",
+						"y": "random(LayoutHeight)"
+					}
+				},
+				{
+					"id": "set-speed",
+					"objectClass": "Star",
+					"sid": 778647612826238,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"speed": "random(10, 80)"
+					}
+				},
+				{
+					"id": "set-scale",
+					"objectClass": "Star",
+					"sid": 142244037835516,
+					"parameters": {
+						"scale": "Self.Bullet.Speed / 250"
+					}
+				},
+				{
+					"id": "set-opacity",
+					"objectClass": "Star",
+					"sid": 516343345880392,
+					"parameters": {
+						"opacity": "Self.Bullet.Speed"
+					}
+				}
+			],
+			"sid": 764973108764238
+		}
+	],
+	"sid": 979043382771663
+}

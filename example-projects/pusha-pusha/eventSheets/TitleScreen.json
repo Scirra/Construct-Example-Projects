@@ -1,0 +1,1077 @@
+{
+	"name": "TitleScreen",
+	"events": [
+		{
+			"eventType": "include",
+			"includeSheet": "Global"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "TitleScreen",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the title screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 277425757140900
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Reset the progress erasure related variables."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 998795873223369,
+							"parameters": {
+								"variable": "ErasureProgress",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 504395557266483,
+							"parameters": {
+								"variable": "ErasePlayerProfile",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Adjust the size of all gems."
+						},
+						{
+							"callFunction": "AdjustGemSize",
+							"sid": 952326272624851
+						},
+						{
+							"type": "comment",
+							"text": "Start playing the soundtrack."
+						},
+						{
+							"callFunction": "StartSoundtrack",
+							"sid": 747648186145411
+						},
+						{
+							"type": "comment",
+							"text": "Adjust the camera FOV to 50 degrees."
+						},
+						{
+							"id": "set-field-of-view",
+							"objectClass": "3DCamera",
+							"sid": 468560312627008,
+							"parameters": {
+								"fov": "50"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Reset the animation normalized progress back to zero."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 911767591342100,
+							"parameters": {
+								"variable": "AnimationNormalizedProgress",
+								"value": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Increase the size of the grass field and subdivide it into a mesh."
+						},
+						{
+							"id": "set-size",
+							"objectClass": "GrassField",
+							"sid": 978286201057475,
+							"parameters": {
+								"width": "Grassfield.Width * 4",
+								"height": "Grassfield.Height * 4"
+							}
+						},
+						{
+							"id": "set-mesh-size",
+							"objectClass": "GrassField",
+							"sid": 571422411522316,
+							"parameters": {
+								"cols": "64",
+								"rows": "64"
+							}
+						}
+					],
+					"sid": 607524076840687,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "How strong the grass displacement will be on the first columns. This is used to create a few mountains in the horizon."
+						},
+						{
+							"eventType": "variable",
+							"name": "HeightMultiplier",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 276267570241631
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 506721484963070,
+									"parameters": {
+										"variable": "HeightMultiplier",
+										"value": "6"
+									}
+								}
+							],
+							"sid": 575528232617016
+						},
+						{
+							"eventType": "comment",
+							"text": "Loop through the grass field mesh and randomly displace it to create a natural looking environment."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 551009450957804,
+									"parameters": {
+										"name": "\"y\"",
+										"start-index": "0",
+										"end-index": "Grassfield.MeshRows - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 207738702869225,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 275886495369592,
+											"parameters": {
+												"name": "\"x\"",
+												"start-index": "0",
+												"end-index": "Grassfield.MeshColumns - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-mesh-point",
+											"objectClass": "GrassField",
+											"sid": 642539253065045,
+											"parameters": {
+												"col": "loopindex(\"x\")",
+												"row": "loopindex(\"y\")",
+												"mode": "relative",
+												"posx": "0",
+												"posy": "0",
+												"z-elevation": "random(0, 32) * HeightMultiplier",
+												"texx": "0",
+												"texy": "0"
+											}
+										}
+									],
+									"sid": 491970474113917
+								},
+								{
+									"eventType": "comment",
+									"text": "Reduce the height multiplier by once until it's equal to one."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 321299326572491,
+											"parameters": {
+												"value": "HeightMultiplier > 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 202300793038146,
+											"parameters": {
+												"variable": "HeightMultiplier",
+												"value": "clamp(HeightMultiplier - 1, 1, Infinity)"
+											}
+										}
+									],
+									"sid": 793443590205848
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Make the start game text flash infinitely."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 390614136125554,
+									"parameters": {
+										"object": "Text",
+										"expression": "Text.ID = \"StartHint\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "flash",
+									"objectClass": "Text",
+									"sid": 948609986854750,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.25",
+										"off-time": "0.125",
+										"duration": "Infinity"
+									}
+								}
+							],
+							"sid": 725700576419847
+						},
+						{
+							"eventType": "comment",
+							"text": "Check if the player already have a save file."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "check-item-exists",
+									"objectClass": "LocalStorage",
+									"sid": 135644322247784,
+									"parameters": {
+										"key": "\"PlayerProfile\""
+									}
+								}
+							],
+							"sid": 316011234801184
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "The normalized progress of the introduction animation."
+				},
+				{
+					"eventType": "variable",
+					"name": "AnimationNormalizedProgress",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 259949878281255
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly increase interpolate the animation normalized progress until it reaches one."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 323261354710607
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 734138710440350,
+							"parameters": {
+								"variable": "AnimationNormalizedProgress",
+								"value": "lerp(AnimationNormalizedProgress, 1, 0.05 * 60 * dt)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move the camera along a path based on the animation normalized progress."
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 948260848934756,
+							"parameters": {
+								"cam-x": "lerp(OpeningCamera.X, OpeningCamera.X, AnimationNormalizedProgress)",
+								"cam-y": "lerp(OpeningCamera.Y + 512, OpeningCamera.Y, AnimationNormalizedProgress)",
+								"cam-z": "lerp(OpeningCamera.ZElevation + 8, OpeningCamera.ZElevation + 64, AnimationNormalizedProgress)",
+								"look-x": "lerp(OpeningCamera.X + cos(OpeningCamera.Angle) * 512, OpeningCamera.X + cos(OpeningCamera.Angle) * 512, AnimationNormalizedProgress)",
+								"look-y": "lerp(OpeningCamera.Y + sin(OpeningCamera.Angle) * 512, OpeningCamera.Y + sin(OpeningCamera.Angle) * 512, AnimationNormalizedProgress)",
+								"look-z": "lerp(OpeningCamera.ZElevation + 64, OpeningCamera.ZElevation + 64, AnimationNormalizedProgress)",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 677561308375205,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Once the animation normalized progress reaches 0.95, reveal the game's title."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 712500843439464,
+									"parameters": {
+										"value": "AnimationNormalizedProgress >= 0.95"
+									}
+								},
+								{
+									"id": "trigger-once-while-true",
+									"objectClass": "System",
+									"sid": 226040190241953
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "Title",
+									"sid": 848852261132777,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "Title",
+									"sid": 977984186885804,
+									"parameters": {
+										"z": "320"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Title",
+									"sid": 658169260792198,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Fall\"",
+										"property": "offsetZElevation",
+										"end-value": "8",
+										"time": "2",
+										"ease": "easeoutbounce",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Wait a second before playing the sound effect."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "GameManager",
+									"sid": 810575247407870,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "1",
+										"type": "once",
+										"tag": "\"PushaPusha\""
+									}
+								}
+							],
+							"sid": 635647374953033
+						},
+						{
+							"eventType": "comment",
+							"text": "Rotate the dancing players towards the camera."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 512164311585313,
+									"parameters": {
+										"object": "DancingPlayer"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-angle",
+									"objectClass": "DancingPlayer",
+									"sid": 460207186113615,
+									"parameters": {
+										"angle": "angle(3DCamera.CameraX, 3DCamera.CameraY, 3DCamera.LookX, 3DCamera.LookY) + 180"
+									}
+								}
+							],
+							"sid": 688695945409700
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player already have a save file, load it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 147877100479222,
+							"parameters": {
+								"key": "\"PlayerProfile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "get-item",
+							"objectClass": "LocalStorage",
+							"sid": 315188517292667,
+							"parameters": {
+								"key": "\"PlayerProfile\""
+							}
+						}
+					],
+					"sid": 789176541426467
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-get",
+							"objectClass": "LocalStorage",
+							"sid": 642264826096163,
+							"parameters": {
+								"key": "\"PlayerProfile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 299278926762058,
+							"parameters": {
+								"variable": "CompletedLevels",
+								"value": "LocalStorage.ItemValue"
+							}
+						}
+					],
+					"sid": 297946494311100
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the player doesn't have a save file, create a new one and save it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-missing",
+							"objectClass": "LocalStorage",
+							"sid": 778867914251864,
+							"parameters": {
+								"key": "\"PlayerProfile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 259680603064331,
+							"parameters": {
+								"variable": "CompletedLevels",
+								"value": "0"
+							}
+						},
+						{
+							"callFunction": "SavePlayerProfile",
+							"sid": 938036667766361
+						}
+					],
+					"sid": 995620641916770
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the \"PushaPusha\" timer if over, play a PUSHA PUSH sound effect."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "GameManager",
+							"sid": 140405514631453,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"PushaPusha\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "PlaySFX",
+							"sid": 944767284312187,
+							"parameters": [
+								"\"PushaPusha\"",
+								"-6"
+							]
+						}
+					],
+					"sid": 995127632371618
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player presses ENTER, start the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 674125187208606,
+							"parameters": {
+								"key": 13
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 199848514547616,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 792497632479148,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 564657926259360,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(0) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "StartGame",
+									"sid": 308341717829255
+								},
+								{
+									"type": "comment",
+									"text": "Play a button press sound effect."
+								},
+								{
+									"callFunction": "PlaySFX",
+									"sid": 494939559403243,
+									"parameters": [
+										"\"ButtonPress\"",
+										"-6"
+									]
+								}
+							],
+							"sid": 343838094326578
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "The progress of the erasure process."
+				},
+				{
+					"eventType": "variable",
+					"name": "ErasureProgress",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 621290760197893
+				},
+				{
+					"eventType": "comment",
+					"text": "Whether or not the player profile should be erased."
+				},
+				{
+					"eventType": "variable",
+					"name": "ErasePlayerProfile",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 938365546785563
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is holding R and the erasure progress is lower than 100, gradually increase it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 649019403239612,
+							"parameters": {
+								"key": 82
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 362460303141557,
+							"parameters": {
+								"value": "ErasureProgress < 100"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 934046410366633,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 343619551487738,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(0) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 530098870708986,
+									"parameters": {
+										"variable": "ErasureProgress",
+										"value": "clamp(ErasureProgress + 60 * dt, 0, 100)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Adjust the size of all gems to match the erasure progress."
+								},
+								{
+									"callFunction": "AdjustGemSize",
+									"sid": 192313702006427
+								}
+							],
+							"sid": 876349758984619,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Once the erasure reaches 100, erase the player profile and restart the game."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 871799322546708,
+											"parameters": {
+												"value": "ErasureProgress = 100 & ErasePlayerProfile = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 609246893543200,
+											"parameters": {
+												"variable": "ErasePlayerProfile",
+												"value": "true"
+											}
+										},
+										{
+											"id": "remove-item",
+											"objectClass": "LocalStorage",
+											"sid": 635290696347056,
+											"parameters": {
+												"key": "\"PlayerProfile\""
+											}
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 523378929391759
+										},
+										{
+											"callFunction": "GoToLayout",
+											"sid": 370717204370563,
+											"parameters": [
+												"\"TitleScreen\"",
+												"0"
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Play a button press sound effect."
+										},
+										{
+											"callFunction": "PlaySFX",
+											"sid": 606603921827596,
+											"parameters": [
+												"\"ButtonPress\"",
+												"-6"
+											]
+										}
+									],
+									"sid": 247476282044394
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the player isn't holding R and the erasure progress is higher than zero, gradually decrease it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 352282434681731,
+							"parameters": {
+								"key": 82
+							},
+							"isInverted": true
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 427655971629280,
+							"parameters": {
+								"value": "ErasureProgress > 0 & ErasureProgress < 100"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 307629092807956,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 726105427451683,
+									"parameters": {
+										"value": "Functions.EvaluateInputFocus(0) = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 369022840107033,
+									"parameters": {
+										"variable": "ErasureProgress",
+										"value": "clamp(ErasureProgress - 60 * 2 * dt, 0, 100)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Adjust the size of all gems to match the erasure progress."
+								},
+								{
+									"callFunction": "AdjustGemSize",
+									"sid": 315037230219167
+								}
+							],
+							"sid": 331152205768459
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Adjust the size of all gems based on the erasure progress."
+				},
+				{
+					"functionName": "AdjustGemSize",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 184135850011776,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The min value a specific gem represents in a range from 0 to 100."
+						},
+						{
+							"eventType": "variable",
+							"name": "GemMin",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 827438900604409
+						},
+						{
+							"eventType": "comment",
+							"text": "The max value a specific gem represents in a range from 0 to 100."
+						},
+						{
+							"eventType": "variable",
+							"name": "GemMax",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 867827664987241
+						},
+						{
+							"eventType": "comment",
+							"text": "How visible a gem should be in a normalized form."
+						},
+						{
+							"eventType": "variable",
+							"name": "NormalizedProgress",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 417954186057443
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-ordered",
+									"objectClass": "System",
+									"sid": 730016470001759,
+									"parameters": {
+										"object": "Gem",
+										"expression": "Gem.Index",
+										"order": "ascending"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Calculate and store the min and max range value."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 908635827870187,
+									"parameters": {
+										"variable": "GemMin",
+										"value": "(100 / Gem.Count) * (loopindex)"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 981636365422993,
+									"parameters": {
+										"variable": "GemMax",
+										"value": "(100 / Gem.Count) * (loopindex + 1)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Calculate and store the normalized progress based on the min, max, and erasure progress."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 521911848175843,
+									"parameters": {
+										"variable": "NormalizedProgress",
+										"value": "clamp(unlerp(GemMin, GemMax, ErasureProgress), 0, 1)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set the gem's size based on the normalized progress."
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Gem",
+									"sid": 421603764803229,
+									"parameters": {
+										"width": "Self.ImageWidth * NormalizedProgress",
+										"height": "Self.ImageHeight * NormalizedProgress"
+									}
+								}
+							],
+							"sid": 237773095665837,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the gem is at its full size, tag it full."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 594045843173857,
+											"parameters": {
+												"value": "Gem.IsFull = 0 & Gem.Width = Gem.ImageWidth"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Gem",
+											"sid": 171349061130405,
+											"parameters": {
+												"instance-variable": "IsFull",
+												"value": "true"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Play a bubble pop sound effect."
+										},
+										{
+											"callFunction": "PlaySFX",
+											"sid": 804536526853557,
+											"parameters": [
+												"\"BubblePop\"",
+												"- 6 - (Gem.Count * 2) + (Gem.Index * 2)"
+											]
+										}
+									],
+									"sid": 303437567266565
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the gem isn't at its full size, tag it not full."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 907664503341571
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 889743628179972,
+											"parameters": {
+												"value": "Gem.IsFull = 1 & Gem.Width <> Gem.ImageWidth"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Gem",
+											"sid": 347969807663371,
+											"parameters": {
+												"instance-variable": "IsFull",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 209655304689547
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Start the game by loading the most recently unlocked level."
+				},
+				{
+					"functionName": "StartGame",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "LoadLevel",
+							"sid": 858474617733699,
+							"parameters": [
+								"CompletedLevels"
+							]
+						}
+					],
+					"sid": 744433949153604
+				}
+			],
+			"sid": 826857216637899
+		}
+	],
+	"sid": 864914194468755
+}

@@ -1,0 +1,1980 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "How fast the ship will accelerate."
+		},
+		{
+			"eventType": "variable",
+			"name": "ACCELERATION",
+			"type": "number",
+			"initialValue": "128",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 249360911810335
+		},
+		{
+			"eventType": "comment",
+			"text": "The max speed the ship is allowed to reach."
+		},
+		{
+			"eventType": "variable",
+			"name": "MAXSPEED",
+			"type": "number",
+			"initialValue": "128",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 883300175938164
+		},
+		{
+			"eventType": "comment",
+			"text": "Project's target frame rate, used for consistent delta time testing."
+		},
+		{
+			"eventType": "variable",
+			"name": "TARGETFRAMERATE",
+			"type": "number",
+			"initialValue": "60",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 828137644723275
+		},
+		{
+			"eventType": "comment",
+			"text": "Randomize the frame and speed of each asteroid in the scene."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 587365378630709
+				}
+			],
+			"actions": [],
+			"sid": 816590755580319,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 455130075783607,
+							"parameters": {
+								"count": "5"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 729573714523132,
+							"parameters": {
+								"object-to-create": "Asteroid32",
+								"layer": "\"Asteroids\"",
+								"x": "random(0, LayoutWidth)",
+								"y": "random(0, LayoutHeight)",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Asteroid32",
+							"sid": 351481082020299,
+							"parameters": {
+								"frame-number": "choose(0, 1)"
+							}
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "Asteroid32",
+							"sid": 868023057199043,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "random(0, 360)"
+							}
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "Asteroid32",
+							"sid": 422582024472120,
+							"behaviorType": "Rotate",
+							"parameters": {
+								"speed": "random(-15, 15)"
+							}
+						}
+					],
+					"sid": 440309435280906,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Prevent asteroids from spawning too close to the ship."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "while",
+									"objectClass": "System",
+									"sid": 459649376035427
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 401557186912233,
+									"parameters": {
+										"first-value": "distance(Asteroid32.X, Asteroid32.Y, Spaceship.X, Spaceship.Y)",
+										"comparison": 2,
+										"second-value": "64"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "Asteroid32",
+									"sid": 964097260929901,
+									"parameters": {
+										"x": "random(0, LayoutWidth)",
+										"y": "random(0, LayoutHeight)"
+									}
+								}
+							],
+							"sid": 556508571521286
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup all spaceship components."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-created",
+					"objectClass": "Spaceship",
+					"sid": 835668658021205
+				}
+			],
+			"actions": [],
+			"sid": 633925570069049,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Spawn and attach the laser muzzle flash to the spaceship's laser guns, by making it a child of the spaceship itself."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Spaceship",
+							"sid": 766327996670867,
+							"parameters": {
+								"object": "LaserMuzzleFlash",
+								"layer": "Spaceship.LayerName",
+								"image-point": "\"LaserGuns\"",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "LaserMuzzleFlash",
+							"sid": 114701676731244,
+							"parameters": {
+								"angle": "Spaceship.Angle"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Spaceship",
+							"sid": 367335310830302,
+							"parameters": {
+								"child": "LaserMuzzleFlash",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": true,
+								"transform-h": true,
+								"transform-a": true,
+								"transform-z-elevation": true,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "LaserMuzzleFlash",
+							"sid": 116186840256378,
+							"parameters": {
+								"frame-number": "Self.AnimationFrameCount - 1"
+							}
+						}
+					],
+					"sid": 324415745469787
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn and attach the engine fire to the spaceship's engine, by making it a child of the spaceship itself."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Spaceship",
+							"sid": 835837303455402,
+							"parameters": {
+								"object": "EngineFire",
+								"layer": "Spaceship.LayerName",
+								"image-point": "\"Engine\"",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "EngineFire",
+							"sid": 886811495609843,
+							"parameters": {
+								"angle": "Spaceship.Angle + 180"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Spaceship",
+							"sid": 919300522335121,
+							"parameters": {
+								"child": "EngineFire",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": true,
+								"transform-h": true,
+								"transform-a": true,
+								"transform-z-elevation": true,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "EngineFire",
+							"sid": 251491402288298,
+							"parameters": {
+								"animation": "\"Disabled\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 661635658621429
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Rotate the ship counter-clockwise."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 766813724635498,
+					"parameters": {
+						"key": 37
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 780312315385818,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-left"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "RotateShip",
+					"sid": 806496150195011,
+					"parameters": [
+						"3"
+					]
+				}
+			],
+			"sid": 387971125072182,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Rotate the ship clockwise."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 941779895377718,
+					"parameters": {
+						"key": 39
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 951694456248342,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-right"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "RotateShip",
+					"sid": 256045554117309,
+					"parameters": [
+						"-3"
+					]
+				}
+			],
+			"sid": 706955049789043,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Accelerate the ship, so it moves forward."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 805271440815927,
+					"parameters": {
+						"key": 38
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 826751729417655,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-up"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "accelerate-toward-angle",
+					"objectClass": "Spaceship",
+					"sid": 358830010633576,
+					"behaviorType": "Custom",
+					"parameters": {
+						"acceleration": "ACCELERATION",
+						"angle": "Self.Angle"
+					}
+				}
+			],
+			"sid": 739007400181283,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "If there's no input from the player, slow down the ship until it becomes static."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 851834697414530
+				},
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 681889002857145,
+					"parameters": {
+						"key": 38
+					},
+					"isInverted": true
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 670354727967168,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-down"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [],
+			"sid": 530758674654697,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-speed",
+							"objectClass": "Spaceship",
+							"sid": 113164645667471,
+							"behaviorType": "Custom",
+							"parameters": {
+								"which": "overall",
+								"comparison": 5,
+								"speed": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-speed",
+							"objectClass": "Spaceship",
+							"sid": 810801907915565,
+							"behaviorType": "Custom",
+							"parameters": {
+								"which": "overall",
+								"speed": "Self.Custom.Speed - 1 * TARGETFRAMERATE * dt"
+							}
+						}
+					],
+					"sid": 120169760602511
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 442167845765897
+						},
+						{
+							"id": "compare-speed",
+							"objectClass": "Spaceship",
+							"sid": 266402738560205,
+							"behaviorType": "Custom",
+							"parameters": {
+								"which": "overall",
+								"comparison": 2,
+								"speed": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-speed",
+							"objectClass": "Spaceship",
+							"sid": 443205237499809,
+							"behaviorType": "Custom",
+							"parameters": {
+								"which": "overall",
+								"speed": "0"
+							}
+						}
+					],
+					"sid": 708528588930766
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Prevent the ship from reaching a speed higher than the max speed by constantly clamping the current speed value."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 270415533092793
+				}
+			],
+			"actions": [
+				{
+					"id": "set-speed",
+					"objectClass": "Spaceship",
+					"sid": 209621318733636,
+					"behaviorType": "Custom",
+					"parameters": {
+						"which": "overall",
+						"speed": "clamp(Spaceship.Custom.Speed, 0, MAXSPEED)"
+					}
+				}
+			],
+			"sid": 789673527660586
+		},
+		{
+			"eventType": "comment",
+			"text": "Shoot lasers from the laser guns."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 385861955611660,
+					"parameters": {
+						"key": 32
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 409277848473790,
+					"parameters": {
+						"gamepad": "0",
+						"button": "button-a"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 964286448110584,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-timer-running",
+							"objectClass": "Spaceship",
+							"sid": 819809087191698,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Cooldown\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Restart the muzzle flash animation."
+						},
+						{
+							"id": "start-animation",
+							"objectClass": "LaserMuzzleFlash",
+							"sid": 331284279638346,
+							"parameters": {
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Spawn a laser from each laser gun by using different image points in the sprite."
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Spaceship",
+							"sid": 494125524711290,
+							"parameters": {
+								"object": "Laser",
+								"layer": "\"Asteroids\"",
+								"image-point": "\"LeftLaserGun\"",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Spaceship",
+							"sid": 590357250527997,
+							"parameters": {
+								"object": "Laser",
+								"layer": "\"Asteroids\"",
+								"image-point": "\"RightLaserGun\"",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Make the player wait at least 0.1 seconds before taking the next shot."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Spaceship",
+							"sid": 401299841255993,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.1",
+								"type": "once",
+								"tag": "\"Cooldown\""
+							}
+						}
+					],
+					"sid": 314709546234641
+				}
+			],
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Leave a trail of glowing particles behind each laser shot."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-two-values",
+					"objectClass": "System",
+					"sid": 161298296974962,
+					"parameters": {
+						"first-value": "Laser.Count",
+						"comparison": 4,
+						"second-value": "0"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 397880035571138,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 765683704105598,
+							"parameters": {
+								"interval-seconds": "0.05"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Spawn laser trail."
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Laser",
+							"sid": 882353564103037,
+							"parameters": {
+								"object": "LaserTrailParticles",
+								"layer": "\"TrailEffect\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Offset the position by 4 pixels."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "LaserTrailParticles",
+							"sid": 839719682403699,
+							"parameters": {
+								"x": "Self.X + random(-4, 4)",
+								"y": "Self.Y + random(-4, 4)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize the angle."
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "LaserTrailParticles",
+							"sid": 209974274443273,
+							"parameters": {
+								"angle": "random(0, 360)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize the rotation speed."
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "LaserTrailParticles",
+							"sid": 116665296933190,
+							"behaviorType": "Rotate",
+							"parameters": {
+								"speed": "random(-15, 15)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Self destroy after 0.1 seconds."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "LaserTrailParticles",
+							"sid": 389479934844517,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SelfDestroy\"",
+								"property": "size",
+								"end-x": "0",
+								"end-y": "0",
+								"time": "0.1",
+								"ease": "easeinsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 258148542706665
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Rotate the ship to any direction based on the received direction value."
+		},
+		{
+			"functionName": "RotateShip",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "Direction",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 856418331005012
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-angle",
+					"objectClass": "Spaceship",
+					"sid": 110844056230893,
+					"parameters": {
+						"angle": "Self.Angle - Direction * TARGETFRAMERATE * dt"
+					}
+				}
+			],
+			"sid": 898180145622156
+		},
+		{
+			"eventType": "comment",
+			"text": "Change the ship animation based on the player input."
+		},
+		{
+			"eventType": "comment",
+			"text": "Restart the initial burst animation once the player requests any movement."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 385224444905588,
+					"parameters": {
+						"key": 38
+					}
+				},
+				{
+					"id": "on-button-pressed",
+					"objectClass": "Gamepad",
+					"sid": 832280321219486,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-up"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation",
+					"objectClass": "EngineFire",
+					"sid": 313379378418010,
+					"parameters": {
+						"animation": "\"InitialBurst\"",
+						"from": "beginning"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Spawn a distortion mask of top of the engine in order to create a heat distortion effect."
+				},
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Spaceship",
+					"sid": 635713416255063,
+					"parameters": {
+						"object": "EngineDistortionMask",
+						"layer": "\"Planets\"",
+						"image-point": "\"Engine\"",
+						"create-hierarchy": false
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Attach the distortion mask to the ship, so it follows the ship until it's destroyed."
+				},
+				{
+					"id": "add-child",
+					"objectClass": "Spaceship",
+					"sid": 108917940202256,
+					"parameters": {
+						"child": "EngineDistortionMask",
+						"transform-x": true,
+						"transform-y": true,
+						"transform-w": true,
+						"transform-h": true,
+						"transform-a": true,
+						"transform-z-elevation": true,
+						"destroy-with-parent": true
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Destroy the distortion mask after 0.5 seconds."
+				},
+				{
+					"id": "tween-two-properties",
+					"objectClass": "EngineDistortionMask",
+					"sid": 130091357009670,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"SelfDestroy\"",
+						"property": "size",
+						"end-x": "4",
+						"end-y": "4",
+						"time": "0.5",
+						"ease": "easeinoutsine",
+						"destroy-on-complete": "yes",
+						"loop": "no",
+						"ping-pong": "no"
+					}
+				}
+			],
+			"sid": 397244689624094,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the initial burst is done, change the engine fire animation to a constant movement animation."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-animation-finished",
+					"objectClass": "EngineFire",
+					"sid": 347586632949783,
+					"parameters": {
+						"animation": "\"InitialBurst\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation",
+					"objectClass": "EngineFire",
+					"sid": 795795622699248,
+					"parameters": {
+						"animation": "\"ConstantMovement\"",
+						"from": "beginning"
+					}
+				}
+			],
+			"sid": 671829902880344
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player ever stops sending input and the engine is not already performing an initial burst, disable the fire engine completely."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 665909812178351,
+					"parameters": {
+						"key": 38
+					},
+					"isInverted": true
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 634318563097018,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-up"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [],
+			"sid": 515073185865413,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-animation-playing",
+							"objectClass": "EngineFire",
+							"sid": 183838688059196,
+							"parameters": {
+								"animation": "\"InitialBurst\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "EngineFire",
+							"sid": 550190707321926,
+							"parameters": {
+								"animation": "\"Disabled\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 679320200533902
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Damage the asteroid if it collides with a laser."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Laser",
+					"sid": 844843994205025,
+					"parameters": {
+						"object": "Asteroids"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Create a small explosion."
+				},
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Laser",
+					"sid": 787414979468582,
+					"parameters": {
+						"object": "Explosion",
+						"layer": "\"Asteroids\"",
+						"image-point": "0",
+						"create-hierarchy": false
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Also create a few hit particles in the opposite direction."
+				},
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Laser",
+					"sid": 871149712427498,
+					"parameters": {
+						"object": "LaserHitParticles",
+						"layer": "\"Asteroids\"",
+						"image-point": "0",
+						"create-hierarchy": false
+					}
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "LaserHitParticles",
+					"sid": 799310471376133,
+					"parameters": {
+						"angle": "Laser.Angle + 180"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Destroy the laser object."
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Laser",
+					"sid": 367032727062479
+				},
+				{
+					"type": "comment",
+					"text": "Decrease the life of the asteroid."
+				},
+				{
+					"id": "subtract-from-instvar",
+					"objectClass": "Asteroids",
+					"sid": 282020942126299,
+					"parameters": {
+						"instance-variable": "Heath",
+						"value": "1"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Flash the asteroid in white for 0.25 seconds."
+				},
+				{
+					"id": "tween-value",
+					"objectClass": "Asteroids",
+					"sid": 199605632555071,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FlashEffect\"",
+						"start-value": "200",
+						"end-value": "100",
+						"time": "0.25",
+						"ease": "easeinsine",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no"
+					}
+				}
+			],
+			"sid": 282872937349519
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-playing",
+					"objectClass": "Asteroids",
+					"sid": 432246689256391,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"FlashEffect\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-effect-parameter",
+					"objectClass": "Asteroids",
+					"sid": 130527349931572,
+					"parameters": {
+						"effect": "\"AdjustHSL\"",
+						"parameter-index": "2",
+						"value": "Self.Tween.Value(\"FlashEffect\")"
+					}
+				}
+			],
+			"sid": 484658280892444
+		},
+		{
+			"eventType": "comment",
+			"text": "If the asteroid heath is equal or lower than zero, destroy and subdivide it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-instance-variable",
+					"objectClass": "Asteroids",
+					"sid": 851332052645138,
+					"parameters": {
+						"instance-variable": "Heath",
+						"comparison": 3,
+						"value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Asteroids",
+					"sid": 448784836845214
+				},
+				{
+					"callFunction": "ShakeScreen",
+					"sid": 557921683179710,
+					"parameters": [
+						"0.05",
+						"0.25"
+					]
+				}
+			],
+			"sid": 130644862924159,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "32 width asteroids creates two 16 width asteroid."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-width",
+							"objectClass": "Asteroids",
+							"sid": 307746080096684,
+							"parameters": {
+								"comparison": 0,
+								"width": "32"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 161751880795983,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 365339040565298,
+									"parameters": {
+										"name": "\"Divide\"",
+										"start-index": "1",
+										"end-index": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Asteroids",
+									"sid": 493657448697993,
+									"parameters": {
+										"object": "Asteroid16",
+										"layer": "\"Asteroids\"",
+										"image-point": "\"NextAsteroid\"&loopindex",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Asteroid16",
+									"sid": 740637601742184,
+									"parameters": {
+										"frame-number": "loopindex(\"Divide\") - 1"
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "Asteroid16",
+									"sid": 565771909126720,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "random(0, 360)"
+									}
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "Asteroid16",
+									"sid": 184532965305920,
+									"behaviorType": "Rotate",
+									"parameters": {
+										"speed": "random(-15, 15)"
+									}
+								}
+							],
+							"sid": 128499451018479
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "16 width asteroids creates two 8 width asteroid."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 875797746333164
+						},
+						{
+							"id": "compare-width",
+							"objectClass": "Asteroids",
+							"sid": 842498264523681,
+							"parameters": {
+								"comparison": 0,
+								"width": "16"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 193043049442518,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 847288007628190,
+									"parameters": {
+										"name": "\"Divide\"",
+										"start-index": "1",
+										"end-index": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Asteroids",
+									"sid": 468765923289710,
+									"parameters": {
+										"object": "Asteroid8",
+										"layer": "\"Asteroids\"",
+										"image-point": "\"NextAsteroid\"&loopindex",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Asteroid8",
+									"sid": 510085966975081,
+									"parameters": {
+										"frame-number": "loopindex(\"Divide\") - 1"
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "Asteroid8",
+									"sid": 594378615154957,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "random(0, 360)"
+									}
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "Asteroid8",
+									"sid": 889251708190586,
+									"behaviorType": "Rotate",
+									"parameters": {
+										"speed": "random(-15, 15)"
+									}
+								}
+							],
+							"sid": 197863549163942
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "8 width asteroids don't do anything."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 379150634537689
+						},
+						{
+							"id": "compare-width",
+							"objectClass": "Asteroids",
+							"sid": 771459212596389,
+							"parameters": {
+								"comparison": 0,
+								"width": "8"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 532929026801836
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once an asteroid is destroyed, spawn a few particles around it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-destroyed",
+					"objectClass": "Asteroids",
+					"sid": 188139988351313
+				}
+			],
+			"actions": [],
+			"sid": 571360045277793,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Particles for 32 width asteroids."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-width",
+							"objectClass": "Asteroids",
+							"sid": 764536587659031,
+							"parameters": {
+								"comparison": 0,
+								"width": "32"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "GenerateParticles",
+							"sid": 201173611686619,
+							"parameters": [
+								"8",
+								"Asteroids.X",
+								"Asteroids.Y"
+							]
+						}
+					],
+					"sid": 980230554573053
+				},
+				{
+					"eventType": "comment",
+					"text": "Particles for 16 width asteroids."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 540333277943946
+						},
+						{
+							"id": "compare-width",
+							"objectClass": "Asteroids",
+							"sid": 135080399995429,
+							"parameters": {
+								"comparison": 0,
+								"width": "16"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "GenerateParticles",
+							"sid": 425885324858891,
+							"parameters": [
+								"4",
+								"Asteroids.X",
+								"Asteroids.Y"
+							]
+						}
+					],
+					"sid": 340990184566777
+				},
+				{
+					"eventType": "comment",
+					"text": "Particles for 8 width asteroids."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 882075542895540
+						},
+						{
+							"id": "compare-width",
+							"objectClass": "Asteroids",
+							"sid": 493460584844161,
+							"parameters": {
+								"comparison": 0,
+								"width": "8"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "GenerateParticles",
+							"sid": 743348725426244,
+							"parameters": [
+								"1",
+								"Asteroids.X",
+								"Asteroids.Y"
+							]
+						}
+					],
+					"sid": 163614168241883
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Spawn a bunch of particles in a specific position."
+		},
+		{
+			"functionName": "GenerateParticles",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "Amount",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 517185270908721
+				},
+				{
+					"name": "PositionX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 344577607978610
+				},
+				{
+					"name": "PositionY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 802720491095798
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 952352684822729,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 886489982568088,
+							"parameters": {
+								"name": "\"Amount\"",
+								"start-index": "0",
+								"end-index": "Amount - 1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 483498937453902,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 367942378195887,
+									"parameters": {
+										"name": "\"Type\"",
+										"start-index": "0",
+										"end-index": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Spawn one particle of each \"type\" using the loopindex as a reference."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 177409447415704,
+									"parameters": {
+										"object-to-create": "AsteroidParticle",
+										"layer": "\"Asteroids\"",
+										"x": "PositionX",
+										"y": "PositionY",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "AsteroidParticle",
+									"sid": 600838580807691,
+									"parameters": {
+										"frame-number": "loopindex(\"Type\")"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize the properties of each particle."
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "AsteroidParticle",
+									"sid": 291107967940253,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"speed": "32 + random(-16, 16)"
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "AsteroidParticle",
+									"sid": 948055650199770,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "random(0, 360)"
+									}
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "AsteroidParticle",
+									"sid": 688547444661264,
+									"behaviorType": "Rotate",
+									"parameters": {
+										"speed": "random(-180, 180)"
+									}
+								}
+							],
+							"sid": 919349405498243
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the particles have stopped, decrease their size until they're gone."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "compare-speed",
+					"objectClass": "AsteroidParticle",
+					"sid": 233150130965764,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"comparison": 0,
+						"speed": "0"
+					}
+				},
+				{
+					"id": "is-playing",
+					"objectClass": "AsteroidParticle",
+					"sid": 769886717085425,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"SelfDestroy\""
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "tween-two-properties",
+					"objectClass": "AsteroidParticle",
+					"sid": 787245951387399,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"SelfDestroy\"",
+						"property": "size",
+						"end-x": "0",
+						"end-y": "0",
+						"time": "1",
+						"ease": "easeinoutsine",
+						"destroy-on-complete": "yes",
+						"loop": "no",
+						"ping-pong": "no"
+					}
+				}
+			],
+			"sid": 719343046201969
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly update all asteroids speed to match the formula, making larger asteroids slower and smaller asteroids faster."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 340331852455200
+				}
+			],
+			"actions": [],
+			"sid": 933411025817767,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 380027524674471,
+							"parameters": {
+								"object": "Asteroids"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-speed",
+							"objectClass": "Asteroids",
+							"sid": 174145578302367,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"speed": "lerp(Self.Bullet.Speed, 64 - Self.Width, 0.01 * 60 * dt)"
+							}
+						}
+					],
+					"sid": 707028733629802
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Leave a glowing trail behind the ship if the engines are on."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-animation-playing",
+					"objectClass": "EngineFire",
+					"sid": 443207069122850,
+					"parameters": {
+						"animation": "\"ConstantMovement\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Spawn trail effect."
+				},
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Spaceship",
+					"sid": 688588436455353,
+					"parameters": {
+						"object": "EngineTrail",
+						"layer": "\"TrailEffect\"",
+						"image-point": "\"Trail\"",
+						"create-hierarchy": false
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Adjust the trail angle to point towards the ship."
+				},
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "EngineTrail",
+					"sid": 706215621836493,
+					"parameters": {
+						"x": "Spaceship.LastPositionX",
+						"y": "Spaceship.LastPositionY"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Adjust the trail width to reach the ship last position."
+				},
+				{
+					"id": "set-size",
+					"objectClass": "EngineTrail",
+					"sid": 709322611871745,
+					"parameters": {
+						"width": "distance(Self.X, Self.Y, Spaceship.LastPositionX, Spaceship.LastPositionY) * 4",
+						"height": "4"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Animate the trail width."
+				},
+				{
+					"id": "tween-one-property",
+					"objectClass": "EngineTrail",
+					"sid": 649376590133204,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"SelfDestroy\"",
+						"property": "offsetHeight",
+						"end-value": "0",
+						"time": "0.25",
+						"ease": "default",
+						"destroy-on-complete": "yes",
+						"loop": "no",
+						"ping-pong": "no"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Store the last position from the ship."
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Spaceship",
+					"sid": 451271138927501,
+					"parameters": {
+						"instance-variable": "LastPositionX",
+						"value": "Self.ImagePointX(\"Trail\")"
+					}
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Spaceship",
+					"sid": 652274279064325,
+					"parameters": {
+						"instance-variable": "LastPositionY",
+						"value": "Self.ImagePointY(\"Trail\")"
+					}
+				}
+			],
+			"sid": 927705268708968,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Prevent any large trail from being visible, in order to avoid visual glitches caused by the wrap behavior (sudden position changing)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-width",
+							"objectClass": "EngineTrail",
+							"sid": 712784832950542,
+							"parameters": {
+								"comparison": 4,
+								"width": "32"
+							}
+						},
+						{
+							"id": "is-visible",
+							"objectClass": "EngineTrail",
+							"sid": 513010898658989
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "EngineTrail",
+							"sid": 364026320608366,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 356859462747650
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "End the game if the ship is hit by an asteroid."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Asteroids",
+					"sid": 867673743783448,
+					"parameters": {
+						"object": "Spaceship"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Spaceship",
+					"sid": 715252222663327,
+					"parameters": {
+						"object": "Explosion",
+						"layer": "\"Asteroids\"",
+						"image-point": "0",
+						"create-hierarchy": false
+					}
+				},
+				{
+					"id": "destroy",
+					"objectClass": "Spaceship",
+					"sid": 533658158614827
+				},
+				{
+					"callFunction": "ShakeScreen",
+					"sid": 284041514100732,
+					"parameters": [
+						"0.1",
+						"1"
+					]
+				},
+				{
+					"id": "wait",
+					"objectClass": "System",
+					"sid": 491544902876946,
+					"parameters": {
+						"seconds": "2"
+					}
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 863627378082886
+				}
+			],
+			"sid": 558476795506763
+		},
+		{
+			"eventType": "comment",
+			"text": "Destroy the explosion object after its animation is done to prevent CPU and memory overloads."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-animation-finished",
+					"objectClass": "Explosion",
+					"sid": 922993398314204,
+					"parameters": {
+						"animation": "\"Default\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Explosion",
+					"sid": 949506814604296
+				}
+			],
+			"sid": 986505523367313
+		},
+		{
+			"eventType": "comment",
+			"text": "Randomize the layout scale in order to create a screen shake effect using a strength parameter and a duration parameter."
+		},
+		{
+			"functionName": "ShakeScreen",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "Strength",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 778276986364237
+				},
+				{
+					"name": "Duration",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 398691840491806
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "tween-value",
+					"objectClass": "GameManager",
+					"sid": 274245009750082,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"ScreenShake\"",
+						"start-value": "1 + Strength",
+						"end-value": "1",
+						"time": "Duration",
+						"ease": "default",
+						"destroy-on-complete": "no",
+						"loop": "no",
+						"ping-pong": "no"
+					}
+				}
+			],
+			"sid": 464322275333797
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-playing",
+					"objectClass": "GameManager",
+					"sid": 367445184800609,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"ScreenShake\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-layout-scale",
+					"objectClass": "System",
+					"sid": 884040984890240,
+					"parameters": {
+						"scale": "random(1, GameManager.Tween.Value(\"ScreenShake\"))"
+					}
+				}
+			],
+			"sid": 153452313508644
+		},
+		{
+			"eventType": "comment",
+			"text": "Force the scene to restart for debugging reasons."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 362752119517326,
+					"parameters": {
+						"key": 82
+					}
+				},
+				{
+					"id": "on-button-pressed",
+					"objectClass": "Gamepad",
+					"sid": 444953605473255,
+					"parameters": {
+						"gamepad": "0",
+						"button": "start-menu"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 115923611308848
+				}
+			],
+			"sid": 888080845372907,
+			"isOrBlock": true
+		}
+	],
+	"sid": 654245276811635
+}

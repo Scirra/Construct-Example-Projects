@@ -1,0 +1,1967 @@
+{
+	"name": "MenuEvents",
+	"events": [
+		{
+			"eventType": "include",
+			"includeSheet": "SoundEvents"
+		},
+		{
+			"eventType": "comment",
+			"text": "Menu variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "menuState",
+			"type": "string",
+			"initialValue": "",
+			"comment": "Current menu state",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 401896258272650
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Menu setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup menu."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 953407852193055
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set state as intro."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 983582336877519,
+							"parameters": {
+								"variable": "menuState",
+								"value": "\"intro\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set camera position."
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 601663001638305,
+							"parameters": {
+								"cam-x": "MenuCamera.X",
+								"cam-y": "MenuCamera.Y",
+								"cam-z": "MenuCamera.ZElevation",
+								"look-x": "MenuCamera.X",
+								"look-y": "MenuCamera.Y - 128",
+								"look-z": "MenuCamera.ZElevation",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Type intro text."
+						},
+						{
+							"id": "typewriter-text",
+							"objectClass": "TextIntro",
+							"sid": 741640930224951,
+							"parameters": {
+								"text": "\"Over a millennium since the last event, the mysterious [color=#ffffff]avalanche[/color] has returned, along with evil creatures seeking to corrupt the tundra. \r\n\r\nIt's [color=#ffffff]my[/color] mission to restore the peace.\"",
+								"duration": "2"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Flash \"Press Space\" text."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 279682314504449,
+							"parameters": {
+								"seconds": "2.0",
+								"use-timescale": true
+							}
+						},
+						{
+							"id": "flash",
+							"objectClass": "TextPressSpace",
+							"sid": 335802607580982,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.3",
+								"off-time": "0.2",
+								"duration": "Infinity"
+							}
+						}
+					],
+					"sid": 238774475299043
+				}
+			],
+			"sid": 719913406494342
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player profile setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create a new player profile."
+				},
+				{
+					"functionName": "createNewProfile",
+					"functionDescription": "Create a new player profile",
+					"functionCategory": "Menu",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": true,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 483280251026938,
+							"parameters": {
+								"tag": "\"DefaultProfile\"",
+								"file": "DefaultProfile.json"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 877912913862408
+						},
+						{
+							"id": "load",
+							"objectClass": "DictProfile",
+							"sid": 928456222141213,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"callFunction": "saveProfile",
+							"sid": 517438049531704
+						},
+						{
+							"callFunction": "UpdateMenu",
+							"sid": 492812845081225
+						}
+					],
+					"sid": 543135122978876
+				},
+				{
+					"eventType": "comment",
+					"text": "Save player profile."
+				},
+				{
+					"functionName": "saveProfile",
+					"functionDescription": "Save player profile",
+					"functionCategory": "Menu",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": true,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-item",
+							"objectClass": "LocalStorage",
+							"sid": 986140672053222,
+							"parameters": {
+								"key": "\"Profile\"",
+								"value": "DictProfile.AsJSON"
+							}
+						}
+					],
+					"sid": 937949299203586
+				},
+				{
+					"eventType": "comment",
+					"text": "Update menu according to profile."
+				},
+				{
+					"functionName": "UpdateMenu",
+					"functionDescription": "Update menu according to profile",
+					"functionCategory": "Menu",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 175516026231335,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update new game/continue text."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 138016518463977,
+									"parameters": {
+										"object": "TextMenuItem",
+										"expression": "TextMenuItem.itemNumber = 0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 453242535239163,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-value",
+											"objectClass": "DictProfile",
+											"sid": 825481250711516,
+											"parameters": {
+												"key": "\"Level\"",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "TextMenuItem",
+											"sid": 839735130271202,
+											"parameters": {
+												"text": "\"New game\""
+											}
+										}
+									],
+									"sid": 309915739703252
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 975218353064284
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "TextMenuItem",
+											"sid": 276787177128926,
+											"parameters": {
+												"text": "\"Continue\""
+											}
+										}
+									],
+									"sid": 154912699131719
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Update sound option."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 447578172940835,
+									"parameters": {
+										"object": "TextMenuItem",
+										"expression": "TextMenuItem.itemNumber = 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 888482966110554,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-value",
+											"objectClass": "DictProfile",
+											"sid": 561889932092259,
+											"parameters": {
+												"key": "\"Sound\"",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "TextMenuItem",
+											"sid": 360578656904940,
+											"parameters": {
+												"text": "\"Sound [color=#ffffff]OFF\""
+											}
+										},
+										{
+											"callFunction": "fadeBGM",
+											"sid": 800353646465969,
+											"parameters": [
+												false,
+												"0.1"
+											]
+										}
+									],
+									"sid": 334415796072878
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 569668293231712
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "TextMenuItem",
+											"sid": 989614728160753,
+											"parameters": {
+												"text": "\"Sound [color=#ffffff]ON\""
+											}
+										},
+										{
+											"callFunction": "fadeBGM",
+											"sid": 375696471896813,
+											"parameters": [
+												true,
+												"0.1"
+											]
+										}
+									],
+									"sid": 646732182022960
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Set reset text."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 739517488566003,
+									"parameters": {
+										"object": "TextMenuItem",
+										"expression": "TextMenuItem.itemNumber = 2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextMenuItem",
+									"sid": 233560768090863,
+									"parameters": {
+										"text": "\"Reset save\""
+									}
+								}
+							],
+							"sid": 930498528602331
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Start player profile setup process."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 677210847038266
+						}
+					],
+					"actions": [
+						{
+							"id": "check-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 836344642595330,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start playing the music silently."
+						},
+						{
+							"callFunction": "playBGM",
+							"sid": 600639357608697,
+							"parameters": [
+								"\"IceVillage\"",
+								true,
+								"0"
+							]
+						}
+					],
+					"sid": 212398922668644
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player already has a profile, load it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 992748668968710,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "get-item",
+							"objectClass": "LocalStorage",
+							"sid": 390948417481749,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"sid": 305139330388375
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-get",
+							"objectClass": "LocalStorage",
+							"sid": 602310158360774,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "DictProfile",
+							"sid": 568542741730123,
+							"parameters": {
+								"json": "LocalStorage.ItemValue"
+							}
+						},
+						{
+							"callFunction": "UpdateMenu",
+							"sid": 514361880922655
+						}
+					],
+					"sid": 678334390232322,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Check if profile was correctly loaded. If not, reset."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-empty",
+									"objectClass": "DictProfile",
+									"sid": 753462847606090
+								}
+							],
+							"actions": [
+								{
+									"id": "get-item",
+									"objectClass": "LocalStorage",
+									"sid": 103839738312726,
+									"parameters": {
+										"key": "\"Profile is empty...\""
+									}
+								},
+								{
+									"callFunction": "createNewProfile",
+									"sid": 250094609111868
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 459982059435503
+								},
+								{
+									"id": "restart-layout",
+									"objectClass": "System",
+									"sid": 473184471776762
+								}
+							],
+							"sid": 135771691684757
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Otherwise, create a new profile."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-missing",
+							"objectClass": "LocalStorage",
+							"sid": 869098802339273,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "createNewProfile",
+							"sid": 235159444863370
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 233825266217575
+						},
+						{
+							"callFunction": "UpdateMenu",
+							"sid": 169614471866893
+						}
+					],
+					"sid": 702751470645575
+				}
+			],
+			"sid": 730506187787738
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Menu item selection",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update currently selected item."
+				},
+				{
+					"functionName": "updateSelection",
+					"functionDescription": "Update currently selected item",
+					"functionCategory": "Menu",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": true,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 197912128770916,
+							"parameters": {
+								"object": "TextMenuItem",
+								"expression": "TextMenuItem.itemNumber = MenuSelector.itemSelected"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "MenuSelector",
+							"sid": 510026866228659,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ChangeSelectorY\"",
+								"property": "offsetY",
+								"end-value": "TextMenuItem.Y",
+								"time": "0.05",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 621806218722395
+						}
+					],
+					"sid": 173981685333257
+				},
+				{
+					"eventType": "comment",
+					"text": "Select menu item."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 776313551938849,
+							"parameters": {
+								"variable": "menuState",
+								"comparison": 0,
+								"value": "\"mainMenu\""
+							}
+						},
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 415156133431435,
+							"parameters": {
+								"variable": "menuState",
+								"comparison": 0,
+								"value": "\"resetMenu\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 557876380077955,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 773630357824084,
+									"parameters": {
+										"key": 38
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "MenuSelector",
+									"sid": 492960245208043,
+									"parameters": {
+										"instance-variable": "itemSelected",
+										"comparison": 4,
+										"value": "menuState = \"resetMenu\""
+									}
+								},
+								{
+									"id": "is-any-playing",
+									"objectClass": "MenuSelector",
+									"sid": 910545340822661,
+									"behaviorType": "Tween",
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "MenuSelector",
+									"sid": 943728009399211,
+									"parameters": {
+										"instance-variable": "itemSelected",
+										"value": "Self.itemSelected - 1"
+									}
+								},
+								{
+									"callFunction": "updateSelection",
+									"sid": 735860448071372
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 963202264510265
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 212748251963499,
+									"parameters": [
+										"\"menu_change\"",
+										"\"SFX\"",
+										"0",
+										"1"
+									]
+								}
+							],
+							"sid": 346955371361807
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 760441544166092,
+									"parameters": {
+										"key": 40
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "MenuSelector",
+									"sid": 865038183733300,
+									"parameters": {
+										"instance-variable": "itemSelected",
+										"comparison": 2,
+										"value": "2"
+									}
+								},
+								{
+									"id": "is-any-playing",
+									"objectClass": "MenuSelector",
+									"sid": 309284975526866,
+									"behaviorType": "Tween",
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "MenuSelector",
+									"sid": 983753277250896,
+									"parameters": {
+										"instance-variable": "itemSelected",
+										"value": "Self.itemSelected + 1"
+									}
+								},
+								{
+									"callFunction": "updateSelection",
+									"sid": 494720491944162
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 555650115742275
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 955537124218535,
+									"parameters": [
+										"\"menu_change\"",
+										"\"SFX\"",
+										"0",
+										"1"
+									]
+								}
+							],
+							"sid": 952513948232436
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Perform action."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 196626639334719,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 116336485574804,
+							"parameters": {
+								"key": 13
+							}
+						}
+					],
+					"actions": [],
+					"sid": 288750653431767,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Introduction screen."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 902866363939238,
+									"parameters": {
+										"variable": "menuState",
+										"comparison": 0,
+										"value": "\"intro\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "processIntroductionAction",
+									"sid": 150357382638671
+								}
+							],
+							"sid": 718466914398921
+						},
+						{
+							"eventType": "comment",
+							"text": "Main menu."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 979881612445050
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 141922947949968,
+									"parameters": {
+										"variable": "menuState",
+										"comparison": 0,
+										"value": "\"mainMenu\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "processMainMenuAction",
+									"sid": 203860993809167
+								}
+							],
+							"sid": 592137199982295
+						},
+						{
+							"eventType": "comment",
+							"text": "Reset menu."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 224640306314492
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 245946119692880,
+									"parameters": {
+										"variable": "menuState",
+										"comparison": 0,
+										"value": "\"resetMenu\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "processResetMenuAction",
+									"sid": 345346004691744
+								}
+							],
+							"sid": 180552308944261
+						}
+					],
+					"isOrBlock": true
+				}
+			],
+			"sid": 860055019173952
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Menu actions",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Process introduction action."
+				},
+				{
+					"functionName": "processIntroductionAction",
+					"functionDescription": "Process introduction action",
+					"functionCategory": "Menu",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "is-running-typewriter-text",
+							"objectClass": "TextIntro",
+							"sid": 655376091025104,
+							"isInverted": true
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "TextIntro",
+							"sid": 687293422562441,
+							"behaviorType": "Tween",
+							"isInverted": true
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "Fader",
+							"sid": 446495453673973,
+							"behaviorType": "Tween",
+							"isInverted": true
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "Fader",
+							"sid": 659159457640297,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "100"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Play menu select sound effect."
+						},
+						{
+							"callFunction": "playSFX",
+							"sid": 472841004392051,
+							"parameters": [
+								"\"menu_select\"",
+								"\"SFX\"",
+								"0",
+								"1"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Hide intro texts."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextIntro",
+							"sid": 961592588368865,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideTextIntro\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextPressSpace",
+							"sid": 680939923066138,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideTextIntro\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide fader."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 853111024475992
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 840051419111002,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show menu text and title."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "MenuBox",
+							"sid": 271757388727968,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveMenuIntoScene\"",
+								"property": "offsetX",
+								"end-value": "311",
+								"time": "1",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Title",
+							"sid": 922891308635677,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveTitleintoScene\"",
+								"property": "offsetY",
+								"end-value": "26",
+								"time": "1",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set state to main menu."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 801856324307159
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 780279072659238,
+							"parameters": {
+								"variable": "menuState",
+								"value": "\"mainMenu\""
+							}
+						}
+					],
+					"sid": 103183740761148
+				},
+				{
+					"eventType": "comment",
+					"text": "Process main menu action."
+				},
+				{
+					"functionName": "processMainMenuAction",
+					"functionDescription": "Process main menu action",
+					"functionCategory": "Menu",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "is-any-playing",
+							"objectClass": "Fader",
+							"sid": 271539399351578,
+							"behaviorType": "Tween",
+							"isInverted": true
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "Fader",
+							"sid": 234973731735516,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "MenuBox",
+							"sid": 936168234883328,
+							"behaviorType": "Tween",
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 724138068480466,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Start the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "MenuSelector",
+									"sid": 730565239473117,
+									"parameters": {
+										"instance-variable": "itemSelected",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play menu select sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 458194429286293,
+									"parameters": [
+										"\"menu_select\"",
+										"\"SFX\"",
+										"0",
+										"1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Fade-out the music."
+								},
+								{
+									"callFunction": "fadeBGM",
+									"sid": 298151275943399,
+									"parameters": [
+										false,
+										"1.0"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Set state to starting game."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 832899469870624,
+									"parameters": {
+										"variable": "menuState",
+										"value": "\"startingGame\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide menu text and title."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "MenuBox",
+									"sid": 146761418459273,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveMenuIntoScene\"",
+										"property": "offsetX",
+										"end-value": "419",
+										"time": "0.5",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Title",
+									"sid": 913245159409039,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveTitleintoScene\"",
+										"property": "offsetY",
+										"end-value": "-26",
+										"time": "0.5",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set player animation."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 696953167114506
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerTextures",
+									"sid": 270568928177399,
+									"parameters": {
+										"animation": "\"JumpCinematic\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make the player jump."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerBillboard",
+									"sid": 483486423402826,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"PlayerJumpTween\"",
+										"property": "offsetZElevation",
+										"end-value": "Self.ZElevation + 12",
+										"time": "0.2",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerBillboard",
+									"sid": 259576748345791,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"PlayerJumpTween\"",
+										"property": "offsetX",
+										"end-value": "Self.X + 96",
+										"time": "1.25",
+										"ease": "noease",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 901929800887655,
+									"parameters": {
+										"seconds": "0.2",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerBillboard",
+									"sid": 817206183209118,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"PlayerJumpTween\"",
+										"property": "offsetZElevation",
+										"end-value": "Self.ZElevation - 128",
+										"time": "0.75",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade-out the menu."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 817231630001562,
+									"parameters": {
+										"seconds": "0.25",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 234894882280200,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 402019095344980
+								}
+							],
+							"sid": 907033374775029,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "First time starting a level."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-value",
+											"objectClass": "DictProfile",
+											"sid": 845687716061352,
+											"parameters": {
+												"key": "\"Level\"",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Update profile."
+										},
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 395668610197705,
+											"parameters": {
+												"key": "\"Level\"",
+												"value": "1"
+											}
+										},
+										{
+											"callFunction": "saveProfile",
+											"sid": 697819308000098
+										},
+										{
+											"type": "comment",
+											"text": "Go to the level."
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 709832968636269
+										},
+										{
+											"id": "go-to-layout-by-name",
+											"objectClass": "System",
+											"sid": 602250482854869,
+											"parameters": {
+												"layout": "\"Level\" & DictProfile.Get(\"Level\")"
+											}
+										}
+									],
+									"sid": 756422511015452
+								},
+								{
+									"eventType": "comment",
+									"text": "Not the first time starting a level."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 675182938435203
+										}
+									],
+									"actions": [
+										{
+											"id": "go-to-layout-by-name",
+											"objectClass": "System",
+											"sid": 807008053412875,
+											"parameters": {
+												"layout": "\"Level\" & DictProfile.Get(\"Level\")"
+											}
+										}
+									],
+									"sid": 848698020440968
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Toggle the sound."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 295771701422383
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "MenuSelector",
+									"sid": 794308764535011,
+									"parameters": {
+										"instance-variable": "itemSelected",
+										"comparison": 0,
+										"value": "1"
+									}
+								},
+								{
+									"id": "is-processing-gets",
+									"objectClass": "LocalStorage",
+									"sid": 365238628823535,
+									"isInverted": true
+								},
+								{
+									"id": "is-processing-sets",
+									"objectClass": "LocalStorage",
+									"sid": 602777381076157,
+									"isInverted": true
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 897992624500233,
+									"parameters": {
+										"object": "TextMenuItem",
+										"expression": "TextMenuItem.itemNumber = 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 457634287434220,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Toggle on."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-value",
+											"objectClass": "DictProfile",
+											"sid": 440772708947757,
+											"parameters": {
+												"key": "\"Sound\"",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 824246073303950,
+											"parameters": {
+												"key": "\"Sound\"",
+												"value": "1"
+											}
+										},
+										{
+											"callFunction": "saveProfile",
+											"sid": 732270373018085
+										}
+									],
+									"sid": 974106379720389
+								},
+								{
+									"eventType": "comment",
+									"text": "Toggle off."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 500884586456197
+										}
+									],
+									"actions": [
+										{
+											"id": "set-key",
+											"objectClass": "DictProfile",
+											"sid": 887278214941740,
+											"parameters": {
+												"key": "\"Sound\"",
+												"value": "0"
+											}
+										},
+										{
+											"callFunction": "saveProfile",
+											"sid": 888205079405161
+										}
+									],
+									"sid": 135737660104540
+								},
+								{
+									"eventType": "comment",
+									"text": "Update menu state."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"callFunction": "UpdateMenu",
+											"sid": 877041558996843
+										},
+										{
+											"type": "comment",
+											"text": "Play menu select sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 122341520021972,
+											"parameters": [
+												"\"menu_select\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										}
+									],
+									"sid": 367405570509760
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Reset the save."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 632171874607532
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "MenuSelector",
+									"sid": 961589378599866,
+									"parameters": {
+										"instance-variable": "itemSelected",
+										"comparison": 0,
+										"value": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Change menu state."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 890416269806600,
+									"parameters": {
+										"variable": "menuState",
+										"value": "\"resetMenu\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play menu select sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 122341520021972,
+									"parameters": [
+										"\"menu_select\"",
+										"\"SFX\"",
+										"0",
+										"1"
+									]
+								}
+							],
+							"sid": 175441616881618,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Set menu texts."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 224853503875610,
+											"parameters": {
+												"object": "TextMenuItem",
+												"expression": "TextMenuItem.itemNumber = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "TextMenuItem",
+											"sid": 956912315742489,
+											"parameters": {
+												"text": "\"Sure?\""
+											}
+										}
+									],
+									"sid": 900481476359073
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 441570617377820,
+											"parameters": {
+												"object": "TextMenuItem",
+												"expression": "TextMenuItem.itemNumber = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "TextMenuItem",
+											"sid": 679950818877697,
+											"parameters": {
+												"text": "\"Yes\""
+											}
+										}
+									],
+									"sid": 362290818546772
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 990636252547594,
+											"parameters": {
+												"object": "TextMenuItem",
+												"expression": "TextMenuItem.itemNumber = 2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "TextMenuItem",
+											"sid": 490222083754347,
+											"parameters": {
+												"text": "\"No\""
+											}
+										}
+									],
+									"sid": 694372004348033
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Process reset menu action."
+				},
+				{
+					"functionName": "processResetMenuAction",
+					"functionDescription": "Process reset menu action",
+					"functionCategory": "Menu",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "is-any-playing",
+							"objectClass": "Fader",
+							"sid": 579967821020548,
+							"behaviorType": "Tween",
+							"isInverted": true
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "Fader",
+							"sid": 492797633853973,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "MenuBox",
+							"sid": 550790393168072,
+							"behaviorType": "Tween",
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Change menu state."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 299393931734691,
+							"parameters": {
+								"variable": "menuState",
+								"value": "\"mainMenu\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Play menu select sound effect."
+						},
+						{
+							"callFunction": "playSFX",
+							"sid": 219429179726499,
+							"parameters": [
+								"\"menu_select\"",
+								"\"SFX\"",
+								"0",
+								"1"
+							]
+						}
+					],
+					"sid": 931672875700503,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Confirm the reset."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "MenuSelector",
+									"sid": 858484882498309,
+									"parameters": {
+										"instance-variable": "itemSelected",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Clear local storage."
+								},
+								{
+									"id": "clear-storage",
+									"objectClass": "LocalStorage",
+									"sid": 104828691275827
+								},
+								{
+									"type": "comment",
+									"text": "Set state to rebooting."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 894999319771348
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 339370934426133,
+									"parameters": {
+										"variable": "menuState",
+										"value": "\"rebooting\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide menu text ant title."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "MenuBox",
+									"sid": 389647248359026,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveMenuIntoScene\"",
+										"property": "offsetX",
+										"end-value": "419",
+										"time": "0.5",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Title",
+									"sid": 446992910687470,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveTitleintoScene\"",
+										"property": "offsetY",
+										"end-value": "-26",
+										"time": "0.5",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade-out the menu."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 715913575184840
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 333679452673312,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 937155352417549
+								},
+								{
+									"id": "restart-layout",
+									"objectClass": "System",
+									"sid": 520841577619380
+								},
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 370661778893075,
+									"parameters": {
+										"reset-static": true
+									}
+								}
+							],
+							"sid": 269260317428624
+						},
+						{
+							"eventType": "comment",
+							"text": "Cancel the reset."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 874270400018193
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 734549441937663,
+									"parameters": {
+										"variable": "menuState",
+										"value": "\"mainMenu\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "MenuSelector",
+									"sid": 215749119129735,
+									"parameters": {
+										"instance-variable": "itemSelected",
+										"value": "2"
+									}
+								},
+								{
+									"callFunction": "updateSelection",
+									"sid": 535289351736765
+								},
+								{
+									"callFunction": "UpdateMenu",
+									"sid": 751676935361286
+								}
+							],
+							"sid": 514076159923891
+						}
+					]
+				}
+			],
+			"sid": 833656009377982
+		}
+	],
+	"sid": 889924201477360
+}

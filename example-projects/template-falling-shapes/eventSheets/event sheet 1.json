@@ -1,0 +1,1487 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Tips: the term 'sha' is used as short for 'shape'.\nSome events are collapsed - click the arrow next to them to expand them and see their contents."
+		},
+		{
+			"eventType": "comment",
+			"text": "The object \"Game\" contains most of our variables. We could use global variables, but it is a better solution in order to keep the project in the limits of the free edition\n\nThe sha object is composed of 7 frames representing the 7 possible shapes. Each shape has three additional image points representing the \"middle\" of \"pieces\" that \"compose\" it.\nIt is useful for our collision detecting in the \"collide\" and \"shaPlace\" functions.\n\nIt uses the \"8 direction\" behaviors which interacts wih the \"Solid\" behavior of piecePlaced instances, to handle collision/proper positioning when moving and rotating sha.\n\nThe collision polygon for the piecePlaced object is 1 pixel inner (the object is 48 pixels of size, the collision polygon is 46 only). \nThis helps with making sure the sha object won't get stuck when it shouldn't."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 414978862955749
+				}
+			],
+			"actions": [],
+			"sid": 614464032542115,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Draws the grid where the pieces will be displayed and the game will be played"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 942954035898909,
+							"parameters": {
+								"name": "\"row\"",
+								"start-index": "0",
+								"end-index": "Game.row"
+							}
+						},
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 216632315824000,
+							"parameters": {
+								"name": "\"col\"",
+								"start-index": "0",
+								"end-index": "Game.col - 1"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 965038123881557,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Creates the grid which is only a visual aid"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 333048988784373,
+									"parameters": {
+										"first-value": "loopindex(\"row\")",
+										"comparison": 2,
+										"second-value": "Game.row"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 909913257199717,
+									"parameters": {
+										"object-to-create": "gCell",
+										"layer": "0",
+										"x": "loopindex(\"col\") * gCell.Width + gCell.Width/2 + Game.colOffset",
+										"y": "loopindex(\"row\") * gCell.Height + gCell.Height/2 + Game.rowOffset"
+									}
+								}
+							],
+							"sid": 866119429946566
+						},
+						{
+							"eventType": "comment",
+							"text": "Creates the vertical borders around the board"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 641923299875770,
+									"parameters": {
+										"first-value": "loopindex(\"col\")",
+										"comparison": 0,
+										"second-value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 390586365671131,
+									"parameters": {
+										"object-to-create": "piecePlaced",
+										"layer": "0",
+										"x": "-1 * piecePlaced.Width + piecePlaced.Width/2 + Game.colOffset",
+										"y": "loopindex(\"row\") * piecePlaced.Height + piecePlaced.Height/2 + Game.rowOffset"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "piecePlaced",
+									"sid": 961239829293605,
+									"parameters": {
+										"opacity": "25"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "piecePlaced",
+									"sid": 860451620220967,
+									"parameters": {
+										"instance-variable": "border",
+										"value": "true"
+									}
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 541590570715488,
+									"parameters": {
+										"object-to-create": "piecePlaced",
+										"layer": "0",
+										"x": "Game.col * piecePlaced.Width + piecePlaced.Width/2 + Game.colOffset",
+										"y": "loopindex(\"row\") * piecePlaced.Height + piecePlaced.Height/2 + Game.rowOffset"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "piecePlaced",
+									"sid": 112523655266828,
+									"parameters": {
+										"opacity": "25"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "piecePlaced",
+									"sid": 331236573627257,
+									"parameters": {
+										"instance-variable": "border",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 684464648392409
+						},
+						{
+							"eventType": "comment",
+							"text": "Creates the horizontal border at the bottom of the board"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 637750933563291,
+									"parameters": {
+										"first-value": "loopindex(\"row\")",
+										"comparison": 0,
+										"second-value": "Game.row"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 936668894597005,
+									"parameters": {
+										"object-to-create": "piecePlaced",
+										"layer": "0",
+										"x": "loopindex(\"col\") * piecePlaced.Width + piecePlaced.Width/2 + Game.colOffset",
+										"y": "Game.row * piecePlaced.Height + piecePlaced.Height/2 + Game.rowOffset"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "piecePlaced",
+									"sid": 980103134263804,
+									"parameters": {
+										"opacity": "25"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "piecePlaced",
+									"sid": 419036322508547,
+									"parameters": {
+										"instance-variable": "border",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 594729339511168
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Each shape is tied to a number (its animation frame). We pick a random one and create a shape to start the game"
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "txtScore",
+							"sid": 113105858009593,
+							"parameters": {
+								"text": "\"Score : \" & Game.Score & newline & \"Lines : \" & Game.linesNB"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Game",
+							"sid": 485001432988813,
+							"parameters": {
+								"instance-variable": "shaN",
+								"value": "int(random(7))"
+							}
+						},
+						{
+							"callFunction": "shaCreate",
+							"sid": 809095186744114
+						}
+					],
+					"sid": 929310211559481
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "This function will determine the next shape that will be spawned and will set its frame to render the preview.\n"
+		},
+		{
+			"functionName": "shaNext",
+			"functionDescription": "Automatically converted from 'shaNext'",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Game",
+					"sid": 336840445225554,
+					"parameters": {
+						"instance-variable": "shaN",
+						"value": "int(random(7))"
+					}
+				},
+				{
+					"id": "set-animation-frame",
+					"objectClass": "shaPreview",
+					"sid": 650290095997676,
+					"parameters": {
+						"frame-number": "Game.shaN"
+					}
+				}
+			],
+			"sid": 561855526413385
+		},
+		{
+			"eventType": "comment",
+			"text": "This function creates the shape on top of the board when the game is playing and set its animation frame.\n"
+		},
+		{
+			"functionName": "shaCreate",
+			"functionDescription": "Automatically converted from 'shaCreate'",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "Game",
+					"sid": 875866379733788,
+					"parameters": {
+						"instance-variable": "over"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Game",
+					"sid": 879839291559786,
+					"parameters": {
+						"instance-variable": "shaC",
+						"value": "Game.shaN"
+					}
+				},
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 381428006457856,
+					"parameters": {
+						"object-to-create": "sha",
+						"layer": "0",
+						"x": "Game.pWidth * Game.crXoffset + Game.pWidth/2 + Game.colOffset",
+						"y": "Game.pHeight * Game.crYoffset + Game.pHeight/2 + Game.rowOffset"
+					}
+				},
+				{
+					"id": "set-animation-frame",
+					"objectClass": "sha",
+					"sid": 859999295449695,
+					"parameters": {
+						"frame-number": "Game.shaC"
+					}
+				}
+			],
+			"sid": 665054287536451,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If on creation, a piece of the shape is overlapping an already placed piece, we consider the board is full and this is the end condition for the game"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "sha",
+							"sid": 343576867471178,
+							"parameters": {
+								"object": "piecePlaced"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "stop-loop",
+							"objectClass": "System",
+							"sid": 253219042516740
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Game",
+							"sid": 755173883671872,
+							"parameters": {
+								"instance-variable": "over",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "txtEnd",
+							"sid": 197526719166512,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtEnd",
+							"sid": 468028984474942,
+							"parameters": {
+								"text": "\"Game over\" & newline & \"Your score is : \" & newline & Game.Score & newline & newline & \"Press F5 to play again\""
+							}
+						}
+					],
+					"sid": 212693072366547
+				},
+				{
+					"eventType": "comment",
+					"text": "If the game is still going on, we determine the next piece to create"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Game",
+							"sid": 826805655109554,
+							"parameters": {
+								"instance-variable": "over"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "shaNext",
+							"sid": 298373446473323
+						}
+					],
+					"sid": 227452714661764
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "This function makes the current shape go down in the board if possible"
+		},
+		{
+			"functionName": "shaDown",
+			"functionDescription": "Automatically converted from 'shaDown'",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "Game",
+					"sid": 499802583290767,
+					"parameters": {
+						"instance-variable": "over"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [],
+			"sid": 893333658322439,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "We check each \"piece\" that composes the shape for collision with a placed piece to its bottom. If there is none, we move the shape down a row"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 159428539807767,
+							"parameters": {
+								"first-value": "Functions.collide(0, Game.pWidth)",
+								"comparison": 0,
+								"second-value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-y",
+							"objectClass": "sha",
+							"sid": 954333272863869,
+							"parameters": {
+								"y": "Self.Y+Game.pHeight"
+							}
+						}
+					],
+					"sid": 224256580890624
+				},
+				{
+					"eventType": "comment",
+					"text": "Otherwise the shape can NOT be moved down. We do \"place\" it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 923724612458441
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "shaPlace",
+							"sid": 920238445591002
+						}
+					],
+					"sid": 639749997594638
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "This function checks if a piecePlaced is positioned at the bottom of the shape"
+		},
+		{
+			"functionName": "collide",
+			"functionDescription": "Automatically converted from 'collide'",
+			"functionCategory": "",
+			"functionReturnType": "any",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "offsetX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 397017813752502
+				},
+				{
+					"name": "offsetY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 967703368250924
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 103061392090510,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "result",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 946334834912053
+				},
+				{
+					"eventType": "comment",
+					"text": "We pick a number of piecePlaced which are around the current shape, and for each of those pieces..."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-x",
+							"objectClass": "piecePlaced",
+							"sid": 770722306908381,
+							"parameters": {
+								"comparison": 5,
+								"x-co-ordinate": "sha.X - (3 * Game.pWidth)"
+							}
+						},
+						{
+							"id": "compare-x",
+							"objectClass": "piecePlaced",
+							"sid": 407052832140214,
+							"parameters": {
+								"comparison": 3,
+								"x-co-ordinate": "sha.X + (3 * Game.pWidth)"
+							}
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "piecePlaced",
+							"sid": 432798687744652,
+							"parameters": {
+								"comparison": 5,
+								"y-co-ordinate": "sha.Y - (3 * Game.pHeight)"
+							}
+						},
+						{
+							"id": "compare-y",
+							"objectClass": "piecePlaced",
+							"sid": 749255128125778,
+							"parameters": {
+								"comparison": 3,
+								"y-co-ordinate": "sha.Y + (3 * Game.pHeight)"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 896561394383114,
+							"parameters": {
+								"object": "piecePlaced"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 617638645896269,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "... we run through all the image points/pieces of the shape an check if a piecePlaced is positioned in the bottom row to it. If it is we change the value result to \"1\""
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 775698281173442,
+									"parameters": {
+										"name": "\"ip\"",
+										"start-index": "0",
+										"end-index": "sha.ImagePointCount"
+									}
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 492139239771895,
+									"parameters": {
+										"first-value": "sha.ImagePointX(loopindex) + offsetX",
+										"comparison": 5,
+										"second-value": "piecePlaced.X - piecePlaced.Width/2"
+									}
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 760366772394099,
+									"parameters": {
+										"first-value": "sha.ImagePointX(loopindex) + offsetX",
+										"comparison": 3,
+										"second-value": "piecePlaced.X + piecePlaced.Width/2"
+									}
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 373596744445726,
+									"parameters": {
+										"first-value": "sha.ImagePointY(loopindex) + offsetY",
+										"comparison": 5,
+										"second-value": "piecePlaced.Y - piecePlaced.Height/2"
+									}
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 238602567783128,
+									"parameters": {
+										"first-value": "sha.ImagePointY(loopindex) + offsetY",
+										"comparison": 3,
+										"second-value": "piecePlaced.Y + piecePlaced.Height/2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 421971032215231,
+									"parameters": {
+										"variable": "result",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 860054833339464
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "We return the value of \"result\". If a possible collision was encountered the value will be 1. Otherwise it is will be 0."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 873368842327882,
+							"parameters": {
+								"value": "result"
+							}
+						}
+					],
+					"sid": 116468221644384
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "This function \"places\" the shape, spawning \"piecePlaced\" instances out of all the image points present in sha.\nThis helps with further collisions and determining if a line is formed"
+		},
+		{
+			"functionName": "shaPlace",
+			"functionDescription": "Automatically converted from 'shaPlace'",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 539032053256247,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 478523803363268,
+							"parameters": {
+								"name": "\"ip\"",
+								"start-index": "0",
+								"end-index": "3"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "sha",
+							"sid": 961877320384080,
+							"parameters": {
+								"object": "piecePlaced",
+								"layer": "0",
+								"image-point": "loopindex"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "piecePlaced",
+							"sid": 153414548046531,
+							"parameters": {
+								"frame-number": "sha.AnimationFrame + 1"
+							}
+						},
+						{
+							"id": "add-to-instvar",
+							"objectClass": "Game",
+							"sid": 902473323328718,
+							"parameters": {
+								"instance-variable": "Score",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 265322198861868
+				},
+				{
+					"eventType": "comment",
+					"text": "Once done, we check if a line is formed\n\nNote: The \"Wait 0 seconds\" action makes it so that the following actions will be executed on the next tick of execution instead of the current one.\nIn this project this is mostly used because of creating/destroying instances.\n\nThe action create/destroy is executed in the current tick, but the instances are only created/destroyed on the next tick, meaning that any further operations requiring to pick specific instances only happens on the next tick, once the instance actually exists/is destroyed.\n"
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "sha",
+							"sid": 382582462508372
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 956477501452968,
+							"parameters": {
+								"seconds": "0"
+							}
+						},
+						{
+							"callFunction": "lineCheck",
+							"sid": 839726036209829
+						}
+					],
+					"sid": 879810360653610
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Player's input.\nLeft and right arrows allow to move the shape on the horizontal axis. The \"8 direction\" behavior handles collision and keep sha in the playing board.\n"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 953402061147045,
+					"parameters": {
+						"key": 37
+					}
+				},
+				{
+					"id": "compare-two-values",
+					"objectClass": "System",
+					"sid": 297651644944535,
+					"parameters": {
+						"first-value": "Functions.collide(Game.pWidth * -1, 0)",
+						"comparison": 0,
+						"second-value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "sha",
+					"sid": 634190045959401,
+					"parameters": {
+						"x": "Self.X - Game.pWidth"
+					}
+				}
+			],
+			"sid": 780418319777495
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 866727845949602,
+					"parameters": {
+						"key": 39
+					}
+				},
+				{
+					"id": "compare-two-values",
+					"objectClass": "System",
+					"sid": 879719491761774,
+					"parameters": {
+						"first-value": "Functions.collide(Game.pWidth, 0)",
+						"comparison": 0,
+						"second-value": "0"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "sha",
+					"sid": 131159105646775,
+					"parameters": {
+						"x": "Self.X + Game.pWidth"
+					}
+				}
+			],
+			"sid": 704673236708302
+		},
+		{
+			"eventType": "comment",
+			"text": "Up arrow makes the shape rotate (as long as it is not the shape number 3, the full square that does not need rotation)"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 553684751816740,
+					"parameters": {
+						"key": 38
+					}
+				},
+				{
+					"id": "compare-animation-frame",
+					"objectClass": "sha",
+					"sid": 423327427878247,
+					"parameters": {
+						"comparison": 1,
+						"number": "3"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "rotate-clockwise",
+					"objectClass": "sha",
+					"sid": 841299128665139,
+					"parameters": {
+						"degrees": "90"
+					}
+				}
+			],
+			"sid": 557102501556302
+		},
+		{
+			"eventType": "comment",
+			"text": "Down arrow allow to move the shape down quicker using the dedicated \"shaDown\" function\nThis one is not simply \"pressed\" (press down and release the key) but can be held down, yet we only want the piece to move down \"on occasion\", and not each execution tick, that's what the \"Every 0.16 seconds\" condition is there for"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 360598180955423,
+					"parameters": {
+						"key": 40
+					}
+				},
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 810452260705257,
+					"parameters": {
+						"interval-seconds": "0.1"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "shaDown",
+					"sid": 263701169383657
+				}
+			],
+			"sid": 150413345458463
+		},
+		{
+			"eventType": "comment",
+			"text": "Game.fallTime is the regular time we want the shape to move down. It depends on the score and is limited between 0.1 and 1 second (thanks to the clamp() expression)"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-x-seconds",
+					"objectClass": "System",
+					"sid": 899245740082268,
+					"parameters": {
+						"interval-seconds": "Game.fallTime"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "shaDown",
+					"sid": 462198011555007
+				},
+				{
+					"id": "set-text",
+					"objectClass": "txtScore",
+					"sid": 912777756609178,
+					"parameters": {
+						"text": "\"Score : \" & Game.Score & newline & \"Lines : \" & Game.linesNB"
+					}
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Game",
+					"sid": 348691971065126,
+					"parameters": {
+						"instance-variable": "fallTime",
+						"value": "clamp(1 - (Game.Score/10000),0.1,1)"
+					}
+				}
+			],
+			"sid": 192602044627799
+		},
+		{
+			"eventType": "comment",
+			"text": "This function checks if there is currently a full line that contains piecePlaced instances"
+		},
+		{
+			"functionName": "lineCheck",
+			"functionDescription": "Automatically converted from 'lineCheck'",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "Game",
+					"sid": 452578687389558,
+					"parameters": {
+						"instance-variable": "scoreMultiplier",
+						"value": "0"
+					}
+				}
+			],
+			"sid": 290211405455276,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "We will use the \"line\" object row by row to see if each row contains enough piecePlaced instances to form a complete line.\nWe go from the bottom of the board to the top, and position the line on each row and make it wide enough to only overlap piecePlaced instances in the board and not touch those on the border."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 608512225735511,
+							"parameters": {
+								"name": "\"row\"",
+								"start-index": "Game.row-1",
+								"end-index": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "line",
+							"sid": 400775872463636,
+							"parameters": {
+								"x": "Game.ColOffset + Game.pWidth / 2",
+								"y": "Game.RowOffset + loopindex(\"row\") * Game.pHeight + game.pHeight/2"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "line",
+							"sid": 840443842366126,
+							"parameters": {
+								"width": "Game.pWidth * Game.col - Game.pWidth"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Game",
+							"sid": 380205147512165,
+							"parameters": {
+								"instance-variable": "pieceInLine",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 239439107903271,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "For each row, we reset the picked piecePlaced instances, and only pick those which are not in the border and are overlapping the line object.\nFor each of those picked piecePlaced, we add 1 to the variable pieceInLine"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-all",
+									"objectClass": "System",
+									"sid": 309990656638293,
+									"parameters": {
+										"object": "piecePlaced"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "piecePlaced",
+									"sid": 770245545654166,
+									"parameters": {
+										"instance-variable": "border"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "piecePlaced",
+									"sid": 399009235721020,
+									"parameters": {
+										"object": "line"
+									}
+								},
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 746601496852127,
+									"parameters": {
+										"object": "piecePlaced"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Game",
+									"sid": 247843720271161,
+									"parameters": {
+										"instance-variable": "pieceInLine",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 616700850239102
+						},
+						{
+							"eventType": "comment",
+							"text": "We reset the picked piecePlaced instances, only pick those which are not in the border and are overlapping the line object.\nIf the number of picked instances is enough (complete line), we make those instances flash and modify the \"scoreMultiplier\" and add 100 score points"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-all",
+									"objectClass": "System",
+									"sid": 447523543964411,
+									"parameters": {
+										"object": "piecePlaced"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "piecePlaced",
+									"sid": 342606565207533,
+									"parameters": {
+										"instance-variable": "border"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "piecePlaced",
+									"sid": 847283450863557,
+									"parameters": {
+										"object": "line"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Game",
+									"sid": 888848529559744,
+									"parameters": {
+										"instance-variable": "pieceInLine",
+										"comparison": 5,
+										"value": "Self.col"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "flash",
+									"objectClass": "piecePlaced",
+									"sid": 988198128255727,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.1",
+										"off-time": "0.1",
+										"duration": "0.5"
+									}
+								},
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Game",
+									"sid": 142325446372907,
+									"parameters": {
+										"instance-variable": "scoreMultiplier",
+										"value": "1"
+									}
+								},
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Game",
+									"sid": 426009744941341,
+									"parameters": {
+										"instance-variable": "linesNB",
+										"value": "1"
+									}
+								},
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Game",
+									"sid": 294892963456901,
+									"parameters": {
+										"instance-variable": "Score",
+										"value": "100"
+									}
+								}
+							],
+							"sid": 672722019995908
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "A new shape can be created at this point to allow the game to move on\nAdd additional bonus points depending on the number of lines completed at once in this instance"
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "add-to-instvar",
+							"objectClass": "Game",
+							"sid": 118674414204145,
+							"parameters": {
+								"instance-variable": "Score",
+								"value": "10 * Game.scoreMultiplier"
+							}
+						},
+						{
+							"callFunction": "shaCreate",
+							"sid": 227145221686562
+						}
+					],
+					"sid": 274957288992117
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When the piecePlaced have finished flashing, we remove them and indicate at least a line has to be removed from the board"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-flash-ended",
+					"objectClass": "piecePlaced",
+					"sid": 983306032192480,
+					"behaviorType": "Flash"
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "piecePlaced",
+					"sid": 147548820959221
+				},
+				{
+					"id": "set-boolean-instvar",
+					"objectClass": "Game",
+					"sid": 183007722794127,
+					"parameters": {
+						"instance-variable": "lineRemove",
+						"value": "true"
+					}
+				}
+			],
+			"sid": 838182717645550
+		},
+		{
+			"eventType": "comment",
+			"text": "As long as the value of \"lineRemove\" is true, the sub-events are executed, otherwise none is executed"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "while",
+					"objectClass": "System",
+					"sid": 312452468206818
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "Game",
+					"sid": 355991445193791,
+					"parameters": {
+						"instance-variable": "lineRemove"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 240129929288881,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "We will use the line object to help out with \"filling the space\" left by the removed line(s)\nWe will go through the board as many times as we have rows in it, from bottom to top"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 976628802676892,
+							"parameters": {
+								"count": "Game.row"
+							}
+						},
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 833496241669032,
+							"parameters": {
+								"name": "\"row\"",
+								"start-index": "Game.row-1",
+								"end-index": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Game",
+							"sid": 119552851338211,
+							"parameters": {
+								"instance-variable": "lineScan",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-position",
+							"objectClass": "line",
+							"sid": 706148154657528,
+							"parameters": {
+								"x": "Game.ColOffset + Game.pWidth / 2",
+								"y": "Game.RowOffset + loopindex(\"row\") * Game.pHeight + game.pHeight/2"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "line",
+							"sid": 382097615187205,
+							"parameters": {
+								"width": "Game.pWidth * Game.col - Game.pWidth"
+							}
+						}
+					],
+					"sid": 322565621570703,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "For each row, we reset the picked piecePlaced instances, pick only those not in the border and check the number of instances overlapping the line object"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-all",
+									"objectClass": "System",
+									"sid": 286787218434634,
+									"parameters": {
+										"object": "piecePlaced"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "piecePlaced",
+									"sid": 800804584922110,
+									"parameters": {
+										"instance-variable": "border"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "piecePlaced",
+									"sid": 381745676936171,
+									"parameters": {
+										"object": "line"
+									}
+								},
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 390061027671756,
+									"parameters": {
+										"object": "piecePlaced"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Game",
+									"sid": 711214756161392,
+									"parameters": {
+										"instance-variable": "lineScan",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 212717358131614
+						},
+						{
+							"eventType": "comment",
+							"text": "If we have no instance overlapping line, this is an empty row.\nWe will want to possibly move all content of the rows on top of it down\n\nTo do so, we move the line object to the row on top of its current position"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Game",
+									"sid": 934646846675297,
+									"parameters": {
+										"instance-variable": "lineScan",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "line",
+									"sid": 486894373542993,
+									"parameters": {
+										"x": "Game.ColOffset + Game.pWidth / 2",
+										"y": "Game.RowOffset + (loopindex(\"row\")-1) * Game.pHeight + game.pHeight/2"
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "line",
+									"sid": 618608565341305,
+									"parameters": {
+										"width": "Game.pWidth * Game.col - Game.pWidth"
+									}
+								}
+							],
+							"sid": 576834734268213,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "We reset the picked piecePlaced instances, pick only those not in the border and for each piecePlaced overlapping the line object, we move the piecePlaced instance to the next row"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-all",
+											"objectClass": "System",
+											"sid": 435930086554575,
+											"parameters": {
+												"object": "piecePlaced"
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "piecePlaced",
+											"sid": 933844864521959,
+											"parameters": {
+												"instance-variable": "border"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "piecePlaced",
+											"sid": 473464558409765,
+											"parameters": {
+												"object": "line"
+											}
+										},
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 782176899314178,
+											"parameters": {
+												"object": "piecePlaced"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-y",
+											"objectClass": "piecePlaced",
+											"sid": 472172513719093,
+											"parameters": {
+												"y": "Self.Y+Game.pHeight"
+											}
+										}
+									],
+									"sid": 600935418553747
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "We are finished removing lines and reorganising the board"
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Game",
+							"sid": 734742174377863,
+							"parameters": {
+								"instance-variable": "lineRemove",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 474641715691908
+				}
+			]
+		}
+	],
+	"sid": 914520653823157
+}

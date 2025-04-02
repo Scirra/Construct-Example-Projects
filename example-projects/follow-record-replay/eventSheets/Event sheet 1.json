@@ -1,0 +1,307 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "RecordStartTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The time when starting a recording.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 801347261268618
+		},
+		{
+			"eventType": "variable",
+			"name": "HistoryJSON",
+			"type": "string",
+			"initialValue": "",
+			"comment": "String of Follow behavior history (the recording).",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 831557948370850
+		},
+		{
+			"eventType": "comment",
+			"text": "On start of layout, get the player's own Follow behavior to track itself with the 'Follow self' action. Note this does not change the object at all - it merely remembers the history of the object the Follow behavior has been added to."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 977783981391453
+				}
+			],
+			"actions": [
+				{
+					"id": "follow-self",
+					"objectClass": "Player",
+					"sid": 257647512694751,
+					"behaviorType": "Follow"
+				},
+				{
+					"type": "comment",
+					"text": "Use step interpolation for the width so mirroring is replayed with instant updates."
+				},
+				{
+					"id": "set-property-interpolation",
+					"objectClass": "Player",
+					"sid": 111083743440467,
+					"behaviorType": "Follow",
+					"parameters": {
+						"property": "width",
+						"interpolation": "step"
+					}
+				}
+			],
+			"sid": 786528110132615
+		},
+		{
+			"eventType": "comment",
+			"text": "Mirror the player when pressing the left/right arrow keys so they face their movement direction."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 222089883692146,
+					"parameters": {
+						"key": 37
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-mirrored",
+					"objectClass": "Player",
+					"sid": 773250218294531,
+					"parameters": {
+						"state": "mirrored"
+					}
+				}
+			],
+			"sid": 229876151813485
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 952636058261724,
+					"parameters": {
+						"key": 39
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-mirrored",
+					"objectClass": "Player",
+					"sid": 923716646838545,
+					"parameters": {
+						"state": "not-mirrored"
+					}
+				}
+			],
+			"sid": 588484305013345
+		},
+		{
+			"eventType": "comment",
+			"text": "When starting a recording, just save the time the recording started. This is to pass the recorded duration to the [i]HistoryAsJSON[/i] expression to make sure it only saves the recorded period if it is less than the [i]Max delay[/i] time."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "StartButton",
+					"sid": 668351693712193
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 228649623884422,
+					"parameters": {
+						"variable": "RecordStartTime",
+						"value": "time"
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "StartButton",
+					"sid": 480640304717132,
+					"parameters": {
+						"mode": "disabled"
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "StopButton",
+					"sid": 819903901462321,
+					"parameters": {
+						"mode": "enabled"
+					}
+				}
+			],
+			"sid": 111404629879356
+		},
+		{
+			"eventType": "comment",
+			"text": "When stopping a recording, save the recorded history as JSON. This will only record up to the [i]Max delay[/i] time. If the recording is for a shorter period of time, then it will limit the saved history to just that, so it doesn't include anything before the 'Start recording' button was pressed."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "StopButton",
+					"sid": 394980235894343
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 758393449097160,
+					"parameters": {
+						"variable": "HistoryJSON",
+						"value": "Player.Follow.HistoryAsJSON(time - RecordStartTime)"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Stop following to stop tracking the player, and then disable both the Platform and Follow behaviors as neither are needed after stopping a recording."
+				},
+				{
+					"id": "stop-following",
+					"objectClass": "Player",
+					"sid": 444354144424372,
+					"behaviorType": "Follow"
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "Player",
+					"sid": 154356692136095,
+					"behaviorType": "Follow",
+					"parameters": {
+						"state": false
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "Player",
+					"sid": 103178935630231,
+					"behaviorType": "Platform",
+					"parameters": {
+						"state": "disabled"
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "StopButton",
+					"sid": 765885565445232,
+					"parameters": {
+						"mode": "disabled"
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "ReplayButton",
+					"sid": 451713760776963,
+					"parameters": {
+						"mode": "enabled"
+					}
+				}
+			],
+			"sid": 846816104977255
+		},
+		{
+			"eventType": "comment",
+			"text": "To replay a recording, enable the Follow behavior again, and load the saved history JSON. That means it will start following just the data that was previously saved."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "ReplayButton",
+					"sid": 281247512649788
+				}
+			],
+			"actions": [
+				{
+					"id": "set-enabled",
+					"objectClass": "Player",
+					"sid": 731759499561516,
+					"behaviorType": "Follow",
+					"parameters": {
+						"state": true
+					}
+				},
+				{
+					"id": "load-history-json",
+					"objectClass": "Player",
+					"sid": 385125880302081,
+					"behaviorType": "Follow",
+					"parameters": {
+						"json": "HistoryJSON"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Note that loading history JSON sets the delay to the length of the history loaded, so that it replays the loaded history. To indicate when the end of the recording has been reached, wait for the delay (which is the length of the recording), and then make the PlayerFollower object flash."
+				},
+				{
+					"id": "wait",
+					"objectClass": "System",
+					"sid": 336189192620569,
+					"parameters": {
+						"seconds": "Player.Follow.Delay"
+					}
+				},
+				{
+					"id": "flash",
+					"objectClass": "Player",
+					"sid": 372044604796369,
+					"behaviorType": "Flash",
+					"parameters": {
+						"on-time": "0.1",
+						"off-time": "0.1",
+						"duration": "1.0"
+					}
+				}
+			],
+			"sid": 843689141896003
+		},
+		{
+			"eventType": "comment",
+			"text": "The restart button allows easily starting over."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "RestartButton",
+					"sid": 867207213047091
+				}
+			],
+			"actions": [
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 680614032719715
+				}
+			],
+			"sid": 253095215441388
+		}
+	],
+	"sid": 274306019501097
+}

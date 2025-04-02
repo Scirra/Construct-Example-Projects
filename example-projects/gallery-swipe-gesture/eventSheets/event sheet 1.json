@@ -1,0 +1,570 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "This example shows how to handle an horizontal swipe \"recognition\" to make images in a gallery move from left to right or right to left.\nImages are a single [b]Sprite[/b] and each image is a different animation frame. The animation speed is set to 0, allowing to use the [b]Sprite[/b] as an \"image bank\" instead of a regular animation.\nUser's inputs are handled with the [b]Touch[/b] plugin.\n\nOn start of a touch, when a touch is not already going on, we keep track of the current X position of the starting Touch.\nWhen the touch ends, we compare it to the ending Touch X position to determine the direction (if the value is positive, the images are to be moving to the right, otherwise, moving to the left).\nThe behavior [b][i]MoveTo[/i][/b] applied to [b]Sprite[/b] allows to move the image to the appropriate position.\nThe [i]curImage[/i] global variable keeps the index of the current frame to display (in this example from 0 to 3 for a total of 4 different images).",
+			"background-color": [
+				0.7450980392156863,
+				0.9333333333333333,
+				0.996078431372549,
+				1
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "References :\n\n[b]Plugin[/b]\n[item]Sprite - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/sprite\n[item]Touch - https://www.construct.net/en/make-games/manuals/construct-3/plugin-reference/touch\n\n[b][i]Behavior[/i][/b]\n[item]MoveTo - https://www.construct.net/en/make-games/manuals/construct-3/behavior-reference/move\n\nFeatures\n[item]System expression ViewPort() - https://www.construct.net/en/make-games/manuals/construct-3/system-reference/system-expressions#internalH1Link1\n[item]Instances - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/objects/instances\n[item]Global variable - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/events/variables\n[item]Functions - https://www.construct.net/en/make-games/manuals/construct-3/project-primitives/events/functions",
+			"background-color": [
+				0.7450980392156863,
+				0.9333333333333333,
+				0.996078431372549,
+				1
+			]
+		},
+		{
+			"eventType": "variable",
+			"name": "startTouch",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "boolean to know if a swipe is currently ongoing",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 297683320690614
+		},
+		{
+			"eventType": "variable",
+			"name": "oX",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "original X position of the starting touch for the current swipe",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 427360359622750
+		},
+		{
+			"eventType": "variable",
+			"name": "curImage",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "index for the animation frame to display (current image)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 602000942308784
+		},
+		{
+			"eventType": "comment",
+			"text": "On start of layout, position [b]Sprite[/b] in the middle of the screen on the X and Y axis."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 681208734293077
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Use the ViewPortRight() and ViewPortBottom() system expressions as reference.\nThe provided number corresponds with the Layer number to use as reference. In this project, a single layer means we can use \"0\" safely. If you modify the layer the images are going to be, it can be safer to use Layer Names instead.\nDivide them by 2 to get the middle position of the visible screen."
+				},
+				{
+					"id": "set-position",
+					"objectClass": "Sprite",
+					"sid": 155784617575566,
+					"parameters": {
+						"x": "ViewportRight(0) /2",
+						"y": "ViewportBottom(0) /2"
+					}
+				}
+			],
+			"sid": 897160638739998,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "For as many animation frames as [b]Sprite[/b] contains, create new instances"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 906027018234063,
+							"parameters": {
+								"name": "\"frames\"",
+								"start-index": "1",
+								"end-index": "Sprite.AnimationFrameCount"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 476014427738876,
+							"parameters": {
+								"object-to-create": "Sprite",
+								"layer": "0",
+								"x": "-1080",
+								"y": "-1080"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "For each instance, set the animation frame displayed to the current [i]LoopIndex[/i] value (the index in the For \"frames\" loop)"
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Sprite",
+							"sid": 794791992629578,
+							"parameters": {
+								"frame-number": "loopindex"
+							}
+						}
+					],
+					"sid": 299975449328318
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When a touch occurs and the boolean Global Variable [i]startTouch[/i] is currently set to False"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-start",
+					"objectClass": "Touch",
+					"sid": 332845783472124
+				},
+				{
+					"id": "compare-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 981252017145825,
+					"parameters": {
+						"variable": "startTouch"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Set the value of [i]startTouch[/i] to true. For our program, this means a swipe is going on."
+				},
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 271264036914969,
+					"parameters": {
+						"variable": "startTouch",
+						"value": "true"
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Set the value of the Global Variable [i]oX[/i] (original X) to the current [b]Touch[/b].X value"
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 393679335662183,
+					"parameters": {
+						"variable": "oX",
+						"value": "Touch.X"
+					}
+				}
+			],
+			"sid": 600205336517787
+		},
+		{
+			"eventType": "comment",
+			"text": "A swipe is going on ([i]startTouch[/i] is true) and Touch has ended"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-touch-end",
+					"objectClass": "Touch",
+					"sid": 588810776076048
+				},
+				{
+					"id": "compare-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 902917357322232,
+					"parameters": {
+						"variable": "startTouch"
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Call the function \"swipe\" passing the subtraction of the original X position to the last [b]Touch[/b].X position"
+				},
+				{
+					"callFunction": "swipe",
+					"sid": 512515723844922,
+					"parameters": [
+						"oX - Touch.X"
+					]
+				}
+			],
+			"sid": 473350011599066
+		},
+		{
+			"functionName": "swipe",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "direction",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 195467738274351
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 938511376753852,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "moving right"
+				},
+				{
+					"eventType": "comment",
+					"text": "The value of the passed parameter is positive, the starting Touch was to the right of the ending touch, the intent is to move the images from right to left."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 390396957854899,
+							"parameters": {
+								"variable": "direction",
+								"comparison": 5,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 458108762457790,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The current image displayed is NOT the last existing frame existing in [b]Sprite[/b]"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 494456776716962,
+									"parameters": {
+										"first-value": "curImage + 1",
+										"comparison": 2,
+										"second-value": "Sprite.AnimationFrameCount"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 625196431195216,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Pick the [b]Sprite[/b] instance with the current index. \nMove it to the left of the screen, out of view."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-animation-frame",
+											"objectClass": "Sprite",
+											"sid": 800650381998738,
+											"parameters": {
+												"comparison": 0,
+												"number": "curImage"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "move-to-position",
+											"objectClass": "Sprite",
+											"sid": 439071439243270,
+											"behaviorType": "MoveTo",
+											"parameters": {
+												"x": "ViewportLeft(0) - Sprite.Width",
+												"y": "Self.Y",
+												"mode": "direct"
+											}
+										}
+									],
+									"sid": 348997332156950
+								},
+								{
+									"eventType": "comment",
+									"text": "Pick the [b]Sprite[/b] instance with the current index + 1. \nMove it to the left, to the middle of the screen, in view."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-animation-frame",
+											"objectClass": "Sprite",
+											"sid": 703565677075986,
+											"parameters": {
+												"comparison": 0,
+												"number": "curImage + 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "First position the instance out of the screen, to the right, at the middle Y of the screen"
+										},
+										{
+											"id": "set-position",
+											"objectClass": "Sprite",
+											"sid": 249756502174288,
+											"parameters": {
+												"x": "ViewportRight(0) + Sprite.Width",
+												"y": "ViewportBottom(0)/2"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move it to the middle of the screen"
+										},
+										{
+											"id": "move-to-position",
+											"objectClass": "Sprite",
+											"sid": 188211131628715,
+											"behaviorType": "MoveTo",
+											"parameters": {
+												"x": "ViewportRight(0) / 2",
+												"y": "Self.Y",
+												"mode": "direct"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Set [i]curImage[/i] value to the currently displayed animation frame"
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 921667854405032,
+											"parameters": {
+												"variable": "curImage",
+												"value": "Sprite.AnimationFrame"
+											}
+										}
+									],
+									"sid": 164047892236202
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "moving left"
+				},
+				{
+					"eventType": "comment",
+					"text": "The value of the passed parameter is negative, the starting Touch was to the left of the ending touch, the intent is to move the images from left to right."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 290613715146768
+						}
+					],
+					"actions": [],
+					"sid": 910681803445640,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The current image displayed is NOT the first existing frame existing in [b]Sprite[/b]"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 331073890112050,
+									"parameters": {
+										"first-value": "curImage - 1",
+										"comparison": 5,
+										"second-value": "0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 129628231896599,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Pick the [b]Sprite[/b] instance with the current index. \nMove it to the right of the screen, out of view."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-animation-frame",
+											"objectClass": "Sprite",
+											"sid": 616419609594095,
+											"parameters": {
+												"comparison": 0,
+												"number": "curImage"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "move-to-position",
+											"objectClass": "Sprite",
+											"sid": 342101516150897,
+											"behaviorType": "MoveTo",
+											"parameters": {
+												"x": "ViewportRight(0) + Sprite.Width",
+												"y": "Self.Y",
+												"mode": "direct"
+											}
+										}
+									],
+									"sid": 391463160911240
+								},
+								{
+									"eventType": "comment",
+									"text": "Pick the [b]Sprite[/b] instance with the current index - 1. \nMove it to the right, to the middle of the screen, in view."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-animation-frame",
+											"objectClass": "Sprite",
+											"sid": 982638467187168,
+											"parameters": {
+												"comparison": 0,
+												"number": "curImage - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "First position the instance out of the screen, to the left, at the middle Y of the screen"
+										},
+										{
+											"id": "set-position",
+											"objectClass": "Sprite",
+											"sid": 575565500110757,
+											"parameters": {
+												"x": "ViewportLeft(0) - Sprite.Width",
+												"y": "ViewportBottom(0)/2"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move it to the middle of the screen"
+										},
+										{
+											"id": "move-to-position",
+											"objectClass": "Sprite",
+											"sid": 706848939724324,
+											"behaviorType": "MoveTo",
+											"parameters": {
+												"x": "ViewportRight(0) / 2",
+												"y": "Self.Y",
+												"mode": "direct"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Set [i]curImage[/i] value to the currently displayed animation frame"
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 590543310268690,
+											"parameters": {
+												"variable": "curImage",
+												"value": "Sprite.AnimationFrame"
+											}
+										}
+									],
+									"sid": 606552305081840
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When the [b][i]MoveTo[/i][/b] behavior of a [b]Sprite[/b] triggers its \"On arrived\" condition, and that the instance's animation frame is the one indicated by [i]curImage[/i]'s value, set [i]startTouch[/i] to false, in order to allow for a new swipe to occur."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-arrived",
+					"objectClass": "Sprite",
+					"sid": 571545373045260,
+					"behaviorType": "MoveTo"
+				},
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 174529305707675,
+					"parameters": {
+						"object": "Sprite"
+					}
+				},
+				{
+					"id": "compare-animation-frame",
+					"objectClass": "Sprite",
+					"sid": 210263212053093,
+					"parameters": {
+						"comparison": 0,
+						"number": "curImage"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-boolean-eventvar",
+					"objectClass": "System",
+					"sid": 139823507207947,
+					"parameters": {
+						"variable": "startTouch",
+						"value": "false"
+					}
+				}
+			],
+			"sid": 694036988991805
+		}
+	],
+	"sid": 400989406967378
+}

@@ -1,0 +1,356 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "reflections",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 200899916186971
+		},
+		{
+			"eventType": "variable",
+			"name": "maxReflections",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 110281614969332
+		},
+		{
+			"eventType": "comment",
+			"text": "Every tick point the player at the mouse, clear the drawing canvas back to transparent, and reset the reflections count."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 443415238735499
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "player",
+					"sid": 242158891560156,
+					"parameters": {
+						"x": "Mouse.X",
+						"y": "Mouse.Y"
+					}
+				},
+				{
+					"id": "clear-canvas",
+					"objectClass": "DrawingCanvas",
+					"sid": 791366723725943,
+					"parameters": {
+						"color": "rgba(0, 0, 0, 0)"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 533274067325110,
+					"parameters": {
+						"variable": "reflections",
+						"value": "0"
+					}
+				}
+			],
+			"sid": 242137210664104
+		},
+		{
+			"eventType": "comment",
+			"text": "While in a touch (which includes mouse clicks), set the player's angle towards the touch (for mobile devices without a mouse), and cast the first ray to a position 2000 pixels in front of the player. This is enough to guarantee that point will be outside the layout, ensuring the ray hits any obstacles inside the layout."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-in-touch",
+					"objectClass": "Touch",
+					"sid": 111123410643241
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "player",
+					"sid": 434541180374380,
+					"parameters": {
+						"x": "Touch.X",
+						"y": "Touch.Y"
+					}
+				},
+				{
+					"id": "cast-ray",
+					"objectClass": "player",
+					"sid": 277562118698642,
+					"behaviorType": "LineOfSight",
+					"parameters": {
+						"from-x": "Self.X",
+						"from-y": "Self.Y",
+						"to-x": "Self.X + cos(Self.Angle) * 2000",
+						"to-y": "Self.Y + sin(Self.Angle) * 2000",
+						"use-collision-cells": false
+					}
+				}
+			],
+			"sid": 221351676270313,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "startX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 676641240752800
+				},
+				{
+					"eventType": "variable",
+					"name": "startY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 591805417112792
+				},
+				{
+					"eventType": "variable",
+					"name": "endX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 567710359778938
+				},
+				{
+					"eventType": "variable",
+					"name": "endY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 730498236440679
+				},
+				{
+					"eventType": "comment",
+					"text": "If the first ray intersects an obstacle, start a loop to repeatedly bounce the ray. Each time the ray is re-started from the last place it hit, towards a point 2000 pixels along the reflection angle. Also draw lines on the Drawing Canvas to make the path of the ray visible."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "ray-intersected",
+							"objectClass": "player",
+							"sid": 644203954309995,
+							"behaviorType": "LineOfSight"
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 724270168835636,
+							"parameters": {
+								"variable": "startX",
+								"value": "player.X"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 731540616682814,
+							"parameters": {
+								"variable": "startY",
+								"value": "player.Y"
+							}
+						}
+					],
+					"sid": 154372761708810,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "while",
+									"objectClass": "System",
+									"sid": 698098353449704
+								},
+								{
+									"id": "ray-intersected",
+									"objectClass": "player",
+									"sid": 334008145680391,
+									"behaviorType": "LineOfSight"
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 350586017251280,
+									"parameters": {
+										"variable": "endX",
+										"value": "player.LineOfSight.HitX"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 994108200012053,
+									"parameters": {
+										"variable": "endY",
+										"value": "player.LineOfSight.HitY"
+									}
+								},
+								{
+									"id": "line",
+									"objectClass": "DrawingCanvas",
+									"sid": 932533767645068,
+									"parameters": {
+										"x1": "startX",
+										"y1": "startY",
+										"x2": "endX",
+										"y2": "endY",
+										"color": "rgba(100, 0, 0, 30)",
+										"line-thickness": "3",
+										"line-cap": "butt"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 662386272188319,
+									"parameters": {
+										"variable": "startX",
+										"value": "endX"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 957220826370695,
+									"parameters": {
+										"variable": "startY",
+										"value": "endY"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 543431507914112,
+									"parameters": {
+										"variable": "endX",
+										"value": "player.LineOfSight.ReflectionX(2000)"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 359688676851164,
+									"parameters": {
+										"variable": "endY",
+										"value": "player.LineOfSight.ReflectionY(2000)"
+									}
+								},
+								{
+									"id": "cast-ray",
+									"objectClass": "player",
+									"sid": 656677862038842,
+									"behaviorType": "LineOfSight",
+									"parameters": {
+										"from-x": "startX",
+										"from-y": "startY",
+										"to-x": "endX",
+										"to-y": "endY",
+										"use-collision-cells": false
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 951710192737620,
+									"parameters": {
+										"variable": "reflections",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 604951823943303
+						},
+						{
+							"eventType": "comment",
+							"text": "The last ray will not intersect anything so will stop the loop, but that means it won't be drawn. Draw one extra line after the loop to ensure the last ray is still visible."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "line",
+									"objectClass": "DrawingCanvas",
+									"sid": 140005948385153,
+									"parameters": {
+										"x1": "startX",
+										"y1": "startY",
+										"x2": "endX",
+										"y2": "endY",
+										"color": "rgba(100, 0, 0, 30)",
+										"line-thickness": "3",
+										"line-cap": "butt"
+									}
+								}
+							],
+							"sid": 708492983775479
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Track the maximum number of reflections, and display it in a text object."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 411181778607836
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 180205799978895,
+					"parameters": {
+						"variable": "maxReflections",
+						"value": "max(maxReflections, reflections)"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "Text",
+					"sid": 288856652083360,
+					"parameters": {
+						"text": "\"Reflections: \" & reflections & newline & \"Max: \" & maxReflections"
+					}
+				}
+			],
+			"sid": 860975253878072
+		}
+	],
+	"sid": 261149406903753
+}

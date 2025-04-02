@@ -1,0 +1,508 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "RewindTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The amount of time to rewind.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 801347261268618
+		},
+		{
+			"eventType": "variable",
+			"name": "RewindMode",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "True when in rewind mode.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 315034680488935
+		},
+		{
+			"eventType": "comment",
+			"text": "On startup, use the Follow behavior to track the Player's own movements. Note this does not update the object position while it is following itself - it only remembers the history of its movement."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 977783981391453
+				}
+			],
+			"actions": [
+				{
+					"id": "follow-self",
+					"objectClass": "Player",
+					"sid": 257647512694751,
+					"behaviorType": "Follow"
+				},
+				{
+					"type": "comment",
+					"text": "Use step interpolation for the width so mirroring is replayed with instant updates."
+				},
+				{
+					"id": "set-property-interpolation",
+					"objectClass": "Player",
+					"sid": 111083743440467,
+					"behaviorType": "Follow",
+					"parameters": {
+						"property": "width",
+						"interpolation": "step"
+					}
+				}
+			],
+			"sid": 786528110132615
+		},
+		{
+			"eventType": "comment",
+			"text": "Press R to toggle between play mode and rewind mode."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 860903951910147,
+					"parameters": {
+						"key": 82
+					}
+				}
+			],
+			"actions": [],
+			"sid": 360037188003770,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Pressing R in rewind mode switches back to play mode."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 194889959253512,
+							"parameters": {
+								"variable": "RewindMode"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 285364568342279,
+							"parameters": {
+								"variable": "RewindMode",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Activate the appropriate groups for this mode."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 696236653527871,
+							"parameters": {
+								"group-name": "\"Play mode\"",
+								"state": "activated"
+							}
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 566319226681435,
+							"parameters": {
+								"group-name": "\"Rewind mode\"",
+								"state": "deactivated"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Enable the Platform movement, and start the player following itself again (unpausing to continue recording history)."
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Player",
+							"sid": 839734411468720,
+							"behaviorType": "Platform",
+							"parameters": {
+								"state": "enabled"
+							}
+						},
+						{
+							"id": "follow-self",
+							"objectClass": "Player",
+							"sid": 963390817973407,
+							"behaviorType": "Follow"
+						},
+						{
+							"id": "set-paused",
+							"objectClass": "Player",
+							"sid": 946622964788982,
+							"behaviorType": "Follow",
+							"parameters": {
+								"is-paused": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "When resuming, the Follow behavior also needs to rewind its history. This means it seeks back through its recorded history, deletes the entries saved after that point, and then continues recording from there."
+						},
+						{
+							"id": "rewind-history",
+							"objectClass": "Player",
+							"sid": 546536428184284,
+							"behaviorType": "Follow",
+							"parameters": {
+								"time": "RewindTime"
+							}
+						}
+					],
+					"sid": 230140186800881
+				},
+				{
+					"eventType": "comment",
+					"text": "Pressing R in play mode switches to rewind mode."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 559979999716964
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 761485406388124,
+							"parameters": {
+								"variable": "RewindMode",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Activate the appropriate groups for this mode."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 843459781691627,
+							"parameters": {
+								"group-name": "\"Play mode\"",
+								"state": "deactivated"
+							}
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 234104194187628,
+							"parameters": {
+								"group-name": "\"Rewind mode\"",
+								"state": "activated"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Disable the Platform movement so the player controls stop working. Also stop the Follow behavior following the player, as it will not update the Player object while it is following itself, and we now want to update the player according to a delay. Also pause the following so it doesn't continue to track time."
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Player",
+							"sid": 130348883098423,
+							"behaviorType": "Platform",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"id": "stop-following",
+							"objectClass": "Player",
+							"sid": 240825593953983,
+							"behaviorType": "Follow"
+						},
+						{
+							"id": "set-paused",
+							"objectClass": "Player",
+							"sid": 711747405979143,
+							"behaviorType": "Follow",
+							"parameters": {
+								"is-paused": true
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 698434007602003,
+							"parameters": {
+								"variable": "RewindTime",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 350572106744606
+				}
+			]
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Play mode",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Mirror the player when pressing the left/right arrow keys so they face their movement direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 304676661131368,
+							"parameters": {
+								"key": 37
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-mirrored",
+							"objectClass": "Player",
+							"sid": 562322817000869,
+							"parameters": {
+								"state": "mirrored"
+							}
+						}
+					],
+					"sid": 103702661976906
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 281961285382687,
+							"parameters": {
+								"key": 39
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-mirrored",
+							"objectClass": "Player",
+							"sid": 120148641101293,
+							"parameters": {
+								"state": "not-mirrored"
+							}
+						}
+					],
+					"sid": 901293499881640
+				},
+				{
+					"eventType": "comment",
+					"text": "Show that play mode is active."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 171229397875410
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 736041120899953,
+							"parameters": {
+								"text": "\"Status: [b]Play mode[/b]\""
+							}
+						}
+					],
+					"sid": 870073419034152
+				}
+			],
+			"sid": 913408734323665
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Rewind mode",
+			"description": "",
+			"isActiveOnStart": false,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "In rewind mode, use the left and right arrow keys to navigate through time. Hold the left arrow to navigate backwards through time, and the right arrow to navigate forwards through time, at 3x faster than real-time rate."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 781565043809956,
+							"parameters": {
+								"key": 37
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 338284052796863,
+							"parameters": {
+								"variable": "RewindTime",
+								"value": "3 * dt"
+							}
+						}
+					],
+					"sid": 586180448117813
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 571773806686505,
+							"parameters": {
+								"key": 39
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "subtract-from-eventvar",
+							"objectClass": "System",
+							"sid": 718668650165950,
+							"parameters": {
+								"variable": "RewindTime",
+								"value": "3 * dt"
+							}
+						}
+					],
+					"sid": 337529907991073
+				},
+				{
+					"eventType": "comment",
+					"text": "Avoid seeking the rewind time below 0 (which would go in to the future), or before the max delay time (before which the Follow behavior does not remember any further history)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 426415235119452,
+							"parameters": {
+								"variable": "RewindTime",
+								"comparison": 2,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 880901971769209,
+							"parameters": {
+								"variable": "RewindTime",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 911994829767717
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 309955301642459,
+							"parameters": {
+								"variable": "RewindTime",
+								"comparison": 4,
+								"value": "Player.Follow.MaxDelay"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 803572420813308,
+							"parameters": {
+								"variable": "RewindTime",
+								"value": "Player.Follow.MaxDelay"
+							}
+						}
+					],
+					"sid": 710599104222694
+				},
+				{
+					"eventType": "comment",
+					"text": "Set the player's delay to the rewind time. This will update the player state to the remembered state at that time. (Note that the Follow behavior does not modify the object when it's following itself, so [i]Stop following[/i] was used to allow this to modify the object again.)"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 423923882094438
+						}
+					],
+					"actions": [
+						{
+							"id": "set-delay",
+							"objectClass": "Player",
+							"sid": 541841027368017,
+							"behaviorType": "Follow",
+							"parameters": {
+								"delay": "RewindTime"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also show that rewind mode is active, displaying the rewind time."
+						},
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 112564881749729,
+							"parameters": {
+								"text": "\"Status: [b]Rewind mode[/b] - rewinded by \" & roundToDp(RewindTime, 1) & \" seconds\""
+							}
+						}
+					],
+					"sid": 489066989385460
+				}
+			],
+			"sid": 919437993443296
+		}
+	],
+	"sid": 274306019501097
+}

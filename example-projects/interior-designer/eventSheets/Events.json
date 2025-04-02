@@ -1,0 +1,972 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nTwitter: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Global variables"
+		},
+		{
+			"eventType": "variable",
+			"name": "holdingUID",
+			"type": "number",
+			"initialValue": "-1",
+			"comment": "UID for the object that the player is holding",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 588220164964604
+		},
+		{
+			"eventType": "variable",
+			"name": "pickableNo",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Unique number for newly created pickable",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 822241840652295
+		},
+		{
+			"eventType": "variable",
+			"name": "topdownCamera",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the player using a top-down camera?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 666844825152844
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Default camera position"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 113030247656772
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 882207050862890,
+							"parameters": {
+								"cam-x": "topdownCamera ? CameraPivot.X : CameraPivot.ImagePointX(\"Camera\")",
+								"cam-y": "topdownCamera ? CameraPivot.Y + 1 : CameraPivot.ImagePointY(\"Camera\")",
+								"cam-z": "256",
+								"look-x": "CameraPivot.X",
+								"look-y": "CameraPivot.Y ",
+								"look-z": "0",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 629833309842840
+				},
+				{
+					"eventType": "comment",
+					"text": "Rotate clockwise / zoom out (if using topdown camera)"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-mouse-wheel",
+							"objectClass": "Mouse",
+							"sid": 147717027870479,
+							"parameters": {
+								"direction": "down"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "rotate-clockwise",
+							"objectClass": "CameraPivot",
+							"sid": 452321340413449,
+							"parameters": {
+								"degrees": "topdownCamera ? 0 : 10"
+							}
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 173215880346787,
+							"parameters": {
+								"cam-x": "topdownCamera ? CameraPivot.X : CameraPivot.ImagePointX(\"Camera\")",
+								"cam-y": "topdownCamera ? CameraPivot.Y + 1 : CameraPivot.ImagePointY(\"Camera\")",
+								"cam-z": "topdownCamera ? min(Self.CameraZ + 32, 1024) : 256",
+								"look-x": "CameraPivot.X",
+								"look-y": "CameraPivot.Y ",
+								"look-z": "0",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 283257829621159
+				},
+				{
+					"eventType": "comment",
+					"text": "Rotate counter-clockwise / zoom in (if using topdown camera)"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-mouse-wheel",
+							"objectClass": "Mouse",
+							"sid": 156878337741090,
+							"parameters": {
+								"direction": "up"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "rotate-counter-clockwise",
+							"objectClass": "CameraPivot",
+							"sid": 358207713122201,
+							"parameters": {
+								"degrees": "topdownCamera ? 0 : 10"
+							}
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 341001585443372,
+							"parameters": {
+								"cam-x": "topdownCamera ? CameraPivot.X : CameraPivot.ImagePointX(\"Camera\")",
+								"cam-y": "topdownCamera ? CameraPivot.Y + 1 : CameraPivot.ImagePointY(\"Camera\")",
+								"cam-z": "topdownCamera ? max(Self.CameraZ - 32, 128) : 256",
+								"look-x": "CameraPivot.X",
+								"look-y": "CameraPivot.Y ",
+								"look-z": "0",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 473026878080587
+				},
+				{
+					"eventType": "comment",
+					"text": "Toggle camera mode"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 107278344462515,
+							"parameters": {
+								"key": 32
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "toggle-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 959920013154468,
+							"parameters": {
+								"variable": "topdownCamera"
+							}
+						},
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 365566194247967,
+							"parameters": {
+								"cam-x": "topdownCamera ? CameraPivot.X : CameraPivot.ImagePointX(\"Camera\")",
+								"cam-y": "topdownCamera ? CameraPivot.Y + 1 : CameraPivot.ImagePointY(\"Camera\")",
+								"cam-z": "256",
+								"look-x": "CameraPivot.X",
+								"look-y": "CameraPivot.Y ",
+								"look-z": "0",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 403765016525362
+				}
+			],
+			"sid": 232021574278728
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Pickable",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Place an object on the scene"
+				},
+				{
+					"functionName": "placeObject",
+					"functionDescription": "Check if placement is valid and if it is, place the object",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": true,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 390180841263760,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "collidersCount",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "How many colliders the Pickable is colliding with",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 703978218791910
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 318079806812726,
+									"parameters": {
+										"object": "Collider"
+									}
+								},
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Pickable",
+									"sid": 924401301902473,
+									"parameters": {
+										"unique-id": "holdingUID"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Collider",
+									"sid": 995322211913407,
+									"parameters": {
+										"object": "Pickable"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 970800894126594,
+									"parameters": {
+										"variable": "collidersCount",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 694554881839634
+						},
+						{
+							"eventType": "comment",
+							"text": "Valid number of colliders"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 457989590563380,
+									"parameters": {
+										"value": "collidersCount < 2"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 147772244267654,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Place multiple instances sequentially. Check for invalid positions."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 894931469071881,
+											"parameters": {
+												"key": 17
+											}
+										},
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Pickable",
+											"sid": 356129722512478,
+											"parameters": {
+												"unique-id": "holdingUID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "SpawnObject",
+											"sid": 230918606314285,
+											"parameters": [
+												"Pickable.type"
+											]
+										}
+									],
+									"sid": 399043317507360
+								},
+								{
+									"eventType": "comment",
+									"text": "Place a single instance. Check for invalid positions."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 388648393484510
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 642185301969327,
+											"parameters": {
+												"variable": "holdingUID",
+												"value": "-1"
+											}
+										}
+									],
+									"sid": 668362336682078
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move pickable"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Pickable",
+							"sid": 119401129055195,
+							"parameters": {
+								"unique-id": "holdingUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Pickable",
+							"sid": 224237423438865,
+							"parameters": {
+								"x": "round(Mouse.X / 16) * 16",
+								"y": "round(Mouse.Y/ 16) * 16"
+							}
+						}
+					],
+					"sid": 557387182980104,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Rotate object while moving"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-click",
+									"objectClass": "Mouse",
+									"sid": 912309268522402,
+									"parameters": {
+										"mouse-button": "right",
+										"click-type": "clicked"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 149795191320078,
+									"parameters": {
+										"value": "left(Pickable.type, 4) = \"Tile\" | left(Pickable.type, 4) = \"Wall\" "
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-angle",
+									"objectClass": "Pickable",
+									"sid": 467983455103265,
+									"parameters": {
+										"angle": "Self.Angle + 90"
+									}
+								}
+							],
+							"sid": 188180572163149
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Process Left click"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-click",
+							"objectClass": "Mouse",
+							"sid": 600009240590006,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked"
+							}
+						},
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 150833048385345,
+							"parameters": {
+								"object": "UIButtons"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 789659788347446,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "It is a structure"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Pickable",
+									"sid": 166929688943777,
+									"parameters": {
+										"unique-id": "holdingUID"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 520355258435955,
+									"parameters": {
+										"value": "left(Pickable.type, 4) = \"Tile\" | left(Pickable.type, 4) = \"Wall\" "
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Place new object"
+								},
+								{
+									"callFunction": "placeObject",
+									"sid": 862649178926078
+								}
+							],
+							"sid": 259079224541123,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 607116052158915,
+											"parameters": {
+												"object": "Structure"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 912265776596389,
+											"parameters": {
+												"value": "Pickable.UID <> Structure.UID &  distance(Pickable.X, Pickable.Y, Structure.X, Structure.Y) < 0.1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Destroy overlapped structures below"
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Structure",
+											"sid": 460282104060376
+										}
+									],
+									"sid": 775591748822032
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "It is a furniture"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 924638519808336
+								}
+							],
+							"actions": [],
+							"sid": 350462420750584,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Prioritize furniture over tiles"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "cursor-is-over-object",
+											"objectClass": "Mouse",
+											"sid": 555804373311997,
+											"parameters": {
+												"object": "Collider"
+											}
+										},
+										{
+											"id": "pick-parent",
+											"objectClass": "Collider",
+											"sid": 874071185185967,
+											"parameters": {
+												"parent": "Pickable",
+												"which": "own"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 903485848927299,
+											"parameters": {
+												"value": "holdingUID = -1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Hold pickable"
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 369027824456407,
+											"parameters": {
+												"variable": "holdingUID",
+												"value": "Pickable.UID"
+											}
+										}
+									],
+									"sid": 256338224503555
+								},
+								{
+									"eventType": "comment",
+									"text": "Pick tiles if no furniture is above"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 717530239584569
+										},
+										{
+											"id": "cursor-is-over-object",
+											"objectClass": "Mouse",
+											"sid": 786337517342910,
+											"parameters": {
+												"object": "Pickable"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 723110163447544,
+											"parameters": {
+												"value": "holdingUID = -1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 792645534433352,
+											"parameters": {
+												"variable": "holdingUID",
+												"value": "Pickable.UID"
+											}
+										}
+									],
+									"sid": 251727783572258
+								},
+								{
+									"eventType": "comment",
+									"text": "Place an object"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 577950365204238
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 949290683073738,
+											"parameters": {
+												"value": "holdingUID <> -1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Release pickable"
+										},
+										{
+											"callFunction": "placeObject",
+											"sid": 683066666221754
+										}
+									],
+									"sid": 895435120933343
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 732009370469160
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "SpawnObject",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Function to spawn an object and its hierarchy"
+				},
+				{
+					"functionName": "SpawnObject",
+					"functionDescription": "Spawn an object at mouse x and y",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "type",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Object type",
+							"sid": 895199096250192
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "create-object-by-name",
+							"objectClass": "System",
+							"sid": 371981422700514,
+							"parameters": {
+								"object-name": "type",
+								"layer": "\"World\"",
+								"x": "round(Mouse.X / 16) * 16",
+								"y": "round(Mouse.Y / 16) * 16",
+								"create-hierarchy": true,
+								"template-name": "\"\""
+							}
+						}
+					],
+					"sid": 410928900493557,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-last-created",
+									"objectClass": "System",
+									"sid": 821530042945425,
+									"parameters": {
+										"object": "Pickable"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Pickable",
+									"sid": 877794586952553,
+									"parameters": {
+										"instance-variable": "pickableNo",
+										"value": "pickableNo"
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 300749758483250,
+									"parameters": {
+										"variable": "pickableNo",
+										"value": "1"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 500509560030810,
+									"parameters": {
+										"variable": "holdingUID",
+										"value": "Pickable.UID"
+									}
+								}
+							],
+							"sid": 363867774377127
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn an object"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-click",
+							"objectClass": "Mouse",
+							"sid": 950264586208718,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked"
+							}
+						},
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 215758281008638,
+							"parameters": {
+								"object": "UIButtons"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 484000379304400,
+							"parameters": {
+								"value": "holdingUID = -1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SpawnObject",
+							"sid": 749684731991475,
+							"parameters": [
+								"UIButtons.AnimationName"
+							]
+						}
+					],
+					"sid": 465168750846117,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Hide tutorial, if not already hidden"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-opacity",
+									"objectClass": "UITextTutorial",
+									"sid": 780095212513068,
+									"parameters": {
+										"comparison": 0,
+										"opacity": "100"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "UITextTutorial",
+									"sid": 201705677146719,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"hideTutorial\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 628550409703693
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Change variation"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-click",
+							"objectClass": "Mouse",
+							"sid": 975587441017729,
+							"parameters": {
+								"mouse-button": "right",
+								"click-type": "clicked"
+							}
+						},
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 225380881896505,
+							"parameters": {
+								"object": "UIButtons"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 222163992155921,
+							"parameters": {
+								"value": "holdingUID = -1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "UIButtons",
+							"sid": 714492799090425,
+							"parameters": {
+								"animation": "left(Self.AnimationName, len(Self.AnimationName)-1) & ((int(right(Self.AnimationName, 1)) + 1) % Self.texVariations)",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 872963058301122
+				}
+			],
+			"sid": 737757912416283
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "DeleteOutsideObjects",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Destroy objects outside of the playable zone"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 907569878825282,
+							"parameters": {
+								"object": "Pickable"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 180186154706053,
+							"parameters": {
+								"value": "Pickable.X >= 16 & Pickable.X <= 512 & Pickable.Y >= 16 & Pickable.Y <= 512"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Pickable",
+							"sid": 262644333748958
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 971634427961040,
+							"parameters": {
+								"variable": "holdingUID",
+								"value": "-1"
+							}
+						}
+					],
+					"sid": 502870060377488
+				}
+			],
+			"sid": 878128497465675
+		}
+	],
+	"sid": 421212912470019
+}

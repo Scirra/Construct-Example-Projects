@@ -1,0 +1,1991 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "The angle where all aliens will move towards during a movement cycle."
+		},
+		{
+			"eventType": "variable",
+			"name": "MovementDirection",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 493537863107820
+		},
+		{
+			"eventType": "comment",
+			"text": "How far each alien will move after during a movement cycle."
+		},
+		{
+			"eventType": "variable",
+			"name": "StepSize",
+			"type": "number",
+			"initialValue": "16",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 352525734119859
+		},
+		{
+			"eventType": "comment",
+			"text": "The amount of time between each movement cycle."
+		},
+		{
+			"eventType": "variable",
+			"name": "MovementCycle",
+			"type": "number",
+			"initialValue": "0.75",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 667071129351565
+		},
+		{
+			"eventType": "comment",
+			"text": "Attach the engine fire to the back of the ship."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-created",
+					"objectClass": "PlayerSpaceship",
+					"sid": 126294337481476
+				}
+			],
+			"actions": [
+				{
+					"id": "spawn-another-object",
+					"objectClass": "PlayerSpaceship",
+					"sid": 569972611308208,
+					"parameters": {
+						"object": "EngineFire",
+						"layer": "\"Galaxy\"",
+						"image-point": "\"Engine\"",
+						"create-hierarchy": false
+					}
+				},
+				{
+					"id": "set-angle",
+					"objectClass": "EngineFire",
+					"sid": 950866172583815,
+					"parameters": {
+						"angle": "90"
+					}
+				},
+				{
+					"id": "add-child",
+					"objectClass": "PlayerSpaceship",
+					"sid": 459628987321509,
+					"parameters": {
+						"child": "EngineFire",
+						"transform-x": true,
+						"transform-y": true,
+						"transform-w": false,
+						"transform-h": false,
+						"transform-a": true,
+						"transform-z-elevation": false,
+						"destroy-with-parent": true
+					}
+				}
+			],
+			"sid": 252055136074513
+		},
+		{
+			"eventType": "comment",
+			"text": "Start the very first movement cycle, which will be used to trigger most of the game actions."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 701553630941873
+				}
+			],
+			"actions": [
+				{
+					"id": "start-timer",
+					"objectClass": "GameManager",
+					"sid": 795059575538617,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "MovementCycle",
+						"type": "once",
+						"tag": "\"MovementCycle\""
+					}
+				}
+			],
+			"sid": 725164861231947,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Spawn a bunch of asteroids as decals for the environment. "
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 131839588448803,
+							"parameters": {
+								"count": "32"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 541710240765748,
+							"parameters": {
+								"object-to-create": "Asteroid",
+								"layer": "\"Background\"",
+								"x": "random(0 + Asteroid.Width, LayoutWidth - Asteroid.Width)",
+								"y": "random(0 + Asteroid.Height, LayoutHeight- Asteroid.Height)",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize the look of each asteroid."
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Asteroid",
+							"sid": 527396494881070,
+							"parameters": {
+								"frame-number": "choose(0, 1, 2, 3, 4, 5)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Store the Z order value."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Asteroid",
+							"sid": 452924289483703,
+							"parameters": {
+								"instance-variable": "ZOrder",
+								"value": "5 - Self.AnimationFrame"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize the angle of each asteroid."
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "Asteroid",
+							"sid": 267511902338768,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "90"
+							}
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "Asteroid",
+							"sid": 881822883334249,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"speed": "Self.Bullet.Speed / Self.AnimationFrame"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize the rotation speed of each asteroid."
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "Asteroid",
+							"sid": 419603027870129,
+							"behaviorType": "Rotate",
+							"parameters": {
+								"speed": "random(30, 90)"
+							}
+						}
+					],
+					"sid": 309371466382391
+				},
+				{
+					"eventType": "comment",
+					"text": "Sort the Z order of all asteroids."
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "sort-z-order",
+							"objectClass": "System",
+							"sid": 467618062055605,
+							"parameters": {
+								"object": "Asteroid",
+								"instance-variable": {
+									"name": "ZOrder",
+									"objectClass": "Asteroid"
+								}
+							}
+						}
+					],
+					"sid": 563749491690022
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Movement cycle."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 775831427776648,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"MovementCycle\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"type": "comment",
+					"text": "Restart the movement cycle."
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "GameManager",
+					"sid": 172879913687750,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "MovementCycle",
+						"type": "once",
+						"tag": "\"MovementCycle\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Request aliens to shoot."
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "GameManager",
+					"sid": 784061408755822,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "MovementCycle / 2",
+						"type": "regular",
+						"tag": "\"AlienShoot\""
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Check where the aliens are heading next."
+				},
+				{
+					"callFunction": "CheckDirection",
+					"sid": 452149691018100
+				}
+			],
+			"sid": 661392271995091
+		},
+		{
+			"eventType": "comment",
+			"text": "Pick a completely random alien to shoot a bullet down."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "GameManager",
+					"sid": 339956038066945,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"AlienShoot\""
+					}
+				}
+			],
+			"actions": [],
+			"sid": 894195343972133,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-random-instance",
+							"objectClass": "System",
+							"sid": 418667962970153,
+							"parameters": {
+								"object": "Alien"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SpawnBullet",
+							"sid": 715044347639229,
+							"parameters": [
+								false,
+								"Alien.ImagePointX(\"Mouth\")",
+								"Alien.ImagePointY(\"Mouth\")",
+								"90"
+							]
+						}
+					],
+					"sid": 501844425056045
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Make the player shoot a bullet up."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 588289549650998,
+					"parameters": {
+						"key": 32
+					}
+				},
+				{
+					"id": "on-button-pressed",
+					"objectClass": "Gamepad",
+					"sid": 665658754456688,
+					"parameters": {
+						"gamepad": "0",
+						"button": "button-a"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "SpawnBullet",
+					"sid": 679945586729370,
+					"parameters": [
+						true,
+						"PlayerSpaceship.ImagePointX(\"Cannon\")",
+						"PlayerSpaceship.ImagePointY(\"Cannon\")",
+						"270"
+					]
+				}
+			],
+			"sid": 756772081711134,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Spawn a bullet while also adjusting its properties on creation."
+		},
+		{
+			"functionName": "SpawnBullet",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "PlayerBullet",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"sid": 293232239510476
+				},
+				{
+					"name": "PositionX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 260130842783058
+				},
+				{
+					"name": "PositionY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 271135010713494
+				},
+				{
+					"name": "ShootingAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 865689373865092
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "create-object",
+					"objectClass": "System",
+					"sid": 949750037355764,
+					"parameters": {
+						"object-to-create": "Bullet",
+						"layer": "\"Galaxy\"",
+						"x": "PositionX",
+						"y": "PositionY",
+						"create-hierarchy": false
+					}
+				},
+				{
+					"type": "comment",
+					"text": "Change the bullet angle of motion."
+				},
+				{
+					"id": "set-angle-of-motion",
+					"objectClass": "Bullet",
+					"sid": 512372441165286,
+					"behaviorType": "Bullet",
+					"parameters": {
+						"angle": "ShootingAngle"
+					}
+				}
+			],
+			"sid": 645756583318993,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player bullet."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 176910915754083,
+							"parameters": {
+								"variable": "PlayerBullet"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Animation"
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Bullet",
+							"sid": 486308345975027,
+							"parameters": {
+								"animation": "\"Player\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Color scheme."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Bullet",
+							"sid": 912454009850350,
+							"parameters": {
+								"instance-variable": "TrailRed",
+								"value": "255"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Bullet",
+							"sid": 180449248786502,
+							"parameters": {
+								"instance-variable": "TrailGreen",
+								"value": "180"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Bullet",
+							"sid": 939518196151611,
+							"parameters": {
+								"instance-variable": "TrailBlue",
+								"value": "4"
+							}
+						}
+					],
+					"sid": 996440544688296
+				},
+				{
+					"eventType": "comment",
+					"text": "Alien bullet."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 138427459795649
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 150551829436873,
+							"parameters": {
+								"variable": "PlayerBullet"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Animation."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Bullet",
+							"sid": 221544310602049,
+							"parameters": {
+								"animation": "\"Alien\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Color scheme."
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Bullet",
+							"sid": 450784328016276,
+							"parameters": {
+								"instance-variable": "TrailRed",
+								"value": "255"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Bullet",
+							"sid": 410988718933854,
+							"parameters": {
+								"instance-variable": "TrailGreen",
+								"value": "4"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Bullet",
+							"sid": 962596219515167,
+							"parameters": {
+								"instance-variable": "TrailBlue",
+								"value": "33"
+							}
+						}
+					],
+					"sid": 785136405781959
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Collisions."
+		},
+		{
+			"eventType": "comment",
+			"text": "When a bullet hits a barrier."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Bullet",
+					"sid": 667266801646645,
+					"parameters": {
+						"object": "Barrier"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 279333153583823,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player bullets will be destroyed, but wont cause any damage to the barrier."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Bullet",
+							"sid": 808387623928196,
+							"parameters": {
+								"animation": "\"Player\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 593495134127789
+						}
+					],
+					"sid": 153115648585717
+				},
+				{
+					"eventType": "comment",
+					"text": "Alien bullets will be destroyed while also causing damage to the barrier."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 980318484956599
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Bullet",
+							"sid": 406662914373420,
+							"parameters": {
+								"animation": "\"Alien\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 681287875802587
+						},
+						{
+							"callFunction": "SpawnRockParticles",
+							"sid": 454728005186262,
+							"parameters": [
+								"Bullet.X",
+								"Barrier.ImagePointY(\"Destruction\")"
+							]
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Barrier",
+							"sid": 407470535605456,
+							"parameters": {
+								"frame-number": "Self.AnimationFrame - 1"
+							}
+						}
+					],
+					"sid": 501226570431682
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the barrier if it's too small."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-animation-frame",
+							"objectClass": "Barrier",
+							"sid": 686069448586176,
+							"parameters": {
+								"comparison": 0,
+								"number": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Barrier",
+							"sid": 763538930784621
+						}
+					],
+					"sid": 834524409548896
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When an alien hits a barrier."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Alien",
+					"sid": 549642567727246,
+					"parameters": {
+						"object": "Barrier"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "SpawnRockParticles",
+					"sid": 926992740585801,
+					"parameters": [
+						"Alien.X",
+						"Barrier.ImagePointY(\"Destruction\")"
+					]
+				}
+			],
+			"sid": 747161131439115,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Damage the barrier as long as its overlapping with the alien."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "while",
+							"objectClass": "System",
+							"sid": 579679288739000
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Alien",
+							"sid": 318786352980704,
+							"parameters": {
+								"object": "Barrier"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Barrier",
+							"sid": 521842376554427,
+							"parameters": {
+								"frame-number": "Self.AnimationFrame - 1"
+							}
+						}
+					],
+					"sid": 621005681603819,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-animation-frame",
+									"objectClass": "Barrier",
+									"sid": 154819028356456,
+									"parameters": {
+										"comparison": 0,
+										"number": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-collisions-enabled",
+									"objectClass": "Barrier",
+									"sid": 311266844654025,
+									"parameters": {
+										"collisions": "disabled"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "Barrier",
+									"sid": 593345931621304
+								}
+							],
+							"sid": 927775562713073
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Spawn a bunch of small rock particles."
+		},
+		{
+			"functionName": "SpawnRockParticles",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "PositionX",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 925147273607152
+				},
+				{
+					"name": "PositionY",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 102345307763895
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 101632146844926,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 337737858581726,
+							"parameters": {
+								"count": "8"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 253132813300325,
+							"parameters": {
+								"object-to-create": "BarrierDebris",
+								"layer": "\"Galaxy\"",
+								"x": "PositionX",
+								"y": "PositionY",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize various properties of each particle."
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "BarrierDebris",
+							"sid": 820368195895095,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "loopindex * 45 + random(-15, 15)"
+							}
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "BarrierDebris",
+							"sid": 265833037214332,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"speed": "Self.Bullet.Speed + random(-32, 32)"
+							}
+						},
+						{
+							"id": "set-animation-speed",
+							"objectClass": "BarrierDebris",
+							"sid": 783285690962648,
+							"parameters": {
+								"speed": "Self.AnimationSpeed + random(-5, 5)"
+							}
+						}
+					],
+					"sid": 359544916948125
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When a bullet hits an alien."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Bullet",
+					"sid": 485724029844244,
+					"parameters": {
+						"object": "Alien"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 636363568983146,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Flash the alien object and then destroy it with a 0.1 delay."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Bullet",
+							"sid": 545671281123098,
+							"parameters": {
+								"animation": "\"Player\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 784175236695624
+						},
+						{
+							"id": "set-collisions-enabled",
+							"objectClass": "Alien",
+							"sid": 423009478950091,
+							"parameters": {
+								"collisions": "disabled"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Alien",
+							"sid": 529899713488503,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.1",
+								"type": "once",
+								"tag": "\"SelfDestroy\""
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Alien",
+							"sid": 639833628225790,
+							"parameters": {
+								"object": "Explosion",
+								"layer": "\"Galaxy\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "Alien",
+							"sid": 559888531685966,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "200"
+							}
+						}
+					],
+					"sid": 893686017726705
+				}
+			]
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "Alien",
+					"sid": 593144149093343,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"SelfDestroy\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Alien",
+					"sid": 239151296104122
+				}
+			],
+			"sid": 498124104780382
+		},
+		{
+			"eventType": "comment",
+			"text": "When a bullet hits the player."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Bullet",
+					"sid": 832780204197315,
+					"parameters": {
+						"object": "PlayerSpaceship"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 882170799372033,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Bullet",
+							"sid": 864659717646465,
+							"parameters": {
+								"animation": "\"Alien\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "GameOver",
+							"sid": 508622910396784
+						}
+					],
+					"sid": 160748621037292
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When an alien hits the player."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Alien",
+					"sid": 991931021757087,
+					"parameters": {
+						"object": "PlayerSpaceship"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "GameOver",
+					"sid": 438524637749802
+				}
+			],
+			"sid": 756310968620863
+		},
+		{
+			"eventType": "comment",
+			"text": "Check where the aliens are moving next."
+		},
+		{
+			"functionName": "CheckDirection",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 600480903410876,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How many aliens are pretending to go outside the layout borders."
+				},
+				{
+					"eventType": "variable",
+					"name": "AliensGoingOutside",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 185574084589600
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 177959946589238,
+							"parameters": {
+								"object": "Alien"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 419225243097306,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 996524773136529,
+									"parameters": {
+										"first-value": "Alien.X + cos(MovementDirection) * StepSize",
+										"comparison": 4,
+										"second-value": "LayoutWidth"
+									}
+								},
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 370605296666412,
+									"parameters": {
+										"first-value": "Alien.X + cos(MovementDirection) * StepSize",
+										"comparison": 2,
+										"second-value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 763434262405421,
+									"parameters": {
+										"variable": "AliensGoingOutside",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 866727092624292,
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If there are no aliens going outside, just move forward."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 152408522189117,
+							"parameters": {
+								"variable": "AliensGoingOutside",
+								"comparison": 0,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "MoveAllAliens",
+							"sid": 493865144660207,
+							"parameters": [
+								"MovementDirection"
+							]
+						}
+					],
+					"sid": 569255120822465
+				},
+				{
+					"eventType": "comment",
+					"text": "If there are aliens going outside, move down and flip the next movement direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 898095606664213
+						},
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 906136963830671,
+							"parameters": {
+								"variable": "AliensGoingOutside",
+								"comparison": 4,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 498653951631575,
+							"parameters": {
+								"variable": "MovementDirection",
+								"value": "180"
+							}
+						},
+						{
+							"callFunction": "MoveAllAliens",
+							"sid": 477726187832775,
+							"parameters": [
+								"90"
+							]
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 761608390978869,
+							"parameters": {
+								"variable": "MovementCycle",
+								"value": "MovementCycle * 0.8"
+							}
+						}
+					],
+					"sid": 591735310041830
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Move all aliens towards a specific angle."
+		},
+		{
+			"functionName": "MoveAllAliens",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "AngleOfMovement",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 127211090032077
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [],
+			"sid": 760077718311520,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 430808063549382,
+							"parameters": {
+								"object": "Alien"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Alien",
+							"sid": 543254305369070,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\"",
+								"property": "position",
+								"end-x": "Self.X + cos(AngleOfMovement) * StepSize",
+								"end-y": "Self.Y + sin(AngleOfMovement) * StepSize",
+								"time": "MovementCycle / 2",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 421319688887694
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Finish the game if the aliens manage to reach the end of the level."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-tweens-finished",
+					"objectClass": "Alien",
+					"sid": 295747038450502,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Move\""
+					}
+				}
+			],
+			"actions": [],
+			"sid": 326173925870384,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-y",
+							"objectClass": "Alien",
+							"sid": 985479181803356,
+							"parameters": {
+								"comparison": 4,
+								"y-co-ordinate": "LayoutHeight"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "GameOver",
+							"sid": 311572268663001
+						}
+					],
+					"sid": 994727127154394
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Character controls."
+		},
+		{
+			"eventType": "comment",
+			"text": "Move the ship to the left."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 915070600314792,
+					"parameters": {
+						"key": 37
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 884236682300278,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-left"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "PlayerSpaceship",
+					"sid": 744415632587560,
+					"behaviorType": "8Direction",
+					"parameters": {
+						"control": "left"
+					}
+				}
+			],
+			"sid": 628372864531291,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Move the ship to the right."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 730638005307608,
+					"parameters": {
+						"key": 39
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 802554389164880,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-right"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "PlayerSpaceship",
+					"sid": 389544626245271,
+					"behaviorType": "8Direction",
+					"parameters": {
+						"control": "right"
+					}
+				}
+			],
+			"sid": 473782587516785,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Toggle the engine fire particles depending on the ship speed."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-between-values",
+					"objectClass": "System",
+					"sid": 693904315454237,
+					"parameters": {
+						"value": "PlayerSpaceship.8Direction.VectorX",
+						"lower-bound": "-16",
+						"upper-bound": "16"
+					},
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-rate",
+					"objectClass": "EngineFire",
+					"sid": 189279823209491,
+					"parameters": {
+						"rate": "64"
+					}
+				}
+			],
+			"sid": 213932020388731
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 615686955464112
+				}
+			],
+			"actions": [
+				{
+					"id": "set-rate",
+					"objectClass": "EngineFire",
+					"sid": 280282224194371,
+					"parameters": {
+						"rate": "0"
+					}
+				}
+			],
+			"sid": 684522614851578
+		},
+		{
+			"eventType": "comment",
+			"text": "Change the animation frames depending on the ship speed."
+		},
+		{
+			"eventType": "comment",
+			"text": "Idle."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-between-values",
+					"objectClass": "System",
+					"sid": 747046300234224,
+					"parameters": {
+						"value": "PlayerSpaceship.8Direction.VectorX",
+						"lower-bound": "-16",
+						"upper-bound": "16"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation-frame",
+					"objectClass": "PlayerSpaceship",
+					"sid": 638218579446293,
+					"parameters": {
+						"frame-number": "2"
+					}
+				}
+			],
+			"sid": 617799805892248
+		},
+		{
+			"eventType": "comment",
+			"text": "Moving slowly."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-between-values",
+					"objectClass": "System",
+					"sid": 192700270147047,
+					"parameters": {
+						"value": "PlayerSpaceship.8Direction.VectorX",
+						"lower-bound": "-48",
+						"upper-bound": "-16"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation-frame",
+					"objectClass": "PlayerSpaceship",
+					"sid": 797790428386856,
+					"parameters": {
+						"frame-number": "1"
+					}
+				}
+			],
+			"sid": 229665437884744
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-between-values",
+					"objectClass": "System",
+					"sid": 193017162816772,
+					"parameters": {
+						"value": "PlayerSpaceship.8Direction.VectorX",
+						"lower-bound": "-64",
+						"upper-bound": "-48"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation-frame",
+					"objectClass": "PlayerSpaceship",
+					"sid": 253402204350069,
+					"parameters": {
+						"frame-number": "0"
+					}
+				}
+			],
+			"sid": 762648592397784
+		},
+		{
+			"eventType": "comment",
+			"text": "Moving fast."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-between-values",
+					"objectClass": "System",
+					"sid": 244792022424990,
+					"parameters": {
+						"value": "PlayerSpaceship.8Direction.VectorX",
+						"lower-bound": "16",
+						"upper-bound": "48"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation-frame",
+					"objectClass": "PlayerSpaceship",
+					"sid": 973392648814036,
+					"parameters": {
+						"frame-number": "3"
+					}
+				}
+			],
+			"sid": 552996403687575
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-between-values",
+					"objectClass": "System",
+					"sid": 338953883773843,
+					"parameters": {
+						"value": "PlayerSpaceship.8Direction.VectorX",
+						"lower-bound": "48",
+						"upper-bound": "64"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation-frame",
+					"objectClass": "PlayerSpaceship",
+					"sid": 726804296365643,
+					"parameters": {
+						"frame-number": "4"
+					}
+				}
+			],
+			"sid": 101144231697216
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-created",
+					"objectClass": "Explosion",
+					"sid": 631535752922856
+				}
+			],
+			"actions": [
+				{
+					"id": "spawn-another-object",
+					"objectClass": "Explosion",
+					"sid": 777925295423041,
+					"parameters": {
+						"object": "ExplosionSparks",
+						"layer": "\"Galaxy\"",
+						"image-point": "0",
+						"create-hierarchy": false
+					}
+				},
+				{
+					"id": "add-child",
+					"objectClass": "Explosion",
+					"sid": 275047593573005,
+					"parameters": {
+						"child": "ExplosionSparks",
+						"transform-x": true,
+						"transform-y": true,
+						"transform-w": false,
+						"transform-h": false,
+						"transform-a": false,
+						"transform-z-elevation": false,
+						"destroy-with-parent": false
+					}
+				}
+			],
+			"sid": 977839459435486
+		},
+		{
+			"eventType": "comment",
+			"text": "Eliminate old objects to avoid CPU or memory leaks."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-animation-finished",
+					"objectClass": "BarrierDebris",
+					"sid": 401174509556637,
+					"parameters": {
+						"animation": "\"Default\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "BarrierDebris",
+					"sid": 795083159191929
+				}
+			],
+			"sid": 696345921824845
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-animation-finished",
+					"objectClass": "Explosion",
+					"sid": 121828123099805,
+					"parameters": {
+						"animation": "\"Default\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Explosion",
+					"sid": 932781716671877
+				}
+			],
+			"sid": 798525183796352
+		},
+		{
+			"eventType": "comment",
+			"text": "Request a game reset."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 655952654394860,
+					"parameters": {
+						"key": 82
+					}
+				},
+				{
+					"id": "on-button-pressed",
+					"objectClass": "Gamepad",
+					"sid": 170923942875854,
+					"parameters": {
+						"gamepad": "0",
+						"button": "start-menu"
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "GameOver",
+					"sid": 450676453614334
+				}
+			],
+			"sid": 229295770695118,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Completely reset the game."
+		},
+		{
+			"functionName": "GameOver",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "reset-global-variables",
+					"objectClass": "System",
+					"sid": 278295708362964
+				},
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 531327831727979
+				}
+			],
+			"sid": 772842733160051
+		},
+		{
+			"eventType": "comment",
+			"text": "Trail."
+		},
+		{
+			"eventType": "comment",
+			"text": "Store the object initial position."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-created",
+					"objectClass": "HasTrail",
+					"sid": 985792972689995
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "HasTrail",
+					"sid": 555348000012770,
+					"parameters": {
+						"instance-variable": "LastPositionX",
+						"value": "Self.X"
+					}
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "HasTrail",
+					"sid": 854630341082382,
+					"parameters": {
+						"instance-variable": "LastPositionY",
+						"value": "Self.Y"
+					}
+				}
+			],
+			"sid": 564669222911697
+		},
+		{
+			"eventType": "comment",
+			"text": "Leave a glowing trail behind the object."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 727057980248361,
+					"parameters": {
+						"object": "HasTrail"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 959383420030608,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "HasTrail",
+							"sid": 349107220913659,
+							"parameters": {
+								"instance-variable": "TrailVisibility"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Spawn trail effect."
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "HasTrail",
+							"sid": 625709338135205,
+							"parameters": {
+								"object": "Trail",
+								"layer": "\"Effects\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Adjust the trail angle to point towards the bullet."
+						},
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "Trail",
+							"sid": 460065353623881,
+							"parameters": {
+								"x": "HasTrail.LastPositionX",
+								"y": "HasTrail.LastPositionY"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Adjust the trail width to reach the bullet last position."
+						},
+						{
+							"id": "set-size",
+							"objectClass": "Trail",
+							"sid": 571537364764741,
+							"parameters": {
+								"width": "distance(Self.X, Self.Y, HasTrail.LastPositionX, HasTrail.LastPositionY) * 4",
+								"height": "HasTrail.TrailSize"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Adjust the trail color to match the object settings."
+						},
+						{
+							"id": "set-default-color",
+							"objectClass": "Trail",
+							"sid": 180748590431054,
+							"parameters": {
+								"color": "rgbEx255(HasTrail.TrailRed, HasTrail.TrailGreen, HasTrail.TrailBlue)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Animate the trail width."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Trail",
+							"sid": 827405620394748,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"\"",
+								"property": "offsetHeight",
+								"end-value": "0",
+								"time": "HasTrail.TrailDuration",
+								"ease": "default",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update the player last position."
+						},
+						{
+							"callFunction": "UpdateLastPosition",
+							"sid": 377901959707128,
+							"parameters": [
+								"HasTrail.UID"
+							]
+						}
+					],
+					"sid": 163662419011917
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Update the object last position."
+		},
+		{
+			"functionName": "UpdateLastPosition",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "ObjectUID",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 554201032035319
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [
+				{
+					"id": "pick-by-unique-id",
+					"objectClass": "HasTrail",
+					"sid": 770635111871711,
+					"parameters": {
+						"unique-id": "ObjectUID"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "HasTrail",
+					"sid": 340369892499917,
+					"parameters": {
+						"instance-variable": "LastPositionX",
+						"value": "Self.X"
+					}
+				},
+				{
+					"id": "set-instvar-value",
+					"objectClass": "HasTrail",
+					"sid": 391060233996593,
+					"parameters": {
+						"instance-variable": "LastPositionY",
+						"value": "Self.Y"
+					}
+				}
+			],
+			"sid": 779575016069275
+		}
+	],
+	"sid": 352094324001669
+}

@@ -1,0 +1,1398 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Global variables"
+		},
+		{
+			"eventType": "variable",
+			"name": "currentlyHoldingUID",
+			"type": "number",
+			"initialValue": "-1",
+			"comment": "UID of the building the player is currently holding",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 857070623097109
+		},
+		{
+			"eventType": "variable",
+			"name": "numOfBuildings",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Number of buildings",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 113148008412188
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tools",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Convert timestamp integer into 00:00 format."
+				},
+				{
+					"functionName": "formatTimeStamp",
+					"functionDescription": "Convert timestamp integer into 00:00 format.",
+					"functionCategory": "",
+					"functionReturnType": "string",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "timeStamp",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 963387630259882
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 512677737632325,
+							"parameters": {
+								"value": "zeropad(Date.GetMinutes(timeStamp), 2) & \":\" & zeropad(Date.GetSeconds(timeStamp), 2)"
+							}
+						}
+					],
+					"sid": 190211180459131
+				}
+			],
+			"sid": 374422522594948
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Build",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Pick and hold a specified type of building."
+				},
+				{
+					"functionName": "pickBuilding",
+					"functionDescription": "Pick and hold a specified type of building",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "type",
+							"type": "string",
+							"initialValue": "0",
+							"comment": "Type of the building",
+							"sid": 654248681043215
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 323824013173048,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the player is already holding a building, destroy it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Building",
+									"sid": 564474020946952,
+									"parameters": {
+										"unique-id": "currentlyHoldingUID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Building",
+									"sid": 471643548704168
+								}
+							],
+							"sid": 854867802731951
+						},
+						{
+							"eventType": "comment",
+							"text": "Then create the selected building and set it as fully constructed."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 313944322597051,
+									"parameters": {
+										"object-to-create": "Building",
+										"layer": "\"World\"",
+										"x": "Mouse.X",
+										"y": "Mouse.Y",
+										"create-hierarchy": true,
+										"template-name": "type"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Building",
+									"sid": 412077932285328,
+									"parameters": {
+										"frame-number": "2"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 659958027350634,
+									"parameters": {
+										"variable": "currentlyHoldingUID",
+										"value": "Building.UID"
+									}
+								}
+							],
+							"sid": 701414716674611,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Set the progress text as the total time needed to finish the building. Also, move it to UI layer."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Building",
+											"sid": 296821376678893,
+											"parameters": {
+												"child": "BuildingTimerText",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "BuildingTimerText",
+											"sid": 656169513369972,
+											"parameters": {
+												"text": "\"Time remaining: \" & Functions.formatTimeStamp(Building.timeToBuild)"
+											}
+										},
+										{
+											"id": "move-to-layer",
+											"objectClass": "BuildingTimerText",
+											"sid": 791380892425285,
+											"parameters": {
+												"layer": "\"UI\""
+											}
+										}
+									],
+									"sid": 922175057420480
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Select a building."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 491055073134192,
+							"parameters": {
+								"key": 49
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "pickBuilding",
+							"sid": 262554798449415,
+							"parameters": [
+								"\"0\""
+							]
+						}
+					],
+					"sid": 381568730272345
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 557245234454510,
+							"parameters": {
+								"key": 50
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "pickBuilding",
+							"sid": 972934424723259,
+							"parameters": [
+								"\"1\""
+							]
+						}
+					],
+					"sid": 951804473844242
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 210229865746031,
+							"parameters": {
+								"key": 51
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "pickBuilding",
+							"sid": 262164770034024,
+							"parameters": [
+								"\"2\""
+							]
+						}
+					],
+					"sid": 367324722643274
+				},
+				{
+					"eventType": "comment",
+					"text": "Make the building follow the mouse."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Building",
+							"sid": 622571688455370,
+							"parameters": {
+								"unique-id": "currentlyHoldingUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Building",
+							"sid": 492472110946255,
+							"parameters": {
+								"x": "Mouse.X",
+								"y": "Mouse.Y"
+							}
+						}
+					],
+					"sid": 320685193349252,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When the building is over an invalid position, turn it red."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Building",
+									"sid": 396172616714884,
+									"parameters": {
+										"object": "OffLimits"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Building",
+									"sid": 862568733649371,
+									"parameters": {
+										"object": "BuildingCollision"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-default-color",
+									"objectClass": "Building",
+									"sid": 187128220408379,
+									"parameters": {
+										"color": "rgba255(255, 127, 127, 255)"
+									}
+								}
+							],
+							"sid": 689119528166883,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, use the normal colors."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 408919268404696
+								}
+							],
+							"actions": [
+								{
+									"id": "set-default-color",
+									"objectClass": "Building",
+									"sid": 637955323365685,
+									"parameters": {
+										"color": "rgba255(255, 255, 255, 255)"
+									}
+								}
+							],
+							"sid": 168479451085958
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Place the building (if over a valid position)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-click",
+							"objectClass": "Mouse",
+							"sid": 446512597600751,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked"
+							}
+						},
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Building",
+							"sid": 403992422227999,
+							"parameters": {
+								"unique-id": "currentlyHoldingUID"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Building",
+							"sid": 738775198300541,
+							"parameters": {
+								"object": "OffLimits"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Building",
+							"sid": 578166143194964,
+							"parameters": {
+								"object": "BuildingCollision"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set instance properties."
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Building",
+							"sid": 840284631708659,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Building",
+							"sid": 787981251198419,
+							"parameters": {
+								"instance-variable": "startTime",
+								"value": "Date.Now"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Building",
+							"sid": 489877613344028,
+							"parameters": {
+								"instance-variable": "endTime",
+								"value": "Date.Now + Self.timeToBuild"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create instance collision."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 985904501151355,
+							"parameters": {
+								"object-to-create": "BuildingCollision",
+								"layer": "\"World\"",
+								"x": "Building.X",
+								"y": "Building.Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start smoke timers."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Building",
+							"sid": 923934663671502,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "(random(5) + 2)/6",
+								"type": "once",
+								"tag": "\"SmokeTimer\""
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Building",
+							"sid": 893172005492824,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "(random(5) + 2)/6",
+								"type": "once",
+								"tag": "\"SmokeTimer2\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Release the instance."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 404875439822980,
+							"parameters": {
+								"variable": "currentlyHoldingUID",
+								"value": "-1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Save instance info inside array."
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "BuildingsArr",
+							"sid": 793122910859868,
+							"parameters": {
+								"x": "0",
+								"y": "numOfBuildings",
+								"value": "Building.X"
+							}
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "BuildingsArr",
+							"sid": 959077835610322,
+							"parameters": {
+								"x": "1",
+								"y": "numOfBuildings",
+								"value": "Building.Y"
+							}
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "BuildingsArr",
+							"sid": 768015651176724,
+							"parameters": {
+								"x": "2",
+								"y": "numOfBuildings",
+								"value": "Building.startTime"
+							}
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "BuildingsArr",
+							"sid": 666616921840106,
+							"parameters": {
+								"x": "3",
+								"y": "numOfBuildings",
+								"value": "Building.endTime"
+							}
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "BuildingsArr",
+							"sid": 748911091285256,
+							"parameters": {
+								"x": "4",
+								"y": "numOfBuildings",
+								"value": "Building.AnimationName"
+							}
+						},
+						{
+							"id": "set-item",
+							"objectClass": "LocalStorage",
+							"sid": 142792004533983,
+							"parameters": {
+								"key": "\"buildingsArr\"",
+								"value": "BuildingsArr.AsJSON"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Add 1 to the number of buildings."
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 252659979097314,
+							"parameters": {
+								"variable": "numOfBuildings",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-item",
+							"objectClass": "LocalStorage",
+							"sid": 329864405652240,
+							"parameters": {
+								"key": "\"numOfBuildings\"",
+								"value": "numOfBuildings"
+							}
+						}
+					],
+					"sid": 922414713706867
+				},
+				{
+					"eventType": "comment",
+					"text": "Right click / Esc destroys the building currently held by the player"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-click",
+							"objectClass": "Mouse",
+							"sid": 703971624645935,
+							"parameters": {
+								"mouse-button": "right",
+								"click-type": "clicked"
+							}
+						},
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 511056472283837,
+							"parameters": {
+								"key": 27
+							}
+						}
+					],
+					"actions": [],
+					"sid": 343907308411851,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Building",
+									"sid": 377355606289986,
+									"parameters": {
+										"unique-id": "currentlyHoldingUID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Building",
+									"sid": 724922993079981
+								}
+							],
+							"sid": 679934402591186
+						}
+					],
+					"isOrBlock": true
+				}
+			],
+			"sid": 569119197003119
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Load Game State",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Start the loading procedure by checking if there is something saved."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 259720072295343
+						}
+					],
+					"actions": [
+						{
+							"id": "check-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 183076998658711,
+							"parameters": {
+								"key": "\"numOfBuildings\""
+							}
+						}
+					],
+					"sid": 862890450778800
+				},
+				{
+					"eventType": "comment",
+					"text": "If there is data saved, get it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 349854424374574,
+							"parameters": {
+								"key": "\"numOfBuildings\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "get-item",
+							"objectClass": "LocalStorage",
+							"sid": 118246556608876,
+							"parameters": {
+								"key": "\"buildingsArr\""
+							}
+						},
+						{
+							"id": "get-item",
+							"objectClass": "LocalStorage",
+							"sid": 859063178783712,
+							"parameters": {
+								"key": "\"numOfBuildings\""
+							}
+						}
+					],
+					"sid": 898919408578233
+				},
+				{
+					"eventType": "comment",
+					"text": "Load the data into appropriate variable and array."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-get",
+							"objectClass": "LocalStorage",
+							"sid": 249482785094540,
+							"parameters": {
+								"key": "\"numOfBuildings\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 967199324209963,
+							"parameters": {
+								"variable": "numOfBuildings",
+								"value": "LocalStorage.ItemValue"
+							}
+						}
+					],
+					"sid": 773837978584942
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-get",
+							"objectClass": "LocalStorage",
+							"sid": 564371142427700,
+							"parameters": {
+								"key": "\"buildingsArr\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "BuildingsArr",
+							"sid": 476505068740387,
+							"parameters": {
+								"json": "LocalStorage.ItemValue"
+							}
+						}
+					],
+					"sid": 131593192522744
+				},
+				{
+					"eventType": "comment",
+					"text": "Restore the game state according to loaded data."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-all-gets-complete",
+							"objectClass": "LocalStorage",
+							"sid": 512226285581039
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 136314735892186,
+							"parameters": {
+								"value": "numOfBuildings > 0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 996670785703864,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 832874221668986,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "numOfBuildings - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create building instance and set its properties."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 911585197496250,
+									"parameters": {
+										"object-to-create": "Building",
+										"layer": "\"World\"",
+										"x": "BuildingsArr.At(0, loopindex(\"i\"))",
+										"y": "BuildingsArr.At(1, loopindex(\"i\"))",
+										"create-hierarchy": true,
+										"template-name": "BuildingsArr.At(4, loopindex(\"i\"))"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Building",
+									"sid": 863259728653542,
+									"parameters": {
+										"instance-variable": "startTime",
+										"value": "BuildingsArr.At(2, loopindex(\"i\"))"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Building",
+									"sid": 658197407475002,
+									"parameters": {
+										"instance-variable": "endTime",
+										"value": "BuildingsArr.At(3, loopindex(\"i\"))"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create instance collision."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 679843234754686,
+									"parameters": {
+										"object-to-create": "BuildingCollision",
+										"layer": "\"World\"",
+										"x": "Building.X",
+										"y": "Building.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Start smoke timers."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Building",
+									"sid": 498058966895285,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "(random(5) + 2)/6",
+										"type": "once",
+										"tag": "\"SmokeTimer\""
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Building",
+									"sid": 948436574142114,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "(random(5) + 2)/6",
+										"type": "once",
+										"tag": "\"SmokeTimer2\""
+									}
+								}
+							],
+							"sid": 596214063036768,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Move progress text to UI layer"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Building",
+											"sid": 477112394262994,
+											"parameters": {
+												"child": "BuildingTimerText",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "move-to-layer",
+											"objectClass": "BuildingTimerText",
+											"sid": 503254457380412,
+											"parameters": {
+												"layer": "\"UI\""
+											}
+										}
+									],
+									"sid": 739473301782759
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 349668250867674
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Update Game State",
+			"description": "This example uses the user's computer's clock to measure the progress of each building's construction. However, note that users can manipulate the game by altering their computer's clock. For a real game, if it is multiplayer, time calculations should be performed server-side.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update buildings animations and their respective texts, as the construction times progress."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 370572435563787,
+							"parameters": {
+								"object": "Building"
+							}
+						},
+						{
+							"id": "pick-children",
+							"objectClass": "Building",
+							"sid": 942832478124968,
+							"parameters": {
+								"child": "BuildingTimerText",
+								"which": "own"
+							}
+						},
+						{
+							"id": "evaluate-expression",
+							"objectClass": "System",
+							"sid": 997528072792003,
+							"parameters": {
+								"value": "Building.UID <> currentlyHoldingUID"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 618354319356261,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Construction has finished."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 305798754794079,
+									"parameters": {
+										"value": "Building.endTime - Date.Now <= 1000"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Building",
+									"sid": 258687695331036,
+									"parameters": {
+										"frame-number": "2"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "BuildingTimerText",
+									"sid": 764424727187154,
+									"parameters": {
+										"text": "\"Done\""
+									}
+								},
+								{
+									"id": "stop-all-timers",
+									"objectClass": "Building",
+									"sid": 352740972811924,
+									"behaviorType": "Timer"
+								}
+							],
+							"sid": 565918663426456
+						},
+						{
+							"eventType": "comment",
+							"text": "Halfway finished."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 454560106953486
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 306560582180005,
+									"parameters": {
+										"value": "Building.endTime - Date.Now <= int((Building.endTime - Building.startTime)/2)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Building",
+									"sid": 716493933155543,
+									"parameters": {
+										"frame-number": "1"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "BuildingTimerText",
+									"sid": 596307056797615,
+									"parameters": {
+										"text": "\"Time remaining: \" & Functions.formatTimeStamp(Building.endTime - Date.Now)"
+									}
+								}
+							],
+							"sid": 803626371571034
+						},
+						{
+							"eventType": "comment",
+							"text": "Just started."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 831476046171707
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 828305976656875,
+									"parameters": {
+										"value": "Building.endTime - Date.Now > int((Building.endTime - Building.startTime)/2)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Building",
+									"sid": 939372905453090,
+									"parameters": {
+										"frame-number": "0"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "BuildingTimerText",
+									"sid": 596307056797615,
+									"parameters": {
+										"text": "\"Time remaining: \" & Functions.formatTimeStamp(Building.endTime - Date.Now)"
+									}
+								}
+							],
+							"sid": 448801678038492
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Make building bounce when its updated."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-frame-changed",
+							"objectClass": "Building",
+							"sid": 916668001187187
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Building",
+							"sid": 405874645216992,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BuildingBounceTween\"",
+								"property": "scale",
+								"end-x": "1.2",
+								"end-y": "1.2",
+								"time": "0.1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 725795132758928
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn smoke and reset SmokeTimer using a new randomized delay."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Building",
+							"sid": 769281437599388,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SmokeTimer\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "Building",
+							"sid": 830773868619799,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "(random(5) + 2)/6",
+								"type": "once",
+								"tag": "\"SmokeTimer\""
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 637916715522527,
+							"parameters": {
+								"object-to-create": "Smoke",
+								"layer": "\"World\"",
+								"x": "Building.X + random(Building.Width/2) - Building.Width/4",
+								"y": "Building.Y + random(Building.Height/2) - Building.Height/4",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Smoke",
+							"sid": 254059462471878,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SmokeOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Smoke",
+							"sid": 240944499569661,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SmokeSize\"",
+								"property": "size",
+								"end-x": "0",
+								"end-y": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 648245848958054
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Building",
+							"sid": 664876318821471,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SmokeTimer2\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "Building",
+							"sid": 107990144637138,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "(random(5) + 2)/6",
+								"type": "once",
+								"tag": "\"SmokeTimer2\""
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 367162639073663,
+							"parameters": {
+								"object-to-create": "Smoke",
+								"layer": "\"World\"",
+								"x": "Building.X + random(Building.Width/2) - Building.Width/4",
+								"y": "Building.Y + random(Building.Height/2) - Building.Height/4",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Smoke",
+							"sid": 216607526287409,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SmokeOpacity\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Smoke",
+							"sid": 932955590502930,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"SmokeSize\"",
+								"property": "size",
+								"end-x": "0",
+								"end-y": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 802848104367337
+				}
+			],
+			"sid": 436841706295860
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Delete Game State",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Delete local storage and reset the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 618499170775548,
+							"parameters": {
+								"key": 46
+							}
+						},
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 987960306691749,
+							"parameters": {
+								"key": 82
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "clear-storage",
+							"objectClass": "LocalStorage",
+							"sid": 181928065018445
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 724202178589080
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 634033007425963
+						}
+					],
+					"sid": 958958992952893,
+					"isOrBlock": true
+				}
+			],
+			"sid": 726405669915675
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Clouds",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Animate clouds"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 532444277211495
+						}
+					],
+					"actions": [
+						{
+							"id": "move-to-top",
+							"objectClass": "Clouds",
+							"sid": 121197990416888
+						},
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Clouds",
+							"sid": 796413239490849,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX - dt * 20"
+							}
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "Clouds",
+							"sid": 540856424849493,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + dt * 10"
+							}
+						}
+					],
+					"sid": 914339725248032
+				}
+			],
+			"sid": 318374379368197
+		}
+	],
+	"sid": 237591174883204
+}

@@ -1,0 +1,993 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "stickersPlaced",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Amount of stickers correctly placed",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 760633368228210
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Stickers",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create a new sticker."
+				},
+				{
+					"functionName": "createSticker",
+					"functionDescription": "Create a new sticker",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "inventorySlot",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Inventory slot to place the sticker.",
+							"sid": 509896836393008
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 220141068033349,
+							"parameters": {
+								"object": "StickerInventory",
+								"expression": "StickerInventory.inventoryID = inventorySlot"
+							}
+						},
+						{
+							"id": "is-empty",
+							"objectClass": "InventoryArray",
+							"sid": 159866701679345,
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Create sticker outside the screen."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 655139085447401,
+							"parameters": {
+								"object-to-create": "Sticker",
+								"layer": "\"Game\"",
+								"x": "StickerInventory.X + 264",
+								"y": "StickerInventory.Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move sticker to the top of the layer."
+						},
+						{
+							"id": "move-to-top",
+							"objectClass": "Sticker",
+							"sid": 173214925341900
+						},
+						{
+							"type": "comment",
+							"text": "Increase scale a bit."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Sticker",
+							"sid": 248134643155186,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"StickerScale\"",
+								"property": "scale",
+								"end-x": "1.5",
+								"end-y": "1.5",
+								"time": "0.2",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set its animation equal to the next value in the array."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Sticker",
+							"sid": 291755025721462,
+							"parameters": {
+								"animation": "str(InventoryArray.At(0))",
+								"from": "beginning"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Sticker",
+							"sid": 554775427998367,
+							"parameters": {
+								"instance-variable": "inventoryID",
+								"value": "inventorySlot"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Remove this value from the array."
+						},
+						{
+							"id": "pop",
+							"objectClass": "InventoryArray",
+							"sid": 539632477504381,
+							"parameters": {
+								"where": "front",
+								"axis": "x"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Bring sticker to inventory."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Sticker",
+							"sid": 534771403105828,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BringStickerToInventory\"",
+								"property": "offsetX",
+								"end-value": "StickerInventory.X",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 919155230581155
+				},
+				{
+					"eventType": "comment",
+					"text": "When a sticker is brought to the inventory, its DragDrop gets enabled, if the tutorial is not visible."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Sticker",
+							"sid": 189559754779442,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BringStickerToInventory\""
+							}
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextTutorial",
+							"sid": 475643178912187,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "Sticker",
+							"sid": 855959113444959,
+							"behaviorType": "DragDrop",
+							"parameters": {
+								"state": "enabled"
+							}
+						}
+					],
+					"sid": 682243489369488
+				},
+				{
+					"eventType": "comment",
+					"text": "Change luminosity and size according to StickerHighlight tween value."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Sticker",
+							"sid": 847834751676066,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"StickerHighlight\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "Sticker",
+							"sid": 599082625885020,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Self.Tween.Value(\"StickerHighlight\")"
+							}
+						},
+						{
+							"id": "set-scale",
+							"objectClass": "Sticker",
+							"sid": 367531332945365,
+							"parameters": {
+								"scale": "Self.Tween.Value(\"StickerHighlight\")/100"
+							}
+						}
+					],
+					"sid": 453990557076406
+				}
+			],
+			"sid": 639053668164944
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 373838674843966
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Disable player controls."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 590731822606459,
+							"parameters": {
+								"group-name": "\"Drag and Drop\"",
+								"state": "deactivated"
+							}
+						}
+					],
+					"sid": 903974324367178,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Populate array with the available stickers (animation names)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 260797909281749,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "1",
+										"end-index": "InventoryArray.Width"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-at-x",
+									"objectClass": "InventoryArray",
+									"sid": 510737077821218,
+									"parameters": {
+										"x": "loopindex(\"i\") - 1",
+										"value": "loopindex(\"i\")"
+									}
+								}
+							],
+							"sid": 132233702269141
+						},
+						{
+							"eventType": "comment",
+							"text": "Shuffle array so that stickers come in a random order."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "shuffle",
+									"objectClass": "InventoryArray",
+									"sid": 951737322918176,
+									"parameters": {
+										"axis": "x"
+									}
+								}
+							],
+							"sid": 224771802302016
+						},
+						{
+							"eventType": "comment",
+							"text": "Place initial stickers."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"callFunction": "createSticker",
+									"sid": 629567272460180,
+									"parameters": [
+										"0"
+									]
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 807677430396117,
+									"parameters": {
+										"seconds": "0.1"
+									}
+								},
+								{
+									"callFunction": "createSticker",
+									"sid": 993325658520324,
+									"parameters": [
+										"1"
+									]
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 427681050859951,
+									"parameters": {
+										"seconds": "0.1"
+									}
+								},
+								{
+									"callFunction": "createSticker",
+									"sid": 522491177135221,
+									"parameters": [
+										"2"
+									]
+								}
+							],
+							"sid": 975436475351723
+						}
+					]
+				}
+			],
+			"sid": 686594725566091
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tutorial",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the player taps anywhere, hide tutorial."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tap",
+							"objectClass": "Touch",
+							"sid": 992148483215262
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Hide tutorial."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 640543506411646,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FaderOpacity0\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTutorial",
+							"sid": 816006209218606,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TextTutorialOpacity0\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 561172827875273
+				},
+				{
+					"eventType": "comment",
+					"text": "When fader finishes getting transparent, enable player controls and DragDrops."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Fader",
+							"sid": 614736741547755,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FaderOpacity0\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 168774674036849,
+							"parameters": {
+								"group-name": "\"Drag and Drop\"",
+								"state": "activated"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Sticker",
+							"sid": 559699722423976,
+							"behaviorType": "DragDrop",
+							"parameters": {
+								"state": "enabled"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "BGIncomplete",
+							"sid": 937799629118924,
+							"behaviorType": "DragDrop",
+							"parameters": {
+								"state": "enabled"
+							}
+						}
+					],
+					"sid": 253151039920411
+				}
+			],
+			"sid": 747844750788479
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Drag and Drop",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player picked a sticker up."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-drag-start",
+							"objectClass": "Sticker",
+							"sid": 845589382756753,
+							"behaviorType": "DragDrop"
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Move sticker to the top of the layer."
+						},
+						{
+							"id": "move-to-top",
+							"objectClass": "Sticker",
+							"sid": 172196304874802
+						},
+						{
+							"type": "comment",
+							"text": "Reduce scale to the normal size."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "Sticker",
+							"sid": 452732018714791,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"StickerScale\"",
+								"property": "scale",
+								"end-x": "1.0",
+								"end-y": "1.0",
+								"time": "0.2",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 673798813562278
+				},
+				{
+					"eventType": "comment",
+					"text": "Player dropped a sticker."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-drop",
+							"objectClass": "Sticker",
+							"sid": 836826204513310,
+							"behaviorType": "DragDrop"
+						},
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 591574130823999,
+							"parameters": {
+								"object": "StickerInventory",
+								"expression": "StickerInventory.inventoryID = Sticker.inventoryID"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 712060061231859,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player dropped the sticker onto the correct spot."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Sticker",
+									"sid": 311124694216867,
+									"parameters": {
+										"object": "StickerSpot"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "StickerSpot",
+									"sid": 715707274868487,
+									"parameters": {
+										"instance-variable": "stickerAnim",
+										"comparison": 0,
+										"value": "int(Sticker.AnimationName)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Place the sticker perfectly over the correct spot and disable the DragDrop behavior."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "Sticker",
+									"sid": 602033047073693,
+									"parameters": {
+										"x": "StickerSpot.X",
+										"y": "StickerSpot.Y"
+									}
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "Sticker",
+									"sid": 738545846620341,
+									"behaviorType": "DragDrop",
+									"parameters": {
+										"state": "disabled"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move sticker to bottom, then move the background to bottom."
+								},
+								{
+									"id": "move-to-bottom",
+									"objectClass": "Sticker",
+									"sid": 922359234598179
+								},
+								{
+									"id": "move-to-bottom",
+									"objectClass": "BGIncomplete",
+									"sid": 132070981013201
+								},
+								{
+									"type": "comment",
+									"text": "Make sticker follow the spot."
+								},
+								{
+									"id": "add-child",
+									"objectClass": "StickerSpot",
+									"sid": 178580647697249,
+									"parameters": {
+										"child": "Sticker",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": true,
+										"transform-h": true,
+										"transform-a": true,
+										"transform-o": false,
+										"transform-z-elevation": true,
+										"transform-visibility": false,
+										"destroy-with-parent": false
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play highlighting animation."
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "Sticker",
+									"sid": 401423507573622,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"StickerHighlight\"",
+										"start-value": "100",
+										"end-value": "125",
+										"time": "0.2",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "yes",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Add 1 to the amount of stickers correctly placed."
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 384803671976475,
+									"parameters": {
+										"variable": "stickersPlaced",
+										"value": "1"
+									}
+								},
+								{
+									"callFunction": "createSticker",
+									"sid": 716706457367039,
+									"parameters": [
+										"StickerInventory.inventoryID"
+									]
+								}
+							],
+							"sid": 582688810217355,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Player completed the game."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 780141526521903,
+											"parameters": {
+												"variable": "stickersPlaced",
+												"comparison": 0,
+												"value": "15"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "gameCompletedScreen",
+											"sid": 194299772986622
+										}
+									],
+									"sid": 504391586556100
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Wrong or invalid spot."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 553600666709149
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Disable DragDrop behavior."
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "Sticker",
+									"sid": 695916960423242,
+									"behaviorType": "DragDrop",
+									"parameters": {
+										"state": "disabled"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move sticker back to inventory."
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Sticker",
+									"sid": 417561874314799,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"BringStickerToInventory\"",
+										"property": "position",
+										"end-x": "StickerInventory.X",
+										"end-y": "StickerInventory.Y",
+										"time": "0.2",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Increase scale a bit."
+								},
+								{
+									"id": "tween-two-properties",
+									"objectClass": "Sticker",
+									"sid": 837442948715159,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"StickerScale\"",
+										"property": "scale",
+										"end-x": "1.5",
+										"end-y": "1.5",
+										"time": "0.2",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 308302297917196
+						}
+					]
+				}
+			],
+			"sid": 342813813105337
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game Completed",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Show game completed screen."
+				},
+				{
+					"functionName": "gameCompletedScreen",
+					"functionDescription": "Show game completed screen",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "BGComplete",
+							"sid": 839539678198494,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BGCompleteShow\"",
+								"property": "offsetWidth",
+								"end-value": "1920",
+								"time": "5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 742409849465552
+				},
+				{
+					"eventType": "comment",
+					"text": "When BGComplete is fully visible, show game completed text."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "BGComplete",
+							"sid": 117783163411095,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BGCompleteShow\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextGameCompleted",
+							"sid": 665046750047905,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TextGameOverOpacity100\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 492280130836664
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player taps the screen when game completed message is completely visible, restart the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-double-tap",
+							"objectClass": "Touch",
+							"sid": 634874812268836
+						},
+						{
+							"id": "compare-opacity",
+							"objectClass": "TextGameCompleted",
+							"sid": 132912383309305,
+							"parameters": {
+								"comparison": 0,
+								"opacity": "100"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-size",
+							"objectClass": "InventoryArray",
+							"sid": 904835264382123,
+							"parameters": {
+								"width": "15",
+								"height": "1",
+								"depth": "1"
+							}
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 998097922370829
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 444916864506243
+						}
+					],
+					"sid": 805218952085866
+				}
+			],
+			"sid": 522339858293667
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Screen Pan",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Make sure that the background always cover the whole viewport."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 958519510402335
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "BGIncomplete",
+							"sid": 169211912322650,
+							"parameters": {
+								"x": "max(min(Self.X, 0), -1280/2)",
+								"y": "max(min(Self.Y, 0), -720/2)"
+							}
+						}
+					],
+					"sid": 247651941623424
+				}
+			],
+			"sid": 205079655408669
+		}
+	],
+	"sid": 307495346317991
+}

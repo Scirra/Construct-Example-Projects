@@ -1,0 +1,238 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "On start of layout, prepare the list of speech synthesis voices. The first item is always the default setting."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 7229014444493742
+				}
+			],
+			"actions": [
+				{
+					"id": "clear",
+					"objectClass": "List",
+					"sid": 4671374586289117
+				},
+				{
+					"id": "add-item",
+					"objectClass": "List",
+					"sid": 53812628119478,
+					"parameters": {
+						"text": "\"(default)\""
+					}
+				},
+				{
+					"id": "set-selection",
+					"objectClass": "List",
+					"sid": 3176739161011183,
+					"parameters": {
+						"index": "0"
+					}
+				}
+			],
+			"sid": 6901627747643915,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "For each voice available, add it to the list."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 993333615705864,
+							"parameters": {
+								"count": "SpeechSynthesis.VoiceCount"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-item",
+							"objectClass": "List",
+							"sid": 582776244433252,
+							"parameters": {
+								"text": "SpeechSynthesis.VoiceLangAt(loopindex) & \": \" & SpeechSynthesis.VoiceNameAt(loopindex) & \" (\" & SpeechSynthesis.VoiceURIAt(loopindex) & \")\""
+							}
+						}
+					],
+					"sid": 1665246099948564
+				},
+				{
+					"eventType": "comment",
+					"text": "On start of layout, also indicate if speech synthesis is not supported."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "supports-speech-synthesis",
+							"objectClass": "SpeechSynthesis",
+							"sid": 641576273618294,
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "SpeechSupported",
+							"sid": 8218914958824226,
+							"parameters": {
+								"text": "\"Sorry, this browser does not support speech synthesis\""
+							}
+						},
+						{
+							"id": "set-font-color",
+							"objectClass": "SpeechSupported",
+							"sid": 9856140760649076,
+							"parameters": {
+								"color": "rgb(255, 0, 0)"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Speak",
+							"sid": 7398085262000391,
+							"parameters": {
+								"mode": "disabled"
+							}
+						}
+					],
+					"sid": 8096271315687114
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When the speak button is clicked, read out the text with the chosen setting."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "Speak",
+					"sid": 7580963375437683
+				}
+			],
+			"actions": [],
+			"sid": 4189427270665439,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the first item is selected, that is the \"(default)\" option, so don't specify any voice."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-selection",
+							"objectClass": "List",
+							"sid": 9694981832534456,
+							"parameters": {
+								"comparison": 0,
+								"index": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "speak-text",
+							"objectClass": "SpeechSynthesis",
+							"sid": 722402883816177,
+							"parameters": {
+								"text": "SpeakText.Text",
+								"language": "\"\"",
+								"voice-uri": "\"\"",
+								"volume": "0",
+								"rate": "float(Rate.Text)",
+								"pitch": "float(Pitch.Text)"
+							}
+						}
+					],
+					"sid": 4984986678470509
+				},
+				{
+					"eventType": "comment",
+					"text": "Otherwise a voice is selected, so set that voice to be used. Note since the first item is always the default, we subtract 1 from the selected item index to get the actual voice index."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 900517395688669
+						}
+					],
+					"actions": [
+						{
+							"id": "speak-text",
+							"objectClass": "SpeechSynthesis",
+							"sid": 150404932039832,
+							"parameters": {
+								"text": "SpeakText.Text",
+								"language": "\"\"",
+								"voice-uri": "SpeechSynthesis.VoiceURIAt(List.SelectedIndex - 1)",
+								"volume": "0",
+								"rate": "float(Rate.Text)",
+								"pitch": "float(Pitch.Text)"
+							}
+						}
+					],
+					"sid": 4957818054342945
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Pause and resume speaking with the other buttons."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "Pause",
+					"sid": 3202632566328858
+				}
+			],
+			"actions": [
+				{
+					"id": "pause-speaking",
+					"objectClass": "SpeechSynthesis",
+					"sid": 694430051081153
+				}
+			],
+			"sid": 7949751008345161
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "Resume",
+					"sid": 1571798479918343
+				}
+			],
+			"actions": [
+				{
+					"id": "resume-speaking",
+					"objectClass": "SpeechSynthesis",
+					"sid": 129582004280052
+				}
+			],
+			"sid": 6038501297847095
+		}
+	],
+	"sid": 621309063190340
+}

@@ -1,0 +1,796 @@
+{
+	"name": "Quiz events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "This quiz example uses question data from the project file quizQuestions.json.\n\nEach question is composed of a question (Q_), 3 answers (A0_, A1_, A2_), the number for the correct answer (S_; from 0 to 2) and a text displayed to accompany the reveal of the solution (txtS_).\nAfter each underscore (\"_\") there is the ID (a string of your choice) of the question.\n\nThe file also contains a \"questionCount\" value so we know how many questions the file contains."
+		},
+		{
+			"eventType": "variable",
+			"name": "correctAnswer",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The ID for the correct answer",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 637805806842032
+		},
+		{
+			"eventType": "variable",
+			"name": "pickedAnswer",
+			"type": "number",
+			"initialValue": "-1",
+			"comment": "The ID for the answer picked by the user",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 420095394354276
+		},
+		{
+			"eventType": "variable",
+			"name": "currentQuestion",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The current question number as part of its ID",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 687126523078102
+		},
+		{
+			"eventType": "variable",
+			"name": "readyToAnswer",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Will the user inputs be taken into account or not",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 273691907872398
+		},
+		{
+			"eventType": "variable",
+			"name": "Score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The number of correctly answered questions",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 548609122352205
+		},
+		{
+			"eventType": "comment",
+			"text": "On start of the layout, we are requesting \"quizContent.json\" to populate our dictionary"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 391745375127406
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 919624810811497,
+					"parameters": {
+						"variable": "Score",
+						"value": "0"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 732159215000450,
+					"parameters": {
+						"variable": "currentQuestion",
+						"value": "0"
+					}
+				},
+				{
+					"id": "request-project-file",
+					"objectClass": "AJAX",
+					"sid": 417098743944755,
+					"parameters": {
+						"tag": "\"quizQuestions\"",
+						"file": "quizQuestions.json"
+					}
+				}
+			],
+			"sid": 814827527765942
+		},
+		{
+			"eventType": "comment",
+			"text": "The dictionary is populated with \"quizContent\". Once done, we load the first question and display it thanks to its ID (here, \"ID0\"). "
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-completed",
+					"objectClass": "AJAX",
+					"sid": 663506433427963,
+					"parameters": {
+						"tag": "\"quizQuestions\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "load",
+					"objectClass": "Dictionary",
+					"sid": 851753196075699,
+					"parameters": {
+						"json": "AJAX.LastData"
+					}
+				},
+				{
+					"callFunction": "loadQuestion",
+					"sid": 557194138451013,
+					"parameters": [
+						"\"ID\" & currentQuestion"
+					]
+				}
+			],
+			"sid": 771629200542353
+		},
+		{
+			"eventType": "comment",
+			"text": "This function loads the question for which the ID was passed and displays it, making the quiz ready to expect the user's answer."
+		},
+		{
+			"functionName": "loadQuestion",
+			"functionDescription": "",
+			"functionCategory": "questions",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "qID",
+					"type": "string",
+					"initialValue": "",
+					"comment": "ID for the question",
+					"sid": 985100004133718
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "txtQuestion",
+					"sid": 243391810815644,
+					"parameters": {
+						"text": "Dictionary.Get(\"Q_\" & qID)"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "txtNext",
+					"sid": 855271721751439,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 610404400102204,
+					"parameters": {
+						"variable": "pickedAnswer",
+						"value": "-1"
+					}
+				}
+			],
+			"sid": 888573605495727,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "We display the appropriate answer by picking the corresponding txtAnswer instance. Notice that the Sprite Answer is automatically correctly picked as it is part of a container with txtAnswer."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 213214425364910,
+							"parameters": {
+								"name": "\"question\"",
+								"start-index": "0",
+								"end-index": "2"
+							}
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "txtAnswer",
+							"sid": 805071418446324,
+							"parameters": {
+								"instance-variable": "ID",
+								"comparison": 0,
+								"value": "loopindex"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "txtAnswer",
+							"sid": 574293310082432,
+							"parameters": {
+								"text": "Dictionary.Get(\"A\" & loopindex &\"_\" & qID)"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Answer",
+							"sid": 422651333032614,
+							"parameters": {
+								"frame-number": "0"
+							}
+						}
+					],
+					"sid": 145314867084458
+				},
+				{
+					"eventType": "comment",
+					"text": "'readyToAnswer' is set to true to indicate that we now allow the user to place an input (pick an answer)"
+				},
+				{
+					"eventType": "block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 952890273191439,
+							"parameters": {
+								"variable": "correctAnswer",
+								"value": "Dictionary.Get(\"S_\" & qID)"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtSolution",
+							"sid": 384488184632169,
+							"parameters": {
+								"text": "Dictionary.Get(\"txtS_\" & qID)"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "txtSolution",
+							"sid": 935280626119406,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 585681007983673,
+							"parameters": {
+								"variable": "readyToAnswer",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 686516235834945
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When readyToAnswer is set to true and the user clicks/touches an Answer sprite or a txtAnswer instance, it considers it as the picked answer"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 445477148052468,
+					"parameters": {
+						"object": "Answer"
+					}
+				},
+				{
+					"id": "on-touched-object",
+					"objectClass": "Touch",
+					"sid": 812765505485716,
+					"parameters": {
+						"object": "txtAnswer"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 215248060010430,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "We display the picked answer in the Answer sprite and start a 1 second delay before checking the answer"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 566037413844806,
+							"parameters": {
+								"variable": "readyToAnswer"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Answer",
+							"sid": 932836776693524,
+							"parameters": {
+								"frame-number": "1"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 315123779926219,
+							"parameters": {
+								"variable": "pickedAnswer",
+								"value": "txtAnswer.ID"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 326478543277849,
+							"parameters": {
+								"variable": "readyToAnswer",
+								"value": "false"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "txtQuestion",
+							"sid": 101744093159007,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1.0",
+								"type": "once",
+								"tag": "\"checkAnswer\""
+							}
+						}
+					],
+					"sid": 941211857774911
+				}
+			],
+			"isOrBlock": true
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "txtQuestion",
+					"sid": 561797362168555,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"checkAnswer\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"callFunction": "checkAnswer",
+					"sid": 786706710853874
+				}
+			],
+			"sid": 897487063394516
+		},
+		{
+			"eventType": "comment",
+			"text": "We display the solution accompanying text and go for a 5 seconds delay before going to the next question."
+		},
+		{
+			"functionName": "checkAnswer",
+			"functionDescription": "",
+			"functionCategory": "questions",
+			"functionReturnType": "none",
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "txtSolution",
+					"sid": 664710606528103,
+					"parameters": {
+						"visibility": "visible"
+					}
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "txtQuestion",
+					"sid": 542007337322306,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "5",
+						"type": "once",
+						"tag": "\"nextQuestion\""
+					}
+				}
+			],
+			"sid": 722199511765133,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The picked answer was not the correct answer"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 571729992972687,
+							"parameters": {
+								"variable": "pickedAnswer",
+								"comparison": 1,
+								"value": "correctAnswer"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 942618232060430,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "We display the correct answer"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "txtAnswer",
+									"sid": 984922476564717,
+									"parameters": {
+										"instance-variable": "ID",
+										"comparison": 0,
+										"value": "correctAnswer"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Answer",
+									"sid": 169530592940606,
+									"parameters": {
+										"frame-number": "3"
+									}
+								}
+							],
+							"sid": 399622065291232
+						},
+						{
+							"eventType": "comment",
+							"text": "We indicate the picked answer was wrong"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "txtAnswer",
+									"sid": 948292139237951,
+									"parameters": {
+										"instance-variable": "ID",
+										"comparison": 0,
+										"value": "pickedAnswer"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Answer",
+									"sid": 692392219671422,
+									"parameters": {
+										"frame-number": "2"
+									}
+								}
+							],
+							"sid": 527411374927165
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "The picked answer was the correct answer"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 816419052235573,
+							"parameters": {
+								"variable": "pickedAnswer",
+								"comparison": 0,
+								"value": "correctAnswer"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 951613681551518,
+							"parameters": {
+								"variable": "Score",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 937562394938951,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "We display the picked answer as the correct answer"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "txtAnswer",
+									"sid": 316196911593592,
+									"parameters": {
+										"instance-variable": "ID",
+										"comparison": 0,
+										"value": "pickedAnswer"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Answer",
+									"sid": 427651656412714,
+									"parameters": {
+										"frame-number": "3"
+									}
+								}
+							],
+							"sid": 787274583266067
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "While the timer for the next question is running, we display the text for it and the remaining time"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-timer-running",
+					"objectClass": "txtQuestion",
+					"sid": 979487750563138,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"nextQuestion\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "txtNext",
+					"sid": 601360360496599,
+					"parameters": {
+						"visibility": "visible"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "txtNext",
+					"sid": 743482445187433,
+					"parameters": {
+						"text": "\"Next question in \" & 6 -ceil(txtQuestion.Timer.CurrentTime(\"nextQuestion\"))"
+					}
+				}
+			],
+			"sid": 321701448564432,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 223594441421448,
+							"parameters": {
+								"first-value": "6 -ceil(txtQuestion.Timer.CurrentTime(\"nextQuestion\"))",
+								"comparison": 4,
+								"second-value": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "append-text",
+							"objectClass": "txtNext",
+							"sid": 306166106044799,
+							"parameters": {
+								"text": "\" seconds\""
+							}
+						}
+					],
+					"sid": 352084269245550
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 687316197261253
+						}
+					],
+					"actions": [
+						{
+							"id": "append-text",
+							"objectClass": "txtNext",
+							"sid": 556211144874395,
+							"parameters": {
+								"text": "\" second\""
+							}
+						}
+					],
+					"sid": 179398860937293
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "When the timer for the next question is up we add 1 to our variable that helps us making the Question ID."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "txtQuestion",
+					"sid": 827774336098514,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"nextQuestion\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "add-to-eventvar",
+					"objectClass": "System",
+					"sid": 889121252423536,
+					"parameters": {
+						"variable": "currentQuestion",
+						"value": "1"
+					}
+				}
+			],
+			"sid": 563157846224973,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "End of the questions; Again, the use of float() here to help out with the use of as a numeric value "
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 647347434426585,
+							"parameters": {
+								"variable": "currentQuestion",
+								"comparison": 5,
+								"value": "Dictionary.Get(\"questionCount\")"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "txtAnswer",
+							"sid": 593696465696010,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "txtQuestion",
+							"sid": 277245865383295,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "txtSolution",
+							"sid": 498766465950063,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "txtNext",
+							"sid": 967640650571731,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "Answer",
+							"sid": 733528162191147,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "txtEnd",
+							"sid": 214389780716957,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "txtEnd",
+							"sid": 705829706292790,
+							"parameters": {
+								"text": "\"You correctly answered \" & Score & \" questions out of \" & Dictionary.Get(\"questionCount\") & newline & \"Reload the page to play again\""
+							}
+						}
+					],
+					"sid": 861489765949855
+				},
+				{
+					"eventType": "comment",
+					"text": "We still have more questions to ask. We call the function loadQuestion with the next question's ID"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 307515887117807
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "loadQuestion",
+							"sid": 858147247080125,
+							"parameters": [
+								"\"ID\" & currentQuestion"
+							]
+						}
+					],
+					"sid": 793818610816914
+				}
+			]
+		}
+	],
+	"sid": 786872162774999
+}

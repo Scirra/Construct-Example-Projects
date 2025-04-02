@@ -1,0 +1,1896 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "How far a platform can go at once."
+		},
+		{
+			"eventType": "variable",
+			"name": "MAXDISTANCE",
+			"type": "number",
+			"initialValue": "1024",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 645740973409013
+		},
+		{
+			"eventType": "comment",
+			"text": "How long it takes for the platform to reach its maximum distance."
+		},
+		{
+			"eventType": "variable",
+			"name": "MAXDURATION",
+			"type": "number",
+			"initialValue": "2",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 758283078664695
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the player graphics by adding it as a child of its collider, so they always stay together."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "PlayerGraphics",
+							"sid": 322084195711018
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "PlayerGraphics",
+							"sid": 612412229687799,
+							"parameters": {
+								"object": "PlayerCollision",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerCollision",
+							"sid": 321496819534918,
+							"parameters": {
+								"child": "PlayerGraphics",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 808511876487923
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup the player shadow by adding it as a child of its collider, so they always stay together."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "PlayerShadow",
+							"sid": 324712511033755
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "PlayerShadow",
+							"sid": 212581053649898,
+							"parameters": {
+								"object": "PlayerCollision",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerCollision",
+							"sid": 969561154937690,
+							"parameters": {
+								"child": "PlayerShadow",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": false,
+								"transform-h": false,
+								"transform-a": false,
+								"transform-z-elevation": false,
+								"destroy-with-parent": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also move it to the \"Platforms\" layer, so it doesn't overlap the player."
+						},
+						{
+							"id": "move-to-layer",
+							"objectClass": "PlayerShadow",
+							"sid": 430076132678940,
+							"parameters": {
+								"layer": "\"Platforms\""
+							}
+						}
+					],
+					"sid": 522924210779191
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly update the player animations, but only if the player itself isn't dead."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "PlayerCollision",
+							"sid": 908946714943100,
+							"parameters": {
+								"instance-variable": "Dead"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 367660397497712,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the player is moving, calculate its angle of motion and use it to change the player walk animation to something appropriate."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-moving",
+									"objectClass": "PlayerCollision",
+									"sid": 274883300681192,
+									"behaviorType": "8Direction"
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "It's important to round the angle value to be a multiple of \"90\", since there are only four animations in the player object."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "PlayerCollision",
+									"sid": 512874782091846,
+									"parameters": {
+										"instance-variable": "AngleOfMotion",
+										"value": "round(Self.8Direction.MovingAngle / 90) * 90"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerGraphics",
+									"sid": 776684192899448,
+									"parameters": {
+										"animation": "\"Move\"&PlayerCollision.AngleOfMotion",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 348787761052522
+						},
+						{
+							"eventType": "comment",
+							"text": "However, if the player isn't moving, use the previously store angle of motion to change the player idle animation to something appropriate."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 958073538559919
+								},
+								{
+									"id": "is-moving",
+									"objectClass": "PlayerCollision",
+									"sid": 655792899173000,
+									"behaviorType": "8Direction",
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerGraphics",
+									"sid": 628756322690624,
+									"parameters": {
+										"animation": "\"Idle\"&PlayerCollision.AngleOfMotion",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 702424094685056
+						}
+					]
+				}
+			],
+			"sid": 789812608273434
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Level",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the level by adjusting a few properties on each platform depending on their local configurations."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 753919873389735
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Also move the player to the top of the layer."
+						},
+						{
+							"id": "move-to-top",
+							"objectClass": "PlayerCollision",
+							"sid": 182348014141763
+						}
+					],
+					"sid": 719540908985893,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Make sure the outline animation matches the platform animation, so they have the exact same size."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 227698536176956,
+									"parameters": {
+										"object": "Platform"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlatformOutline",
+									"sid": 617180966362131,
+									"parameters": {
+										"animation": "Platform.AnimationName",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "Platform",
+									"sid": 363984709352987,
+									"parameters": {
+										"child": "PlatformOutline",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": true
+									}
+								}
+							],
+							"sid": 558862944451072,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the platform is moveable, allow the player to walk on top of it by not making it solid."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Platform",
+											"sid": 861068289187871,
+											"parameters": {
+												"instance-variable": "Moveable"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-enabled",
+											"objectClass": "Platform",
+											"sid": 640895318868019,
+											"behaviorType": "Solid",
+											"parameters": {
+												"state": "disabled"
+											}
+										}
+									],
+									"sid": 975770698853511
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the platform isn't moveable, doesn't allow the player to walk on top of it by making it solid."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 743733034246375
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Platform",
+											"sid": 545110976611487,
+											"parameters": {
+												"instance-variable": "Moveable"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-enabled",
+											"objectClass": "Platform",
+											"sid": 847843839368986,
+											"behaviorType": "Solid",
+											"parameters": {
+												"state": "enabled"
+											}
+										}
+									],
+									"sid": 869535504330679
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 704800546106419
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Props",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the props by adding them as child of the platform they're standing on, so they always stay together."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Props",
+							"sid": 771669928491624
+						}
+					],
+					"actions": [],
+					"sid": 667960413769225,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Props",
+									"sid": 248781515701701,
+									"parameters": {
+										"object": "Platform"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-child",
+									"objectClass": "Platform",
+									"sid": 705543251815097,
+									"parameters": {
+										"child": "Props",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-z-elevation": false,
+										"destroy-with-parent": true
+									}
+								}
+							],
+							"sid": 255592614553799
+						}
+					]
+				}
+			],
+			"sid": 576923580916311
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player is on top of a platform, make the platform outline visible, so the player knows it's selected "
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 733082371707733
+						}
+					],
+					"actions": [],
+					"sid": 136568690829186,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 597275572493578,
+									"parameters": {
+										"object": "Platform"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 350178566563182,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "PlayerCollision",
+											"sid": 600391725038325,
+											"parameters": {
+												"object": "Platform"
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Platform",
+											"sid": 718013120957252,
+											"parameters": {
+												"instance-variable": "Moveable"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-opacity",
+											"objectClass": "PlatformOutline",
+											"sid": 900641225845288,
+											"parameters": {
+												"opacity": "Self.Opacity + 10 * 60 * dt"
+											}
+										}
+									],
+									"sid": 301631405423353
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the player isn't on top of a platform, make the platform outline invisible."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 620086942632332
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "PlayerCollision",
+											"sid": 202689476991823,
+											"parameters": {
+												"object": "Platform"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Platform",
+											"sid": 240924068054545,
+											"parameters": {
+												"instance-variable": "Moveable"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-opacity",
+											"objectClass": "PlatformOutline",
+											"sid": 572188027638750,
+											"parameters": {
+												"opacity": "Self.Opacity - 10 * 60 * dt"
+											}
+										}
+									],
+									"sid": 596228972447582
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is holding \"Z\" on the keyboard or \"A\" on the gamepad and is overlapping at least one platform, pick the nearest one and the player as a child of it, so they always stay together."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 317596860525242,
+							"parameters": {
+								"key": 90
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 292860566594351,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 910488160773406,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerCollision",
+									"sid": 751446052320796,
+									"parameters": {
+										"object": "Platform"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Platform",
+									"sid": 374754694776805,
+									"parameters": {
+										"instance-variable": "Moveable"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 397645672035537,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-nearestfurthest",
+											"objectClass": "Platform",
+											"sid": 297025377604394,
+											"parameters": {
+												"which": "nearest",
+												"x": "PlayerCollision.X",
+												"y": "PlayerCollision.Y"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "remove-from-parent",
+											"objectClass": "PlayerCollision",
+											"sid": 242453777617799
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Platform",
+											"sid": 866692775087521,
+											"parameters": {
+												"child": "PlayerCollision",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": false,
+												"transform-z-elevation": false,
+												"destroy-with-parent": false
+											}
+										}
+									],
+									"sid": 686309055703813,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "And if the player also press a directional key/button, move the platform below the player to that same direction."
+										},
+										{
+											"eventType": "comment",
+											"text": "Move the platform left."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-key-pressed",
+													"objectClass": "Keyboard",
+													"sid": 508411452195169,
+													"parameters": {
+														"key": 37
+													}
+												},
+												{
+													"id": "on-button-pressed",
+													"objectClass": "Gamepad",
+													"sid": 363552140212320,
+													"parameters": {
+														"gamepad": "0",
+														"button": "d-pad-left"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "MovePlatformAtAngle",
+													"sid": 306855390504938,
+													"parameters": [
+														"Platform.UID",
+														"180"
+													]
+												}
+											],
+											"sid": 986788745614816,
+											"isOrBlock": true
+										},
+										{
+											"eventType": "comment",
+											"text": "Move the platform right."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-key-pressed",
+													"objectClass": "Keyboard",
+													"sid": 171269616752403,
+													"parameters": {
+														"key": 39
+													}
+												},
+												{
+													"id": "on-button-pressed",
+													"objectClass": "Gamepad",
+													"sid": 114173972061079,
+													"parameters": {
+														"gamepad": "0",
+														"button": "d-pad-right"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "MovePlatformAtAngle",
+													"sid": 566680829957167,
+													"parameters": [
+														"Platform.UID",
+														"0"
+													]
+												}
+											],
+											"sid": 371567805000087,
+											"isOrBlock": true
+										},
+										{
+											"eventType": "comment",
+											"text": "Move the platform up."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-key-pressed",
+													"objectClass": "Keyboard",
+													"sid": 250096186419098,
+													"parameters": {
+														"key": 38
+													}
+												},
+												{
+													"id": "on-button-pressed",
+													"objectClass": "Gamepad",
+													"sid": 511946461979178,
+													"parameters": {
+														"gamepad": "0",
+														"button": "d-pad-up"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "MovePlatformAtAngle",
+													"sid": 155728996424953,
+													"parameters": [
+														"Platform.UID",
+														"270"
+													]
+												}
+											],
+											"sid": 985094759419599,
+											"isOrBlock": true
+										},
+										{
+											"eventType": "comment",
+											"text": "Move the platform down."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-key-pressed",
+													"objectClass": "Keyboard",
+													"sid": 983305417341005,
+													"parameters": {
+														"key": 40
+													}
+												},
+												{
+													"id": "on-button-pressed",
+													"objectClass": "Gamepad",
+													"sid": 498135137626930,
+													"parameters": {
+														"gamepad": "0",
+														"button": "d-pad-down"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "MovePlatformAtAngle",
+													"sid": 472492216329366,
+													"parameters": [
+														"Platform.UID",
+														"90"
+													]
+												}
+											],
+											"sid": 720973306439992,
+											"isOrBlock": true
+										}
+									]
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the player isn't holding \"Z\" on the keyboard or \"A\" on a gamepad, move only the player itself, based on the received input."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 504896555754486
+						},
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 453336689604962,
+							"parameters": {
+								"key": 90
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 999861341678014,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 635207083172946,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move the player left."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 923256255738965,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 947400029450769,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 224477957169827,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "left"
+									}
+								}
+							],
+							"sid": 185852677232353,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player right."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 881015483479179,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 449667513127573,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 330775813092308,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "right"
+									}
+								}
+							],
+							"sid": 205317648959733,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 220187808477733,
+									"parameters": {
+										"key": 38
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 972185352066029,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-up"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 293492026298909,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "up"
+									}
+								}
+							],
+							"sid": 621651929854901,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player down."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 992662817371280,
+									"parameters": {
+										"key": 40
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 590168846242840,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-down"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 860899953828434,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "down"
+									}
+								}
+							],
+							"sid": 412917220185834,
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move a specific platform at an angle."
+				},
+				{
+					"functionName": "MovePlatformAtAngle",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "PlatformUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 198915416878340
+						},
+						{
+							"name": "AngleOfMotion",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 774683981090360
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Platform",
+							"sid": 971641981385264,
+							"parameters": {
+								"unique-id": "PlatformUID"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 204584911389897,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "However, only move the platform if it's not too close to another platform and is not being moved already."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-at-offset",
+									"objectClass": "Platform",
+									"sid": 765322966617371,
+									"parameters": {
+										"object": "SolidPlatforms",
+										"offset-x": "cos(AngleOfMotion) * 2",
+										"offset-y": "sin(AngleOfMotion) * 2"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 298058141196975,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-playing",
+											"objectClass": "Platform",
+											"sid": 461317856904058,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"MoveAtAngle\""
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Adjust the platform angle of motion and tween its position towards that angle."
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Platform",
+											"sid": 661977786157041,
+											"parameters": {
+												"instance-variable": "AngleOfMotion",
+												"value": "AngleOfMotion"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Platform",
+											"sid": 996322990420012,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"MoveAtAngle\"",
+												"property": "position",
+												"end-x": "Self.X + cos(Self.AngleOfMotion) * MAXDISTANCE",
+												"end-y": "Self.Y + sin(Self.AngleOfMotion) * MAXDISTANCE",
+												"time": "MAXDURATION",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Flash the platform to show that it's being used."
+										},
+										{
+											"id": "stop-tweens",
+											"objectClass": "Platform",
+											"sid": 507966346556725,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Flash\""
+											}
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "Platform",
+											"sid": 645891521299873,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Flash\"",
+												"start-value": "200",
+												"end-value": "100",
+												"time": "0.25",
+												"ease": "default",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Spawn a very long sequence of arrows, pointing to the same direction the platform is moving towards."
+										},
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Platform",
+											"sid": 534856951700757,
+											"parameters": {
+												"object": "Arrow",
+												"layer": "\"World\"",
+												"image-point": "\"Center\"",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-width",
+											"objectClass": "Arrow",
+											"sid": 306597562654360,
+											"parameters": {
+												"width": "1024"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Arrow",
+											"sid": 781882818820586,
+											"parameters": {
+												"angle": "Platform.AngleOfMotion"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Also spawn a very long subtle light on top of the arrows, with a simple shrink animation that will eventually fade the light away."
+										},
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Platform",
+											"sid": 145941113337532,
+											"parameters": {
+												"object": "Light",
+												"layer": "\"World\"",
+												"image-point": "\"Center\"",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-size",
+											"objectClass": "Light",
+											"sid": 392175147025129,
+											"parameters": {
+												"width": "1024",
+												"height": "64"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Light",
+											"sid": 653166404338705,
+											"parameters": {
+												"angle": "Platform.AngleOfMotion"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Light",
+											"sid": 132413602173136,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Shrink\"",
+												"property": "offsetHeight",
+												"end-value": "0",
+												"time": "0.5",
+												"ease": "default",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 578337656383460
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly offset the texture of the arrows, so it look like they're moving, even though they're standing still."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 545541849980025
+						}
+					],
+					"actions": [
+						{
+							"id": "set-image-offset-x",
+							"objectClass": "Arrow",
+							"sid": 289903502035068,
+							"parameters": {
+								"offset-x": "Self.ImageOffsetX + 2 * 60 * dt"
+							}
+						}
+					],
+					"sid": 770776259596944
+				},
+				{
+					"eventType": "comment",
+					"text": "While a platform is moving, leave a trail of clones behind it using the drawing canvas plugin, so it's easier to make the clone really is identical to the original sprite."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Platform",
+							"sid": 707284148189116,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveAtAngle\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 431729849856632,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 416029236365853,
+									"parameters": {
+										"interval-seconds": "0.1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 846498810718171,
+									"parameters": {
+										"object-to-create": "DrawingCanvas",
+										"layer": "\"Darkness\"",
+										"x": "0",
+										"y": "0",
+										"create-hierarchy": false
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "DrawingCanvas",
+									"sid": 527439511789305,
+									"parameters": {
+										"width": "LayoutWidth",
+										"height": "LayoutHeight"
+									}
+								},
+								{
+									"id": "paste-object",
+									"objectClass": "DrawingCanvas",
+									"sid": 603528125065750,
+									"parameters": {
+										"object": "Platform",
+										"effects": "with-effects"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "DrawingCanvas",
+									"sid": 902322041175876,
+									"parameters": {
+										"opacity": "50"
+									}
+								}
+							],
+							"sid": 362709265145047
+						},
+						{
+							"eventType": "comment",
+							"text": "If the platform collides with another solid object, move it outside of the solid object and stop moving completely."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Platform",
+									"sid": 354530252553808,
+									"parameters": {
+										"object": "SolidPlatforms"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 775806903072703,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "while",
+											"objectClass": "System",
+											"sid": 794376062458156
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Platform",
+											"sid": 302050885168566,
+											"parameters": {
+												"object": "SolidPlatforms"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 913511214477036,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-position",
+													"objectClass": "Platform",
+													"sid": 612516220265638,
+													"parameters": {
+														"x": "Self.X + cos(Self.AngleOfMotion + 180) * 0.1",
+														"y": "Self.Y + sin(Self.AngleOfMotion + 180) * 0.1"
+													}
+												}
+											],
+											"sid": 943550055430402
+										}
+									]
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "Platform",
+											"sid": 873244723231772,
+											"parameters": {
+												"x": "Self.X + cos(Self.AngleOfMotion + 180) * 2",
+												"y": "Self.Y + sin(Self.AngleOfMotion + 180) * 2"
+											}
+										},
+										{
+											"id": "set-position",
+											"objectClass": "Platform",
+											"sid": 765660750712440,
+											"parameters": {
+												"x": "round(Self.X)",
+												"y": "round(Self.Y)"
+											}
+										},
+										{
+											"id": "stop-tweens",
+											"objectClass": "Platform",
+											"sid": 578994620285425,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"MoveAtAngle\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Also release the player from the platform and shake the screen for a much more impactful effect."
+										},
+										{
+											"id": "remove-from-parent",
+											"objectClass": "PlayerCollision",
+											"sid": 451005598231598
+										},
+										{
+											"callFunction": "ShakeScreen",
+											"sid": 668498250346445,
+											"parameters": [
+												"0.25",
+												"5"
+											]
+										}
+									],
+									"sid": 350278298537408
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 949608194609276
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Death",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the player isn't overlapping a platform it means there's no ground below it, so he must die/fall into the pit."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 682917327850310,
+							"parameters": {
+								"object": "Platform"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 357707186752714,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Prevent the player from moving while also slowly fading it away."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "PlayerCollision",
+									"sid": 306674889069538,
+									"parameters": {
+										"instance-variable": "Dead"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "PlayerCollision",
+									"sid": 545595455965314,
+									"parameters": {
+										"instance-variable": "Dead",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "PlayerCollision",
+									"sid": 414650054704610,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"state": "disabled"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerGraphics",
+									"sid": 852448319880521,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Darken\"",
+										"property": "offsetColor",
+										"end-value": "rgbEx255(0, 0, 0)",
+										"time": "0.5",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerGraphics",
+									"sid": 641271275842457,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeOut\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 428482973756876
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the player is dead, restart the game after a small delay."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "PlayerGraphics",
+							"sid": 541557918308749,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 898661483715889,
+							"parameters": {
+								"seconds": "1"
+							}
+						},
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 126261397458116
+						}
+					],
+					"sid": 734119908174448
+				}
+			],
+			"sid": 843382738860308
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly track the player by changing the scroll X and Y position to match the player position, but using linear interpolation for a smoother result."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 952755896695070
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 284034030180256,
+							"parameters": {
+								"x": "lerp(scrollx, PlayerCollision.X, 0.1 * 60 * dt)",
+								"y": "lerp(scrolly, PlayerCollision.Y, 0.1 * 60 * dt)"
+							}
+						}
+					],
+					"sid": 237048530775623
+				},
+				{
+					"eventType": "comment",
+					"text": "Shake the screen by randomizing the layout angle based on a \"Duration\" and \"Strength\" parameters."
+				},
+				{
+					"functionName": "ShakeScreen",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Duration",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 883988523886047
+						},
+						{
+							"name": "Strength",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 512317202303463
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-value",
+							"objectClass": "GameManager",
+							"sid": 564089009002843,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\"",
+								"start-value": "Strength",
+								"end-value": "0",
+								"time": "Duration",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 531829063178315
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "GameManager",
+							"sid": 614670759643009,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScreenShake\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-angle",
+							"objectClass": "System",
+							"sid": 542109992110040,
+							"parameters": {
+								"angle": "random(-GameManager.Tween.Value(\"ScreenShake\"), GameManager.Tween.Value(\"ScreenShake\"))"
+							}
+						}
+					],
+					"sid": 882195872550262
+				}
+			],
+			"sid": 626618431392729
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Flash",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update the luminosity of a platform while it's playing a \"Flash\" tween animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Platform",
+							"sid": 614654438633006,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Flash\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "Platform",
+							"sid": 556341447399425,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Self.Tween.Value(\"Flash\")"
+							}
+						}
+					],
+					"sid": 367111960052391
+				}
+			],
+			"sid": 898296960809574
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Rain",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How far a rain drop can be spawned from the player position."
+				},
+				{
+					"eventType": "variable",
+					"name": "RAINRANGE",
+					"type": "number",
+					"initialValue": "512",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 123293644767072
+				},
+				{
+					"eventType": "comment",
+					"text": "How long it takes for each rain drop to hit the ground."
+				},
+				{
+					"eventType": "variable",
+					"name": "RAINDURATION",
+					"type": "number",
+					"initialValue": "2",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 484820876973544
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn rain drops around the player position in very small time intervals."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 131340818168902,
+							"parameters": {
+								"interval-seconds": "0.05"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 799001317737862,
+							"parameters": {
+								"object-to-create": "RainDrop",
+								"layer": "\"Rain\"",
+								"x": "PlayerCollision.X + random(-RAINRANGE / 2, RAINRANGE / 2)",
+								"y": "PlayerCollision.Y - RAINRANGE / 2",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "RainDrop",
+							"sid": 962033618424500,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Move\"",
+								"property": "position",
+								"end-x": "Self.X + cos(75) * RAINRANGE",
+								"end-y": "Self.Y + sin(75) * RAINRANGE",
+								"time": "RAINDURATION",
+								"ease": "default",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "RainDrop",
+							"sid": 350223936815950,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeOut\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "RAINDURATION",
+								"ease": "default",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 716868716972819
+				}
+			],
+			"sid": 697513398689310
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ZOrder",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly update the Z order of all platforms and props in the layouts."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 611217660536848
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "ZOrderPlatforms",
+							"sid": 508171851139476,
+							"parameters": {
+								"instance-variable": "ZOrder",
+								"value": "Self.Y"
+							}
+						},
+						{
+							"id": "sort-z-order",
+							"objectClass": "System",
+							"sid": 902459594888597,
+							"parameters": {
+								"object": "ZOrderPlatforms",
+								"instance-variable": {
+									"name": "ZOrder",
+									"objectClass": "ZOrderPlatforms"
+								}
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "ZOrderProps",
+							"sid": 652015378165520,
+							"parameters": {
+								"instance-variable": "ZOrder",
+								"value": "Self.ImagePointY(\"Bottom\")"
+							}
+						},
+						{
+							"id": "sort-z-order",
+							"objectClass": "System",
+							"sid": 481435143052097,
+							"parameters": {
+								"object": "ZOrderProps",
+								"instance-variable": {
+									"name": "ZOrder",
+									"objectClass": "ZOrderProps"
+								}
+							}
+						}
+					],
+					"sid": 797347756094753
+				}
+			],
+			"sid": 368597545004393
+		}
+	],
+	"sid": 807402783324067
+}

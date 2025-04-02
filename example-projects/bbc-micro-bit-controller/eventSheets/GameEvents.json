@@ -1,0 +1,516 @@
+{
+	"name": "GameEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "[h1]Set up micro:bit[/h1]\nTo use this example, the BBC micro:bit must be running code that starts the relevant Bluetooth services.\nYou can use this MakeCode project: https://makecode.microbit.org/_1D095uH7HHoM"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "BBC micro:bit control",
+			"description": "Events specific to using the BBC micro:bit to control the player.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Use the device tilt to control the player. The accelerometer readings range from -1 to 1, with the X reading being the left-right tilt, and the Y reading being the forwards-backwards tilt. These can both be used like a joystick position, just using a tilt reading instead of a stick position reading, from which the angle and distance of control can be calculated."
+				},
+				{
+					"eventType": "variable",
+					"name": "TiltAngle",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 437865058261107
+				},
+				{
+					"eventType": "variable",
+					"name": "TiltDistance",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 575932663056142
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 341596820398461
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 441758352692349,
+							"parameters": {
+								"variable": "TiltAngle",
+								"value": "angle(0, 0, BBCMicrobit.AccelerometerSmoothedX, BBCMicrobit.AccelerometerSmoothedY)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 135032850495350,
+							"parameters": {
+								"variable": "TiltDistance",
+								"value": "distance(0, 0, BBCMicrobit.AccelerometerSmoothedX, BBCMicrobit.AccelerometerSmoothedY)"
+							}
+						}
+					],
+					"sid": 426702616299565
+				},
+				{
+					"eventType": "comment",
+					"text": "Only move the player if the calculated tilt distance is more than 0.2. This avoids moving the player when the device is close to its flat orientation, making it easier for the player to stop the movement. If it has been tilted far enough, then move the player at a speed of 200 pixels per second at the tilt angle."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 958987404540302,
+							"parameters": {
+								"variable": "TiltDistance",
+								"comparison": 4,
+								"value": "0.2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "move-at-angle",
+							"objectClass": "Player",
+							"sid": 879130413208213,
+							"parameters": {
+								"angle": "TiltAngle",
+								"distance": "200 * dt"
+							}
+						}
+					],
+					"sid": 378147686301299
+				},
+				{
+					"eventType": "comment",
+					"text": "Track whether button A is currently down by setting a boolean when button A is pressed and released.\nNote: with a poor Bluetooth signal sometimes messages may be lost, which can cause the state to be stuck until the button is pressed again."
+				},
+				{
+					"eventType": "variable",
+					"name": "ButtonADown",
+					"type": "boolean",
+					"initialValue": "false",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 387642332805914
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-button-pressed",
+							"objectClass": "BBCMicrobit",
+							"sid": 529216944397135,
+							"parameters": {
+								"button": "a",
+								"input": "pressed"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 975470983195275,
+							"parameters": {
+								"variable": "ButtonADown",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 643661635119016
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-button-pressed",
+							"objectClass": "BBCMicrobit",
+							"sid": 174185299794240,
+							"parameters": {
+								"button": "a",
+								"input": "released"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 425681554739377,
+							"parameters": {
+								"variable": "ButtonADown",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 995251506689735
+				},
+				{
+					"eventType": "comment",
+					"text": "While the player is holding button A down, keep shooting lasers."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 907466433096469,
+							"parameters": {
+								"variable": "ButtonADown"
+							}
+						},
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 768050988041372,
+							"parameters": {
+								"interval-seconds": "0.1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 854357182804007,
+							"parameters": {
+								"object": "PlayerLaser",
+								"layer": "\"Game\"",
+								"image-point": "1",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 814956858139537
+				},
+				{
+					"eventType": "comment",
+					"text": "If the device disconnects during gameplay, set the status text so the player can see what happened."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-device-disconnected",
+							"objectClass": "BBCMicrobit",
+							"sid": 459000618442373
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 626615604613582,
+							"parameters": {
+								"text": "\"Device disconnected - try restarting\""
+							}
+						}
+					],
+					"sid": 635532674605448
+				}
+			],
+			"sid": 800311118950408
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game events",
+			"description": "The events to control the rest of the game.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Make a random enemy shoot every 1 second."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 999981439128804,
+							"parameters": {
+								"interval-seconds": "1.0"
+							}
+						},
+						{
+							"id": "pick-random-instance",
+							"objectClass": "System",
+							"sid": 291563924091988,
+							"parameters": {
+								"object": "Enemy"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Enemy",
+							"sid": 737472992941064,
+							"parameters": {
+								"object": "EnemyLaser",
+								"layer": "\"Game\"",
+								"image-point": "1",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 422021704418482
+				},
+				{
+					"eventType": "comment",
+					"text": "Every 2 seconds make a new enemy spawn at a random horizontal position at the top of the screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 506162766576711,
+							"parameters": {
+								"interval-seconds": "2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 134173234848143,
+							"parameters": {
+								"object-to-create": "Enemy",
+								"layer": "\"Game\"",
+								"x": "random(30, 450)",
+								"y": "-20",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						}
+					],
+					"sid": 597784123213558
+				},
+				{
+					"eventType": "comment",
+					"text": "If a player bullet hits an enemy, subtract 1 from their health.  If the enemy runs out of health, destroy it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "PlayerLaser",
+							"sid": 985071717839463,
+							"parameters": {
+								"object": "Enemy"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "Enemy",
+							"sid": 641242976820983,
+							"parameters": {
+								"instance-variable": "Health",
+								"value": "1"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "PlayerLaser",
+							"sid": 458014726596910
+						}
+					],
+					"sid": 158867333813554
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Enemy",
+							"sid": 221012067427075,
+							"parameters": {
+								"instance-variable": "Health",
+								"comparison": 3,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Enemy",
+							"sid": 157430856354139
+						}
+					],
+					"sid": 267025169707809
+				},
+				{
+					"eventType": "comment",
+					"text": "If an enemy bullet hits the player, just destroy the bullet.  TODO: player health!"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "EnemyLaser",
+							"sid": 691900568328910,
+							"parameters": {
+								"object": "Player"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "EnemyLaser",
+							"sid": 168665244015769
+						}
+					],
+					"sid": 236917083457324
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy any enemies which make it to the bottom of the screen and leave the layout."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-y",
+							"objectClass": "Enemy",
+							"sid": 734669735942723,
+							"parameters": {
+								"comparison": 5,
+								"y-co-ordinate": "LayoutHeight"
+							}
+						},
+						{
+							"id": "is-outside-layout",
+							"objectClass": "Enemy",
+							"sid": 366183216205388
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Enemy",
+							"sid": 880060728281509
+						}
+					],
+					"sid": 551261401728422
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the initial star object in the layout."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 478420736049708
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Star",
+							"sid": 348714265736725
+						}
+					],
+					"sid": 591672453667505
+				},
+				{
+					"eventType": "comment",
+					"text": "Create 50 random stars with different speeds and sizes on startup to create a space background effect.  The stars have a wrap behavior which keeps them on-screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 451460293949986
+						},
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 109289155744694,
+							"parameters": {
+								"count": "50"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 134187667567065,
+							"parameters": {
+								"object-to-create": "Star",
+								"layer": "\"Background\"",
+								"x": "random(LayoutWidth)",
+								"y": "random(LayoutHeight)",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "Star",
+							"sid": 295972273875616,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"speed": "random(10, 80)"
+							}
+						},
+						{
+							"id": "set-scale",
+							"objectClass": "Star",
+							"sid": 517218371127288,
+							"parameters": {
+								"scale": "Self.Bullet.Speed / 250"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "Star",
+							"sid": 290989506569014,
+							"parameters": {
+								"opacity": "Self.Bullet.Speed"
+							}
+						}
+					],
+					"sid": 637977865044036
+				}
+			],
+			"sid": 168927192654916
+		}
+	],
+	"sid": 979043382771663
+}

@@ -1,0 +1,1966 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Where the player is currently looking at."
+		},
+		{
+			"eventType": "variable",
+			"name": "PlayerDirection",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 160210955497828
+		},
+		{
+			"eventType": "comment",
+			"text": "Gamepad deadzone."
+		},
+		{
+			"eventType": "variable",
+			"name": "GAMEPADDEADZONE",
+			"type": "number",
+			"initialValue": "50",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 597494311107614
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GameManager",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Spawn a game manager object is there's none in the scene. This is useful for creating global timers and tween values."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 538218873664248
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 758068307137476,
+							"parameters": {
+								"first-value": "GameManager.Count",
+								"comparison": 0,
+								"second-value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 838115032714222,
+							"parameters": {
+								"object-to-create": "GameManager",
+								"layer": "\"HUD\"",
+								"x": "GameManager.Width/2",
+								"y": "GameManager.Height/2",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 103591093035584
+				}
+			],
+			"sid": 447856589219045
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "PlayerSetup",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Reset global variables to prevent traces from previous sessions."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 796671218886728
+								}
+							],
+							"actions": [
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 927961188957356
+								}
+							],
+							"sid": 717612525165036
+						},
+						{
+							"eventType": "comment",
+							"text": "Pin the player graphics to the player collision, so they're always close to each other."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-created",
+									"objectClass": "PlayerGraphics",
+									"sid": 594730415360274
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "PlayerGraphics",
+									"sid": 841884366138315,
+									"parameters": {
+										"object": "PlayerCollision",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "pin-to-object-properties",
+									"objectClass": "PlayerGraphics",
+									"sid": 456359055717821,
+									"behaviorType": "Pin",
+									"parameters": {
+										"pin-to": "PlayerCollision",
+										"x": true,
+										"y": true,
+										"angle": false,
+										"width-type": "no",
+										"height-type": "no",
+										"z": false
+									}
+								}
+							],
+							"sid": 960983322737064
+						},
+						{
+							"eventType": "comment",
+							"text": "Pin the warning sign to the player collision, so they're always close to each other."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-created",
+									"objectClass": "WarningSign",
+									"sid": 788282668941373
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "WarningSign",
+									"sid": 306881972209191,
+									"parameters": {
+										"x": "PlayerCollision.X",
+										"y": "PlayerCollision.Y-32"
+									}
+								},
+								{
+									"id": "pin-to-object-properties",
+									"objectClass": "WarningSign",
+									"sid": 652638846790263,
+									"behaviorType": "Pin",
+									"parameters": {
+										"pin-to": "PlayerCollision",
+										"x": true,
+										"y": true,
+										"angle": false,
+										"width-type": "no",
+										"height-type": "no",
+										"z": false
+									}
+								}
+							],
+							"sid": 738941211351855
+						},
+						{
+							"eventType": "comment",
+							"text": "Store the player direction (-1 for left and 1 for right) in a variable that be used for multiple things, like defining the direction of a projectile."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-two-values",
+									"objectClass": "System",
+									"sid": 289626576519842,
+									"parameters": {
+										"first-value": "PlayerGraphics.Count",
+										"comparison": 0,
+										"second-value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 516778094916761,
+									"parameters": {
+										"variable": "PlayerDirection",
+										"value": "PlayerGraphics.Width / abs(PlayerGraphics.Width)"
+									}
+								}
+							],
+							"sid": 478589958460144
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 344464537936998
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 725092179223972,
+									"parameters": {
+										"variable": "PlayerDirection",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 964949139436688
+						}
+					],
+					"sid": 784603836528212
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "PlayerControls",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move the player to the left."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 940876619458367,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 485439395839532,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								},
+								{
+									"id": "compare-axis",
+									"objectClass": "Gamepad",
+									"sid": 419270119767849,
+									"parameters": {
+										"gamepad": "0",
+										"axis": "left-analog-x-axis",
+										"comparison": 2,
+										"value": "-GAMEPADDEADZONE"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 855623151936150,
+									"behaviorType": "Platform",
+									"parameters": {
+										"control": "left"
+									}
+								}
+							],
+							"sid": 264402595788968,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Move the player to the right."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 419887578263887,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 910485628604972,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								},
+								{
+									"id": "compare-axis",
+									"objectClass": "Gamepad",
+									"sid": 580428591970963,
+									"parameters": {
+										"gamepad": "0",
+										"axis": "left-analog-x-axis",
+										"comparison": 4,
+										"value": "GAMEPADDEADZONE"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 519097540705963,
+									"behaviorType": "Platform",
+									"parameters": {
+										"control": "right"
+									}
+								}
+							],
+							"sid": 600039708179932,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Make the player perform a jump."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 483631168435843,
+									"parameters": {
+										"key": 90
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 892685996869684,
+									"parameters": {
+										"gamepad": "0",
+										"button": "button-a"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "PlayerCollision",
+									"sid": 801526876848270,
+									"behaviorType": "Platform",
+									"parameters": {
+										"control": "jump"
+									}
+								}
+							],
+							"sid": 145191292488866,
+							"isOrBlock": true
+						}
+					],
+					"sid": 284160857497412
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "PlayerAnimations",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Mirror the player graphics depending on where's it heading towards."
+						},
+						{
+							"eventType": "comment",
+							"text": "While moving to the left - mirror."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 565805006500364,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 584923376305565,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-left"
+									}
+								},
+								{
+									"id": "compare-axis",
+									"objectClass": "Gamepad",
+									"sid": 905947548338532,
+									"parameters": {
+										"gamepad": "0",
+										"axis": "left-analog-x-axis",
+										"comparison": 2,
+										"value": "-GAMEPADDEADZONE"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-mirrored",
+									"objectClass": "PlayerGraphics",
+									"sid": 964892263450783,
+									"parameters": {
+										"state": "mirrored"
+									}
+								}
+							],
+							"sid": 470826332037739,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "While moving to the right - unmirror."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 559319230576585,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "is-button-down",
+									"objectClass": "Gamepad",
+									"sid": 897788033137427,
+									"parameters": {
+										"gamepad": "0",
+										"button": "d-pad-right"
+									}
+								},
+								{
+									"id": "compare-axis",
+									"objectClass": "Gamepad",
+									"sid": 589638547661361,
+									"parameters": {
+										"gamepad": "0",
+										"axis": "left-analog-x-axis",
+										"comparison": 4,
+										"value": "GAMEPADDEADZONE"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-mirrored",
+									"objectClass": "PlayerGraphics",
+									"sid": 353782112372028,
+									"parameters": {
+										"state": "not-mirrored"
+									}
+								}
+							],
+							"sid": 473933093161974,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Change the player animation depending what action its performing."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-on-floor",
+									"objectClass": "PlayerCollision",
+									"sid": 856515258548587,
+									"behaviorType": "Platform"
+								}
+							],
+							"actions": [],
+							"sid": 389764283885862,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "While is on floor and moving."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-moving",
+											"objectClass": "PlayerCollision",
+											"sid": 207825930110399,
+											"behaviorType": "Platform"
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 974626178850701,
+											"parameters": {
+												"animation": "\"Walk\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 452766029252684
+								},
+								{
+									"eventType": "comment",
+									"text": "While is on floor but not moving."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 296767768499252
+										},
+										{
+											"id": "is-moving",
+											"objectClass": "PlayerCollision",
+											"sid": 974921055805443,
+											"behaviorType": "Platform",
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerGraphics",
+											"sid": 928147194920033,
+											"parameters": {
+												"animation": "\"Idle\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 207306889735895
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "While is jumping (moving up)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-jumping",
+									"objectClass": "PlayerCollision",
+									"sid": 693293609655887,
+									"behaviorType": "Platform"
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerGraphics",
+									"sid": 483827732106981,
+									"parameters": {
+										"animation": "\"Jump\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 491575208204455
+						},
+						{
+							"eventType": "comment",
+							"text": "While is falling (moving down)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-falling",
+									"objectClass": "PlayerCollision",
+									"sid": 651001489692675,
+									"behaviorType": "Platform"
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerGraphics",
+									"sid": 593047316410434,
+									"parameters": {
+										"animation": "\"Fall\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 163021654061859
+						}
+					],
+					"sid": 921833879566076
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "PlayerParticles",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Spawn some dust particles while the player is walking on the ground."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-moving",
+									"objectClass": "PlayerCollision",
+									"sid": 463773975665385,
+									"behaviorType": "Platform"
+								},
+								{
+									"id": "is-on-floor",
+									"objectClass": "PlayerCollision",
+									"sid": 383060393704507,
+									"behaviorType": "Platform"
+								}
+							],
+							"actions": [],
+							"sid": 521940510826457,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "every-x-seconds",
+											"objectClass": "System",
+											"sid": 254108591978941,
+											"parameters": {
+												"interval-seconds": "0.1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "spawn-another-object",
+											"objectClass": "PlayerGraphics",
+											"sid": 494784297947564,
+											"parameters": {
+												"object": "StepDust",
+												"layer": "\"World\"",
+												"image-point": "\"FeetCenter\"",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-width",
+											"objectClass": "StepDust",
+											"sid": 805112612424629,
+											"parameters": {
+												"width": "Self.Width*PlayerDirection"
+											}
+										}
+									],
+									"sid": 893563852312136
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Spawn some dust particles onde the player landed on the ground."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-landed",
+									"objectClass": "PlayerCollision",
+									"sid": 498213080091440,
+									"behaviorType": "Platform"
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerGraphics",
+									"sid": 210167160250133,
+									"parameters": {
+										"object": "LandDust",
+										"layer": "\"World\"",
+										"image-point": "\"FeetCenter\"",
+										"create-hierarchy": false
+									}
+								}
+							],
+							"sid": 589966658679063
+						},
+						{
+							"eventType": "comment",
+							"text": "Spawn some dust particles every time the player jumps."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-jump",
+									"objectClass": "PlayerCollision",
+									"sid": 787812836955384,
+									"behaviorType": "Platform"
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "PlayerGraphics",
+									"sid": 403704775988228,
+									"parameters": {
+										"object": "JumpDust",
+										"layer": "\"World\"",
+										"image-point": "\"FeetCenter\"",
+										"create-hierarchy": false
+									}
+								}
+							],
+							"sid": 214279439234230
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy the dust particles after they're done to avoid CPU and memory overloads."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-animation-finished",
+									"objectClass": "StepDust",
+									"sid": 903299110444969,
+									"parameters": {
+										"animation": "\"Default\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "StepDust",
+									"sid": 451147487402437
+								}
+							],
+							"sid": 462903924725522
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-animation-finished",
+									"objectClass": "LandDust",
+									"sid": 735035520995193,
+									"parameters": {
+										"animation": "\"Default\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "LandDust",
+									"sid": 669674075056692
+								}
+							],
+							"sid": 681228421232836
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-animation-finished",
+									"objectClass": "JumpDust",
+									"sid": 205040555987659,
+									"parameters": {
+										"animation": "\"Default\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "JumpDust",
+									"sid": 599271824549731
+								}
+							],
+							"sid": 366382635788223
+						}
+					],
+					"sid": 858999474960428
+				}
+			],
+			"sid": 438447210557978
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "ArmCannon",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Fire a bullet from the player's arm cannon."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 711414680632031,
+							"parameters": {
+								"key": 88
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 170915429518968,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-b"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Spawn bullet."
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "PlayerGraphics",
+							"sid": 461419947637048,
+							"parameters": {
+								"object": "Bullet",
+								"layer": "\"World\"",
+								"image-point": "\"ArmCannon\"",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Bullet angle of motion is based on the player direction."
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "Bullet",
+							"sid": 406738566842707,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "angle(0, 0, PlayerDirection, 0)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Spawn muzzle flash."
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "PlayerGraphics",
+							"sid": 251872588233418,
+							"parameters": {
+								"object": "MuzzleFlash",
+								"layer": "\"World\"",
+								"image-point": "\"ArmCannon\"",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Muzzle flash width is based on the player direction."
+						},
+						{
+							"id": "set-width",
+							"objectClass": "MuzzleFlash",
+							"sid": 665059748948180,
+							"parameters": {
+								"width": "Self.Width*PlayerDirection"
+							}
+						},
+						{
+							"id": "pin-to-object-properties",
+							"objectClass": "MuzzleFlash",
+							"sid": 838509673096882,
+							"behaviorType": "Pin",
+							"parameters": {
+								"pin-to": "PlayerGraphics",
+								"x": true,
+								"y": true,
+								"angle": false,
+								"width-type": "no",
+								"height-type": "no",
+								"z": false
+							}
+						}
+					],
+					"sid": 479881922214519,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the bullet if it hits the currently activated tilemap."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Bullet",
+							"sid": 781267127197811,
+							"parameters": {
+								"object": "Ground"
+							}
+						},
+						{
+							"id": "is-enabled",
+							"objectClass": "Ground",
+							"sid": 265900696716486,
+							"behaviorType": "Solid"
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Bullet",
+							"sid": 231512885754794
+						}
+					],
+					"sid": 491766929766208
+				},
+				{
+					"eventType": "comment",
+					"text": "Spawn a small explosion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-destroyed",
+							"objectClass": "Bullet",
+							"sid": 599664952124474
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Bullet",
+							"sid": 782718782103700,
+							"parameters": {
+								"object": "Explosion",
+								"layer": "\"World\"",
+								"image-point": "0",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 699017243428517
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the explosion and muzzle flash particles after they're done to avoid CPU and memory overloads."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "Explosion",
+							"sid": 630024863243638,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Explosion",
+							"sid": 125668889349841
+						}
+					],
+					"sid": 613881021494447
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-animation-finished",
+							"objectClass": "MuzzleFlash",
+							"sid": 411964542440408,
+							"parameters": {
+								"animation": "\"Default\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "MuzzleFlash",
+							"sid": 437494835113417
+						}
+					],
+					"sid": 525326701842899
+				}
+			],
+			"sid": 943101734631819
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "CAMERASPEED",
+					"type": "number",
+					"initialValue": "0.1",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 910891188181431
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly move the camera towards the player position, but with interpolated values, which help smooths the overall motion."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 742960399605355
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Camera",
+							"sid": 650430725073303,
+							"parameters": {
+								"x": "lerp(Self.X, PlayerCollision.ImagePointX(\"Center\"), CAMERASPEED*60*dt)",
+								"y": "lerp(Self.Y, PlayerCollision.ImagePointY(\"Center\"), CAMERASPEED*60*dt)"
+							}
+						}
+					],
+					"sid": 435649057504302
+				}
+			],
+			"sid": 552517355456284
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "DebugTools",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Force the game to be restarted. This is just a debug tool, it's not really part of the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 886860410172297,
+							"parameters": {
+								"key": 82
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 549166494317235,
+							"parameters": {
+								"gamepad": "0",
+								"button": "start-menu"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "restart-layout",
+							"objectClass": "System",
+							"sid": 259241878741840
+						}
+					],
+					"sid": 261502125594386,
+					"isOrBlock": true
+				}
+			],
+			"sid": 876242795795519
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "TilemapSwitching",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How far each \"layer\" is from the camera (uses Z order units)."
+				},
+				{
+					"eventType": "variable",
+					"name": "FOREGROUNDZ",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 886503626433760
+				},
+				{
+					"eventType": "variable",
+					"name": "DEPTHOFFIELDZ",
+					"type": "number",
+					"initialValue": "-64",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 863522933629418
+				},
+				{
+					"eventType": "variable",
+					"name": "BACKGROUNDZ",
+					"type": "number",
+					"initialValue": "-128",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 374360262272908
+				},
+				{
+					"eventType": "comment",
+					"text": "How opaque both background and foreground are."
+				},
+				{
+					"eventType": "variable",
+					"name": "FOREGROUNDOPACITY",
+					"type": "number",
+					"initialValue": "100",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 362486144309661
+				},
+				{
+					"eventType": "variable",
+					"name": "BACKGROUNDOPACITY",
+					"type": "number",
+					"initialValue": "50",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 179055804691353
+				},
+				{
+					"eventType": "comment",
+					"text": "Where the background is moved to after each step."
+				},
+				{
+					"eventType": "variable",
+					"name": "BACKGROUNDZANIMATION1",
+					"type": "number",
+					"initialValue": "64",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 852493082121863
+				},
+				{
+					"eventType": "variable",
+					"name": "BACKGROUNDZANIMATION2",
+					"type": "number",
+					"initialValue": "-192",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 244740314689998
+				},
+				{
+					"eventType": "comment",
+					"text": "Currently selected tilemap (index based)."
+				},
+				{
+					"eventType": "variable",
+					"name": "CurrentTilemap",
+					"type": "number",
+					"initialValue": "1",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 232240191465018
+				},
+				{
+					"eventType": "comment",
+					"text": "Duration of each animation."
+				},
+				{
+					"eventType": "variable",
+					"name": "TRANSITIONTIME",
+					"type": "number",
+					"initialValue": "0.5",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 541093394886250
+				},
+				{
+					"eventType": "comment",
+					"text": "Reset the scene properties once the layout is started."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 164480272018020
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set the current tilemap to \"1\"."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 759325288372521,
+							"parameters": {
+								"variable": "CurrentTilemap",
+								"value": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Bring the depth of field mask to the \"World\" layer while also adjusting its Z elevation."
+						},
+						{
+							"id": "move-to-layer",
+							"objectClass": "DepthOfFieldMask",
+							"sid": 941937794344481,
+							"parameters": {
+								"layer": "\"World\""
+							}
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "DepthOfFieldMask",
+							"sid": 880433004020509,
+							"parameters": {
+								"z": "DepthOfFieldZ"
+							}
+						}
+					],
+					"sid": 343038773231872,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Completely disable the other tilemap (2)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 204270509263927,
+									"parameters": {
+										"object": "Ground",
+										"expression": "Ground.TilemapIndex",
+										"comparison": 0,
+										"value": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Also bring it to the \"World\" layer."
+								},
+								{
+									"id": "move-to-layer",
+									"objectClass": "Ground",
+									"sid": 766459310291424,
+									"parameters": {
+										"layer": "\"World\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Disable its solid behavior, so it doesn't collide with the player."
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "Ground",
+									"sid": 545553463633367,
+									"behaviorType": "Solid",
+									"parameters": {
+										"state": "disabled"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move it far from the camera by increasing its Z elevation."
+								},
+								{
+									"id": "set-z-elevation",
+									"objectClass": "Ground",
+									"sid": 419939702427254,
+									"parameters": {
+										"z": "BACKGROUNDZ"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "Ground",
+									"sid": 856999619647164,
+									"parameters": {
+										"opacity": "50"
+									}
+								}
+							],
+							"sid": 118874238140528
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Display a warning sign if the player is overlapping the background tilemap, preventing him from \"being smashed\" by it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 991962967620217,
+							"parameters": {
+								"object": "Ground"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "WarningSign",
+							"sid": 992771800236060,
+							"parameters": {
+								"visibility": "visible"
+							}
+						}
+					],
+					"sid": 696390089185402
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 468024488636230
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "PlayerCollision",
+							"sid": 991886425861503,
+							"parameters": {
+								"object": "Ground"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-visible",
+							"objectClass": "WarningSign",
+							"sid": 398750107465879,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 391429915493625
+				},
+				{
+					"eventType": "comment",
+					"text": "Toggle between tilemap whenever it's possible."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 321076835374652,
+							"parameters": {
+								"key": 67
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 766476233083289,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-x"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 391391920887247,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Only allow the transition to happen if the player is not overlapping the background tilemap and is not performing a transition already."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "PlayerCollision",
+									"sid": 154689011714325,
+									"parameters": {
+										"object": "Ground"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-timer-running",
+									"objectClass": "GameManager",
+									"sid": 215096476113931,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"Cooldown\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "start-timer",
+									"objectClass": "GameManager",
+									"sid": 562876464544355,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "TRANSITIONTIME",
+										"type": "once",
+										"tag": "\"Cooldown\""
+									}
+								}
+							],
+							"sid": 905177181687356,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Change to tilemap 2."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 792900306300501,
+											"parameters": {
+												"variable": "CurrentTilemap",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Update the index value."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 714390502200383,
+											"parameters": {
+												"variable": "CurrentTilemap",
+												"value": "2"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Perform the transition."
+										},
+										{
+											"callFunction": "SetForeground",
+											"sid": 749679910669602,
+											"parameters": [
+												"2"
+											]
+										},
+										{
+											"callFunction": "SetBackground",
+											"sid": 325044682764764,
+											"parameters": [
+												"1"
+											]
+										}
+									],
+									"sid": 269493807926783
+								},
+								{
+									"eventType": "comment",
+									"text": "Change to tilemap 1."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 949363148869869
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 386284832940223,
+											"parameters": {
+												"variable": "CurrentTilemap",
+												"comparison": 0,
+												"value": "2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Update the index value."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 973812159931157,
+											"parameters": {
+												"variable": "CurrentTilemap",
+												"value": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Perform the transition."
+										},
+										{
+											"callFunction": "SetForeground",
+											"sid": 119326759137639,
+											"parameters": [
+												"1"
+											]
+										},
+										{
+											"callFunction": "SetBackground",
+											"sid": 694333296759760,
+											"parameters": [
+												"2"
+											]
+										}
+									],
+									"sid": 909238343705182
+								}
+							]
+						}
+					],
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Change the foreground by changing many of its properties, like solid state, Z elevation and opacity."
+				},
+				{
+					"functionName": "SetForeground",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "TilemapIndex",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 207732612878191
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 113050692006095,
+							"parameters": {
+								"object": "Ground",
+								"expression": "Ground.TilemapIndex",
+								"comparison": 0,
+								"value": "TilemapIndex"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Reset Z elevation and opacity."
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Ground",
+							"sid": 870568439916353,
+							"parameters": {
+								"z": "BACKGROUNDZ"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "Ground",
+							"sid": 920990856888150,
+							"parameters": {
+								"opacity": "BACKGROUNDOPACITY"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Enable solid behavior."
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Ground",
+							"sid": 381644728260367,
+							"behaviorType": "Solid",
+							"parameters": {
+								"state": "enabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Tween Z elevation and opacity."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Ground",
+							"sid": 452896204084485,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ForegroundZUp\"",
+								"property": "offsetZElevation",
+								"end-value": "ForegroundZ",
+								"time": "TRANSITIONTIME",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Ground",
+							"sid": 446777167425735,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ForegroundOpacityUp\"",
+								"property": "offsetOpacity",
+								"end-value": "FOREGROUNDOPACITY",
+								"time": "TRANSITIONTIME",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start cooldown timer."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 887693697076959,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "TRANSITIONTIME",
+								"type": "once",
+								"tag": "\"Transition\""
+							}
+						}
+					],
+					"sid": 510769280412089
+				},
+				{
+					"eventType": "comment",
+					"text": "Change the background by changing many of its properties, like solid state, Z elevation and opacity."
+				},
+				{
+					"eventType": "comment",
+					"text": "Part 1 - move it towards the screen, so it looks like it's fading away."
+				},
+				{
+					"functionName": "SetBackground",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "TilemapIndex",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 606481292563606
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 618963806063793,
+							"parameters": {
+								"object": "Ground",
+								"expression": "Ground.TilemapIndex",
+								"comparison": 0,
+								"value": "TilemapIndex"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Reset Z elevation and opacity."
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Ground",
+							"sid": 574263675036050,
+							"parameters": {
+								"z": "ForegroundZ"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "Ground",
+							"sid": 270985145975809,
+							"parameters": {
+								"opacity": "FOREGROUNDOPACITY"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Disable solid behavior."
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Ground",
+							"sid": 626050759850811,
+							"behaviorType": "Solid",
+							"parameters": {
+								"state": "disabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Tween Z elevation and opacity."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Ground",
+							"sid": 757570964339370,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BackgroundZUp1\"",
+								"property": "offsetZElevation",
+								"end-value": "BACKGROUNDZANIMATION1",
+								"time": "TRANSITIONTIME/2",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Ground",
+							"sid": 513962193553844,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BackgroundOpacityDown\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "TRANSITIONTIME/2",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start cooldown timer."
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "GameManager",
+							"sid": 170218102554110,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "TRANSITIONTIME",
+								"type": "once",
+								"tag": "\"Transition\""
+							}
+						}
+					],
+					"sid": 557912924863534
+				},
+				{
+					"eventType": "comment",
+					"text": "Part 2 - then, bring it back from the background, like it has cycled across the world."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Ground",
+							"sid": 830175227100981,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BackgroundZUp1\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Reset Z elevation and opacity."
+						},
+						{
+							"id": "set-z-elevation",
+							"objectClass": "Ground",
+							"sid": 736027003617391,
+							"parameters": {
+								"z": "BACKGROUNDZANIMATION2"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "Ground",
+							"sid": 345827115037168,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Tween Z elevation and opacity."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Ground",
+							"sid": 833618033865804,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BackgroundZUp2\"",
+								"property": "offsetZElevation",
+								"end-value": "BACKGROUNDZ",
+								"time": "TRANSITIONTIME/2",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Ground",
+							"sid": 456801123613820,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BackgroundOpacityUp\"",
+								"property": "offsetOpacity",
+								"end-value": "BACKGROUNDOPACITY",
+								"time": "TRANSITIONTIME/2",
+								"ease": "easeoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no"
+							}
+						}
+					],
+					"sid": 149075569807601
+				}
+			],
+			"sid": 852434216632763
+		}
+	],
+	"sid": 703169307524782
+}

@@ -1,0 +1,1035 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of patrons on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "GroundDistortion",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "How many time the ground will be subdivided in order to create the distortion effect."
+				},
+				{
+					"eventType": "variable",
+					"name": "MESHSIZE",
+					"type": "number",
+					"initialValue": "32",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 591031812028800
+				},
+				{
+					"eventType": "comment",
+					"text": "Create a mesh on the ground object."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 298445997136615
+						}
+					],
+					"actions": [
+						{
+							"id": "set-mesh-size",
+							"objectClass": "Ground",
+							"sid": 933062837911802,
+							"parameters": {
+								"cols": "MESHSIZE",
+								"rows": "MESHSIZE"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also rotate the tank, just to make sure it's pointing to a visually interesting direction in the beginning of the game."
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "TankBodyCollision",
+							"sid": 919840070588754,
+							"parameters": {
+								"angle": "270"
+							}
+						}
+					],
+					"sid": 234115256506293,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Individually distort each mesh point with a slightly randomized value."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 532739575657884,
+									"parameters": {
+										"name": "\"X\"",
+										"start-index": "0",
+										"end-index": "MESHSIZE - 1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 136978825416259,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 944271628630202,
+											"parameters": {
+												"name": "\"Y\"",
+												"start-index": "0",
+												"end-index": "MESHSIZE - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-mesh-point",
+											"objectClass": "Ground",
+											"sid": 805520681592184,
+											"parameters": {
+												"col": "loopindex(\"X\")",
+												"row": "loopindex(\"Y\")",
+												"mode": "relative",
+												"posx": "0",
+												"posy": "0",
+												"z-elevation": "random(0, 2)",
+												"texx": "0",
+												"texy": "0"
+											}
+										}
+									],
+									"sid": 615159433898180
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Wait seven seconds before destroying the tutorial text, so the player has enough time to read it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 718941437010265,
+									"parameters": {
+										"seconds": "7"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Tutorial",
+									"sid": 259614351099572,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"SelfDestroy\"",
+										"property": "offsetZElevation",
+										"end-value": "0",
+										"time": "1",
+										"ease": "easeinsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 137045732453691
+						}
+					]
+				}
+			],
+			"sid": 341704995178196
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Decoration",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup each plant by reducing their width down to zero, turning them into flat billboards."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Plant",
+							"sid": 794378092324026
+						}
+					],
+					"actions": [
+						{
+							"id": "set-width",
+							"objectClass": "Plant",
+							"sid": 190022086123510,
+							"parameters": {
+								"width": "0"
+							}
+						}
+					],
+					"sid": 651391102620860
+				},
+				{
+					"eventType": "comment",
+					"text": "Constantly turn the plants towards the camera, so they're always entirely visible."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 970794936212842
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "Plant",
+							"sid": 988434977462001,
+							"parameters": {
+								"x": "3DCamera.CameraX",
+								"y": "3DCamera.CameraY"
+							}
+						}
+					],
+					"sid": 455128235499793
+				}
+			],
+			"sid": 900188020703071
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Constantly update the camera position, so it's always looking at the tank, but using linear interpolation for a smoother result."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 337827598425363
+						}
+					],
+					"actions": [
+						{
+							"id": "look-at-position",
+							"objectClass": "3DCamera",
+							"sid": 213119987232197,
+							"parameters": {
+								"cam-x": "lerp(3DCamera.CameraX, TankBodyCollision.X + 128, 0.1 * 60 * dt)",
+								"cam-y": "lerp(3DCamera.CameraY, TankBodyCollision.Y + 128, 0.1 *60 * dt)",
+								"cam-z": "TankBodyCollision.ZElevation + 64",
+								"look-x": "TankBodyCollision.X",
+								"look-y": "TankBodyCollision.Y",
+								"look-z": "TankBodyCollision.ZElevation + 8",
+								"up-x": "0",
+								"up-y": "0",
+								"up-z": "1"
+							}
+						}
+					],
+					"sid": 317068731517170
+				}
+			],
+			"sid": 612258874081732
+		},
+		{
+			"eventType": "comment",
+			"text": "Whether or not the tank cannon is locked to the tank body, while it's rotating."
+		},
+		{
+			"eventType": "variable",
+			"name": "LockSight",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 480916291505830
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Rotate the tank counter-clockwise."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 792434675841276,
+							"parameters": {
+								"key": 37
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 884726680459168,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-left"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "RotateTank",
+							"sid": 231074149749109,
+							"parameters": [
+								"-2"
+							]
+						}
+					],
+					"sid": 203668022248864,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Rotate the tank clockwise."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 778949773514421,
+							"parameters": {
+								"key": 39
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 769774313421327,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-right"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "RotateTank",
+							"sid": 412573312724249,
+							"parameters": [
+								"2"
+							]
+						}
+					],
+					"sid": 338861011872730,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the tank forward."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 326801191028658,
+							"parameters": {
+								"key": 38
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 616139899018815,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-up"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "MoveTank",
+							"sid": 587511529540845,
+							"parameters": [
+								"1"
+							]
+						}
+					],
+					"sid": 219900437423488,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the tank backwards."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 367529677342550,
+							"parameters": {
+								"key": 40
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 159805103074986,
+							"parameters": {
+								"gamepad": "0",
+								"button": "d-pad-down"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "MoveTank",
+							"sid": 799754959833673,
+							"parameters": [
+								"-1"
+							]
+						}
+					],
+					"sid": 434599796793077,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Rotate the cannon counter-clockwise."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 512854401659126,
+							"parameters": {
+								"key": 65
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 902938144312197,
+							"parameters": {
+								"gamepad": "0",
+								"button": "left-shoulder-button"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "RotateCannon",
+							"sid": 643128408476554,
+							"parameters": [
+								"-1"
+							]
+						}
+					],
+					"sid": 951069640408695,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Rotate the cannon clockwise."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 835428614605853,
+							"parameters": {
+								"key": 68
+							}
+						},
+						{
+							"id": "is-button-down",
+							"objectClass": "Gamepad",
+							"sid": 552293406660001,
+							"parameters": {
+								"gamepad": "0",
+								"button": "right-shoulder-button"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "RotateCannon",
+							"sid": 749088387946746,
+							"parameters": [
+								"1"
+							]
+						}
+					],
+					"sid": 573564236854939,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Toggle the cannon rotation lock."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 234539537882915,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "on-button-pressed",
+							"objectClass": "Gamepad",
+							"sid": 310734242214210,
+							"parameters": {
+								"gamepad": "0",
+								"button": "button-a"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "toggle-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 512475031590805,
+							"parameters": {
+								"variable": "LockSight"
+							}
+						}
+					],
+					"sid": 364138505671247,
+					"isOrBlock": true
+				},
+				{
+					"eventType": "comment",
+					"text": "Rotate the entire tank based on the passed speed value."
+				},
+				{
+					"functionName": "RotateTank",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Speed",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 729808858130379
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-angle",
+							"objectClass": "TankBodyCollision",
+							"sid": 618818932679742,
+							"parameters": {
+								"angle": "Self.Angle + Speed * 60 * dt"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also scroll the tank belts accordingly."
+						},
+						{
+							"callFunction": "ScrollBelts",
+							"sid": 714806118131296,
+							"parameters": [
+								"Speed / 2",
+								"(Speed / 2) * -1"
+							]
+						}
+					],
+					"sid": 442609339204385,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the tank collides with a solid, remove it from inside the solid by rotating it in the opposite direction."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "TankBodyCollision",
+									"sid": 625828107943277,
+									"parameters": {
+										"object": "Solid"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 248923147285628,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "while",
+											"objectClass": "System",
+											"sid": 445059566387674
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "TankBodyCollision",
+											"sid": 238939229716391,
+											"parameters": {
+												"object": "Solid"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-angle",
+											"objectClass": "TankBodyCollision",
+											"sid": 220353914906651,
+											"parameters": {
+												"angle": "Self.Angle + (sign(Speed) * -1) / 10"
+											}
+										}
+									],
+									"sid": 888913983717922
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If the tank isn't colliding with a solid and has its cannon rotation locked, rotate the cannon in the same speed, creating some sort of \"gimbal\" effect."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 925652557350426
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "TankBodyCollision",
+									"sid": 617510195756224,
+									"parameters": {
+										"object": "Solid"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 124390617359227,
+									"parameters": {
+										"variable": "LockSight"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "RotateCannon",
+									"sid": 502237533401648,
+									"parameters": [
+										"Speed * -1"
+									]
+								}
+							],
+							"sid": 258470859868045
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the entire tank based on the passed speed value."
+				},
+				{
+					"functionName": "MoveTank",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Speed",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 940898928732720
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "move-at-angle",
+							"objectClass": "TankBodyCollision",
+							"sid": 306860119732252,
+							"parameters": {
+								"angle": "Self.Angle",
+								"distance": "Speed"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also scroll the tank belts accordingly."
+						},
+						{
+							"callFunction": "ScrollBelts",
+							"sid": 643079767505346,
+							"parameters": [
+								"Speed",
+								"Speed"
+							]
+						}
+					],
+					"sid": 693107385037031,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the tank collides with a solid, remove it from inside the solid by moving it in the opposite direction."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "TankBodyCollision",
+									"sid": 135372137070896,
+									"parameters": {
+										"object": "Solid"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 477459197252041,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "while",
+											"objectClass": "System",
+											"sid": 275538127341382
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "TankBodyCollision",
+											"sid": 161191152300359,
+											"parameters": {
+												"object": "Solid"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "move-at-angle",
+											"objectClass": "TankBodyCollision",
+											"sid": 880880684704152,
+											"parameters": {
+												"angle": "Self.Angle + 180",
+												"distance": "Speed / 10"
+											}
+										}
+									],
+									"sid": 217968736313079
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Also leave a trail of smoke behind the tank, by spawning small dark cube that are slowly reduced until they disappear."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 287497073529683,
+									"parameters": {
+										"interval-seconds": "0.1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 964797384368879,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "How long it will take for the smoke particle to be destryoed."
+								},
+								{
+									"eventType": "variable",
+									"name": "Lifespan",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 485557121341946
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 904567158070771,
+											"parameters": {
+												"name": "\"Smoke\"",
+												"start-index": "0",
+												"end-index": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Randomize most parameters of each smoke particles in order to create a more dynamic effect."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 830744138139565,
+											"parameters": {
+												"object-to-create": "Smoke",
+												"layer": "\"World\"",
+												"x": "TankBodyCollision.ImagePointX(\"Smoke\") + cos(TankBodyCollision.Angle + 90 + (loopindex(\"Smoke\") * 180)) * 8",
+												"y": "TankBodyCollision.ImagePointY(\"Smoke\") + sin(TankBodyCollision.Angle + 90 + (loopindex(\"Smoke\") * 180)) * 8",
+												"create-hierarchy": false
+											}
+										},
+										{
+											"id": "set-size",
+											"objectClass": "Smoke",
+											"sid": 456605174784662,
+											"parameters": {
+												"width": "random(2, 6)",
+												"height": "random(2, 6)"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Smoke",
+											"sid": 902089000577093,
+											"parameters": {
+												"angle": "random(0, 360)"
+											}
+										},
+										{
+											"id": "set-z-height",
+											"objectClass": "Smoke",
+											"sid": 468802388341586,
+											"parameters": {
+												"z-height": "random(0.5, 1.5)"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "The lifespan is calculated and stored inside a local variable, so it can be used in both tween animations, making sure everything is finished at the same time."
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 564200780766798,
+											"parameters": {
+												"variable": "Lifespan",
+												"value": "random(0.75, 1)"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Smoke",
+											"sid": 213280984069439,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"MoveUp\"",
+												"property": "offsetZElevation",
+												"end-value": "random(2, 4)",
+												"time": "Lifespan",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "yes",
+												"ping-pong": "no"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Smoke",
+											"sid": 313252614247344,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"Shrink\"",
+												"property": "size",
+												"end-x": "0",
+												"end-y": "0",
+												"time": "Lifespan",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no"
+											}
+										}
+									],
+									"sid": 888414116772609
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Rotate the cannon tank based on the passed speed value."
+				},
+				{
+					"functionName": "RotateCannon",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "Speed",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 688062398226189
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-angle",
+							"objectClass": "TankCannonCollision",
+							"sid": 997499733468085,
+							"parameters": {
+								"angle": "Self.Angle + Speed * 60 * dt"
+							}
+						}
+					],
+					"sid": 811262151551191
+				},
+				{
+					"eventType": "comment",
+					"text": "Scroll the texture of both belts with individual speed values, so the tank movement is more convincing."
+				},
+				{
+					"functionName": "ScrollBelts",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "LeftBeltSpeed",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 387615269234912
+						},
+						{
+							"name": "RightBeltSpeed",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"sid": 249847854695161
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Left side."
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "BackLeftBelt",
+							"sid": 600279811153096,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + LeftBeltSpeed / 2 * -1 * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "FrontLeftBelt",
+							"sid": 208656517155388,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + LeftBeltSpeed / 2 * 60 * dt"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Right side."
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "BackRightBelt",
+							"sid": 474201416563627,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + RightBeltSpeed / 2 * -1 * 60 * dt"
+							}
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "FrontRightBelt",
+							"sid": 673129466183188,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY + RightBeltSpeed / 2 * 60 * dt"
+							}
+						}
+					],
+					"sid": 533356714858565
+				}
+			],
+			"sid": 793146501645211
+		}
+	],
+	"sid": 786382855212338
+}

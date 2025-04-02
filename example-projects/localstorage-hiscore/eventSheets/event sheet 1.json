@@ -1,0 +1,290 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "Score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "The score for the game",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 617889959669260
+		},
+		{
+			"eventType": "comment",
+			"text": "When the application is started, we check for the existence of the \"ex_hiScore\" key.\nMake sure the key has a unique name. \nThe usage of a prefix for your application (here \"ex\" for \"example\") will help making sure the key is unique.\n\nThe key either does not exist (Event 2, [i]On item missing[/i]) or it does exist (Event 3)\nThe asynchronous nature of LocalStorage means that you use an action and its result is handled in an event with the condition in relation to the result (success or fail for example)\n\nSince the high score is saved to LocalStorage, it is remembered in between runs. Try closing and reopening preview and see that the previous high score is remembered."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 531892532050799
+				}
+			],
+			"actions": [
+				{
+					"id": "check-item-exists",
+					"objectClass": "LocalStorage",
+					"sid": 805805281166215,
+					"parameters": {
+						"key": "\"ex_hiScore\""
+					}
+				}
+			],
+			"sid": 360124537578202
+		},
+		{
+			"eventType": "comment",
+			"text": "The key does not exist, we assume this is the first launch, we set a default value that will allow our application to work as intended despite not having an \"existing save\" to get and display/use"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-item-missing",
+					"objectClass": "LocalStorage",
+					"sid": 296836706485372,
+					"parameters": {
+						"key": "\"ex_hiScore\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 543413311785277,
+					"parameters": {
+						"variable": "Score",
+						"value": "0"
+					}
+				},
+				{
+					"id": "set-item",
+					"objectClass": "LocalStorage",
+					"sid": 887273025560519,
+					"parameters": {
+						"key": "\"ex_hiScore\"",
+						"value": "0"
+					}
+				},
+				{
+					"id": "append-text",
+					"objectClass": "StatusText",
+					"sid": 306999755525639,
+					"parameters": {
+						"text": "newline & \"First run, no high score\""
+					}
+				}
+			],
+			"sid": 202128296366038
+		},
+		{
+			"eventType": "comment",
+			"text": "The key does exist, we get it, set Score value to this value and display it in the StatusText.\nThis is the way to \"load a saved set of data\" on start of your application in order for the user to get back access to those saved data"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-item-exists",
+					"objectClass": "LocalStorage",
+					"sid": 105230710036840,
+					"parameters": {
+						"key": "\"ex_hiScore\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 977205499953185,
+					"parameters": {
+						"variable": "Score",
+						"value": "LocalStorage.ItemValue"
+					}
+				},
+				{
+					"id": "append-text",
+					"objectClass": "StatusText",
+					"sid": 371797439029112,
+					"parameters": {
+						"text": "newline & \"Existing high score: \" & Score"
+					}
+				}
+			],
+			"sid": 382906548506704
+		},
+		{
+			"eventType": "comment",
+			"text": "The button \"Set\" is clicked (to submit a score). Also allow 'Enter' to submit a score."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "Set",
+					"sid": 300471299431161
+				},
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 303121263773308,
+					"parameters": {
+						"key": 13
+					}
+				}
+			],
+			"actions": [],
+			"sid": 111208403773949,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The submitted score is bigger than the current score, it is a new hight score, save the score to the local storage.\nNote the TextInput returns a string so float() is used to convert it to a number which can be compared."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 899423973809377,
+							"parameters": {
+								"variable": "Score",
+								"comparison": 2,
+								"value": "float(ScoreInput.Text)"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 849966388500296,
+							"parameters": {
+								"variable": "Score",
+								"value": "float(ScoreInput.Text)"
+							}
+						},
+						{
+							"id": "set-item",
+							"objectClass": "LocalStorage",
+							"sid": 378182119212911,
+							"parameters": {
+								"key": "\"ex_hiScore\"",
+								"value": "Score"
+							}
+						},
+						{
+							"id": "append-text",
+							"objectClass": "StatusText",
+							"sid": 494694358609989,
+							"parameters": {
+								"text": "newline & \"New high score: \" & Score"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "ScoreInput",
+							"sid": 263622118289894,
+							"parameters": {
+								"text": "\"\""
+							}
+						}
+					],
+					"sid": 562484404461785
+				},
+				{
+					"eventType": "comment",
+					"text": "The submitted score is not bigger, it is not a new high score"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 562206047305806
+						}
+					],
+					"actions": [
+						{
+							"id": "append-text",
+							"objectClass": "StatusText",
+							"sid": 655658524461523,
+							"parameters": {
+								"text": "newline & \"The entered score \" & ScoreInput.Text & \" does not beat the current high score \" & Score"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "ScoreInput",
+							"sid": 740163249588668,
+							"parameters": {
+								"text": "\"\""
+							}
+						}
+					],
+					"sid": 756730175428595
+				}
+			],
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "The button \"Reset\" is clicked. The key is removed, the score is reset to 0"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "Reset",
+					"sid": 239130378561589
+				}
+			],
+			"actions": [
+				{
+					"id": "remove-item",
+					"objectClass": "LocalStorage",
+					"sid": 634048931760592,
+					"parameters": {
+						"key": "\"ex_hiScore\""
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 142530086494861,
+					"parameters": {
+						"variable": "Score",
+						"value": "0"
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "ScoreInput",
+					"sid": 248115605548707,
+					"parameters": {
+						"text": "\"\""
+					}
+				},
+				{
+					"id": "set-text",
+					"objectClass": "StatusText",
+					"sid": 800396104346949,
+					"parameters": {
+						"text": "\"Key removed, no score saved\""
+					}
+				}
+			],
+			"sid": 805763453431330
+		}
+	],
+	"sid": 718907846057732
+}

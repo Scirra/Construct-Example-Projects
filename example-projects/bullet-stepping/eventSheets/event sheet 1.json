@@ -1,0 +1,334 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Always look at the mouse."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 980921392915177
+				}
+			],
+			"actions": [
+				{
+					"id": "set-angle-toward-position",
+					"objectClass": "Player",
+					"sid": 986444505041873,
+					"parameters": {
+						"x": "Mouse.X",
+						"y": "Mouse.Y"
+					}
+				}
+			],
+			"sid": 351293204393393
+		},
+		{
+			"eventType": "comment",
+			"text": "Destroy explosions when their animation finishes."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-any-animation-finished",
+					"objectClass": "Explosion",
+					"sid": 824681154359232
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Explosion",
+					"sid": 912919339010111
+				}
+			],
+			"sid": 942450913232361
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-checked",
+					"objectClass": "Button",
+					"sid": 750994982499347
+				}
+			],
+			"actions": [
+				{
+					"id": "set-group-active",
+					"objectClass": "System",
+					"sid": 772151433304460,
+					"parameters": {
+						"group-name": "\"Using stepping\"",
+						"state": "activated"
+					}
+				},
+				{
+					"id": "set-group-active",
+					"objectClass": "System",
+					"sid": 991948245561170,
+					"parameters": {
+						"group-name": "\"Not using stepping\"",
+						"state": "deactivated"
+					}
+				}
+			],
+			"sid": 295275211844254
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 233111490738613
+				}
+			],
+			"actions": [
+				{
+					"id": "set-group-active",
+					"objectClass": "System",
+					"sid": 880030343226296,
+					"parameters": {
+						"group-name": "\"Using stepping\"",
+						"state": "deactivated"
+					}
+				},
+				{
+					"id": "set-group-active",
+					"objectClass": "System",
+					"sid": 640527910011649,
+					"parameters": {
+						"group-name": "\"Not using stepping\"",
+						"state": "activated"
+					}
+				}
+			],
+			"sid": 315325929813678
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Using stepping",
+			"description": "Events when 'Use bullet stepping' is enabled.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Shoot two lasers every 0.2 seconds while the left mouse button is down. A small angle randomisation is added to simulate a slight inaccuracy and prevent the bullets going down exactly the same path."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "mouse-button-is-down",
+							"objectClass": "Mouse",
+							"sid": 452996550878683,
+							"parameters": {
+								"mouse-button": "left"
+							}
+						},
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 291616768820583,
+							"parameters": {
+								"interval-seconds": "0.2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 618729200401752,
+							"parameters": {
+								"object": "BulletStepped",
+								"layer": "0",
+								"image-point": "1"
+							}
+						},
+						{
+							"id": "rotate-clockwise",
+							"objectClass": "BulletStepped",
+							"sid": 350595627302706,
+							"parameters": {
+								"degrees": "random(-1, 1)"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 862165412025861,
+							"parameters": {
+								"object": "BulletStepped",
+								"layer": "0",
+								"image-point": "2"
+							}
+						},
+						{
+							"id": "rotate-clockwise",
+							"objectClass": "BulletStepped",
+							"sid": 872163883129441,
+							"parameters": {
+								"degrees": "random(-1, 1)"
+							}
+						}
+					],
+					"sid": 531903312664182
+				},
+				{
+					"eventType": "comment",
+					"text": "The bullet's 'On step' trigger runs repeatedly as the bullet moves in small increments. We can check a collision in this trigger to make sure we catch collisions and avoid letting the bullet step right over obstacles."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-step",
+							"objectClass": "BulletStepped",
+							"sid": 465601081213901,
+							"behaviorType": "Bullet"
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "BulletStepped",
+							"sid": 553909527766804,
+							"parameters": {
+								"object": "Barrier"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 248336171047631,
+							"parameters": {
+								"object-to-create": "Explosion",
+								"layer": "0",
+								"x": "BulletStepped.X",
+								"y": "BulletStepped.Y"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "BulletStepped",
+							"sid": 915988402275134
+						}
+					],
+					"sid": 670926140547415
+				}
+			],
+			"sid": 937898837070807
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Not using stepping",
+			"description": "Events when 'Use bullet stepping' is disabled.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "mouse-button-is-down",
+							"objectClass": "Mouse",
+							"sid": 792867703594842,
+							"parameters": {
+								"mouse-button": "left"
+							}
+						},
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 640895603011135,
+							"parameters": {
+								"interval-seconds": "0.2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 955938353662224,
+							"parameters": {
+								"object": "BulletNotStepped",
+								"layer": "0",
+								"image-point": "1"
+							}
+						},
+						{
+							"id": "rotate-clockwise",
+							"objectClass": "BulletNotStepped",
+							"sid": 551625322170832,
+							"parameters": {
+								"degrees": "random(-1, 1)"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 702380630705454,
+							"parameters": {
+								"object": "BulletNotStepped",
+								"layer": "0",
+								"image-point": "2"
+							}
+						},
+						{
+							"id": "rotate-clockwise",
+							"objectClass": "BulletNotStepped",
+							"sid": 176035955938829,
+							"parameters": {
+								"degrees": "random(-1, 1)"
+							}
+						}
+					],
+					"sid": 231398087092593
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "BulletNotStepped",
+							"sid": 172322417688552,
+							"parameters": {
+								"object": "Barrier"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 812615709746754,
+							"parameters": {
+								"object-to-create": "Explosion",
+								"layer": "0",
+								"x": "BulletNotStepped.X",
+								"y": "BulletNotStepped.Y"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "BulletNotStepped",
+							"sid": 514563674054293
+						}
+					],
+					"sid": 544580868919201
+				}
+			],
+			"sid": 114160148695314
+		}
+	],
+	"sid": 482106611612837
+}

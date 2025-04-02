@@ -1,0 +1,381 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Pathfinding",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the screen is touched (or clicked, since the Touch object is set to also use mouse input), pathfind to the touch position. 'Find path' takes time to calculate the path. The system 'Wait for previous actions to complete' action ensures it has finished finding as path before continuing to the 'Move along path' action."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-touch-start",
+							"objectClass": "Touch",
+							"sid": 2977940857470323
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Node",
+							"sid": 1797812276938263
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Text",
+							"sid": 6851605855921471
+						},
+						{
+							"id": "find-path",
+							"objectClass": "Sprite",
+							"sid": 373502591816963,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"x": "Touch.X",
+								"y": "Touch.Y"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 467855331968877
+						},
+						{
+							"id": "move-along-path",
+							"objectClass": "Sprite",
+							"sid": 810530584447115,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"sid": 9766800121163788
+				},
+				{
+					"eventType": "comment",
+					"text": "Flash to indicate an unreachable destination (such as the top-right box)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-failed-to-find-path",
+							"objectClass": "Sprite",
+							"sid": 729902328924434,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [
+						{
+							"id": "flash",
+							"objectClass": "Sprite",
+							"sid": 9304405670385382,
+							"behaviorType": "Flash",
+							"parameters": {
+								"on-time": "0.05",
+								"off-time": "0.05",
+								"duration": "0.5"
+							}
+						}
+					],
+					"sid": 4225237402035403
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the path indicators once arrived."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-arrived",
+							"objectClass": "Sprite",
+							"sid": 5832710661494084,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Node",
+							"sid": 1935245215212178
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Text",
+							"sid": 3849142947951235
+						}
+					],
+					"sid": 7035556005755325
+				},
+				{
+					"eventType": "comment",
+					"text": "Make sure the player appears above path indicators"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 1327535203236587
+						}
+					],
+					"actions": [
+						{
+							"id": "move-to-top",
+							"objectClass": "Sprite",
+							"sid": 5016612266080283
+						}
+					],
+					"sid": 1217110151597039
+				}
+			],
+			"sid": 3412666145764976
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Show grid",
+			"description": "Event to show the pathfinding obstacle map when pressing M.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When M is pressed, loop for each cell in the pathfinding grid and create objects to display the obstacle map."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 4430524652320315,
+							"parameters": {
+								"key": 77
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "CellMarker",
+							"sid": 1406761969236758
+						}
+					],
+					"sid": 4603089845233232
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 7201052097874076,
+							"parameters": {
+								"key": 77
+							}
+						},
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 3994368175228388,
+							"parameters": {
+								"name": "\"x\"",
+								"start-index": "0",
+								"end-index": "800 / Sprite.Pathfinding.CellSize"
+							}
+						},
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 6672403372418767,
+							"parameters": {
+								"name": "\"y\"",
+								"start-index": "0",
+								"end-index": "600 / Sprite.Pathfinding.CellSize"
+							}
+						},
+						{
+							"id": "is-cell-obstacle",
+							"objectClass": "Sprite",
+							"sid": 7946022064230732,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"cell-x": "loopindex(\"x\")",
+								"cell-y": "loopindex(\"y\")"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 9075766844199888,
+							"parameters": {
+								"object-to-create": "CellMarker",
+								"layer": "\"Game\"",
+								"x": "loopindex(\"x\") * Sprite.Pathfinding.CellSize",
+								"y": "loopindex(\"y\") * Sprite.Pathfinding.CellSize"
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "CellMarker",
+							"sid": 5745650947861686,
+							"parameters": {
+								"width": "Sprite.Pathfinding.CellSize",
+								"height": "Sprite.Pathfinding.CellSize"
+							}
+						}
+					],
+					"sid": 2389503666347039
+				}
+			],
+			"sid": 6742554163625869
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Show path",
+			"description": "Events to show the blue arrows indicating the pathfinding nodes to follow.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When a path found..."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-path-found",
+							"objectClass": "Sprite",
+							"sid": 649590533225407,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [],
+					"sid": 9602215225672562,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Repeat for each node in the path: create a node object, and create a text label beside it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 2065684187630157,
+									"parameters": {
+										"count": "Sprite.Pathfinding.NodeCount"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 6843340981585857,
+									"parameters": {
+										"object-to-create": "Node",
+										"layer": "\"Game\"",
+										"x": "Sprite.Pathfinding.NodeXAt(loopindex)",
+										"y": "Sprite.Pathfinding.NodeYAt(loopindex)"
+									}
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 911155244923603,
+									"parameters": {
+										"object-to-create": "Text",
+										"layer": "\"Game\"",
+										"x": "Node.X + 6",
+										"y": "Node.Y"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "Text",
+									"sid": 4386385847768025,
+									"parameters": {
+										"text": "loopindex"
+									}
+								}
+							],
+							"sid": 6686151694393371,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If it's the last node, change the animation frame to show it's the end."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 7430534411497511,
+											"parameters": {
+												"first-value": "LoopIndex",
+												"comparison": 0,
+												"second-value": "Sprite.Pathfinding.NodeCount - 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Node",
+											"sid": 8414953164794385,
+											"parameters": {
+												"frame-number": "1"
+											}
+										}
+									],
+									"sid": 8682638963243606
+								},
+								{
+									"eventType": "comment",
+									"text": "Otherwise point it to the next node."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 283844379274865
+										}
+									],
+									"actions": [
+										{
+											"id": "set-angle-toward-position",
+											"objectClass": "Node",
+											"sid": 9607351022824604,
+											"parameters": {
+												"x": "Sprite.Pathfinding.NodeXAt(loopindex + 1)",
+												"y": "Sprite.Pathfinding.NodeYAt(loopindex + 1)"
+											}
+										}
+									],
+									"sid": 3350626275324999
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 6512343625152745
+		}
+	],
+	"sid": 607713619740987
+}

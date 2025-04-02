@@ -1,0 +1,2603 @@
+{
+	"name": "Game events",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "GAME_NAME",
+			"type": "string",
+			"initialValue": "scirra-gametutorial3",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 2783528050303823
+		},
+		{
+			"eventType": "variable",
+			"name": "INSTANCE_NAME",
+			"type": "string",
+			"initialValue": "default",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 313861102059647
+		},
+		{
+			"eventType": "variable",
+			"name": "ROOM_NAME",
+			"type": "string",
+			"initialValue": "main",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 9805164627532192
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Message log",
+			"description": "Functions to manage updating the LogText object as messages are added.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "This is similar to the chat example, but instead of keeping a log in a text box, we keep it in an ordinary Text object so we can see things behind it. However the text object cannot scroll its text, so instead we keep the last 20 messages in an array, and update the text object from that. This is a simple way to have the messages scroll up as more messages are added.\r\n\r\nFirst when adding a log we add the line to the end of an array."
+				},
+				{
+					"functionName": "AddLog",
+					"functionDescription": "Automatically converted from 'AddLog'",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "message",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 461118231039956
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "push",
+							"objectClass": "LogMessages",
+							"sid": 340763000710870,
+							"parameters": {
+								"where": "back",
+								"value": "message",
+								"axis": "x"
+							}
+						}
+					],
+					"sid": 634555308342937,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If we are over 20 messages, delete the first (oldest) message."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-size",
+									"objectClass": "LogMessages",
+									"sid": 552932212039439,
+									"parameters": {
+										"axis": "x",
+										"comparison": 4,
+										"value": "20"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "pop",
+									"objectClass": "LogMessages",
+									"sid": 335579014586631,
+									"parameters": {
+										"where": "front",
+										"axis": "x"
+									}
+								}
+							],
+							"sid": 363451260473944
+						},
+						{
+							"eventType": "comment",
+							"text": "Reset the log text to empty - we will rebuild it completely from the array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "LogText",
+									"sid": 588587907880778,
+									"parameters": {
+										"text": "\"\""
+									}
+								}
+							],
+							"sid": 225703163069212
+						},
+						{
+							"eventType": "comment",
+							"text": "For each element will repeat for each chat log we've added in order, so we can append the message with a line break."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-element",
+									"objectClass": "LogMessages",
+									"sid": 468386405338870,
+									"parameters": {
+										"axes": "x"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "append-text",
+									"objectClass": "LogText",
+									"sid": 956645727879532,
+									"parameters": {
+										"text": "LogMessages.CurValue & newline"
+									}
+								}
+							],
+							"sid": 818584858020751
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Adding a chat message just calls 'AddLog' with the alias and message, e.g. <Joe> Hello world!"
+				},
+				{
+					"functionName": "AddChat",
+					"functionDescription": "Automatically converted from 'AddChat'",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "alias",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 528891046831056
+						},
+						{
+							"name": "message",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 605672780853392
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 698965173392438,
+							"parameters": [
+								"((\"<\" & alias) & \"> \") & message"
+							]
+						}
+					],
+					"sid": 755756519422673
+				}
+			],
+			"sid": 1791290436183513
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Signalling",
+			"description": "Manages connecting to the signalling server and joining the room.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On start of layout, connect to the signalling server. We also set up which client input values the peers will be using, and sync the Peer object with its position and additional instance variables for the look position, current inputs and player stats."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 8545342922442215
+						}
+					],
+					"actions": [
+						{
+							"id": "add-client-input-value",
+							"objectClass": "Multiplayer",
+							"sid": 7636630703004805,
+							"parameters": {
+								"tag": "\"lookx\"",
+								"precision": "low-int16-2-bytes",
+								"interpolation": "linear"
+							}
+						},
+						{
+							"id": "add-client-input-value",
+							"objectClass": "Multiplayer",
+							"sid": 3450312693038607,
+							"parameters": {
+								"tag": "\"looky\"",
+								"precision": "low-int16-2-bytes",
+								"interpolation": "linear"
+							}
+						},
+						{
+							"id": "add-client-input-value",
+							"objectClass": "Multiplayer",
+							"sid": 215118277476213,
+							"parameters": {
+								"tag": "\"inputs\"",
+								"precision": "very-low-uint8-1-byte",
+								"interpolation": "none"
+							}
+						},
+						{
+							"id": "sync-object",
+							"objectClass": "Multiplayer",
+							"sid": 2351988127461845,
+							"parameters": {
+								"object": "Peer",
+								"data": "position-only",
+								"precision": "low-int16-2-bytes",
+								"bandwidth": "normal-bandwidth-unpredictable"
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 5005261016716262,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "lookatx",
+									"objectClass": "Peer"
+								},
+								"precision": "low-int16-2-bytes",
+								"interpolation": "linear",
+								"client-value-tag": "\"lookx\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 3213121708535057,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "lookaty",
+									"objectClass": "Peer"
+								},
+								"precision": "low-int16-2-bytes",
+								"interpolation": "linear",
+								"client-value-tag": "\"looky\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 1084595683165889,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "inputs",
+									"objectClass": "Peer"
+								},
+								"precision": "very-low-uint8-1-byte",
+								"interpolation": "none",
+								"client-value-tag": "\"inputs\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 1877625592048931,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "health",
+									"objectClass": "Peer"
+								},
+								"precision": "very-low-uint8-1-byte",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 6184510421650488,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "kills",
+									"objectClass": "Peer"
+								},
+								"precision": "low-int16-2-bytes",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 4210123733721239,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "deaths",
+									"objectClass": "Peer"
+								},
+								"precision": "low-int16-2-bytes",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"id": "connect",
+							"objectClass": "Multiplayer",
+							"sid": 864871814108262,
+							"parameters": {
+								"server": "\"wss://multiplayer.construct.net\""
+							}
+						}
+					],
+					"sid": 4621074164691963
+				},
+				{
+					"eventType": "comment",
+					"text": "When connected, request to log in."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-connected",
+							"objectClass": "Multiplayer",
+							"sid": 633718780657259
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 891006002438031,
+							"parameters": [
+								"\"Connected, logging in...\""
+							]
+						},
+						{
+							"id": "log-in",
+							"objectClass": "Multiplayer",
+							"sid": 5152430702167834,
+							"parameters": {
+								"alias": "MyUsername"
+							}
+						}
+					],
+					"sid": 6173368493187684
+				},
+				{
+					"eventType": "comment",
+					"text": "When logged in, request to join the room."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-logged-in",
+							"objectClass": "Multiplayer",
+							"sid": 5883027386699968
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 816109599584440,
+							"parameters": [
+								"\"Logged in with alias: \" & Multiplayer.MyAlias & \" (\" & Multiplayer.MyID & \")\" & newline & \"Joining room...\""
+							]
+						},
+						{
+							"id": "join-room",
+							"objectClass": "Multiplayer",
+							"sid": 8803625540397218,
+							"parameters": {
+								"game": "GAME_NAME",
+								"instance": "INSTANCE_NAME",
+								"room": "ROOM_NAME",
+								"max-peers": "0"
+							}
+						}
+					],
+					"sid": 7761898484234081
+				},
+				{
+					"eventType": "comment",
+					"text": "We joined the room: activate either the Host or the Peer group. The host also has text object appear to indicate they are the host."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-joined-room",
+							"objectClass": "Multiplayer",
+							"sid": 9574597696892548
+						}
+					],
+					"actions": [],
+					"sid": 1579184355259559,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "As the host, we also adopt the existing Peer object in the layout as our own player. We must set its peer ID to our own ID and tell the Multiplayer object it is associated with ourselves."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-host",
+									"objectClass": "Multiplayer",
+									"sid": 6151152733133221
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "AddLog",
+									"sid": 288961442980966,
+									"parameters": [
+										"\"Joined room as host\""
+									]
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 5094248200865487,
+									"parameters": {
+										"group-name": "\"Host\"",
+										"state": "activated"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "HostIndicator",
+									"sid": 9458596741821432,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Peer",
+									"sid": 7688405092844826,
+									"parameters": {
+										"instance-variable": "peerid",
+										"value": "Multiplayer.MyID"
+									}
+								},
+								{
+									"id": "associate-object-with-peer",
+									"objectClass": "Multiplayer",
+									"sid": 4474902942186349,
+									"parameters": {
+										"object": "Peer",
+										"peer-id": "Multiplayer.MyID"
+									}
+								}
+							],
+							"sid": 611524856039149
+						},
+						{
+							"eventType": "comment",
+							"text": "When not the host, the Peer object already in the layout is destroyed. 'Sync object' will create the peer for ourselves, possibly in a different location, and we'll associate it then. (See the 'Peer' group's 'On object created')"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 4491209143547917
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "AddLog",
+									"sid": 932372020491156,
+									"parameters": [
+										"\"Joined room as peer\""
+									]
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 3086355252968577,
+									"parameters": {
+										"group-name": "\"Peer\"",
+										"state": "activated"
+									}
+								},
+								{
+									"callFunction": "AddLog",
+									"sid": 184598543264165,
+									"parameters": [
+										"\"Attempting to establish connection to host...\""
+									]
+								},
+								{
+									"id": "destroy",
+									"objectClass": "Peer",
+									"sid": 9105323197347260
+								}
+							],
+							"sid": 8025172574882813
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If we leave, get disconnected or encounter an error, add it to the log."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-disconnected",
+							"objectClass": "Multiplayer",
+							"sid": 7355024061540087
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 661756315006612,
+							"parameters": [
+								"\"Signalling disconnected\""
+							]
+						}
+					],
+					"sid": 3191386697509821
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-error",
+							"objectClass": "Multiplayer",
+							"sid": 7405991194607134
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 443101548670459,
+							"parameters": [
+								"\"Signalling error: \" & Multiplayer.ErrorMessage"
+							]
+						}
+					],
+					"sid": 7454512880658015
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-left-room",
+							"objectClass": "Multiplayer",
+							"sid": 4349773980818516
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 798607560333980,
+							"parameters": [
+								"\"Signalling: left room\""
+							]
+						}
+					],
+					"sid": 833882481570433
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-kicked",
+							"objectClass": "Multiplayer",
+							"sid": 3123559417693109
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "AddLog",
+							"sid": 614891547175878,
+							"parameters": [
+								"\"Kicked (either could not connect to host or host quit)\""
+							]
+						}
+					],
+					"sid": 5945267911170749
+				},
+				{
+					"eventType": "comment",
+					"text": "Update the NetStats text object in the bottom left with details like the peer count, inbound and outbound bandwidth, host ping and PDV."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 5568020922559877
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "NetStats",
+							"sid": 3573965697186698,
+							"parameters": {
+								"text": "Multiplayer.PeerCount & \" peers connected\" & newline & Multiplayer.StatInboundCount & \" in (\" & (round(Multiplayer.StatInboundBandwidth/100)/10) & \" k) / sec\" & newline & Multiplayer.StatOutboundCount & \" out (\" & (round(Multiplayer.StatOutboundBandwidth/100)/10) & \" k) / sec\" & newline & \"Host ping \" & round(Multiplayer.PeerLatency(Multiplayer.HostID)) & \", PDV \" & round(Multiplayer.PeerPDV(Multiplayer.HostID))"
+							}
+						}
+					],
+					"sid": 6222937938240554
+				}
+			],
+			"sid": 5828038468308097
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game",
+			"description": "Manages the gameplay and synchronisation.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Peer",
+					"description": "Events specific to peers (i.e. non-host users)",
+					"isActiveOnStart": false,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When a Peer is created from 'Sync object', Multiplayer.PeerID has the ID of the peer that the object represents. This must be stored in an instance variable so we can later identify which peer the object represents."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-created",
+									"objectClass": "Peer",
+									"sid": 128854278609083
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Peer",
+									"sid": 5022147858615494,
+									"parameters": {
+										"instance-variable": "peerid",
+										"value": "Multiplayer.PeerID"
+									}
+								},
+								{
+									"id": "associate-object-with-peer",
+									"objectClass": "Multiplayer",
+									"sid": 5675541743454471,
+									"parameters": {
+										"object": "Peer",
+										"peer-id": "Multiplayer.PeerID"
+									}
+								}
+							],
+							"sid": 1051554076065893,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the peer that is created represents the local player, enable local input prediction for it. This means instead of being locked to whatever position it is on the host, it can start to move around. However as it moves it will correct its position if it starts to deviate from where it is on the host, so it's important both the peer and the host move it in exactly the same way."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Peer",
+											"sid": 1405275483588588,
+											"parameters": {
+												"instance-variable": "peerid",
+												"comparison": 0,
+												"value": "Multiplayer.MyID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "enable-local-input-prediction",
+											"objectClass": "Multiplayer",
+											"sid": 5862494689345266,
+											"parameters": {
+												"object": "Peer"
+											}
+										}
+									],
+									"sid": 4955614740866377
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "'On client update' triggers when the Multiplayer object is about to send our inputs to the host, so we need to update them. To save bandwidth, we use an 8-bit value in the 'inputs' instance variable. We store use five controls - arrow keys and shooting - represented as five bits in the 8-bit input number. 0 means not pressed and 1 means pressed. The five bits we use are:\r\n0 = left\r\n1 = up\r\n2 = right\r\n3 = down\r\n4 = shooting\r\nWe also need to send to the host the position where we're looking/aiming, and these are sent with the \"lookx\" and \"looky\" input values. Note all three values (\"input\", \"lookx\" and \"looky\") were added in 'Start of Layout'."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-client-update",
+									"objectClass": "Multiplayer",
+									"sid": 3792084110379575
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Peer",
+									"sid": 6671657526076101,
+									"parameters": {
+										"instance-variable": "peerid",
+										"comparison": 0,
+										"value": "Multiplayer.MyID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-client-state",
+									"objectClass": "Multiplayer",
+									"sid": 1498586099997287,
+									"parameters": {
+										"tag": "\"lookx\"",
+										"value": "Mouse.X"
+									}
+								},
+								{
+									"id": "set-client-state",
+									"objectClass": "Multiplayer",
+									"sid": 3799643404182033,
+									"parameters": {
+										"tag": "\"looky\"",
+										"value": "Mouse.Y"
+									}
+								}
+							],
+							"sid": 2007320409318159,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "For each of the five controls, update the corresponding bit in 'inputs' to 1 for pressed or 0 for not pressed."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 5471011033077451,
+											"parameters": {
+												"key": 37
+											}
+										},
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 1209986724222587,
+											"parameters": {
+												"key": 65
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 772481891434137,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(Self.inputs, 0, 1)"
+											}
+										}
+									],
+									"sid": 1432909299591165,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 2914374961707698
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 7055135451678822,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(Self.inputs, 0, 0)"
+											}
+										}
+									],
+									"sid": 4970503563561218
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 3536706645476638,
+											"parameters": {
+												"key": 38
+											}
+										},
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 1060843976135203,
+											"parameters": {
+												"key": 87
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 4719626626007025,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(Self.inputs, 1, 1)"
+											}
+										}
+									],
+									"sid": 2880113630043788,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 104254603064592
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 1092724608942388,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(Self.inputs, 1, 0)"
+											}
+										}
+									],
+									"sid": 1731932375889037
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 6690059492620113,
+											"parameters": {
+												"key": 39
+											}
+										},
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 3628500679431742,
+											"parameters": {
+												"key": 68
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 9510432981832498,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(Self.inputs, 2, 1)"
+											}
+										}
+									],
+									"sid": 1916808374760034,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 4192449857612555
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 6136403609508365,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(Self.inputs, 2, 0)"
+											}
+										}
+									],
+									"sid": 5063772367601722
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 1350570646088154,
+											"parameters": {
+												"key": 40
+											}
+										},
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 2348876309979107,
+											"parameters": {
+												"key": 83
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 3520421563379619,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(Self.inputs, 3, 1)"
+											}
+										}
+									],
+									"sid": 9781446253588016,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 9981225923432296
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 3576768970502815,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(Self.inputs, 3, 0)"
+											}
+										}
+									],
+									"sid": 8619149667179953
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "mouse-button-is-down",
+											"objectClass": "Mouse",
+											"sid": 4103886747106164,
+											"parameters": {
+												"mouse-button": "left"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 1319002616569666,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(Self.inputs, 4, 1)"
+											}
+										}
+									],
+									"sid": 9121487991405260
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 6987799401387024
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 1434453447398389,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(Self.inputs, 4, 0)"
+											}
+										}
+									],
+									"sid": 9873645394511320
+								},
+								{
+									"eventType": "comment",
+									"text": "After we've updated all the bits in the instance variable, set the client input state to the resulting value."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-client-state",
+											"objectClass": "Multiplayer",
+											"sid": 2605505774378409,
+											"parameters": {
+												"tag": "\"inputs\"",
+												"value": "Peer.inputs"
+											}
+										}
+									],
+									"sid": 1683219513945691
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "This condition picks our own peer instance, so we can control it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Peer",
+									"sid": 9780832115620216,
+									"parameters": {
+										"instance-variable": "peerid",
+										"comparison": 0,
+										"value": "Multiplayer.MyID"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 9854061062979332,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Note an important detail is that we rely on the bits in the 'inputs' variable, updated by the above event, to know which controls are being pressed. We do not test actual mouse or keyboard input here. The reason for this is that the input states are by default only sent to the host 30 times a second, whereas the game typically runs at 60 FPS, so inputs are only sent about every other frame. If we tested for input directly in this event, then we might not actually send that input to the host until the next frame. This would mean locally we move the peer one more frame than the host will have, which will make the player deviate slightly more from the host and cause more input prediction error. By only moving the player with controls we know we've already sent to the host the player is more likely to stay in sync."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 6698704042410297,
+											"parameters": {
+												"first-value": "getbit(Peer.inputs, 0)",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 2467998518019349,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "left"
+											}
+										}
+									],
+									"sid": 3523813498314173
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 1183072686910039,
+											"parameters": {
+												"first-value": "getbit(Peer.inputs, 1)",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 9235393114319848,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "up"
+											}
+										}
+									],
+									"sid": 7852755613872817
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 332538370085694,
+											"parameters": {
+												"first-value": "getbit(Peer.inputs, 2)",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 3972249153136424,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "right"
+											}
+										}
+									],
+									"sid": 4229564653035917
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 4321894230804913,
+											"parameters": {
+												"first-value": "getbit(Peer.inputs, 3)",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 2350106889447663,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "down"
+											}
+										}
+									],
+									"sid": 9219847413697906
+								}
+							]
+						}
+					],
+					"sid": 3251139189519888
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Host",
+					"description": "Events specific to the host.",
+					"isActiveOnStart": false,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "As the host, when a peer joins we create a new Peer object for them. 'Sync object' will then notify all the peers that this object was created. We set the created instance's peer ID variable to the associated peer. Finally we use the 'Associate object' action in the Multiplayer object to tell it that this instance represents that peer."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-peer-connected",
+									"objectClass": "Multiplayer",
+									"sid": 5278329796908354
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 71668082977051,
+									"parameters": {
+										"object-to-create": "Peer",
+										"layer": "0",
+										"x": "random(50, LayoutWidth - 50)",
+										"y": "random(50, LayoutHeight - 50)",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Peer",
+									"sid": 3882820210993065,
+									"parameters": {
+										"instance-variable": "peerid",
+										"value": "Multiplayer.PeerID"
+									}
+								},
+								{
+									"id": "associate-object-with-peer",
+									"objectClass": "Multiplayer",
+									"sid": 5439525522788724,
+									"parameters": {
+										"object": "Peer",
+										"peer-id": "Multiplayer.PeerID"
+									}
+								}
+							],
+							"sid": 3431678512597868
+						},
+						{
+							"eventType": "comment",
+							"text": "As the host, we can control our own object directly. We do not need to send the input state anywhere or worry about input prediction; as the host we run the authoritative version of the game. Therefore unlike with peers we can use keyboard and mouse input directly."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Peer",
+									"sid": 3453378984847341,
+									"parameters": {
+										"instance-variable": "peerid",
+										"comparison": 0,
+										"value": "Multiplayer.MyID"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 6667545845080172,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 8203931042283762,
+											"parameters": {
+												"key": 37
+											}
+										},
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 4215564113027982,
+											"parameters": {
+												"key": 65
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 363034383993945,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "left"
+											}
+										}
+									],
+									"sid": 9818674066350092,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 2415820614732377,
+											"parameters": {
+												"key": 38
+											}
+										},
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 6558359010034817,
+											"parameters": {
+												"key": 87
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 6179025650672449,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "up"
+											}
+										}
+									],
+									"sid": 2630787970132579,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 3144923944661772,
+											"parameters": {
+												"key": 39
+											}
+										},
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 2035374859769489,
+											"parameters": {
+												"key": 68
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 1898623469443832,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "right"
+											}
+										}
+									],
+									"sid": 7581182234293559,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 6540405097566699,
+											"parameters": {
+												"key": 40
+											}
+										},
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 7745646644545906,
+											"parameters": {
+												"key": 83
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 9349236583628264,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "down"
+											}
+										}
+									],
+									"sid": 9667144375544474,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "comment",
+									"text": "Note when shooting we still update the same bit in the 'inputs' variable that the peers do. This is solely so the common events can treat all objects the same when it comes to shooting: the laser is shown if the bit is set, otherwise it is hidden."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "mouse-button-is-down",
+											"objectClass": "Mouse",
+											"sid": 6660203618605671,
+											"parameters": {
+												"mouse-button": "left"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 4829780237147291,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(self.inputs, 4, 1)"
+											}
+										}
+									],
+									"sid": 8613413220319609
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 6121055817699315
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 1699321742129288,
+											"parameters": {
+												"instance-variable": "inputs",
+												"value": "setbit(self.inputs, 4, 0)"
+											}
+										}
+									],
+									"sid": 7085205808464667
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "As host, we also need to update all the other players to reflect what they are doing. Therefore we iterate all peers who are *not* our own player, and update their instance variables based on their latest received inputs (from the PeerState expression)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Peer",
+									"sid": 1724488587194735,
+									"parameters": {
+										"instance-variable": "peerid",
+										"comparison": 1,
+										"value": "Multiplayer.MyID"
+									}
+								},
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 233319911430755,
+									"parameters": {
+										"object": "Peer"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Peer",
+									"sid": 6564210135065296,
+									"parameters": {
+										"instance-variable": "lookatx",
+										"value": "Multiplayer.PeerState(Peer.peerid, \"lookx\")"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Peer",
+									"sid": 9214717408979714,
+									"parameters": {
+										"instance-variable": "lookaty",
+										"value": "Multiplayer.PeerState(Peer.peerid, \"looky\")"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Peer",
+									"sid": 6998076668578183,
+									"parameters": {
+										"instance-variable": "inputs",
+										"value": "Multiplayer.PeerState(Peer.peerid, \"inputs\")"
+									}
+								}
+							],
+							"sid": 9848056887334072,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "As host we are also responsible for moving each peer. Now that we have updated the 'inputs' variable, we can simulate controls for the player depending on what their current inputs are. Since the host has the authoritative version of the game, this is their \"true\" movement; the peers will be moving themselves immediately, but if there is a discrepency, the host takes precedent and the peer must correct its own position to match that of the host."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 4035119645032269,
+											"parameters": {
+												"first-value": "getbit(Peer.inputs, 0)",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 7102549953328855,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "left"
+											}
+										}
+									],
+									"sid": 6433742001913361
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 4195570173097406,
+											"parameters": {
+												"first-value": "getbit(Peer.inputs, 1)",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 1299297905283037,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "up"
+											}
+										}
+									],
+									"sid": 1396571984520324
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 8818673675349892,
+											"parameters": {
+												"first-value": "getbit(Peer.inputs, 2)",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 2914878864602853,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "right"
+											}
+										}
+									],
+									"sid": 2217910608625926
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 167345276341326,
+											"parameters": {
+												"first-value": "getbit(Peer.inputs, 3)",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Peer",
+											"sid": 4594040304374996,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "down"
+											}
+										}
+									],
+									"sid": 133455056238674
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Only the host is responsible for finding out who has hit who. Here we go through every peer that is shooting and test if they hit anyone."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 3594469971817636,
+									"parameters": {
+										"object": "Peer"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 2446271282976524,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "We only want to deal damage the first time players shoot, as opposed to every tick while they are shooting. 'Trigger once' doesn't work per-instance, so we simulate the same thing using a 'FirstShot' boolean in each Peer. If they're not shooting FirstShot is set to true; when they are shooting, if FirstShot is true, it checks to deal damage and sets FirstShot to false. If they are shooting and FirstShot is false, no more damage is dealt."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 5854236340616593,
+											"parameters": {
+												"first-value": "getbit(Peer.inputs, 4)",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 364914268385862,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "The way events pick instances becomes a little awkward here: we want to check if this peer's 'AimSpot' is overlapping any other peers. We can't do that directly, since an 'AimSpot is overlapping Peer' condition will only check the current Peer in the for-each loop. So to work around this, we call a TestHit function to do the actual collision test, since function calls reset which objects are picked. We pass the UID of the AimSpot to test a collision for, and the peer ID of the current shooting peer we're checking for."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "Peer",
+													"sid": 4750924477652231,
+													"parameters": {
+														"instance-variable": "FirstShot"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "Peer",
+													"sid": 8111685811361797,
+													"parameters": {
+														"instance-variable": "FirstShot",
+														"value": "false"
+													}
+												},
+												{
+													"callFunction": "TestHit",
+													"sid": 610382354374168,
+													"parameters": [
+														"AimSpot.UID",
+														"Peer.peerid"
+													]
+												}
+											],
+											"sid": 1526881880651042
+										}
+									]
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 4523653995581848
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Peer",
+											"sid": 7362510215786,
+											"parameters": {
+												"instance-variable": "FirstShot",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 1598938070602766
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "This function is called when we want to test if a player has hit another player. Parameter 0 is the UID of the AimSpot to test for a collision, which we pick right away. Note we use a family instead of picking AimSpot directly. This is because AimSpot is in a container with Peer, so picking an AimSpot will pick its own Peer and prevent us testing collisions with other peers again. Families pick objects independently of their own objects, so we work with AimSpotFamily, which is a family that just contains AimSpot. Then we can test for a collision between AimSpotFamily and any other Peer."
+						},
+						{
+							"functionName": "TestHit",
+							"functionDescription": "Automatically converted from 'TestHit'",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "aimSpotUid",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"sid": 532427991358001
+								},
+								{
+									"name": "firingPeerId",
+									"type": "string",
+									"initialValue": "",
+									"comment": "",
+									"sid": 922231301570529
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "AimSpotFamily",
+									"sid": 322126514785684,
+									"parameters": {
+										"unique-id": "aimSpotUid"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 432941080701766,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "We must test if 'AimSpotFamily' hits any of the peers. However we don't want to test if it hits the peer that is firing it in the first place."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Peer",
+											"sid": 921069364160987,
+											"parameters": {
+												"instance-variable": "peerid",
+												"comparison": 1,
+												"value": "firingPeerId"
+											}
+										},
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 534956630919931,
+											"parameters": {
+												"object": "Peer"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 273202221451461,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "This is where lag compensation happens. We test if the aim spot is overlapping any of the peers. However we must take in to account that the firing peer is seeing all the other peers on a delay. The LagCompensateX/Y/Angle expressions return the position of each Peer that the firing player will have seen them at given their delay. The 'moving peer' is the peer being aimed at, and the 'from peer' is the peer who is firing. First we save the current position and angle of the object so we can put it back, then we position the peer with the lag-compensated values."
+										},
+										{
+											"eventType": "variable",
+											"name": "OldX",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 345008021286284
+										},
+										{
+											"eventType": "variable",
+											"name": "OldY",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 578373891823779
+										},
+										{
+											"eventType": "variable",
+											"name": "OldAngle",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 209844575704999
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 710690638443572,
+													"parameters": {
+														"variable": "OldX",
+														"value": "Peer.X"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 334968145489969,
+													"parameters": {
+														"variable": "OldY",
+														"value": "Peer.Y"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 384486878130111,
+													"parameters": {
+														"variable": "OldAngle",
+														"value": "Peer.Angle"
+													}
+												},
+												{
+													"id": "set-position",
+													"objectClass": "Peer",
+													"sid": 620577230047819,
+													"parameters": {
+														"x": "Multiplayer.LagCompensateX(Peer.peerid, firingPeerId)",
+														"y": "Multiplayer.LagCompensateY(Peer.peerid, firingPeerId)"
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "Peer",
+													"sid": 257481489829335,
+													"parameters": {
+														"angle": "Multiplayer.LagCompensateAngle(Peer.peerid, firingPeerId)"
+													}
+												}
+											],
+											"sid": 246924040492525
+										},
+										{
+											"eventType": "comment",
+											"text": "Now the peer is in its lag-compensated place, we can test if it overlaps the aim spot. If it does we subtract from the health, and remember who hit them last, so we can update their kill count if they die."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-overlapping-another-object",
+													"objectClass": "Peer",
+													"sid": 211265189357561,
+													"parameters": {
+														"object": "AimSpotFamily"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "subtract-from-instvar",
+													"objectClass": "Peer",
+													"sid": 609178399764143,
+													"parameters": {
+														"instance-variable": "health",
+														"value": "3"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 733699047523465,
+													"parameters": {
+														"instance-variable": "lasthitbypeerid",
+														"value": "firingPeerId"
+													}
+												}
+											],
+											"sid": 202234457054764
+										},
+										{
+											"eventType": "comment",
+											"text": "Now we've checked for the overlap, we put the peer back to its current position."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-position",
+													"objectClass": "Peer",
+													"sid": 288139714016536,
+													"parameters": {
+														"x": "OldX",
+														"y": "OldY"
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "Peer",
+													"sid": 636373625888939,
+													"parameters": {
+														"angle": "OldAngle"
+													}
+												}
+											],
+											"sid": 589136407406463
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "If a peer has run out of health, we move them back to a random position, reset their health, and add to their death count."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Peer",
+									"sid": 2985878936901063,
+									"parameters": {
+										"instance-variable": "health",
+										"comparison": 3,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "Peer",
+									"sid": 9699398552955236,
+									"parameters": {
+										"x": "random(50, LayoutWidth - 50)",
+										"y": "random(50, LayoutHeight - 50)"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Peer",
+									"sid": 3347510588602451,
+									"parameters": {
+										"instance-variable": "health",
+										"value": "100"
+									}
+								},
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Peer",
+									"sid": 6045993592488538,
+									"parameters": {
+										"instance-variable": "deaths",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 2351425807777953,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "When a peer died, we also want to increment the kills counter for the last peer who shot them. First of all, we don't want to give a player a kill for shooting themselves! So long as someone else shot them, we add one to their kill count. Note however we need to pick a different 'Peer' to the one that's died, so we call a function to reset the picked objects again."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Peer",
+											"sid": 7594595665311121,
+											"parameters": {
+												"instance-variable": "peerid",
+												"comparison": 1,
+												"value": "Peer.lasthitbypeerid"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "AddToKills",
+											"sid": 115528290533193,
+											"parameters": [
+												"Peer.lasthitbypeerid"
+											]
+										}
+									],
+									"sid": 8487439007661947
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "This function simply serves to add to the kill count of a different peer to the one who died. We pick the peer by the function parameter, which is the ID of the last peer who hit them."
+						},
+						{
+							"functionName": "AddToKills",
+							"functionDescription": "Automatically converted from 'AddToKills'",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "peerid",
+									"type": "string",
+									"initialValue": "",
+									"comment": "",
+									"sid": 467038104030656
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Peer",
+									"sid": 151848284238970,
+									"parameters": {
+										"instance-variable": "peerid",
+										"comparison": 0,
+										"value": "peerid"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Peer",
+									"sid": 803410757428852,
+									"parameters": {
+										"instance-variable": "kills",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 539774419885490
+						},
+						{
+							"eventType": "comment",
+							"text": "This event relays chat messages to other peers. It's the same thing as from tutorial 2 (chat room)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-peer-message",
+									"objectClass": "Multiplayer",
+									"sid": 1239031464766211,
+									"parameters": {
+										"tag": "\"chat\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "broadcast-message",
+									"objectClass": "Multiplayer",
+									"sid": 5780820314102027,
+									"parameters": {
+										"from-id": "Multiplayer.FromID",
+										"tag": "\"chat\"",
+										"message": "Multiplayer.Message",
+										"mode": "reliable-ordered"
+									}
+								}
+							],
+							"sid": 3740149403622605
+						}
+					],
+					"sid": 5993157518437331
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Common",
+					"description": "Events that are common to both the host and peers.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Whenever a peer joins or leaves, log the event so the user can see what happened."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-peer-connected",
+									"objectClass": "Multiplayer",
+									"sid": 8555101434504378
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "AddLog",
+									"sid": 965852658191863,
+									"parameters": [
+										"\"'\" & Multiplayer.PeerAlias & \"' joined\""
+									]
+								}
+							],
+							"sid": 4933736723213277
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-peer-disconnected",
+									"objectClass": "Multiplayer",
+									"sid": 8841003295953043
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "AddLog",
+									"sid": 132395516113281,
+									"parameters": [
+										"\"'\" & Multiplayer.PeerAlias & \"' left\""
+									]
+								}
+							],
+							"sid": 6299574777196556
+						},
+						{
+							"eventType": "comment",
+							"text": "Regardless of whether we are host or peer, we want our own player to look at the mouse."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Peer",
+									"sid": 6037413767085703,
+									"parameters": {
+										"instance-variable": "peerid",
+										"comparison": 0,
+										"value": "Multiplayer.MyID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Peer",
+									"sid": 67252243349912,
+									"parameters": {
+										"instance-variable": "lookatx",
+										"value": "Mouse.X"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Peer",
+									"sid": 4570881774384983,
+									"parameters": {
+										"instance-variable": "lookaty",
+										"value": "Mouse.Y"
+									}
+								}
+							],
+							"sid": 2538876316377638
+						},
+						{
+							"eventType": "comment",
+							"text": "All players are pointed at their 'lookatx' and 'lookaty' variables, and the AimSpot object (in a container with Peer) positioned to the same location to indicate the aim point. The host and peers update these values in different ways, but both always need players to be actually pointing at their look-at positions. We also position the PeerName labels above each peer and set it to their name, so we can see who is who, and display their stats (health, kills and deaths). Finally we make sure the lasers and aim spots appear on the \"Lasers\" layer, since syncing objects does not always put them on the right layer."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 4628645942487063
+								}
+							],
+							"actions": [
+								{
+									"id": "set-angle-toward-position",
+									"objectClass": "Peer",
+									"sid": 1911753413642723,
+									"parameters": {
+										"x": "Self.lookatx",
+										"y": "Self.lookaty"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "AimSpot",
+									"sid": 8266768530851442,
+									"parameters": {
+										"x": "Peer.lookatx",
+										"y": "Peer.lookaty"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "PeerName",
+									"sid": 3301965992719763,
+									"parameters": {
+										"x": "Peer.X",
+										"y": "Peer.Y - 55"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "PeerName",
+									"sid": 8963732300173281,
+									"parameters": {
+										"text": "Multiplayer.PeerAliasFromID(Peer.peerid) & \" (\" & Peer.health & \"%)\" & newline & Peer.kills & \" kills, \" & Peer.deaths & \" deaths\""
+									}
+								},
+								{
+									"id": "move-to-layer",
+									"objectClass": "Peer",
+									"sid": 7434418277838572,
+									"parameters": {
+										"layer": "\"Game\""
+									}
+								},
+								{
+									"id": "move-to-layer",
+									"objectClass": "PeerLaser",
+									"sid": 2911903752046497,
+									"parameters": {
+										"layer": "\"Lasers\""
+									}
+								},
+								{
+									"id": "move-to-layer",
+									"objectClass": "AimSpot",
+									"sid": 7466844330938105,
+									"parameters": {
+										"layer": "\"Lasers\""
+									}
+								},
+								{
+									"id": "move-to-layer",
+									"objectClass": "PeerName",
+									"sid": 344509275179337,
+									"parameters": {
+										"layer": "\"Info\""
+									}
+								}
+							],
+							"sid": 5649120662471453
+						},
+						{
+							"eventType": "comment",
+							"text": "Similarly to above, the host and peers update their inputs in different ways, but whenever the 'shooting' input (bit 4) is set, we want to display the laser to show that they're shooting."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 4248564936608124,
+									"parameters": {
+										"object": "Peer"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 3657601176564042,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-two-values",
+											"objectClass": "System",
+											"sid": 2863468584174289,
+											"parameters": {
+												"first-value": "getbit(Peer.inputs, 4)",
+												"comparison": 0,
+												"second-value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "PeerLaser",
+											"sid": 4784074445792489,
+											"parameters": {
+												"object": "Peer",
+												"image-point-optional": "1"
+											}
+										},
+										{
+											"id": "set-angle-toward-position",
+											"objectClass": "PeerLaser",
+											"sid": 9313873539234320,
+											"parameters": {
+												"x": "Peer.lookatx",
+												"y": "Peer.lookaty"
+											}
+										},
+										{
+											"id": "set-width",
+											"objectClass": "PeerLaser",
+											"sid": 360013286974248,
+											"parameters": {
+												"width": "distance(PeerLaser.X, PeerLaser.Y, Peer.lookatx, Peer.lookaty)"
+											}
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "PeerLaser",
+											"sid": 8101732601140227,
+											"parameters": {
+												"visibility": "visible"
+											}
+										}
+									],
+									"sid": 2747854862782409
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 5456220674553035
+										}
+									],
+									"actions": [
+										{
+											"id": "set-visible",
+											"objectClass": "PeerLaser",
+											"sid": 1159169287522366,
+											"parameters": {
+												"visibility": "invisible"
+											}
+										}
+									],
+									"sid": 3776654557553521
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "This event is essentially the chat room functionality from tutorial 2. However they are merged in to one event, the only difference being whether we send a message (as a peer) or broadcast it (as the host). The host relay is separated out in to the 'Host' group."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 8189598865130486,
+									"parameters": {
+										"key": 13
+									}
+								},
+								{
+									"id": "on-clicked",
+									"objectClass": "ChatSend",
+									"sid": 3919423676690744
+								}
+							],
+							"actions": [],
+							"sid": 6476942305419597,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-text",
+											"objectClass": "ChatTextBox",
+											"sid": 8094043108038412,
+											"parameters": {
+												"text": "\"\"",
+												"case": "case-insensitive"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "AddChat",
+											"sid": 810306535297733,
+											"parameters": [
+												"Multiplayer.MyAlias",
+												"ChatTextBox.Text"
+											]
+										}
+									],
+									"sid": 4201516345362413,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-host",
+													"objectClass": "Multiplayer",
+													"sid": 8001304391662834
+												}
+											],
+											"actions": [
+												{
+													"id": "broadcast-message",
+													"objectClass": "Multiplayer",
+													"sid": 5407182183946672,
+													"parameters": {
+														"from-id": "Multiplayer.MyID",
+														"tag": "\"chat\"",
+														"message": "ChatTextBox.Text",
+														"mode": "reliable-ordered"
+													}
+												}
+											],
+											"sid": 257738391855802
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 7997124762515283
+												}
+											],
+											"actions": [
+												{
+													"id": "send-message",
+													"objectClass": "Multiplayer",
+													"sid": 4233441923762642,
+													"parameters": {
+														"peer-id": "\"\"",
+														"tag": "\"chat\"",
+														"message": "ChatTextBox.Text",
+														"mode": "reliable-ordered"
+													}
+												}
+											],
+											"sid": 3239881112314746
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-text",
+													"objectClass": "ChatTextBox",
+													"sid": 6867051708756812,
+													"parameters": {
+														"text": "\"\""
+													}
+												}
+											],
+											"sid": 5094784747436654
+										}
+									]
+								}
+							],
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Received chat messages are added to the log."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-peer-message",
+									"objectClass": "Multiplayer",
+									"sid": 7762147262179526,
+									"parameters": {
+										"tag": "\"chat\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "AddChat",
+									"sid": 648628258804718,
+									"parameters": [
+										"Multiplayer.FromAlias",
+										"Multiplayer.Message"
+									]
+								}
+							],
+							"sid": 9786408180718612
+						},
+						{
+							"eventType": "comment",
+							"text": "When we left click, unfocus the chat text box and send button. Otherwise after clicking back in the game our keyboard inputs will still go to the chat text box."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-click",
+									"objectClass": "Mouse",
+									"sid": 2535806964867538,
+									"parameters": {
+										"mouse-button": "left",
+										"click-type": "clicked"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-unfocused",
+									"objectClass": "ChatTextBox",
+									"sid": 59320638090893
+								},
+								{
+									"id": "set-unfocused",
+									"objectClass": "ChatSend",
+									"sid": 7112764078842695
+								}
+							],
+							"sid": 5078574006016115
+						}
+					],
+					"sid": 5870562097836775
+				}
+			],
+			"sid": 8255319576193919
+		}
+	],
+	"sid": 434100748332892
+}

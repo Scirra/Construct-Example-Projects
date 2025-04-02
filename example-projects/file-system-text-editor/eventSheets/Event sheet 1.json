@@ -1,0 +1,548 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Tag of the last successfully used picker. This is used for the 'Save' button which writes the file to the last used picker."
+		},
+		{
+			"eventType": "variable",
+			"name": "lastPickerTag",
+			"type": "string",
+			"initialValue": "",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 355323771881461
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Opening files",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When clicking the 'Open' button, show the open file picker for text files."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "Open",
+							"sid": 617657910288243
+						}
+					],
+					"actions": [
+						{
+							"id": "add-accept-type",
+							"objectClass": "FileSystem",
+							"sid": 704085093779371,
+							"parameters": {
+								"mime-type": "\"text/plain\"",
+								"file-extensions": "\".txt\"",
+								"description": "\"Text files\""
+							}
+						},
+						{
+							"id": "show-open-file-picker",
+							"objectClass": "FileSystem",
+							"sid": 902147131282420,
+							"parameters": {
+								"picker-tag": "\"open\"",
+								"show-accept-all": true,
+								"multiple": false,
+								"id": "\"open\"",
+								"start-in": "documents"
+							}
+						}
+					],
+					"sid": 989083312241365
+				},
+				{
+					"eventType": "comment",
+					"text": "The user successfully chose a file to open."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-picker-complete",
+							"objectClass": "FileSystem",
+							"sid": 231790426868997,
+							"parameters": {
+								"picker-tag": "\"open\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Update the displayed status"
+						},
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 252082281466212,
+							"parameters": {
+								"text": "\"Open picker complete\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "FileNameText",
+							"sid": 867547612693539,
+							"parameters": {
+								"text": "FileSystem.FileNameAt(0)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Enable the 'Save' button"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 341916108652172,
+							"parameters": {
+								"variable": "lastPickerTag",
+								"value": "\"open\""
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Save",
+							"sid": 883233558266473,
+							"parameters": {
+								"mode": "enabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Read the chosen text file"
+						},
+						{
+							"id": "read-text-file",
+							"objectClass": "FileSystem",
+							"sid": 177083826697092,
+							"parameters": {
+								"picker-tag": "\"open\"",
+								"folder-path": "\"\"",
+								"file-tag": "\"read\""
+							}
+						}
+					],
+					"sid": 427157973376543
+				},
+				{
+					"eventType": "comment",
+					"text": "If the open picker did not complete successfully, show a message."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-picker-error",
+							"objectClass": "FileSystem",
+							"sid": 903071867285828,
+							"parameters": {
+								"picker-tag": "\"open\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 692131961831938,
+							"parameters": {
+								"text": "\"Open picker error\""
+							}
+						}
+					],
+					"sid": 284505145654071
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the opened file has been read, put its text in the main TextInput object."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-file-operation-complete",
+							"objectClass": "FileSystem",
+							"sid": 154185469162847,
+							"parameters": {
+								"file-tag": "\"read\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 376247678424835,
+							"parameters": {
+								"text": "\"Read complete\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextInput",
+							"sid": 852376412703747,
+							"parameters": {
+								"text": "FileSystem.FileText"
+							}
+						}
+					],
+					"sid": 782436259571416
+				},
+				{
+					"eventType": "comment",
+					"text": "If a read error happens show a message."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-file-operation-error",
+							"objectClass": "FileSystem",
+							"sid": 706165233564248,
+							"parameters": {
+								"file-tag": "\"read\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 774207049490442,
+							"parameters": {
+								"text": "\"Read error\""
+							}
+						}
+					],
+					"sid": 499612971119146
+				},
+				{
+					"eventType": "comment",
+					"text": "Enable the 'Open previous' button on startup if the \"open\" picker was previously used. This allows opening the same file as was used in a previous session without needing to use the open file picker."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 298724955830267
+						},
+						{
+							"id": "has-picker-tag",
+							"objectClass": "FileSystem",
+							"sid": 182821603543815,
+							"parameters": {
+								"picker-tag": "\"open\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "OpenPrevious",
+							"sid": 547714099974848,
+							"parameters": {
+								"mode": "enabled"
+							}
+						}
+					],
+					"sid": 806509739206929
+				},
+				{
+					"eventType": "comment",
+					"text": "When clicking the 'Open previous' button, read the text file that was previously chosen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "OpenPrevious",
+							"sid": 125630702931217
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 585460669606968,
+							"parameters": {
+								"variable": "lastPickerTag",
+								"value": "\"open\""
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Save",
+							"sid": 424728646986323,
+							"parameters": {
+								"mode": "enabled"
+							}
+						},
+						{
+							"id": "read-text-file",
+							"objectClass": "FileSystem",
+							"sid": 883270841699852,
+							"parameters": {
+								"picker-tag": "\"open\"",
+								"folder-path": "\"\"",
+								"file-tag": "\"read\""
+							}
+						}
+					],
+					"sid": 117859476472370
+				}
+			],
+			"sid": 734999276173969
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Saving files",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When clicking the 'Save as' button, show the save file picker for text files."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "SaveAs",
+							"sid": 399585296274610
+						}
+					],
+					"actions": [
+						{
+							"id": "add-accept-type",
+							"objectClass": "FileSystem",
+							"sid": 942706959153781,
+							"parameters": {
+								"mime-type": "\"text/plain\"",
+								"file-extensions": "\".txt\"",
+								"description": "\"Text files\""
+							}
+						},
+						{
+							"id": "show-save-file-picker",
+							"objectClass": "FileSystem",
+							"sid": 383935002445779,
+							"parameters": {
+								"picker-tag": "\"save\"",
+								"show-accept-all": true,
+								"suggested-name": "\"\"",
+								"id": "\"save\"",
+								"start-in": "documents"
+							}
+						}
+					],
+					"sid": 441104533609235
+				},
+				{
+					"eventType": "comment",
+					"text": "The user successfully chose a file to save."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-picker-complete",
+							"objectClass": "FileSystem",
+							"sid": 414614682372738,
+							"parameters": {
+								"picker-tag": "\"save\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Update the displayed status"
+						},
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 387107141906852,
+							"parameters": {
+								"text": "\"Save picker complete\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "FileNameText",
+							"sid": 142849947623420,
+							"parameters": {
+								"text": "FileSystem.FileNameAt(0)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Enable the 'Save' button"
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 510451281023372,
+							"parameters": {
+								"variable": "lastPickerTag",
+								"value": "\"save\""
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Save",
+							"sid": 265144613241773,
+							"parameters": {
+								"mode": "enabled"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Write the contents of the main TextInput object to the chosen text file"
+						},
+						{
+							"id": "write-text-file",
+							"objectClass": "FileSystem",
+							"sid": 390677035651308,
+							"parameters": {
+								"picker-tag": "\"save\"",
+								"folder-path": "\"\"",
+								"file-tag": "\"write\"",
+								"text": "TextInput.Text",
+								"mode": "overwrite"
+							}
+						}
+					],
+					"sid": 724334703322429
+				},
+				{
+					"eventType": "comment",
+					"text": "If the save picker did not complete successfully, show a message."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-picker-error",
+							"objectClass": "FileSystem",
+							"sid": 731061397788371,
+							"parameters": {
+								"picker-tag": "\"save\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 755265226795383,
+							"parameters": {
+								"text": "\"Save picker error\""
+							}
+						}
+					],
+					"sid": 402243651827093
+				},
+				{
+					"eventType": "comment",
+					"text": "Show a message when the file write completes successfully or fails."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-file-operation-complete",
+							"objectClass": "FileSystem",
+							"sid": 885953548245394,
+							"parameters": {
+								"file-tag": "\"write\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 467508180292411,
+							"parameters": {
+								"text": "\"Write complete\""
+							}
+						}
+					],
+					"sid": 918827307962785
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-file-operation-error",
+							"objectClass": "FileSystem",
+							"sid": 669293857800445,
+							"parameters": {
+								"file-tag": "\"write\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatusText",
+							"sid": 967359374832839,
+							"parameters": {
+								"text": "\"Write error\""
+							}
+						}
+					],
+					"sid": 514269061032254
+				},
+				{
+					"eventType": "comment",
+					"text": "When clicking the 'Save' button (for saving to a previously chosen file), write the contents of the main TextInput object to the last chosen text file (saved in the lastPickerTag global variable)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "Save",
+							"sid": 103159495237709
+						}
+					],
+					"actions": [
+						{
+							"id": "write-text-file",
+							"objectClass": "FileSystem",
+							"sid": 925031970256333,
+							"parameters": {
+								"picker-tag": "lastPickerTag",
+								"folder-path": "\"\"",
+								"file-tag": "\"write\"",
+								"text": "TextInput.Text",
+								"mode": "overwrite"
+							}
+						}
+					],
+					"sid": 518150179122727
+				}
+			],
+			"sid": 889620546950522
+		}
+	],
+	"sid": 282913858022708
+}

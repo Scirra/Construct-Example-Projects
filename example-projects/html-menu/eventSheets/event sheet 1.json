@@ -1,0 +1,534 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "menuHtml",
+			"type": "string",
+			"initialValue": "",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 672656019965920
+		},
+		{
+			"eventType": "variable",
+			"name": "menuIsShowing",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 731523641369212
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Startup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On startup request the content of menu.html and store it in a global variable. This lets us access the HTML content immediately when showing the menu without first having to wait for the AJAX request to complete."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 409695746787890
+						}
+					],
+					"actions": [
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 235768534116597,
+							"parameters": {
+								"tag": "\"menu1\"",
+								"file": "menu.html"
+							}
+						}
+					],
+					"sid": 166363420118923
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 850217365898517,
+							"parameters": {
+								"tag": "\"menu1\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 789190753915244,
+							"parameters": {
+								"variable": "menuHtml",
+								"value": "AJAX.LastData"
+							}
+						}
+					],
+					"sid": 577934061975478
+				}
+			],
+			"sid": 320790994655756
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Show & hide menu",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Clicking anywhere in the project dismisses the menu. Note the HTML Element object has its [i]Stop input events[/i] property set to [i]Child elements only[/i], i.e. the [i]menuwrap[/i] element. This means clicks on the menu don't reach the Mouse object, so this only triggers for clicks outside the menu."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-click",
+							"objectClass": "Mouse",
+							"sid": 799861788382995
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "HideMenu",
+							"sid": 869110339043407
+						}
+					],
+					"sid": 565108895456630
+				},
+				{
+					"eventType": "comment",
+					"text": "Right-clicking or holding a touch over the piggy sprite will show a menu."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-object-clicked",
+							"objectClass": "Mouse",
+							"sid": 206896766095161,
+							"parameters": {
+								"mouse-button": "right",
+								"click-type": "clicked",
+								"object-clicked": "piggy"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ShowMenu",
+							"sid": 224097404530935,
+							"parameters": [
+								"Mouse.X",
+								"Mouse.Y"
+							]
+						}
+					],
+					"sid": 750836812910169
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-hold-over-object",
+							"objectClass": "Touch",
+							"sid": 257786008530293,
+							"parameters": {
+								"object": "piggy"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ShowMenu",
+							"sid": 313422947471282,
+							"parameters": [
+								"Touch.X",
+								"Touch.Y"
+							]
+						}
+					],
+					"sid": 650131875690258
+				},
+				{
+					"eventType": "comment",
+					"text": "When showing a menu, create a HTML Element for the menu at the given position. Note the actual HTML element is made very large at 1000px by 1000px - this is to give the [i]menuwrap[/i] element room to size according to its content, rather than imposing a fixed size. Its content can then immediately be set to the HTML saved in a global variable on startup."
+				},
+				{
+					"functionName": "ShowMenu",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "X",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "X position to show menu at.",
+							"sid": 926932151020136
+						},
+						{
+							"name": "Y",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Y position to show menu at.",
+							"sid": 711783048010075
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 850479738119641,
+							"parameters": {
+								"object-to-create": "HTMLMenu",
+								"layer": "0",
+								"x": "X",
+								"y": "Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "HTMLMenu",
+							"sid": 799341345453007,
+							"parameters": {
+								"width": "1000",
+								"height": "1000"
+							}
+						},
+						{
+							"id": "set-content",
+							"objectClass": "HTMLMenu",
+							"sid": 880850236693111,
+							"parameters": {
+								"content-type": "html",
+								"string": "menuHtml",
+								"selector": "\"\"",
+								"type": "one"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 868767604055635,
+							"parameters": {
+								"variable": "menuIsShowing",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 259757312143381
+				},
+				{
+					"eventType": "comment",
+					"text": "When hiding the menu, replace the \"showing\" class with \"hiding\". This will then play the fade out CSS animation. Once the fade out animation finishes, the HTML Element object is then destroyed."
+				},
+				{
+					"functionName": "HideMenu",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-content-class",
+							"objectClass": "HTMLMenu",
+							"sid": 143678682571585,
+							"parameters": {
+								"mode": "remove",
+								"class": "\"showing\"",
+								"selector": "\".menuwrap\"",
+								"type": "one"
+							}
+						},
+						{
+							"id": "set-content-class",
+							"objectClass": "HTMLMenu",
+							"sid": 576789767789429,
+							"parameters": {
+								"mode": "add",
+								"class": "\"hiding\"",
+								"selector": "\".menuwrap\"",
+								"type": "one"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 451201437848922,
+							"parameters": {
+								"variable": "menuIsShowing",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 601111055999013
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-css-animation-ended",
+							"objectClass": "HTMLMenu",
+							"sid": 377616193042768,
+							"parameters": {
+								"animation-name": "\"menuFadeOut\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "HTMLMenu",
+							"sid": 128954192033355
+						}
+					],
+					"sid": 834925448268828
+				}
+			],
+			"sid": 147142656835179
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Menu items",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Menu items can only be interacted with when the [i]menuIsShowing[/i] boolean is set. This is set to false as soon as the menu is hidden. This avoids double-clicks accidentally activating a menu option twice while the menu fades out."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 930850945627543,
+							"parameters": {
+								"variable": "menuIsShowing"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 107677220055740,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Detect menu items being clicked by their class. Match both the [i]menuitem[/i] class and the unique class given to each menu item. Use the Tween behavior to animate the changes."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-clicked-class",
+									"objectClass": "HTMLMenu",
+									"sid": 103375292117050,
+									"parameters": {
+										"class": "\"menuitem rotatecw\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "piggy",
+									"sid": 661383642878980,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"\"",
+										"property": "offsetAngle",
+										"end-value": "Self.Angle + 90",
+										"time": "0.3",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 707939449436632
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-clicked-class",
+									"objectClass": "HTMLMenu",
+									"sid": 426938925969877,
+									"parameters": {
+										"class": "\"menuitem rotateccw\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "piggy",
+									"sid": 954327629581218,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"\"",
+										"property": "offsetAngle",
+										"end-value": "Self.Angle - 90",
+										"time": "0.3",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 285487115577385
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-clicked-class",
+									"objectClass": "HTMLMenu",
+									"sid": 218183958882930,
+									"parameters": {
+										"class": "\"menuitem mirror\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "piggy",
+									"sid": 884249352833563,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"\"",
+										"property": "offsetWidth",
+										"end-value": "Self.Width * -1",
+										"time": "0.3",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 989272615024668
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-clicked-class",
+									"objectClass": "HTMLMenu",
+									"sid": 359889270340594,
+									"parameters": {
+										"class": "\"menuitem flip\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "piggy",
+									"sid": 921444619160143,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"\"",
+										"property": "offsetHeight",
+										"end-value": "Self.Height * -1",
+										"time": "0.3",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 616084139957400
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-clicked-class",
+									"objectClass": "HTMLMenu",
+									"sid": 408226572981405,
+									"parameters": {
+										"class": "\"menuitem destroy\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "piggy",
+									"sid": 292469467604250,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.3",
+										"ease": "noease",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 670373074494529
+						},
+						{
+							"eventType": "comment",
+							"text": "Finally when any menu item is clicked, also hide the menu."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-clicked-class",
+									"objectClass": "HTMLMenu",
+									"sid": 690297822838514,
+									"parameters": {
+										"class": "\"menuitem\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "HideMenu",
+									"sid": 612883142941507
+								}
+							],
+							"sid": 339090186011419
+						}
+					]
+				}
+			],
+			"sid": 135268138908764
+		}
+	],
+	"sid": 933032891503162
+}

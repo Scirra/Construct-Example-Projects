@@ -1,0 +1,2289 @@
+{
+	"name": "GameEvents",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "isLightning",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "1 if lightning is showing",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 181464424559801
+		},
+		{
+			"eventType": "variable",
+			"name": "startTime",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Time at the start of the layout",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 837103876881049
+		},
+		{
+			"eventType": "variable",
+			"name": "kills",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Number of monsters 'expunged'",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 926753576069480
+		},
+		{
+			"eventType": "variable",
+			"name": "health",
+			"type": "number",
+			"initialValue": "100",
+			"comment": "Player health",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 447093476357459
+		},
+		{
+			"eventType": "variable",
+			"name": "swirlangle",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Angle for the swirl effect on death.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 872955799849507
+		},
+		{
+			"eventType": "variable",
+			"name": "fadingout",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "1 if fading out after death.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 401016540974252
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "General control",
+			"description": "Start of layout and every tick updates.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Start of layout initialisation.  Pinning objects, set cursor, set up the rain loop, load the web font, disable the layout effects, and set the layer transitions."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 857763218950130
+						}
+					],
+					"actions": [
+						{
+							"id": "pin-to-object",
+							"objectClass": "PlayerGun",
+							"sid": 838345238087740,
+							"behaviorType": "Pin",
+							"parameters": {
+								"pin-to": "Player",
+								"mode": "position-angle"
+							}
+						},
+						{
+							"id": "pin-to-object",
+							"objectClass": "PlayerReflection",
+							"sid": 543512318571534,
+							"behaviorType": "Pin",
+							"parameters": {
+								"pin-to": "Player",
+								"mode": "position-angle"
+							}
+						},
+						{
+							"id": "pin-to-object",
+							"objectClass": "PlayerGunReflection",
+							"sid": 314450036237169,
+							"behaviorType": "Pin",
+							"parameters": {
+								"pin-to": "Player",
+								"mode": "position-angle"
+							}
+						},
+						{
+							"id": "set-cursor-from-sprite",
+							"objectClass": "Mouse",
+							"sid": 812686220741359,
+							"parameters": {
+								"sprite": "MouseImage"
+							}
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 721733108848379,
+							"parameters": {
+								"audio-file": "rain_loop",
+								"loop": "looping",
+								"volume": "-30",
+								"stereo-pan": "0",
+								"tag-optional": "\"rain\""
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 921139805401721,
+							"parameters": {
+								"variable": "startTime",
+								"value": "time"
+							}
+						},
+						{
+							"id": "set-layout-effect-enabled",
+							"objectClass": "System",
+							"sid": 914970350686081,
+							"parameters": {
+								"mode": "disable",
+								"effect": "\"RadialBlur\""
+							}
+						},
+						{
+							"id": "set-layout-effect-enabled",
+							"objectClass": "System",
+							"sid": 499977121813159,
+							"parameters": {
+								"mode": "disable",
+								"effect": "\"Tint\""
+							}
+						},
+						{
+							"id": "set-layout-effect-enabled",
+							"objectClass": "System",
+							"sid": 871076742922839,
+							"parameters": {
+								"mode": "disable",
+								"effect": "\"Swirl\""
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 420695464399188,
+							"parameters": {
+								"layer": "\"Transition\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 979085910762740,
+							"parameters": {
+								"layer": "\"TransitionOut\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-opacity",
+							"objectClass": "System",
+							"sid": 132191182901486,
+							"parameters": {
+								"layer": "\"TransitionOut\"",
+								"opacity": "0"
+							}
+						}
+					],
+					"sid": 412515116760191
+				},
+				{
+					"eventType": "comment",
+					"text": "Fade in from black and fade in the rain loop sound."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-time",
+							"objectClass": "System",
+							"sid": 665727067698498,
+							"parameters": {
+								"comparison": 2,
+								"time-seconds": "startTime + 2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 630862546617311,
+							"parameters": {
+								"tag": "\"rain\"",
+								"db": "lerp(-30, -5, (time - startTime) / 2)"
+							}
+						},
+						{
+							"id": "set-layer-opacity",
+							"objectClass": "System",
+							"sid": 611163937152269,
+							"parameters": {
+								"layer": "\"Transition\"",
+								"opacity": "lerp(100, 0, (time - startTime) / 2)"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "HealthText",
+							"sid": 914850483067028,
+							"parameters": {
+								"opacity": "(100 - LayerOpacity(\"Transition\")) / 2"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "KillsText",
+							"sid": 914664123895572,
+							"parameters": {
+								"opacity": "(100 - LayerOpacity(\"Transition\")) / 2"
+							}
+						}
+					],
+					"sid": 577954553086260
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-time",
+							"objectClass": "System",
+							"sid": 945116829418248,
+							"parameters": {
+								"comparison": 5,
+								"time-seconds": "startTime + 2"
+							}
+						},
+						{
+							"id": "trigger-once-while-true",
+							"objectClass": "System",
+							"sid": 639262420652136
+						}
+					],
+					"actions": [
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 712648954923684,
+							"parameters": {
+								"tag": "\"rain\"",
+								"db": "-5"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 139044600987990,
+							"parameters": {
+								"layer": "\"Transition\"",
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 661331663281735
+				},
+				{
+					"eventType": "comment",
+					"text": "Every tick game updates, e.g. UI updates, player looking at the mouse, and updating layer scales."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 162736638723825
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "StatsText",
+							"sid": 251838091348134,
+							"parameters": {
+								"text": "fps & \" FPS - \" & objectcount & \" objects - \" & renderer & \" renderer - \" & round(cpuutilisation * 100) & \"% CPU - \" & round(gpuutilisation * 100) & \"% GPU\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "KillsText",
+							"sid": 632524691092776,
+							"parameters": {
+								"text": "kills & \" EXPUNGED\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "HealthText",
+							"sid": 803548080391424,
+							"parameters": {
+								"text": "round(max(health, 0)) & \"% LIFE\""
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "MouseSprite",
+							"sid": 279626538387095,
+							"parameters": {
+								"instance-variable": "mangle",
+								"value": "angle(Player.X, Player.Y, Mouse.X(\"Game\"), Mouse.Y(\"Game\"))"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "MouseSprite",
+							"sid": 290025773252449,
+							"parameters": {
+								"instance-variable": "mdistance",
+								"value": "clamp(distance(Player.X, Player.Y, Mouse.X(\"Game\"), Mouse.Y(\"Game\")), 110, 600)"
+							}
+						},
+						{
+							"id": "set-position",
+							"objectClass": "MouseSprite",
+							"sid": 920597252456442,
+							"parameters": {
+								"x": "Player.X + cos(MouseSprite.mangle) * MouseSprite.mdistance",
+								"y": "Player.Y + sin(MouseSprite.mangle) * MouseSprite.mdistance"
+							}
+						},
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 655887664061614,
+							"parameters": {
+								"x": "(Player.X + MouseSprite.X) / 2",
+								"y": "(Player.Y + MouseSprite.Y) / 2"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Player",
+							"sid": 616628524363404,
+							"parameters": {
+								"angle": "MouseSprite.mangle"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 100250516364691,
+							"parameters": {
+								"layer": "\"Game\"",
+								"scale": "1.4 - MouseSprite.mdistance / 1200"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 343349868566246,
+							"parameters": {
+								"layer": "\"CloudShadows\"",
+								"scale": "LayerScale(\"Game\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 399930612736446,
+							"parameters": {
+								"layer": "\"TorchLight\"",
+								"scale": "LayerScale(\"Game\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 394691196158966,
+							"parameters": {
+								"layer": "\"RainDrops\"",
+								"scale": "LayerScale(\"Game\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 536680658069400,
+							"parameters": {
+								"layer": "\"Monsters\"",
+								"scale": "LayerScale(\"Game\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 926827313466311,
+							"parameters": {
+								"layer": "\"RainSplashes\"",
+								"scale": "LayerScale(\"Game\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 198863009303444,
+							"parameters": {
+								"layer": "\"Bumpmap\"",
+								"scale": "LayerScale(\"Game\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 483462486998594,
+							"parameters": {
+								"layer": "\"Background2\"",
+								"scale": "LayerScale(\"Game\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 452158599621723,
+							"parameters": {
+								"layer": "\"Reflections\"",
+								"scale": "LayerScale(\"Game\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 453677974458949,
+							"parameters": {
+								"layer": "\"Sky\"",
+								"scale": "LayerScale(\"Game\")"
+							}
+						},
+						{
+							"id": "set-layer-scale",
+							"objectClass": "System",
+							"sid": 153312878258292,
+							"parameters": {
+								"layer": "\"Background1\"",
+								"scale": "LayerScale(\"Game\")"
+							}
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "Laser",
+							"sid": 998978373356479,
+							"parameters": {
+								"object": "PlayerGun",
+								"image-point-optional": "1"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Laser",
+							"sid": 252476614041439,
+							"parameters": {
+								"angle": "angle(Self.X, Self.Y, MouseSprite.X, MouseSprite.Y)"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "Laser",
+							"sid": 183698863331541,
+							"parameters": {
+								"width": "distance(Self.X, Self.Y, MouseSprite.X, MouseSprite.Y)"
+							}
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "LaserReflection",
+							"sid": 916147995917487,
+							"parameters": {
+								"object": "PlayerGunReflection",
+								"image-point-optional": "1"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "LaserReflection",
+							"sid": 388562474002063,
+							"parameters": {
+								"angle": "angle(Self.X, Self.Y, MouseSprite.X, MouseSprite.Y)"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "LaserReflection",
+							"sid": 968233785921041,
+							"parameters": {
+								"width": "distance(Self.X, Self.Y, MouseSprite.X, MouseSprite.Y)"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "LaserReflection",
+							"sid": 342090631360297,
+							"parameters": {
+								"opacity": "Laser.Opacity"
+							}
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "LaserImpact",
+							"sid": 624449647412361,
+							"parameters": {
+								"object": "MouseSprite",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "LaserImpact",
+							"sid": 306793106381807,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "TorchSpotlight",
+							"sid": 524571743817963,
+							"parameters": {
+								"object": "PlayerGun",
+								"image-point-optional": "1"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "TorchSpotlight",
+							"sid": 273305874302686,
+							"parameters": {
+								"angle": "PlayerGun.Angle"
+							}
+						},
+						{
+							"id": "set-scale",
+							"objectClass": "TorchSpotlight",
+							"sid": 229150432178040,
+							"parameters": {
+								"scale": "max(distance(Self.X, Self.Y, MouseSprite.X, MouseSprite.Y) / 450, 0.3)"
+							}
+						}
+					],
+					"sid": 485400028655295
+				}
+			],
+			"sid": 268071729168339
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player control",
+			"description": "Shooting the player laser.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Use WASD as alternate controls in addition to arrow keys."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 402811314043047,
+							"parameters": {
+								"key": 87
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Player",
+							"sid": 590706112287111,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"control": "up"
+							}
+						}
+					],
+					"sid": 372287445712138
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 871597894891555,
+							"parameters": {
+								"key": 65
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Player",
+							"sid": 754773870890968,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"control": "left"
+							}
+						}
+					],
+					"sid": 466586597876053
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 804943871891643,
+							"parameters": {
+								"key": 83
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Player",
+							"sid": 408228864706828,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"control": "down"
+							}
+						}
+					],
+					"sid": 484309524353608
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "key-is-down",
+							"objectClass": "Keyboard",
+							"sid": 969997176380282,
+							"parameters": {
+								"key": 68
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "simulate-control",
+							"objectClass": "Player",
+							"sid": 626341440448232,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"control": "right"
+							}
+						}
+					],
+					"sid": 281255382573107
+				},
+				{
+					"eventType": "comment",
+					"text": "Shoot the laser if reloaded.  'shooting' lasts for 0.5 seconds, and after 2 seconds the player reloads."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "mouse-button-is-down",
+							"objectClass": "Mouse",
+							"sid": 332679637536345,
+							"parameters": {
+								"mouse-button": "left"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 314712073804058,
+							"parameters": {
+								"instance-variable": "reloaded"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 694774683395841,
+							"parameters": {
+								"audio-file": "laser",
+								"loop": "not-looping",
+								"volume": "0",
+								"stereo-pan": "0",
+								"tag-optional": "\"\""
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 290976569977970,
+							"parameters": {
+								"instance-variable": "shooting",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 327642313044434,
+							"parameters": {
+								"instance-variable": "reloaded",
+								"value": "false"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 970838636991784,
+							"parameters": {
+								"seconds": "0.5"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 463737939038656,
+							"parameters": {
+								"instance-variable": "shooting",
+								"value": "false"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 166125208019939,
+							"parameters": {
+								"seconds": "1.5"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Player",
+							"sid": 898726826574472,
+							"parameters": {
+								"instance-variable": "reloaded",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 148891731020113
+				},
+				{
+					"eventType": "comment",
+					"text": "While shooting, show the laser impact and leave a trail of LaserGlow sprites."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 762825309640846,
+							"parameters": {
+								"instance-variable": "shooting"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-opacity",
+							"objectClass": "Laser",
+							"sid": 475751743582590,
+							"parameters": {
+								"opacity": "100"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "LaserImpact",
+							"sid": 798974637869519,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "LaserImpact",
+							"sid": 633835175716581,
+							"parameters": {
+								"angle": "random(360)"
+							}
+						}
+					],
+					"sid": 738589908238781,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 145722308328758,
+									"parameters": {
+										"interval-seconds": "0.05"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "MouseSprite",
+									"sid": 103611460544744,
+									"parameters": {
+										"object": "LaserGlow",
+										"layer": "\"Game\"",
+										"image-point": "0",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "LaserGlow",
+									"sid": 249408100323772,
+									"parameters": {
+										"x": "Self.X + random(-6, 6)",
+										"y": "Self.Y + random(-6, 6)"
+									}
+								}
+							],
+							"sid": 401000706602262
+						},
+						{
+							"eventType": "comment",
+							"text": "If effects are supported (WebGL renderer), show a trail of splashes if the laser is over a puddle."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "effects-are-supported",
+									"objectClass": "System",
+									"sid": 501327726338735
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "MouseSprite",
+									"sid": 837189511337649,
+									"parameters": {
+										"object": "Puddles"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "MouseSprite",
+									"sid": 982783603571749,
+									"parameters": {
+										"object": "Splash",
+										"layer": "\"RainSplashes\"",
+										"image-point": "0",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Splash",
+									"sid": 582290536048607,
+									"parameters": {
+										"instance-variable": "size",
+										"value": "random(50, 100)"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Splash",
+									"sid": 139026049027358,
+									"parameters": {
+										"width": "1",
+										"height": "1"
+									}
+								}
+							],
+							"sid": 731161117115943
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 747050141769127
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 721091554498578,
+							"parameters": {
+								"instance-variable": "reloaded"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-opacity",
+							"objectClass": "Laser",
+							"sid": 409973526250581,
+							"parameters": {
+								"opacity": "40"
+							}
+						}
+					],
+					"sid": 627260657204256
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 546427779859463
+						}
+					],
+					"actions": [
+						{
+							"id": "set-opacity",
+							"objectClass": "Laser",
+							"sid": 928075651494801,
+							"parameters": {
+								"opacity": "10"
+							}
+						}
+					],
+					"sid": 479996150119951
+				},
+				{
+					"eventType": "comment",
+					"text": "Play the player walking sound effects.  Change to splash sounds if over a puddle."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-speed",
+							"objectClass": "Player",
+							"sid": 730330244135503,
+							"behaviorType": "8Direction",
+							"parameters": {
+								"comparison": 5,
+								"speed": "100"
+							}
+						},
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 239174224721178,
+							"parameters": {
+								"interval-seconds": "0.333"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 373632973933827,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Player",
+									"sid": 980057723065103,
+									"parameters": {
+										"object": "Puddles"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "play-by-name",
+									"objectClass": "Audio",
+									"sid": 180699337107428,
+									"parameters": {
+										"folder": "sounds",
+										"audio-file-name": "choose(\"splash1\", \"splash2\", \"splash3\", \"splash4\")",
+										"loop": "not-looping",
+										"volume": "-10",
+										"stereo-pan": "0",
+										"tag-optional": "\"step\""
+									}
+								},
+								{
+									"id": "set-volume",
+									"objectClass": "Audio",
+									"sid": 133383337607296,
+									"parameters": {
+										"tag": "\"step\"",
+										"db": "-10"
+									}
+								}
+							],
+							"sid": 926548718818712,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Also create a splash if walking through a puddle and effects are supported."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "effects-are-supported",
+											"objectClass": "System",
+											"sid": 308343707100530
+										}
+									],
+									"actions": [
+										{
+											"id": "spawn-another-object",
+											"objectClass": "Player",
+											"sid": 369935774141358,
+											"parameters": {
+												"object": "Splash",
+												"layer": "\"RainSplashes\"",
+												"image-point": "0",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Splash",
+											"sid": 203440102746942,
+											"parameters": {
+												"instance-variable": "size",
+												"value": "random(80, 100)"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Splash",
+											"sid": 350824178020027,
+											"parameters": {
+												"instance-variable": "startsize",
+												"value": "60"
+											}
+										},
+										{
+											"id": "set-size",
+											"objectClass": "Splash",
+											"sid": 990869830280939,
+											"parameters": {
+												"width": "60",
+												"height": "60"
+											}
+										}
+									],
+									"sid": 452574914375515
+								}
+							]
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 533078093233566
+								}
+							],
+							"actions": [
+								{
+									"id": "play-by-name",
+									"objectClass": "Audio",
+									"sid": 255389346743601,
+									"parameters": {
+										"folder": "sounds",
+										"audio-file-name": "choose(\"step1\", \"step2\", \"step3\", \"step4\")",
+										"loop": "not-looping",
+										"volume": "-10",
+										"stereo-pan": "0",
+										"tag-optional": "\"step\""
+									}
+								},
+								{
+									"id": "set-volume",
+									"objectClass": "Audio",
+									"sid": 182704167352005,
+									"parameters": {
+										"tag": "\"step\"",
+										"db": "-10"
+									}
+								}
+							],
+							"sid": 448706184832486
+						}
+					]
+				}
+			],
+			"sid": 616000754882041
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Monster control",
+			"description": "Moving and controlling the monsters.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If a monster leaves the layout, point them roughly in the direction of the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-outside-layout",
+							"objectClass": "Monster",
+							"sid": 226156919146412
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "Monster",
+							"sid": 122814620688685,
+							"parameters": {
+								"x": "Player.X",
+								"y": "Player.Y"
+							}
+						},
+						{
+							"id": "rotate-clockwise",
+							"objectClass": "Monster",
+							"sid": 620704164670455,
+							"parameters": {
+								"degrees": "random(-30, 30)"
+							}
+						}
+					],
+					"sid": 517960138981516
+				},
+				{
+					"eventType": "comment",
+					"text": "Keep the monster opacity updated based on its health."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 420060495533799
+						}
+					],
+					"actions": [
+						{
+							"id": "set-opacity",
+							"objectClass": "Monster",
+							"sid": 406787976573088,
+							"parameters": {
+								"opacity": "Self.health * 0.7 + 30"
+							}
+						}
+					],
+					"sid": 528115260628164
+				},
+				{
+					"eventType": "comment",
+					"text": "Hurt monsters while they are being shot."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 551852758299332,
+							"parameters": {
+								"instance-variable": "shooting"
+							}
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "MouseSprite",
+							"sid": 111515110685901,
+							"parameters": {
+								"object": "Monster"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "Monster",
+							"sid": 904442229275023,
+							"parameters": {
+								"instance-variable": "health",
+								"value": "266 * dt"
+							}
+						},
+						{
+							"id": "rotate-clockwise",
+							"objectClass": "Monster",
+							"sid": 588052588282890,
+							"parameters": {
+								"degrees": "random(-15, 15)"
+							}
+						}
+					],
+					"sid": 176174371082322
+				},
+				{
+					"eventType": "comment",
+					"text": "If a monster is killed, destroy it and create 2 more monsters off-screen to replace it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Monster",
+							"sid": 678565708614584,
+							"parameters": {
+								"instance-variable": "health",
+								"comparison": 3,
+								"value": "0"
+							}
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 785206426526005,
+							"parameters": {
+								"object": "Monster"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Monster",
+							"sid": 923580743181657
+						},
+						{
+							"id": "play",
+							"objectClass": "Audio",
+							"sid": 900503361400589,
+							"parameters": {
+								"audio-file": "fireball",
+								"loop": "not-looping",
+								"volume": "0",
+								"stereo-pan": "0",
+								"tag-optional": "\"\""
+							}
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 459961590690353,
+							"parameters": {
+								"variable": "kills",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 115263016775641,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 772013141390403,
+									"parameters": {
+										"count": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 595400138694548,
+									"parameters": {
+										"object-to-create": "Monster",
+										"layer": "\"Monsters\"",
+										"x": "random(LayoutWidth)",
+										"y": "random(LayoutHeight)",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								}
+							],
+							"sid": 531395056149751,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Randomly reposition the new monster until it is not on-screen. We don't want monsters suddenly appearing next to the player."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "while",
+											"objectClass": "System",
+											"sid": 852705158618186
+										},
+										{
+											"id": "is-on-screen",
+											"objectClass": "Monster",
+											"sid": 306664060431089
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "Monster",
+											"sid": 767974079396547,
+											"parameters": {
+												"x": "random(LayoutWidth)",
+												"y": "random(LayoutHeight)"
+											}
+										}
+									],
+									"sid": 594419368601121
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If a monster is near the player, rotate it so it chases them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 649141782193998,
+							"parameters": {
+								"object": "Monster"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 376776324638454,
+							"parameters": {
+								"first-value": "distance(Monster.X, Monster.Y, Player.X, Player.Y)",
+								"comparison": 2,
+								"second-value": "300"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "rotate-toward-position",
+							"objectClass": "Monster",
+							"sid": 604181772968919,
+							"parameters": {
+								"degrees": "(300 - distance(Monster.X, Monster.Y, Player.X, Player.Y)) * dt",
+								"x": "Player.X",
+								"y": "Player.Y"
+							}
+						}
+					],
+					"sid": 108889699052158
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player is touching a monster, increase the 'hurting' variable which then reduces their health and shows the hurt effects."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Player",
+							"sid": 533634158324606,
+							"parameters": {
+								"object": "Monster"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 676175037955728,
+							"parameters": {
+								"instance-variable": "hurting",
+								"value": "min(Self.hurting + 300 * dt, 100)"
+							}
+						}
+					],
+					"sid": 406975469246640,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 145985901529152,
+									"parameters": {
+										"interval-seconds": "1.3"
+									}
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 308060513645060,
+									"parameters": {
+										"variable": "health",
+										"comparison": 4,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 110190793427779,
+									"parameters": {
+										"audio-file": "SFX4",
+										"loop": "not-looping",
+										"volume": "0",
+										"stereo-pan": "0",
+										"tag-optional": "\"sfx4\""
+									}
+								}
+							],
+							"sid": 626537112095457
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "Player",
+							"sid": 337778338148446,
+							"parameters": {
+								"object": "Monster"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 551918307088715,
+							"parameters": {
+								"instance-variable": "hurting",
+								"value": "max(Self.hurting - 100 * dt, 0)"
+							}
+						}
+					],
+					"sid": 773700867926738
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 521574319856558
+						}
+					],
+					"actions": [
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 773736936451325,
+							"parameters": {
+								"tag": "\"sfx4\"",
+								"db": "lerp(-40, -10, player.hurting / 100)"
+							}
+						},
+						{
+							"id": "set-layout-effect-parameter",
+							"objectClass": "System",
+							"sid": 389458707119318,
+							"parameters": {
+								"effect": "\"RadialBlur\"",
+								"parameter-index": "0",
+								"value": "(Player.Sine.Value + 60) * (Player.hurting / 100)"
+							}
+						},
+						{
+							"id": "set-layout-effect-parameter",
+							"objectClass": "System",
+							"sid": 545499918551669,
+							"parameters": {
+								"effect": "\"Tint\"",
+								"parameter-index": "0",
+								"value": "rgb(255, 255 - (Player.hurting / 200) * (255 - (LayerOpacity(\"TransitionOut\"))), 255 - (Player.hurting / 200) * (255 - (LayerOpacity(\"TransitionOut\"))))"
+							}
+						},
+						{
+							"id": "subtract-from-eventvar",
+							"objectClass": "System",
+							"sid": 562179576258993,
+							"parameters": {
+								"variable": "health",
+								"value": "(Player.hurting / 5) * dt"
+							}
+						}
+					],
+					"sid": 995229127222116
+				},
+				{
+					"eventType": "comment",
+					"text": "Show hurting layout effects (radial blur and tint) if the player is being hurt by a monster."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Player",
+							"sid": 324157399092732,
+							"parameters": {
+								"instance-variable": "hurting",
+								"comparison": 3,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-effect-enabled",
+							"objectClass": "System",
+							"sid": 282528152198170,
+							"parameters": {
+								"mode": "disable",
+								"effect": "\"RadialBlur\""
+							}
+						},
+						{
+							"id": "set-layout-effect-enabled",
+							"objectClass": "System",
+							"sid": 641778797882277,
+							"parameters": {
+								"mode": "disable",
+								"effect": "\"Tint\""
+							}
+						}
+					],
+					"sid": 332491571493771
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 267361794535791
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-effect-enabled",
+							"objectClass": "System",
+							"sid": 679482662079240,
+							"parameters": {
+								"mode": "enable",
+								"effect": "\"RadialBlur\""
+							}
+						},
+						{
+							"id": "set-layout-effect-enabled",
+							"objectClass": "System",
+							"sid": 975090030578806,
+							"parameters": {
+								"mode": "enable",
+								"effect": "\"Tint\""
+							}
+						}
+					],
+					"sid": 971928128838055
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player dies, use the swirl layout effect to create a finish transition."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 878427477192583,
+							"parameters": {
+								"variable": "health",
+								"comparison": 3,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layout-effect-enabled",
+							"objectClass": "System",
+							"sid": 504488245738163,
+							"parameters": {
+								"mode": "enable",
+								"effect": "\"Swirl\""
+							}
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 496999433485507,
+							"parameters": {
+								"variable": "swirlangle",
+								"value": "50 * dt + (swirlangle * dt / 5)"
+							}
+						},
+						{
+							"id": "set-layout-effect-parameter",
+							"objectClass": "System",
+							"sid": 202268524351634,
+							"parameters": {
+								"effect": "\"Swirl\"",
+								"parameter-index": "1",
+								"value": "swirlangle"
+							}
+						}
+					],
+					"sid": 679820868726172,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "trigger-once-while-true",
+									"objectClass": "System",
+									"sid": 947704964885301
+								}
+							],
+							"actions": [
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 757911849355765,
+									"parameters": {
+										"audio-file": "Swoosh2",
+										"loop": "not-looping",
+										"volume": "0",
+										"stereo-pan": "0",
+										"tag-optional": "\"\""
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 699388602228042,
+									"parameters": {
+										"seconds": "3"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 680024845346996,
+									"parameters": {
+										"variable": "fadingout",
+										"value": "1"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 179654339498751,
+									"parameters": {
+										"seconds": "3"
+									}
+								},
+								{
+									"id": "stop",
+									"objectClass": "Audio",
+									"sid": 896792727795456,
+									"parameters": {
+										"tag": "\"rain\""
+									}
+								},
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 419439392465907,
+									"parameters": {
+										"reset-static": false
+									}
+								},
+								{
+									"id": "go-to-layout",
+									"objectClass": "System",
+									"sid": 882630153376579,
+									"parameters": {
+										"layout": "Title"
+									}
+								}
+							],
+							"sid": 600326835312222
+						}
+					]
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 283750791870618,
+							"parameters": {
+								"variable": "fadingout",
+								"comparison": 0,
+								"value": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 491999743375516,
+							"parameters": {
+								"layer": "\"TransitionOut\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-layer-opacity",
+							"objectClass": "System",
+							"sid": 341547037574228,
+							"parameters": {
+								"layer": "\"TransitionOut\"",
+								"opacity": "LayerOpacity(\"TransitionOut\") + dt * 35"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "HealthText",
+							"sid": 620465638143173,
+							"parameters": {
+								"opacity": "50 - LayerOpacity(\"TransitionOut\") / 2"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "KillsText",
+							"sid": 495446994571310,
+							"parameters": {
+								"opacity": "50 - LayerOpacity(\"TransitionOut\") / 2"
+							}
+						},
+						{
+							"id": "set-volume",
+							"objectClass": "Audio",
+							"sid": 506811742504098,
+							"parameters": {
+								"tag": "\"rain\"",
+								"db": "lerp(-5, -30, LayerOpacity(\"TransitionOut\") / 100)"
+							}
+						}
+					],
+					"sid": 548899963679823
+				}
+			],
+			"sid": 492224295700351
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Raindrops",
+			"description": "Run the raindrop effect and create the splashes on puddles.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create 200 raindrop objects on startup."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 588529051186040
+						},
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 280335605531616,
+							"parameters": {
+								"count": "200"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 286017605623074,
+							"parameters": {
+								"object-to-create": "Raindrop",
+								"layer": "\"RainDrops\"",
+								"x": "0",
+								"y": "0",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Raindrop",
+							"sid": 836103399296963,
+							"parameters": {
+								"instance-variable": "rx",
+								"value": "random(windowwidth)"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Raindrop",
+							"sid": 561751469854721,
+							"parameters": {
+								"instance-variable": "ry",
+								"value": "random(windowheight)"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Raindrop",
+							"sid": 209274252734584,
+							"parameters": {
+								"instance-variable": "rh",
+								"value": "random(5, 105)"
+							}
+						}
+					],
+					"sid": 428878516059447
+				},
+				{
+					"eventType": "comment",
+					"text": "Keep the raindrop and splash positions and sizes up-to-date."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 794220644329392
+						}
+					],
+					"actions": [
+						{
+							"id": "set-x",
+							"objectClass": "Raindrop",
+							"sid": 287055762950985,
+							"parameters": {
+								"x": "ScrollX + (Self.rx - ScrollX) * (1.0 + Self.rh / 100.0)"
+							}
+						},
+						{
+							"id": "set-y",
+							"objectClass": "Raindrop",
+							"sid": 913529598730657,
+							"parameters": {
+								"y": "ScrollY + (Self.ry - ScrollY) * (1.0 + Self.rh / 100.0)"
+							}
+						},
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "Raindrop",
+							"sid": 296743860755210,
+							"parameters": {
+								"x": "ScrollX",
+								"y": "ScrollY"
+							}
+						},
+						{
+							"id": "set-width",
+							"objectClass": "Raindrop",
+							"sid": 881569732459113,
+							"parameters": {
+								"width": "distance(Self.X, Self.Y, ScrollX, ScrollY) * Self.rh / 333.0 + 5.0"
+							}
+						},
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "Raindrop",
+							"sid": 291586540835666,
+							"parameters": {
+								"instance-variable": "rh",
+								"value": "250.0 * dt"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "Raindrop",
+							"sid": 172572080217957,
+							"parameters": {
+								"opacity": "(100.0 - Self.rh) / 3.0"
+							}
+						},
+						{
+							"id": "add-to-instvar",
+							"objectClass": "Splash",
+							"sid": 265079813281627,
+							"parameters": {
+								"instance-variable": "mytime",
+								"value": "dt"
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "Splash",
+							"sid": 290473284100886,
+							"parameters": {
+								"width": "lerp(Self.startsize, Self.size, Self.mytime * 2)",
+								"height": "lerp(Self.startsize, Self.size, Self.mytime * 2)"
+							}
+						}
+					],
+					"sid": 168523215902225
+				},
+				{
+					"eventType": "comment",
+					"text": "Raindrop has fallen to floor?"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Raindrop",
+							"sid": 960022132278149,
+							"parameters": {
+								"instance-variable": "rh",
+								"comparison": 2,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 980754827684534,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If overlapping a puddle, create a splash.  Don't bother doing this if WebGL is not supported, since the whole layer will be invisible."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Raindrop",
+									"sid": 786193366326530,
+									"parameters": {
+										"object": "Puddles"
+									}
+								},
+								{
+									"id": "effects-are-supported",
+									"objectClass": "System",
+									"sid": 927590312308361
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Raindrop",
+									"sid": 881348063416358,
+									"parameters": {
+										"object": "Splash",
+										"layer": "\"RainSplashes\"",
+										"image-point": "1",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Splash",
+									"sid": 743516080086867,
+									"parameters": {
+										"instance-variable": "size",
+										"value": "random(14, 40)"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Splash",
+									"sid": 164106130381008,
+									"parameters": {
+										"width": "1",
+										"height": "1"
+									}
+								}
+							],
+							"sid": 736355752810821
+						},
+						{
+							"eventType": "comment",
+							"text": "Reset the raindrop to fall from the top again."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 457752004044695
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Raindrop",
+									"sid": 914862860152325,
+									"parameters": {
+										"instance-variable": "rx",
+										"value": "random(ViewportLeft(\"RainDrops\"), ViewportRight(\"RainDrops\"))"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Raindrop",
+									"sid": 534732923405154,
+									"parameters": {
+										"instance-variable": "ry",
+										"value": "random(ViewportTop(\"RainDrops\"), ViewportBottom(\"RainDrops\"))"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Raindrop",
+									"sid": 975286180812400,
+									"parameters": {
+										"instance-variable": "rh",
+										"value": "random(95, 105)"
+									}
+								}
+							],
+							"sid": 374941012373145
+						}
+					]
+				}
+			],
+			"sid": 818967902855696
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Lightning",
+			"description": "Make the screen flash and play thunder sounds.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Every 5 to 15 seconds, flash the 'Lightning' layer visible and randomise its opacity for 100-200ms.  The layer uses a light blue color with a Dodge effect to create a more realistic looking flash effect.  Play a random thunder sound effect 2 to 6 seconds after the flash, to simulate the delay caused by the speed of sound after the flash."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 862860760959234,
+							"parameters": {
+								"variable": "isLightning",
+								"comparison": 0,
+								"value": "0"
+							}
+						},
+						{
+							"id": "trigger-once-while-true",
+							"objectClass": "System",
+							"sid": 785344765502459
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 774229472404914,
+							"parameters": {
+								"layer": "\"Lightning\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 556606156402096,
+							"parameters": {
+								"layer": "\"TorchLight\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-layer-opacity",
+							"objectClass": "System",
+							"sid": 239413659235340,
+							"parameters": {
+								"layer": "\"Sky\"",
+								"opacity": "33"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 516555043290533,
+							"parameters": {
+								"seconds": "random(5, 15)"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 986553808903007,
+							"parameters": {
+								"variable": "isLightning",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 336525599609315
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 192719895135053,
+							"parameters": {
+								"variable": "isLightning",
+								"comparison": 0,
+								"value": "1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-layer-opacity",
+							"objectClass": "System",
+							"sid": 194174946330077,
+							"parameters": {
+								"layer": "\"Lightning\"",
+								"opacity": "50 + random(30)"
+							}
+						},
+						{
+							"id": "set-layer-opacity",
+							"objectClass": "System",
+							"sid": 915254627240212,
+							"parameters": {
+								"layer": "\"Sky\"",
+								"opacity": "33 + random(33)"
+							}
+						}
+					],
+					"sid": 600571955632194,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "trigger-once-while-true",
+									"objectClass": "System",
+									"sid": 809855612616964
+								}
+							],
+							"actions": [
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 385933230982812,
+									"parameters": {
+										"layer": "\"Lightning\"",
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "set-layer-visible",
+									"objectClass": "System",
+									"sid": 305116607723472,
+									"parameters": {
+										"layer": "\"TorchLight\"",
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 588449888451715,
+									"parameters": {
+										"seconds": "random(0.1, 0.2)"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 357011009743562,
+									"parameters": {
+										"variable": "isLightning",
+										"value": "0"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 597822519878344,
+									"parameters": {
+										"seconds": "random(2, 6)"
+									}
+								},
+								{
+									"id": "play-by-name",
+									"objectClass": "Audio",
+									"sid": 229059553882857,
+									"parameters": {
+										"folder": "sounds",
+										"audio-file-name": "choose(\"thunder1\", \"thunder2\", \"thunder3\", \"thunder4\", \"thunder5\")",
+										"loop": "not-looping",
+										"volume": "-10",
+										"stereo-pan": "0",
+										"tag-optional": "\"\""
+									}
+								}
+							],
+							"sid": 314875849508575
+						}
+					]
+				}
+			],
+			"sid": 121096377255360
+		}
+	],
+	"sid": 714533055700534
+}

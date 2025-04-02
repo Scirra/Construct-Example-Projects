@@ -1,0 +1,1389 @@
+{
+	"name": "MainCode",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira - Programmer\nTwitter: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nWesley Andrade - Artist\nTwitter: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nMade with the support of our patrons on https://www.patreon.com/viridinostudios and our good friends at https://www.construct.net."
+		},
+		{
+			"eventType": "comment",
+			"text": "Setup each enemy by creating and adding an animations object on top of it."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-created",
+					"objectClass": "EnemyCollision",
+					"sid": 595365988447741
+				}
+			],
+			"actions": [
+				{
+					"id": "spawn-another-object",
+					"objectClass": "EnemyCollision",
+					"sid": 678954653336018,
+					"parameters": {
+						"object": "EnemyAnimations",
+						"layer": "\"World\"",
+						"image-point": "0",
+						"create-hierarchy": false
+					}
+				},
+				{
+					"id": "add-child",
+					"objectClass": "EnemyCollision",
+					"sid": 447084443942061,
+					"parameters": {
+						"child": "EnemyAnimations",
+						"transform-x": true,
+						"transform-y": true,
+						"transform-w": false,
+						"transform-h": false,
+						"transform-a": false,
+						"transform-z-elevation": false,
+						"destroy-with-parent": true
+					}
+				}
+			],
+			"sid": 656946638283496
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 571635393845771
+				}
+			],
+			"actions": [],
+			"sid": 623987148571973,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 281120120672884,
+							"parameters": {
+								"object": "EnemyCollision"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 682157312625462,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If a disabled enemy is currently visible on-screen, enable it and start its movement sequence."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-on-screen",
+									"objectClass": "EnemyCollision",
+									"sid": 330486518919590
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "EnemyCollision",
+									"sid": 516963393484237,
+									"parameters": {
+										"instance-variable": "Enabled"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "EnemyCollision",
+									"sid": 898863524801985,
+									"parameters": {
+										"instance-variable": "Enabled",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "EnemyCollision",
+									"sid": 522213874321359,
+									"parameters": {
+										"instance-variable": "Steps",
+										"value": "tokencount(EnemyCollision.NextPositions, \"|\") / 2"
+									}
+								}
+							],
+							"sid": 498375443634555,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 461447498931680,
+											"parameters": {
+												"count": "tokencount(EnemyCollision.NextPositions, \"|\") / 2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "move-to-position",
+											"objectClass": "EnemyCollision",
+											"sid": 955389739019184,
+											"behaviorType": "MoveTo",
+											"parameters": {
+												"x": "int(tokenat(Self.NextPositions, 0 + (2 * loopindex), \"|\"))",
+												"y": "int(tokenat(Self.NextPositions, 1 + (2 * loopindex), \"|\"))",
+												"mode": "add-waypoint"
+											}
+										}
+									],
+									"sid": 666925905019099
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Also constantly update the animation state of its animations child object."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "EnemyCollision",
+									"sid": 139496711706673,
+									"parameters": {
+										"child": "EnemyAnimations",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 661025356857911,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the enemy is moving, set the animation angle according to its angle of motion."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-moving",
+											"objectClass": "EnemyCollision",
+											"sid": 611399374937192,
+											"behaviorType": "MoveTo"
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "EnemyAnimations",
+											"sid": 637396302975734,
+											"parameters": {
+												"animation": "str(Functions.RoundValueTo45(EnemyCollision.MoveTo.MovingAngle))",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 970425540961234
+								},
+								{
+									"eventType": "comment",
+									"text": "However, if the enemy is static, set the animation angle according to the angle between the enemy and the player."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 874649334031007
+										},
+										{
+											"id": "is-moving",
+											"objectClass": "EnemyCollision",
+											"sid": 581911338192938,
+											"behaviorType": "MoveTo",
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "EnemyAnimations",
+											"sid": 340157254598348,
+											"parameters": {
+												"animation": "str(Functions.RoundValueTo45(angle(Self.X, Self.Y, PlayerCollision.X, PlayerCollision.Y)))",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-animation-speed",
+											"objectClass": "EnemyAnimations",
+											"sid": 512128026449818,
+											"parameters": {
+												"speed": "0"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "EnemyAnimations",
+											"sid": 235305822651858,
+											"parameters": {
+												"frame-number": "1"
+											}
+										}
+									],
+									"sid": 509806281414572
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the enemy arrives on its destination, reload its magazine and start to shoot."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-arrived",
+					"objectClass": "EnemyCollision",
+					"sid": 294070301280701,
+					"behaviorType": "MoveTo"
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "EnemyCollision",
+					"sid": 598104716898521,
+					"parameters": {
+						"instance-variable": "Steps",
+						"value": "Self.Steps - 1"
+					}
+				}
+			],
+			"sid": 257317297664779,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 802089672869994,
+							"parameters": {
+								"first-value": "EnemyCollision.Steps",
+								"comparison": 0,
+								"second-value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "EnemyCollision",
+							"sid": 347456535628171,
+							"parameters": {
+								"instance-variable": "Bullets",
+								"value": "Self.MagazineSize"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "EnemyCollision",
+							"sid": 129773050135538,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "Self.FireRate",
+								"type": "once",
+								"tag": "\"Shoot\""
+							}
+						}
+					],
+					"sid": 233718048812889
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the shooting timer is over reduce the ammo count and spawn a bullet in front of the gun tip."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "EnemyCollision",
+					"sid": 687912584578781,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Shoot\""
+					}
+				},
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 580105746179310,
+					"parameters": {
+						"object": "EnemyCollision"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "subtract-from-instvar",
+					"objectClass": "EnemyCollision",
+					"sid": 594214507345641,
+					"parameters": {
+						"instance-variable": "Bullets",
+						"value": "1"
+					}
+				}
+			],
+			"sid": 703784192052060,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-children",
+							"objectClass": "EnemyCollision",
+							"sid": 464221055625635,
+							"parameters": {
+								"child": "EnemyAnimations",
+								"which": "own"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 127068699131363,
+							"parameters": {
+								"object-to-create": "Bullet",
+								"layer": "\"World\"",
+								"x": "EnemyAnimations.ImagePointX(\"GunTip\")",
+								"y": "EnemyAnimations.ImagePointY(\"GunTip\")",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "Bullet",
+							"sid": 299952492823364,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "int(EnemyAnimations.AnimationName)"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Bullet",
+							"sid": 282381637641634,
+							"parameters": {
+								"instance-variable": "DamagePlayer",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Bullet",
+							"sid": 218792968123580,
+							"parameters": {
+								"animation": "\"Enemy\"",
+								"from": "beginning"
+							}
+						}
+					],
+					"sid": 762528151266171
+				},
+				{
+					"eventType": "comment",
+					"text": "If the magazine is empty, start the reloading timer."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "EnemyCollision",
+							"sid": 887560754054826,
+							"parameters": {
+								"instance-variable": "Bullets",
+								"comparison": 0,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "EnemyCollision",
+							"sid": 679855033266703,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "Self.ReloadingTime",
+								"type": "once",
+								"tag": "\"Reload\""
+							}
+						}
+					],
+					"sid": 778918377154323
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the magazine isn't empty, restart the shooting timer."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 984322479733395
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "EnemyCollision",
+							"sid": 240919859614521,
+							"parameters": {
+								"instance-variable": "Bullets",
+								"comparison": 4,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "EnemyCollision",
+							"sid": 677555860165147,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "Self.FireRate",
+								"type": "once",
+								"tag": "\"Shoot\""
+							}
+						}
+					],
+					"sid": 888487249872557
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once the reloading timer is over, reload the enemy magazine and start to shoot again."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-timer",
+					"objectClass": "EnemyCollision",
+					"sid": 162559124743691,
+					"behaviorType": "Timer",
+					"parameters": {
+						"tag": "\"Reload\""
+					}
+				},
+				{
+					"id": "for-each",
+					"objectClass": "System",
+					"sid": 477779508855741,
+					"parameters": {
+						"object": "EnemyCollision"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-instvar-value",
+					"objectClass": "EnemyCollision",
+					"sid": 327404576269947,
+					"parameters": {
+						"instance-variable": "Bullets",
+						"value": "Self.MagazineSize"
+					}
+				},
+				{
+					"id": "start-timer",
+					"objectClass": "EnemyCollision",
+					"sid": 322250483686463,
+					"behaviorType": "Timer",
+					"parameters": {
+						"duration": "Self.FireRate",
+						"type": "once",
+						"tag": "\"Shoot\""
+					}
+				}
+			],
+			"sid": 484624663499079
+		},
+		{
+			"eventType": "comment",
+			"text": "Move the player left."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 461957977093998,
+					"parameters": {
+						"key": 37
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 318208114590523,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-left"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "PlayerCollision",
+					"sid": 949366958605821,
+					"behaviorType": "8Direction",
+					"parameters": {
+						"control": "left"
+					}
+				}
+			],
+			"sid": 376012521356490,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Move the player right."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 822472185790842,
+					"parameters": {
+						"key": 39
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 631008261874263,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-right"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "PlayerCollision",
+					"sid": 855738660142128,
+					"behaviorType": "8Direction",
+					"parameters": {
+						"control": "right"
+					}
+				}
+			],
+			"sid": 844715656389660,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Move the player up."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 384323379330276,
+					"parameters": {
+						"key": 38
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 149620752207489,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-up"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "PlayerCollision",
+					"sid": 407090523106395,
+					"behaviorType": "8Direction",
+					"parameters": {
+						"control": "up"
+					}
+				}
+			],
+			"sid": 291469044003811,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "Move the player down."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 881891916590988,
+					"parameters": {
+						"key": 40
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 574653105707647,
+					"parameters": {
+						"gamepad": "0",
+						"button": "d-pad-down"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "simulate-control",
+					"objectClass": "PlayerCollision",
+					"sid": 507364402925608,
+					"behaviorType": "8Direction",
+					"parameters": {
+						"control": "down"
+					}
+				}
+			],
+			"sid": 408907603059705,
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "If the player is moving, set the animation angle according to its angle of motion."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-moving",
+					"objectClass": "PlayerCollision",
+					"sid": 272836666905629,
+					"behaviorType": "8Direction"
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation",
+					"objectClass": "PlayerAnimations",
+					"sid": 680508458090223,
+					"parameters": {
+						"animation": "str(Functions.RoundValueTo45(PlayerCollision.8Direction.MovingAngle))",
+						"from": "beginning"
+					}
+				}
+			],
+			"sid": 477389527214654,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Also, if the animation speed is set to zero, increase it to fifteen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-animation-speed",
+							"objectClass": "PlayerAnimations",
+							"sid": 128029641444243,
+							"parameters": {
+								"comparison": 0,
+								"number": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation-speed",
+							"objectClass": "PlayerAnimations",
+							"sid": 661816523218289,
+							"parameters": {
+								"speed": "15"
+							}
+						}
+					],
+					"sid": 779813850369200
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "However, if the player is static, reduce the animation speed and set the animation frame to one."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 340033780567202
+				},
+				{
+					"id": "is-moving",
+					"objectClass": "PlayerCollision",
+					"sid": 440381443866506,
+					"behaviorType": "8Direction",
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-animation-speed",
+					"objectClass": "PlayerAnimations",
+					"sid": 357646070808783,
+					"parameters": {
+						"speed": "0"
+					}
+				},
+				{
+					"id": "set-animation-frame",
+					"objectClass": "PlayerAnimations",
+					"sid": 600473030129612,
+					"parameters": {
+						"frame-number": "1"
+					}
+				}
+			],
+			"sid": 418714430977391
+		},
+		{
+			"eventType": "comment",
+			"text": "Round any number to the nearest multiple of 45."
+		},
+		{
+			"functionName": "RoundValueTo45",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "number",
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "Number",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "",
+					"sid": 592399944896278
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-function-return-value",
+					"objectClass": "Functions",
+					"sid": 103132135262081,
+					"parameters": {
+						"value": "round(((Number + 360) % 360) / 45) * 45"
+					}
+				}
+			],
+			"sid": 662421644452386
+		},
+		{
+			"eventType": "comment",
+			"text": "Shoot the gun every 0.1 seconds."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 599743289069674,
+					"parameters": {
+						"key": 32
+					}
+				},
+				{
+					"id": "is-button-down",
+					"objectClass": "Gamepad",
+					"sid": 622154217377290,
+					"parameters": {
+						"gamepad": "0",
+						"button": "button-a"
+					}
+				}
+			],
+			"actions": [],
+			"sid": 728839808278422,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 375617938651071,
+							"parameters": {
+								"interval-seconds": "0.1"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Spawn a bullet with slightly randomized properties."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 674137020891786,
+							"parameters": {
+								"object-to-create": "Bullet",
+								"layer": "\"World\"",
+								"x": "PlayerAnimations.ImagePointX(\"GunTip\")",
+								"y": "PlayerAnimations.ImagePointY(\"GunTip\")",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "Bullet",
+							"sid": 721559666888008,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "int(PlayerAnimations.AnimationName) + random(-5, 5)"
+							}
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "Bullet",
+							"sid": 194001051228492,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"speed": "Self.Bullet.Speed * 4"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Bullet",
+							"sid": 890905679108845,
+							"parameters": {
+								"instance-variable": "DamageEnemy",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Bullet",
+							"sid": 436271271501213,
+							"parameters": {
+								"animation": "\"Player\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Also spawn a shell with slightly randomized properties."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 567114987389193,
+							"parameters": {
+								"object-to-create": "Shell",
+								"layer": "\"World\"",
+								"x": "PlayerAnimations.ImagePointX(\"GunTip\") - cos(int(PlayerAnimations.AnimationName)) * 8",
+								"y": "PlayerAnimations.ImagePointY(\"GunTip\") - sin(int(PlayerAnimations.AnimationName)) * 8",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Shell",
+							"sid": 653176713700495,
+							"parameters": {
+								"angle": "int(PlayerAnimations.AnimationName)"
+							}
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "Shell",
+							"sid": 106624439572408,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "int(PlayerAnimations.AnimationName) + 90 + random(-10, 10)"
+							}
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "Shell",
+							"sid": 243352110860402,
+							"behaviorType": "Rotate",
+							"parameters": {
+								"speed": "random(180, 360)"
+							}
+						}
+					],
+					"sid": 761389237031199,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If there any enemies enabled, slightly rotate the bullet towards it to create some sort of aim assist for the player."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 822226121556103,
+									"parameters": {
+										"object": "EnemyCollision",
+										"expression": "EnemyCollision.Enabled",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 333990497880620,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-nearestfurthest",
+											"objectClass": "EnemyCollision",
+											"sid": 118512071122360,
+											"parameters": {
+												"which": "nearest",
+												"x": "Bullet.X",
+												"y": "Bullet.Y"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-angle-of-motion",
+											"objectClass": "Bullet",
+											"sid": 206901052338390,
+											"behaviorType": "Bullet",
+											"parameters": {
+												"angle": "anglerotate(Self.Bullet.AngleOfMotion, angle(Self.X, Self.Y, EnemyCollision.X, EnemyCollision.Y), 10)"
+											}
+										}
+									],
+									"sid": 837786626093562
+								}
+							]
+						}
+					]
+				}
+			],
+			"isOrBlock": true
+		},
+		{
+			"eventType": "comment",
+			"text": "If an enemy hits the enemy cleaner, destroy it, so it doesn't keep shooting the player from far away."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "EnemyCollision",
+					"sid": 612871395699313,
+					"parameters": {
+						"object": "EnemyCleaner"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "EnemyCollision",
+					"sid": 297226484604805
+				}
+			],
+			"sid": 368833938151579
+		},
+		{
+			"eventType": "comment",
+			"text": "If a bullet with the \"DamageEnemy\" bool enabled, while the enemy is also enabled, destroy the bullet and reduce the enemy's heath by one."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Bullet",
+					"sid": 954906322738217,
+					"parameters": {
+						"object": "EnemyCollision"
+					}
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "Bullet",
+					"sid": 394829678580191,
+					"parameters": {
+						"instance-variable": "DamageEnemy"
+					}
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "EnemyCollision",
+					"sid": 332186109166251,
+					"parameters": {
+						"instance-variable": "Enabled"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Bullet",
+					"sid": 673302747887035
+				},
+				{
+					"id": "subtract-from-instvar",
+					"objectClass": "EnemyCollision",
+					"sid": 351324481385405,
+					"parameters": {
+						"instance-variable": "HeathPoints",
+						"value": "1"
+					}
+				}
+			],
+			"sid": 212112168905698,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the enemy's heath reach zero, destroy it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "EnemyCollision",
+							"sid": 263074591192580,
+							"parameters": {
+								"instance-variable": "HeathPoints",
+								"comparison": 0,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "EnemyCollision",
+							"sid": 857793162111314
+						}
+					],
+					"sid": 675922918642432,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Also spawn a sequence of explosions around the enemy body for a more impactful effect."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "EnemyCollision",
+									"sid": 152401406090578,
+									"parameters": {
+										"child": "EnemyAnimations",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 172094432181980,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 825383037403765,
+											"parameters": {
+												"count": "4"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 675208486248344,
+											"parameters": {
+												"object-to-create": "Explosion",
+												"layer": "\"World\"",
+												"x": "EnemyAnimations.ImagePointX(\"Chest\") + random(-8, 8)",
+												"y": "EnemyAnimations.ImagePointY(\"Chest\") + random(-16, 16)",
+												"create-hierarchy": false
+											}
+										}
+									],
+									"sid": 413361370386491,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Delay each explosion by 0.1 seconds, so the effect doesn't go away too quickly."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-two-values",
+													"objectClass": "System",
+													"sid": 566072976850217,
+													"parameters": {
+														"first-value": "loopindex",
+														"comparison": 5,
+														"second-value": "1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-visible",
+													"objectClass": "Explosion",
+													"sid": 242165753749394,
+													"parameters": {
+														"visibility": "invisible"
+													}
+												},
+												{
+													"id": "set-animation-speed",
+													"objectClass": "Explosion",
+													"sid": 730350749650537,
+													"parameters": {
+														"speed": "0"
+													}
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 948492317530396,
+													"parameters": {
+														"seconds": "0.1 * loopindex"
+													}
+												},
+												{
+													"id": "set-visible",
+													"objectClass": "Explosion",
+													"sid": 879776615275354,
+													"parameters": {
+														"visibility": "visible"
+													}
+												},
+												{
+													"id": "set-animation-speed",
+													"objectClass": "Explosion",
+													"sid": 999426260021140,
+													"parameters": {
+														"speed": "15"
+													}
+												}
+											],
+											"sid": 687610034374254
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "However, if the enemy's heath is higher than zero, simply flash it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 744522366502445
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "EnemyCollision",
+							"sid": 712100981476303,
+							"parameters": {
+								"instance-variable": "HeathPoints",
+								"comparison": 4,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 259665655957416,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "EnemyCollision",
+									"sid": 768739818595011,
+									"parameters": {
+										"child": "EnemyAnimations",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-value",
+									"objectClass": "EnemyAnimations",
+									"sid": 909640670539414,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Flash\"",
+										"start-value": "150",
+										"end-value": "100",
+										"time": "0.1",
+										"ease": "default",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no"
+									}
+								}
+							],
+							"sid": 747218461168265
+						}
+					]
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Constantly update the enemy luminosity while playing the \"Flash\" tween animation."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "is-playing",
+					"objectClass": "EnemyAnimations",
+					"sid": 326471868745860,
+					"behaviorType": "Tween",
+					"parameters": {
+						"tags": "\"Flash\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-effect-parameter",
+					"objectClass": "EnemyAnimations",
+					"sid": 520541415385808,
+					"parameters": {
+						"effect": "\"AdjustHSL\"",
+						"parameter-index": "2",
+						"value": "Self.Tween.Value(\"Flash\")"
+					}
+				}
+			],
+			"sid": 300863233705352
+		},
+		{
+			"eventType": "comment",
+			"text": "Once an explosion has finished its animation, destroy it, so it doesn't keep occupying space in the PC's memory."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-animation-finished",
+					"objectClass": "Explosion",
+					"sid": 613401967092762,
+					"parameters": {
+						"animation": "\"Default\""
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "Explosion",
+					"sid": 402373154597673
+				}
+			],
+			"sid": 419120016432098
+		},
+		{
+			"eventType": "comment",
+			"text": "If a bullet with the \"DamagePlayer\" bool enabled hits the player, restart the game."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-collision-with-another-object",
+					"objectClass": "Bullet",
+					"sid": 237482047833080,
+					"parameters": {
+						"object": "PlayerCollision"
+					}
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "Bullet",
+					"sid": 938303298841080,
+					"parameters": {
+						"instance-variable": "DamagePlayer"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "restart-layout",
+					"objectClass": "System",
+					"sid": 119534702163577
+				}
+			],
+			"sid": 115075487967968
+		}
+	],
+	"sid": 395290866888056
+}

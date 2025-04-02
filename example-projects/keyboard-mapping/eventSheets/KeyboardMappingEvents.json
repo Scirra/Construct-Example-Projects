@@ -1,0 +1,899 @@
+{
+	"name": "KeyboardMappingEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Viridino Studios (@ViridinoStudios)\n\nMateus Ferreira Moreira - Programmer\nX: @BonzerKitten\nE-mail: ferreiramoreiramateus@gmail.com\n\nFelipe Vaiano Calderan - Programmer\nX: @fvcalderan\nE-mail: fvcalderan@gmail.com\n\nWesley Andrade - Artist\nX: @andrart7\nE-mail: wesleymatos1989@gmail.com\n\nHelp us make new examples by supporting our work on https://www.patreon.com/viridinostudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings"
+		},
+		{
+			"eventType": "variable",
+			"name": "ACTIVECOLOR",
+			"type": "string",
+			"initialValue": "255 203 92",
+			"comment": "Highlighted text color",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 113537944568464
+		},
+		{
+			"eventType": "variable",
+			"name": "INACTIVECOLOR",
+			"type": "string",
+			"initialValue": "255 255 255",
+			"comment": "Normal text color",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 904994249558989
+		},
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables"
+		},
+		{
+			"eventType": "variable",
+			"name": "currentEntry",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Currently selected menu entry",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 327687593361468
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tools",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Assign a new input to an action."
+				},
+				{
+					"functionName": "assignInput",
+					"functionDescription": "Assign a new input to an action.",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "menuEntry",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Which entry to change",
+							"sid": 359274414973689
+						},
+						{
+							"name": "keycode",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Code of the key pressed.",
+							"sid": 830287015162595
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-evaluate",
+							"objectClass": "System",
+							"sid": 695733258670246,
+							"parameters": {
+								"object": "TextInput",
+								"expression": "TextInput.menuEntry = menuEntry"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Save assigned input."
+						},
+						{
+							"id": "set-at-x",
+							"objectClass": "KBMappingArr",
+							"sid": 584514378752960,
+							"parameters": {
+								"x": "menuEntry",
+								"value": "keycode"
+							}
+						},
+						{
+							"id": "set-item",
+							"objectClass": "LocalStorage",
+							"sid": 159468815171259,
+							"parameters": {
+								"key": "\"KBMappingArr\"",
+								"value": "KBMappingArr.AsJSON"
+							}
+						}
+					],
+					"sid": 589761875633662,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the key is [Space], instead of displaying a blank text, display \"Space\"."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 585933240281896,
+									"parameters": {
+										"value": "keycode = 32"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextInput",
+									"sid": 346937243975720,
+									"parameters": {
+										"text": "\"\\[ Space ]\""
+									}
+								}
+							],
+							"sid": 544780116256868
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, proceed normally."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 948281863329983
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextInput",
+									"sid": 980413790018697,
+									"parameters": {
+										"text": "\"\\[ \" & Keyboard.StringFromKeyCode(keycode) & \" ]\""
+									}
+								}
+							],
+							"sid": 565020539446508
+						}
+					]
+				}
+			],
+			"sid": 933524015254127
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Initialize keyboard mapping system."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 645599598269808
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Look for saved mapping."
+						},
+						{
+							"id": "check-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 223146891406318,
+							"parameters": {
+								"key": "\"KBMappingArr\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Deactivate mapping, since user starts in [b]Menu navigation[/b] mode."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 113751776085783,
+							"parameters": {
+								"group-name": "\"Keyboard mapping\"",
+								"state": "deactivated"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Select item 0 (first action)."
+						},
+						{
+							"callFunction": "selectMenuItem",
+							"sid": 745113220069134,
+							"parameters": [
+								"0"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Assign default values to KBMappingArr, in case there is no saved input."
+						},
+						{
+							"id": "set-at-x",
+							"objectClass": "KBMappingArr",
+							"sid": 273376020157929,
+							"parameters": {
+								"x": "0",
+								"value": "37"
+							}
+						},
+						{
+							"id": "set-at-x",
+							"objectClass": "KBMappingArr",
+							"sid": 834891662206688,
+							"parameters": {
+								"x": "1",
+								"value": "39"
+							}
+						},
+						{
+							"id": "set-at-x",
+							"objectClass": "KBMappingArr",
+							"sid": 769058231536447,
+							"parameters": {
+								"x": "2",
+								"value": "32"
+							}
+						}
+					],
+					"sid": 606410921424266
+				},
+				{
+					"eventType": "comment",
+					"text": "If there is a saved keyboard mapping, use it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 588108073702479,
+							"parameters": {
+								"key": "\"KBMappingArr\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "get-item",
+							"objectClass": "LocalStorage",
+							"sid": 804984553383167,
+							"parameters": {
+								"key": "\"KBMappingArr\""
+							}
+						}
+					],
+					"sid": 407031480046166
+				},
+				{
+					"eventType": "comment",
+					"text": "Load the data into KBMappingArr."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-get",
+							"objectClass": "LocalStorage",
+							"sid": 607716860008390,
+							"parameters": {
+								"key": "\"KBMappingArr\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "KBMappingArr",
+							"sid": 893608217031847,
+							"parameters": {
+								"json": "LocalStorage.ItemValue"
+							}
+						}
+					],
+					"sid": 306202274945602,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 954794558637434,
+									"parameters": {
+										"name": "\"i\"",
+										"start-index": "0",
+										"end-index": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "assignInput",
+									"sid": 834716319440981,
+									"parameters": [
+										"loopindex(\"i\")",
+										"KBMappingArr.At(loopindex(\"i\"))"
+									]
+								}
+							],
+							"sid": 106339255636103
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If there isn't a saved keyboard mapping, use the default one"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-missing",
+							"objectClass": "LocalStorage",
+							"sid": 135866260728909,
+							"parameters": {
+								"key": "\"KBMappingArr\""
+							}
+						},
+						{
+							"id": "for",
+							"objectClass": "System",
+							"sid": 183957956112698,
+							"parameters": {
+								"name": "\"i\"",
+								"start-index": "0",
+								"end-index": "2"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "assignInput",
+							"sid": 326016729321140,
+							"parameters": [
+								"loopindex(\"i\")",
+								"KBMappingArr.At(loopindex(\"i\"))"
+							]
+						}
+					],
+					"sid": 989251865759058
+				}
+			],
+			"sid": 516709576966754
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Menu navigation",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Select menu item of specific ID."
+				},
+				{
+					"functionName": "selectMenuItem",
+					"functionDescription": "Select menu item of specific ID.",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "menuEntry",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Currently selected menu entry.",
+							"sid": 835587459204599
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Remove highlight from test assigned inputs menu entry."
+						},
+						{
+							"id": "set-font-color",
+							"objectClass": "TextTest",
+							"sid": 391987794637891,
+							"parameters": {
+								"color": "rgba255(int(tokenat(INACTIVECOLOR, 0, \" \")), int(tokenat(INACTIVECOLOR, 1, \" \")), int(tokenat(INACTIVECOLOR, 2, \" \")), 255)"
+							}
+						}
+					],
+					"sid": 792084099555635,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Remove highlight from all action/input entries."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 947020682998996,
+									"parameters": {
+										"object": "TextAction"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-font-color",
+									"objectClass": "TextAction",
+									"sid": 890944997725008,
+									"parameters": {
+										"color": "rgba255(int(tokenat(INACTIVECOLOR, 0, \" \")), int(tokenat(INACTIVECOLOR, 1, \" \")), int(tokenat(INACTIVECOLOR, 2, \" \")), 255)"
+									}
+								},
+								{
+									"id": "set-font-color",
+									"objectClass": "TextInput",
+									"sid": 261499459852997,
+									"parameters": {
+										"color": "rgba255(int(tokenat(INACTIVECOLOR, 0, \" \")), int(tokenat(INACTIVECOLOR, 1, \" \")), int(tokenat(INACTIVECOLOR, 2, \" \")), 255)"
+									}
+								}
+							],
+							"sid": 430923750300158
+						},
+						{
+							"eventType": "comment",
+							"text": "Highlight selected action/input."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 283372193496476,
+									"parameters": {
+										"object": "TextAction",
+										"expression": "TextAction.menuEntry = menuEntry"
+									}
+								},
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 306034791903030,
+									"parameters": {
+										"object": "TextInput",
+										"expression": "TextInput.menuEntry = menuEntry"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-font-color",
+									"objectClass": "TextAction",
+									"sid": 168774317506115,
+									"parameters": {
+										"color": "rgba255(int(tokenat(ACTIVECOLOR, 0, \" \")), int(tokenat(ACTIVECOLOR, 1, \" \")), int(tokenat(ACTIVECOLOR, 2, \" \")), 255)"
+									}
+								},
+								{
+									"id": "set-font-color",
+									"objectClass": "TextInput",
+									"sid": 566409652923982,
+									"parameters": {
+										"color": "rgba255(int(tokenat(ACTIVECOLOR, 0, \" \")), int(tokenat(ACTIVECOLOR, 1, \" \")), int(tokenat(ACTIVECOLOR, 2, \" \")), 255)"
+									}
+								}
+							],
+							"sid": 849239932460297
+						},
+						{
+							"eventType": "comment",
+							"text": "Highlight test."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 719860642259939
+								}
+							],
+							"actions": [
+								{
+									"id": "set-font-color",
+									"objectClass": "TextTest",
+									"sid": 393440787926944,
+									"parameters": {
+										"color": "rgba255(int(tokenat(ACTIVECOLOR, 0, \" \")), int(tokenat(ACTIVECOLOR, 1, \" \")), int(tokenat(ACTIVECOLOR, 2, \" \")), 255)"
+									}
+								}
+							],
+							"sid": 739760572164848
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Previous menu entry."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 234925546774706,
+							"parameters": {
+								"key": 38
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 694585129711492,
+							"parameters": {
+								"variable": "currentEntry",
+								"value": "currentEntry = 0 ? 3 : currentEntry - 1"
+							}
+						},
+						{
+							"callFunction": "selectMenuItem",
+							"sid": 926781982865067,
+							"parameters": [
+								"currentEntry"
+							]
+						}
+					],
+					"sid": 902824158770630
+				},
+				{
+					"eventType": "comment",
+					"text": "Next menu entry."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 534041700820668,
+							"parameters": {
+								"key": 40
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 641946837517150,
+							"parameters": {
+								"variable": "currentEntry",
+								"value": "(currentEntry + 1) % 4"
+							}
+						},
+						{
+							"callFunction": "selectMenuItem",
+							"sid": 636039089662692,
+							"parameters": [
+								"currentEntry"
+							]
+						}
+					],
+					"sid": 847437368360065
+				}
+			],
+			"sid": 400681116799826
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Keyboard mapping",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Assign a new button to an action."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 779011783795924
+						}
+					],
+					"actions": [],
+					"sid": 721169420980599,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Cancel assignment, reset back to previously assigned input and change mode to [b]Keyboard mapping[/b]."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 902069957237150,
+									"parameters": {
+										"key": 27
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "assignInput",
+									"sid": 659128211083182,
+									"parameters": [
+										"currentEntry",
+										"KBMappingArr.At(currentEntry)"
+									]
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 112301515075357,
+									"parameters": {
+										"group-name": "\"Keyboard mapping\"",
+										"state": "deactivated"
+									}
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 625631286959352,
+									"parameters": {
+										"group-name": "\"Menu navigation\"",
+										"state": "activated"
+									}
+								}
+							],
+							"sid": 226655374118242
+						},
+						{
+							"eventType": "comment",
+							"text": "Assign the input and change mode to [b]Keyboard mapping[/b]."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 888974716499624
+								}
+							],
+							"actions": [],
+							"sid": 102832017157345,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Check if there is another action that uses the same input. If there is, use the current selection"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for",
+											"objectClass": "System",
+											"sid": 896938019302714,
+											"parameters": {
+												"name": "\"i\"",
+												"start-index": "0",
+												"end-index": "2"
+											}
+										},
+										{
+											"id": "compare-at-x",
+											"objectClass": "KBMappingArr",
+											"sid": 502018445332408,
+											"parameters": {
+												"x": "loopindex(\"i\")",
+												"comparison": 0,
+												"value": "Keyboard.LastKeyCode"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "assignInput",
+											"sid": 257174596612500,
+											"parameters": [
+												"loopindex(\"i\")",
+												"KBMappingArr.At(currentEntry)"
+											]
+										}
+									],
+									"sid": 647440145505211
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"callFunction": "assignInput",
+											"sid": 235115499988320,
+											"parameters": [
+												"currentEntry",
+												"Keyboard.LastKeyCode"
+											]
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 380214498677329,
+											"parameters": {
+												"seconds": "0"
+											}
+										},
+										{
+											"id": "set-group-active",
+											"objectClass": "System",
+											"sid": 989507659842141,
+											"parameters": {
+												"group-name": "\"Keyboard mapping\"",
+												"state": "deactivated"
+											}
+										},
+										{
+											"id": "set-group-active",
+											"objectClass": "System",
+											"sid": 696149594634386,
+											"parameters": {
+												"group-name": "\"Menu navigation\"",
+												"state": "activated"
+											}
+										}
+									],
+									"sid": 886754754148567
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 270892960846248
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Confirm button",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Confirm button has been pressed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 800445882003955,
+							"parameters": {
+								"key": 13
+							}
+						}
+					],
+					"actions": [],
+					"sid": 381347914603263,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Start a new input assignment change mode to [b]Menu navigation[/b]."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 518974337532850,
+									"parameters": {
+										"object": "TextInput",
+										"expression": "TextInput.menuEntry = currentEntry"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 285717196107478,
+									"parameters": {
+										"group-name": "\"Keyboard mapping\"",
+										"state": "activated"
+									}
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 403118389551254,
+									"parameters": {
+										"group-name": "\"Menu navigation\"",
+										"state": "deactivated"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextInput",
+									"sid": 100455507265204,
+									"parameters": {
+										"text": "\"...\""
+									}
+								}
+							],
+							"sid": 912423735295749
+						},
+						{
+							"eventType": "comment",
+							"text": "Start keyboard mapping test."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 522857616997342
+								}
+							],
+							"actions": [
+								{
+									"id": "go-to-layout",
+									"objectClass": "System",
+									"sid": 774482037451334,
+									"parameters": {
+										"layout": "TestMapping"
+									}
+								}
+							],
+							"sid": 172314175852268
+						}
+					]
+				}
+			],
+			"sid": 213780463308213
+		}
+	],
+	"sid": 625518162757647
+}

@@ -1,0 +1,539 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "downloadType",
+			"type": "string",
+			"initialValue": "",
+			"comment": "Whether to download snapshot or video with 'Download' button",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 341191748548955
+		},
+		{
+			"eventType": "comment",
+			"text": "On startup, request the available media sources. This is useful in case there is more than one camera on the system (commonly the case with mobile phones, which have both front-facing and back-facing cameras.)"
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 4363319837488571
+				}
+			],
+			"actions": [
+				{
+					"id": "get-media-sources",
+					"objectClass": "UserMedia",
+					"sid": 2143372353390667
+				},
+				{
+					"id": "wait-for-previous-actions",
+					"objectClass": "System",
+					"sid": 956468725415514
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "CameraSourceList",
+					"sid": 113359097852800,
+					"parameters": {
+						"visibility": "visible"
+					}
+				},
+				{
+					"id": "clear",
+					"objectClass": "CameraSourceList",
+					"sid": 951980447108019
+				}
+			],
+			"sid": 2540552452324238,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Once the previous request for media sources has completed, display the available sources in the CameraSourceList object. Then the user can choose a source from the dropdown. Note not all browsers support getting the list of media sources, so we hide the list until this trigger runs."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 967976404934073,
+							"parameters": {
+								"count": "UserMedia.CameraSourceCount"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "add-item",
+							"objectClass": "CameraSourceList",
+							"sid": 207195983204419,
+							"parameters": {
+								"text": "\"Camera \" & loopindex & \" (\" & UserMedia.CameraSourceLabelAt(loopindex) & \" \" & UserMedia.CameraSourceFacingAt(loopindex) & \")\""
+							}
+						}
+					],
+					"sid": 409606818022019
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Request a camera feed when clicking the Camera button. Request the currently selected source. Note microphone input is included so that if the user takes a recording it will have audio too."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "GetCamera",
+					"sid": 14
+				}
+			],
+			"actions": [
+				{
+					"id": "request-camera",
+					"objectClass": "UserMedia",
+					"sid": 947215827922305,
+					"parameters": {
+						"source": "CameraSourceList.SelectedIndex",
+						"preferred-direction": "any",
+						"preferred-width": "0",
+						"preferred-height": "0",
+						"include-mic": true,
+						"mic-source": "0"
+					}
+				}
+			],
+			"sid": 13
+		},
+		{
+			"eventType": "comment",
+			"text": "Change the status depending on if the user approved or declined the request."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-media-request-approved",
+					"objectClass": "UserMedia",
+					"sid": 17
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "StatusText",
+					"sid": 18,
+					"parameters": {
+						"text": "\"Approved!\""
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "SnapButton",
+					"sid": 19,
+					"parameters": {
+						"mode": "enabled"
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "StopCamera",
+					"sid": 20,
+					"parameters": {
+						"mode": "enabled"
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "RecordButton",
+					"sid": 790077009885349,
+					"parameters": {
+						"mode": "enabled"
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "GetCamera",
+					"sid": 21,
+					"parameters": {
+						"mode": "disabled"
+					}
+				}
+			],
+			"sid": 16
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-media-request-declined",
+					"objectClass": "UserMedia",
+					"sid": 23
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "StatusText",
+					"sid": 24,
+					"parameters": {
+						"text": "\"Declined!\""
+					}
+				}
+			],
+			"sid": 22
+		},
+		{
+			"eventType": "comment",
+			"text": "Show the dimensions of the source video feed."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 26
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "VideoSizeText",
+					"sid": 27,
+					"parameters": {
+						"text": "UserMedia.VideoWidth & \" x \" & UserMedia.VideoHeight"
+					}
+				}
+			],
+			"sid": 25
+		},
+		{
+			"eventType": "comment",
+			"text": "Change status if browser does not support user media."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "supports-user-media",
+					"objectClass": "UserMedia",
+					"sid": 290742589127585,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "StatusText",
+					"sid": 652153343476810,
+					"parameters": {
+						"text": "\"Not supported! Try using Chrome\""
+					}
+				}
+			],
+			"sid": 289006355008856
+		},
+		{
+			"eventType": "comment",
+			"text": "Start a recording of the User Media object when the 'Record' button is clicked, using the Game Recorder object."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "RecordButton",
+					"sid": 853508308125705
+				}
+			],
+			"actions": [
+				{
+					"id": "start-user-media-recording-2",
+					"objectClass": "VideoRecorder",
+					"sid": 457433328791975,
+					"parameters": {
+						"container": "auto",
+						"video-codec": "auto",
+						"audio-codec": "auto",
+						"quality-kbps": "2500"
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "RecordButton",
+					"sid": 840396153193570,
+					"parameters": {
+						"mode": "disabled"
+					}
+				}
+			],
+			"sid": 575231346276329
+		},
+		{
+			"eventType": "comment",
+			"text": "When the Stop button is clicked, if a recording is active, stop the recording. Otherwise stop the video feed itself."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "StopCamera",
+					"sid": 29
+				}
+			],
+			"actions": [],
+			"sid": 28,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-recording",
+							"objectClass": "VideoRecorder",
+							"sid": 503895648084998
+						}
+					],
+					"actions": [
+						{
+							"id": "stop-recording",
+							"objectClass": "VideoRecorder",
+							"sid": 255286228343108
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "RecordButton",
+							"sid": 156943910436631,
+							"parameters": {
+								"mode": "enabled"
+							}
+						}
+					],
+					"sid": 176245649591554
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 917264328447786
+						}
+					],
+					"actions": [
+						{
+							"id": "stop",
+							"objectClass": "UserMedia",
+							"sid": 324341665165028
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "SnapButton",
+							"sid": 953017320035223,
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "StopCamera",
+							"sid": 944781375565521,
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "RecordButton",
+							"sid": 749134264429795,
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "GetCamera",
+							"sid": 798834435617655,
+							"parameters": {
+								"mode": "enabled"
+							}
+						}
+					],
+					"sid": 807525720224795
+				}
+			]
+		},
+		{
+			"eventType": "comment",
+			"text": "Once a recording is ready, enable the download button (and also indicate that it's a video and not a snapshot)."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-recording-ready",
+					"objectClass": "VideoRecorder",
+					"sid": 853683601085772
+				}
+			],
+			"actions": [
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 699709553423785,
+					"parameters": {
+						"variable": "downloadType",
+						"value": "\"video\""
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "DownloadButton",
+					"sid": 558663528586932,
+					"parameters": {
+						"mode": "enabled"
+					}
+				}
+			],
+			"sid": 397677394224989
+		},
+		{
+			"eventType": "comment",
+			"text": "When clicking the Snapshot button, take a snapshot and load the result in to a Sprite. Also indicate the download is a snapshot and not a video."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "SnapButton",
+					"sid": 38
+				}
+			],
+			"actions": [
+				{
+					"id": "snapshot",
+					"objectClass": "UserMedia",
+					"sid": 39,
+					"parameters": {
+						"format": "png",
+						"jpeg-quality": "100"
+					}
+				},
+				{
+					"id": "wait-for-previous-actions",
+					"objectClass": "System",
+					"sid": 147990084731674
+				},
+				{
+					"id": "load-image-from-url",
+					"objectClass": "SnapshotSprite",
+					"sid": 393563190291442,
+					"parameters": {
+						"uri": "UserMedia.SnapshotURL",
+						"size": "keep-current-size",
+						"cross-origin": "anonymous"
+					}
+				},
+				{
+					"id": "set-eventvar-value",
+					"objectClass": "System",
+					"sid": 853111721372503,
+					"parameters": {
+						"variable": "downloadType",
+						"value": "\"snapshot\""
+					}
+				},
+				{
+					"id": "set-enabled",
+					"objectClass": "DownloadButton",
+					"sid": 820807431164104,
+					"parameters": {
+						"mode": "enabled"
+					}
+				}
+			],
+			"sid": 37
+		},
+		{
+			"eventType": "comment",
+			"text": "Also allow the user to download their picture. This is done by using the Browser object to invoke a download of the snapshot or video (whichever was the last thing that was taken)."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "DownloadButton",
+					"sid": 44
+				}
+			],
+			"actions": [],
+			"sid": 43,
+			"children": [
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 855127182753111,
+							"parameters": {
+								"variable": "downloadType",
+								"comparison": 0,
+								"value": "\"snapshot\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "invoke-download",
+							"objectClass": "Browser",
+							"sid": 574906588642006,
+							"parameters": {
+								"url": "UserMedia.SnapshotURL",
+								"filename": "\"mypicture.png\""
+							}
+						}
+					],
+					"sid": 274133564757569
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 181738632166951,
+							"parameters": {
+								"variable": "downloadType",
+								"comparison": 0,
+								"value": "\"video\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "invoke-download",
+							"objectClass": "Browser",
+							"sid": 437791574265289,
+							"parameters": {
+								"url": "VideoRecorder.RecordingURL",
+								"filename": "\"video\" & VideoRecorder.RecordingFileExtension"
+							}
+						}
+					],
+					"sid": 493849051090253
+				}
+			]
+		}
+	],
+	"sid": 599050192024312
+}
