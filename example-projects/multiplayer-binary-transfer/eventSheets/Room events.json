@@ -1,0 +1,1002 @@
+{
+	"name": "Room events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "These global variables contain the game, game instance and room names to join. They are set as global constants so we can easily change them from a single location if we want to change any of them."
+		},
+		{
+			"eventType": "variable",
+			"name": "GAME_NAME",
+			"type": "string",
+			"initialValue": "construct-binary-transfer-example",
+			"comment": "Name of the game on the signalling server.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 4713255663715721
+		},
+		{
+			"eventType": "variable",
+			"name": "INSTANCE_NAME",
+			"type": "string",
+			"initialValue": "events-example",
+			"comment": "Name of the instance on the signalling server.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 2110590493564844
+		},
+		{
+			"eventType": "comment",
+			"text": "A helper function to set the status, and also log the message to the browser console, where a history of messages can be seen."
+		},
+		{
+			"functionName": "SetStatus",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [
+				{
+					"name": "message",
+					"type": "string",
+					"initialValue": "",
+					"comment": "",
+					"sid": 580716683042101
+				}
+			],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "StatusText",
+					"sid": 709479334253428,
+					"parameters": {
+						"text": "message"
+					}
+				},
+				{
+					"id": "log",
+					"objectClass": "Browser",
+					"sid": 253025200113489,
+					"parameters": {
+						"type": "log",
+						"message": "message"
+					}
+				}
+			],
+			"sid": 430729464237594
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Signalling",
+			"description": "Manages connecting to the signalling server and joining the room.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On the start of the layout, connect to the signalling server."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 5921545419714133
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 362261856843776,
+							"parameters": [
+								"\"Connecting to signalling server...\""
+							]
+						},
+						{
+							"id": "connect",
+							"objectClass": "Multiplayer",
+							"sid": 674496628963902,
+							"parameters": {
+								"server": "\"wss://multiplayer.construct.net\""
+							}
+						}
+					],
+					"sid": 6969574974861222
+				},
+				{
+					"eventType": "comment",
+					"text": "Once we successfully connect to the signalling server, request to log in with the username entered on the login screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-connected",
+							"objectClass": "Multiplayer",
+							"sid": 7083878366871413
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 859768572566972,
+							"parameters": [
+								"\"Logging in...\""
+							]
+						},
+						{
+							"id": "log-in",
+							"objectClass": "Multiplayer",
+							"sid": 8593309100331951,
+							"parameters": {
+								"alias": "MyUsername"
+							}
+						}
+					],
+					"sid": 4999926102978483
+				},
+				{
+					"eventType": "comment",
+					"text": "Once successfully logged in, request to join the room name the user entered on the login screen. Note the user's current alias is displayed back to them, because it's possible the signalling server changed our name if it was already taken."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-logged-in",
+							"objectClass": "Multiplayer",
+							"sid": 5973141943761528
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 708273569177695,
+							"parameters": [
+								"\"Joining room...\""
+							]
+						},
+						{
+							"id": "join-room",
+							"objectClass": "Multiplayer",
+							"sid": 630199854171895,
+							"parameters": {
+								"game": "GAME_NAME",
+								"instance": "INSTANCE_NAME",
+								"room": "lowercase(RoomName)",
+								"max-peers": "0"
+							}
+						}
+					],
+					"sid": 3683751236422516
+				},
+				{
+					"eventType": "comment",
+					"text": "Upon joining the room, display a different status depending on if we are the host, and add our own name to the list of peers."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-joined-room",
+							"objectClass": "Multiplayer",
+							"sid": 4724370751258157
+						}
+					],
+					"actions": [
+						{
+							"id": "add-item",
+							"objectClass": "PeerList",
+							"sid": 403455544104136,
+							"parameters": {
+								"text": "Multiplayer.MyAlias"
+							}
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 480088056556217,
+							"parameters": {
+								"group-name": "\"File transfer\"",
+								"state": "activated"
+							}
+						}
+					],
+					"sid": 4360973053971621,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-host",
+									"objectClass": "Multiplayer",
+									"sid": 5856377662699346
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "SetStatus",
+									"sid": 253581232540977,
+									"parameters": [
+										"\"Joined as host\""
+									]
+								}
+							],
+							"sid": 5413253118826669
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 6172107259838324
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "SetStatus",
+									"sid": 762243076026981,
+									"parameters": [
+										"\"Joined as peer\""
+									]
+								}
+							],
+							"sid": 2299233264770383
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If we leave, disconnect or encounter an error, print that to the chat log as well."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-left-room",
+							"objectClass": "Multiplayer",
+							"sid": 7362884614318793
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 913509634628953,
+							"parameters": [
+								"\"Signalling left room\""
+							]
+						},
+						{
+							"id": "clear",
+							"objectClass": "PeerList",
+							"sid": 5705254172582482
+						}
+					],
+					"sid": 9837295563544924
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-disconnected",
+							"objectClass": "Multiplayer",
+							"sid": 5122722919059574
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 307360851494278,
+							"parameters": [
+								"\"Signalling disconnected\""
+							]
+						}
+					],
+					"sid": 4404376945898931
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-error",
+							"objectClass": "Multiplayer",
+							"sid": 7146598030310385
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 726252235414837,
+							"parameters": [
+								"\"Signalling error\""
+							]
+						}
+					],
+					"sid": 7714958481447735
+				}
+			],
+			"sid": 3589093994402016
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Peers",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When someone joins the chat, add them to the peer list and show it in the status."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-peer-connected",
+							"objectClass": "Multiplayer",
+							"sid": 550727890738187
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 874022748857395,
+							"parameters": [
+								"\"Peer '\" & Multiplayer.PeerAlias & \"' joined (\" & Multiplayer.PeerID & \")\""
+							]
+						},
+						{
+							"id": "add-item",
+							"objectClass": "PeerList",
+							"sid": 873751750625910,
+							"parameters": {
+								"text": "Multiplayer.PeerAlias"
+							}
+						}
+					],
+					"sid": 847824199848827
+				},
+				{
+					"eventType": "comment",
+					"text": "When someone leaves the chat, remove them from the peer list and show it in the status."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-peer-disconnected",
+							"objectClass": "Multiplayer",
+							"sid": 203970227698337
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 944370834779043,
+							"parameters": [
+								"\"Peer '\" & Multiplayer.PeerAlias & \"' left (\" & Multiplayer.PeerID & \")\""
+							]
+						}
+					],
+					"sid": 939364803099846,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "To remove the right name we check every item in the list, and remove the item index where the item text matches the name of the peer who left."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 466409222480175,
+									"parameters": {
+										"count": "PeerList.ItemCount"
+									}
+								},
+								{
+									"id": "compare-item-text-at",
+									"objectClass": "PeerList",
+									"sid": 426589558002787,
+									"parameters": {
+										"index": "loopindex",
+										"text-to-compare": "Multiplayer.PeerAlias",
+										"case-sensitivity": "case-sensitive"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "remove",
+									"objectClass": "PeerList",
+									"sid": 960391942627340,
+									"parameters": {
+										"index": "loopindex"
+									}
+								}
+							],
+							"sid": 650625572718907
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Log a message if we get kicked. This can happen if we could not connect to the host or if the host quit during the chat."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-kicked",
+							"objectClass": "Multiplayer",
+							"sid": 967522148418761
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 312780413533593,
+							"parameters": [
+								"\"Kicked\""
+							]
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "SendButton",
+							"sid": 825934075465869,
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"id": "clear",
+							"objectClass": "PeerList",
+							"sid": 369866448744397
+						}
+					],
+					"sid": 697673800260714
+				},
+				{
+					"eventType": "comment",
+					"text": "When the host disconnects, show it in the status."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-host-disconnected",
+							"objectClass": "Multiplayer",
+							"sid": 326392294692690
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 508248447149029,
+							"parameters": [
+								"\"Host disconnected\""
+							]
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "SendButton",
+							"sid": 507023480220386,
+							"parameters": {
+								"mode": "disabled"
+							}
+						},
+						{
+							"id": "clear",
+							"objectClass": "PeerList",
+							"sid": 950166084633733
+						}
+					],
+					"sid": 224942656712859
+				},
+				{
+					"eventType": "comment",
+					"text": "When a file is picked with the File Chooser object, use an AJAX request to load the file content in to a Binary Data object, then enable the 'Send' button."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-changed",
+							"objectClass": "FileChooser",
+							"sid": 593843044197843
+						}
+					],
+					"actions": [
+						{
+							"id": "set-response-binary",
+							"objectClass": "AJAX",
+							"sid": 482857290544837,
+							"parameters": {
+								"destination": "BinaryData"
+							}
+						},
+						{
+							"id": "request-url",
+							"objectClass": "AJAX",
+							"sid": 867567476761193,
+							"parameters": {
+								"tag": "\"\"",
+								"url": "FileChooser.FileURLAt(0)"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 605482228199721
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "SendButton",
+							"sid": 656965468285890,
+							"parameters": {
+								"mode": "enabled"
+							}
+						}
+					],
+					"sid": 472674286484564
+				}
+			],
+			"sid": 994359997060416
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "File transfer",
+			"description": "Manages file transfers between peers.",
+			"isActiveOnStart": false,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "SendToPeerID",
+					"type": "string",
+					"initialValue": "",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 324733822418370
+				},
+				{
+					"eventType": "comment",
+					"text": "When clicking 'Send', first find the peer ID from the selected alias in the list."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "SendButton",
+							"sid": 204073834206303
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 509791484267054,
+							"parameters": {
+								"variable": "SendToPeerID",
+								"value": "Multiplayer.PeerIDFromAlias(PeerList.SelectedText)"
+							}
+						}
+					],
+					"sid": 547409951135988,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Check that both a peer was selected, and that it's not their own peer. If not it's a valid remote peer to send to, so transfer the contents of the Binary Data object to them."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 885389041489896,
+									"parameters": {
+										"variable": "SendToPeerID",
+										"comparison": 1,
+										"value": "\"\""
+									}
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 958004303180606,
+									"parameters": {
+										"variable": "SendToPeerID",
+										"comparison": 1,
+										"value": "Multiplayer.MyID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "transfer-peer-binary",
+									"objectClass": "Multiplayer",
+									"sid": 951127698673798,
+									"parameters": {
+										"peer-id": "SendToPeerID",
+										"data": "BinaryData",
+										"tag": "\"filetransfer\"",
+										"filename": "FileChooser.FileNameAt(0)",
+										"mime-type": "FileChooser.FileTypeAt(0)"
+									}
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "CancelButton",
+									"sid": 682602953412494,
+									"parameters": {
+										"mode": "enabled"
+									}
+								}
+							],
+							"sid": 513467776824779
+						},
+						{
+							"eventType": "comment",
+							"text": "Tell the user if they made an invalid selection."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 340098250570424
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "SetStatus",
+									"sid": 528565188435315,
+									"parameters": [
+										"\"Invalid selection. Make sure a remote peer is selected.\""
+									]
+								}
+							],
+							"sid": 729979091827473
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If the sender clicks the 'Cancel' button, cancel the transfer."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "CancelButton",
+							"sid": 457126564773122
+						}
+					],
+					"actions": [
+						{
+							"id": "cancel-binary-transfer",
+							"objectClass": "Multiplayer",
+							"sid": 267695228026473,
+							"parameters": {
+								"peer-id": "SendToPeerID",
+								"tag": "\"filetransfer\""
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "CancelButton",
+							"sid": 887894441210793,
+							"parameters": {
+								"mode": "disabled"
+							}
+						}
+					],
+					"sid": 219096425418723
+				},
+				{
+					"eventType": "comment",
+					"text": "Show when a binary transfer starts to be received."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-binary-transfer-event",
+							"objectClass": "Multiplayer",
+							"sid": 411935667352891,
+							"parameters": {
+								"tag": "\"filetransfer\"",
+								"type": "receive-started"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 192295557801256,
+							"parameters": [
+								"\"Started receiving file '\" & Multiplayer.Filename & \"' (\" & round(Multiplayer.TransferSize / 1024) & \" KB) from '\" & Multiplayer.PeerAlias & \"'...\""
+							]
+						}
+					],
+					"sid": 330981075700394
+				},
+				{
+					"eventType": "comment",
+					"text": "Show binary transfer progress in the Progress Bar object. Note this applies to both the sender and the receiver."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-binary-transfer-event",
+							"objectClass": "Multiplayer",
+							"sid": 937857718213252,
+							"parameters": {
+								"tag": "\"filetransfer\"",
+								"type": "progress"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-progress",
+							"objectClass": "ProgressBar",
+							"sid": 685073915514426,
+							"parameters": {
+								"value": "Multiplayer.TransferProgress * 100"
+							}
+						}
+					],
+					"sid": 585206198934794
+				},
+				{
+					"eventType": "comment",
+					"text": "If the binary transfer is cancelled, show it in the status."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-binary-transfer-event",
+							"objectClass": "Multiplayer",
+							"sid": 570605623152847,
+							"parameters": {
+								"tag": "\"filetransfer\"",
+								"type": "cancelled"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 210155019560243,
+							"parameters": [
+								"\"File transfer cancelled\""
+							]
+						},
+						{
+							"id": "set-progress",
+							"objectClass": "ProgressBar",
+							"sid": 570361740736013,
+							"parameters": {
+								"value": "0"
+							}
+						}
+					],
+					"sid": 650260278342594
+				},
+				{
+					"eventType": "comment",
+					"text": "When the sender has finished the binary transfer, show it in the status."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-binary-transfer-event",
+							"objectClass": "Multiplayer",
+							"sid": 924076462797880,
+							"parameters": {
+								"tag": "\"filetransfer\"",
+								"type": "send-complete"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 842064971794507,
+							"parameters": [
+								"\"Send completed\""
+							]
+						},
+						{
+							"id": "set-progress",
+							"objectClass": "ProgressBar",
+							"sid": 772469443488699,
+							"parameters": {
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "CancelButton",
+							"sid": 196908124459701,
+							"parameters": {
+								"mode": "disabled"
+							}
+						}
+					],
+					"sid": 132438757158959
+				},
+				{
+					"eventType": "comment",
+					"text": "When the receiver has finished the binary transfer, show the status and enable buttons to download or save the received file."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-binary-transfer-complete",
+							"objectClass": "Multiplayer",
+							"sid": 826999615316753,
+							"parameters": {
+								"tag": "\"filetransfer\"",
+								"receive-to": "BinaryData"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SetStatus",
+							"sid": 773001515646595,
+							"parameters": [
+								"\"Receive completed: '\" & Multiplayer.Filename & \"' from '\" & Multiplayer.PeerAlias & \"'\""
+							]
+						},
+						{
+							"id": "set-progress",
+							"objectClass": "ProgressBar",
+							"sid": 276653763599026,
+							"parameters": {
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "DownloadButton",
+							"sid": 347396024781826,
+							"parameters": {
+								"mode": "enabled"
+							}
+						}
+					],
+					"sid": 246424831633107,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Only enable the 'Save as' button when the File System features are supported."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-supported",
+									"objectClass": "FileSystem",
+									"sid": 866549114081459
+								}
+							],
+							"actions": [
+								{
+									"id": "set-enabled",
+									"objectClass": "SaveAsButton",
+									"sid": 713485959370051,
+									"parameters": {
+										"mode": "enabled"
+									}
+								}
+							],
+							"sid": 468726186192019
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When the 'Download' button is clicked, invoke a download of the Binary Data's URL."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "DownloadButton",
+							"sid": 961292802201094
+						}
+					],
+					"actions": [
+						{
+							"id": "invoke-download",
+							"objectClass": "Browser",
+							"sid": 888001593628527,
+							"parameters": {
+								"url": "BinaryData.GetURL",
+								"filename": "Multiplayer.Filename"
+							}
+						}
+					],
+					"sid": 971434077628326
+				},
+				{
+					"eventType": "comment",
+					"text": "When the 'Save as' button is clicked, use a save file picker in the File System object. Once the picker is completed, write the Binary Data to the chosen file."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-clicked",
+							"objectClass": "SaveAsButton",
+							"sid": 520917906839429
+						}
+					],
+					"actions": [
+						{
+							"id": "show-save-file-picker",
+							"objectClass": "FileSystem",
+							"sid": 535289888999400,
+							"parameters": {
+								"picker-tag": "\"save-as\"",
+								"show-accept-all": true,
+								"suggested-name": "Multiplayer.Filename",
+								"id": "\"save-as\"",
+								"start-in": "default"
+							}
+						}
+					],
+					"sid": 756225966301019
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-picker-complete",
+							"objectClass": "FileSystem",
+							"sid": 810878954361064,
+							"parameters": {
+								"picker-tag": "\"save-as\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "write-binary-file",
+							"objectClass": "FileSystem",
+							"sid": 723302795258160,
+							"parameters": {
+								"picker-tag": "\"save-as\"",
+								"folder-path": "\"\"",
+								"file-tag": "\"\"",
+								"data": "BinaryData"
+							}
+						}
+					],
+					"sid": 814978078193029
+				}
+			],
+			"sid": 4715640273336146
+		}
+	],
+	"sid": 653061994218329
+}
