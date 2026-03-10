@@ -1,0 +1,3152 @@
+{
+	"name": "MenuEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Menu variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "canAccessMenu",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Can the player access the main menu?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 469669447590897
+		},
+		{
+			"eventType": "variable",
+			"name": "canClickMenuItems",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Can the player click menu items?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 852984697176494
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Initialization",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Run these things as soon as the game loads."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 603414629751541
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Freeze button sprites."
+						},
+						{
+							"id": "set-animation-speed",
+							"objectClass": "EnemySprite",
+							"sid": 121914093029363,
+							"parameters": {
+								"speed": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Level 1, toggle sound, and reset save game are always enabled."
+						},
+						{
+							"callFunction": "enableMenuButton",
+							"sid": 602403917904011,
+							"parameters": [
+								"0"
+							]
+						},
+						{
+							"callFunction": "enableMenuButton",
+							"sid": 448140147050392,
+							"parameters": [
+								"1"
+							]
+						},
+						{
+							"callFunction": "enableMenuButton",
+							"sid": 978680076278655,
+							"parameters": [
+								"4"
+							]
+						}
+					],
+					"sid": 947744985638727
+				}
+			],
+			"sid": 217440363846741
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Profile",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Request default profile file."
+				},
+				{
+					"functionName": "createNewProfile",
+					"functionDescription": "Create a new player profile.",
+					"functionCategory": "Profile",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 575306874305146,
+							"parameters": {
+								"tag": "\"DefaultProfile\"",
+								"file": {
+									"path": "DefaultProfile.json"
+								}
+							}
+						}
+					],
+					"sid": 669643457785291
+				},
+				{
+					"eventType": "comment",
+					"text": "Create new player profile, based on the default profile."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 946993016936930,
+							"parameters": {
+								"tag": "\"DefaultProfile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "DictProfile",
+							"sid": 514679579715944,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"callFunction": "saveProfile",
+							"sid": 971316128646661
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 536609080131997
+						},
+						{
+							"callFunction": "updateUI",
+							"sid": 611326592814445
+						}
+					],
+					"sid": 827730397569260
+				},
+				{
+					"eventType": "comment",
+					"text": "Save player profile."
+				},
+				{
+					"functionName": "saveProfile",
+					"functionDescription": "Save player profile.",
+					"functionCategory": "Profile",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": true,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-item",
+							"objectClass": "LocalStorage",
+							"sid": 387683825115825,
+							"parameters": {
+								"key": "\"Profile\"",
+								"value": "DictProfile.AsJSON"
+							}
+						}
+					],
+					"sid": 116469751833807
+				},
+				{
+					"eventType": "comment",
+					"text": "Update menu UI."
+				},
+				{
+					"functionName": "updateUI",
+					"functionDescription": "Update menu UI.",
+					"functionCategory": "Profile",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 392388456513516,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Sound is off."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-value",
+									"objectClass": "DictProfile",
+									"sid": 513531810380762,
+									"parameters": {
+										"key": "\"Sound\"",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "MenuButtonSoundIcon",
+									"sid": 294072252196330,
+									"parameters": {
+										"animation": "\"Off\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 789833208234920
+						},
+						{
+							"eventType": "comment",
+							"text": "Sound is on."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 329714863549371
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "MenuButtonSoundIcon",
+									"sid": 134344327256308,
+									"parameters": {
+										"animation": "\"On\"",
+										"from": "beginning"
+									}
+								}
+							],
+							"sid": 999766122481005
+						},
+						{
+							"eventType": "comment",
+							"text": "Enable levels."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-value",
+									"objectClass": "DictProfile",
+									"sid": 530797753868004,
+									"parameters": {
+										"key": "\"Level\"",
+										"comparison": 4,
+										"value": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "enableMenuButton",
+									"sid": 800083398174161,
+									"parameters": [
+										"3"
+									]
+								}
+							],
+							"sid": 826037254278552
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-value",
+									"objectClass": "DictProfile",
+									"sid": 491433733653220,
+									"parameters": {
+										"key": "\"Level\"",
+										"comparison": 4,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "enableMenuButton",
+									"sid": 190329507066593,
+									"parameters": [
+										"2"
+									]
+								}
+							],
+							"sid": 198485780434502
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Start player profile setup process."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 217148662769951
+						}
+					],
+					"actions": [
+						{
+							"id": "check-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 880251525982937,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"sid": 382377018617132
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player already has a profile, load it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 414366569525723,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "get-item",
+							"objectClass": "LocalStorage",
+							"sid": 201445088428149,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"sid": 709586668779194
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-get",
+							"objectClass": "LocalStorage",
+							"sid": 731422973289289,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "DictProfile",
+							"sid": 702879509545126,
+							"parameters": {
+								"json": "LocalStorage.ItemValue"
+							}
+						},
+						{
+							"callFunction": "updateUI",
+							"sid": 434502385990992
+						}
+					],
+					"sid": 669011503067012
+				},
+				{
+					"eventType": "comment",
+					"text": "Otherwise, create a new profile."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-missing",
+							"objectClass": "LocalStorage",
+							"sid": 933265645562020,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "createNewProfile",
+							"sid": 627385065184884
+						}
+					],
+					"sid": 681739350149385
+				}
+			],
+			"sid": 407226046416728
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Load Data",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Load projectiles data."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 172782551310677
+						}
+					],
+					"actions": [
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 529651935697074,
+							"parameters": {
+								"tag": "\"Projectiles\"",
+								"file": {
+									"path": "Projectiles.json"
+								}
+							}
+						}
+					],
+					"sid": 683074583049951
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 122990208419207,
+							"parameters": {
+								"tag": "\"Projectiles\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "ArrProjectiles",
+							"sid": 556032784866156,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						}
+					],
+					"sid": 621513194345663
+				}
+			],
+			"sid": 336922596473994
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Menu Crosshair",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup menu pointer."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 786407096014962,
+							"parameters": {
+								"variable": "canClickMenuItems"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 818912838385159,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Make the cross follow mouse position, clamped to screen area."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-movement",
+									"objectClass": "Mouse",
+									"sid": 820451270648720
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 273208796895458,
+									"parameters": {
+										"variable": "canClickMenuItems"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "Crosshair",
+									"sid": 544313308842293,
+									"parameters": {
+										"x": "clamp(Self.X + Mouse.MovementX * MOUSE_SENS, 0, LayoutWidth)",
+										"y": "clamp(Self.Y + Mouse.MovementY * MOUSE_SENS, 0, LayoutHeight)"
+									}
+								}
+							],
+							"sid": 360349501665555
+						},
+						{
+							"eventType": "comment",
+							"text": "Always request pointer lock on click."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-any-click",
+									"objectClass": "Mouse",
+									"sid": 101239007369402
+								}
+							],
+							"actions": [
+								{
+									"id": "request-pointer-lock",
+									"objectClass": "Mouse",
+									"sid": 808179931781082,
+									"parameters": {
+										"unadjusted-movement": false
+									}
+								}
+							],
+							"sid": 141792493323810
+						}
+					]
+				}
+			],
+			"sid": 560881151934759
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Titlescreen",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "BUTTON_Y_OFFSET",
+					"type": "number",
+					"initialValue": "250",
+					"comment": "Buttons will be moved up by this amount of pixels.",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 987109332961298
+				},
+				{
+					"eventType": "comment",
+					"text": "Go to the main menu."
+				},
+				{
+					"functionName": "goToMainMenu",
+					"functionDescription": "Go to the main menu.",
+					"functionCategory": "Menu",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Player just accessed the main menu."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 863322295134626,
+							"parameters": {
+								"variable": "canAccessMenu",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Stop flashing \"Click Anywhere\" text."
+						},
+						{
+							"id": "stop-flashing",
+							"objectClass": "TextClickAnywhere",
+							"sid": 994318875124736,
+							"behaviorType": "Flash"
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "TextClickAnywhere",
+							"sid": 893952432979413,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show opaque title and full mask."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "MenuOpqueTitle",
+							"sid": 625382653603953,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowTitle\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "MenuFullMask",
+							"sid": 459170220630322,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFullMask\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move opaque title to the top of the screen."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 550592157526900
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "MenuOpqueTitle",
+							"sid": 307793254929628,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"MoveTitle\"",
+								"property": "offsetY",
+								"end-value": "68",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "MenuOpqueTitle",
+							"sid": 548044882964438,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScaleTitleDown\"",
+								"property": "scale",
+								"end-x": "0.5",
+								"end-y": "0.5",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 784539200211239,
+							"parameters": {
+								"seconds": "0.25",
+								"use-timescale": true
+							}
+						}
+					],
+					"sid": 545757023416357,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Show buttons."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 410063303284635,
+									"parameters": {
+										"object": "MenuButton",
+										"expression": "MenuButton.buttonID",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "MenuButton",
+									"sid": 413058935212747,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveToCenter\"",
+										"property": "offsetY",
+										"end-value": "Self.Y - BUTTON_Y_OFFSET",
+										"time": "0.35",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 332363675740859
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 127173150261262,
+									"parameters": {
+										"object": "MenuButton",
+										"expression": "MenuButton.buttonID",
+										"comparison": 0,
+										"value": "2"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 501538241676782,
+									"parameters": {
+										"seconds": "0.1",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "MenuButton",
+									"sid": 751504082104691,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveToCenter\"",
+										"property": "offsetY",
+										"end-value": "Self.Y - BUTTON_Y_OFFSET",
+										"time": "0.35",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 927560346892459
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 897602771141692,
+									"parameters": {
+										"object": "MenuButton",
+										"expression": "MenuButton.buttonID",
+										"comparison": 0,
+										"value": "3"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 153662619651597,
+									"parameters": {
+										"seconds": "0.2",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "MenuButton",
+									"sid": 703091932775181,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveToCenter\"",
+										"property": "offsetY",
+										"end-value": "Self.Y - BUTTON_Y_OFFSET",
+										"time": "0.35",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 451864941308929
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 365088340142761,
+									"parameters": {
+										"object": "MenuButton",
+										"expression": "MenuButton.buttonID",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 886028376802226,
+									"parameters": {
+										"seconds": "0.3",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "MenuButton",
+									"sid": 235160954914299,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveToCenter\"",
+										"property": "offsetY",
+										"end-value": "Self.Y - BUTTON_Y_OFFSET",
+										"time": "0.35",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 651220271904491,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 746536195283576,
+									"parameters": {
+										"object": "MenuButton",
+										"expression": "MenuButton.buttonID",
+										"comparison": 0,
+										"value": "4"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 245360147067041,
+									"parameters": {
+										"seconds": "0.3",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "MenuButton",
+									"sid": 238671610133103,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveToCenter\"",
+										"property": "offsetY",
+										"end-value": "Self.Y - BUTTON_Y_OFFSET",
+										"time": "0.35",
+										"ease": "easeoutback",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 255301007189409,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Enable crosshair and interaction."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 765696769950554,
+									"parameters": {
+										"seconds": "0.65",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Crosshair",
+									"sid": 224111784761292,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowCrosshair\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.2",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 215269430214351,
+									"parameters": {
+										"variable": "canClickMenuItems",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 140816189911813
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup title screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 112340327051935
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Show title."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "MenuMaskTitle",
+							"sid": 840041448836387,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowTitle\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "1.25",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "MenuMaskTitle",
+							"sid": 544808920659297,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScaleTitle\"",
+								"property": "scale",
+								"end-x": "1",
+								"end-y": "1",
+								"time": "1.25",
+								"ease": "easeoutback",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 504578628476602,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Spawn enemy sprites."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-ordered",
+									"objectClass": "System",
+									"sid": 197811286678964,
+									"parameters": {
+										"object": "Enemy",
+										"expression": "Enemy.Y",
+										"order": "ascending"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Enemy",
+									"sid": 208072719906573,
+									"parameters": {
+										"object": "EnemySprite",
+										"layer": "\"Entities\"",
+										"image-point": "0",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "EnemySprite",
+									"sid": 999494208885935,
+									"parameters": {
+										"width": "choose(-1, 1) * EnemySprite.ImageWidth"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "EnemySprite",
+									"sid": 791717148657541,
+									"parameters": {
+										"animation": "Enemy.TemplateName",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "EnemySprite",
+									"sid": 105758886114473,
+									"parameters": {
+										"frame-number": "int(random(Self.AnimationFrameCount))"
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "Enemy",
+									"sid": 647539833485377,
+									"parameters": {
+										"child": "EnemySprite",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": true,
+										"transform-h": true,
+										"transform-a": true,
+										"transform-o": false,
+										"transform-z-elevation": true,
+										"transform-visibility": false,
+										"destroy-with-parent": true
+									}
+								}
+							],
+							"sid": 250243246982274
+						},
+						{
+							"eventType": "comment",
+							"text": "Add all enemies as children of the background."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "add-child",
+									"objectClass": "MenuBackground",
+									"sid": 867744659294461,
+									"parameters": {
+										"child": "Enemy",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-o": true,
+										"transform-z-elevation": false,
+										"transform-visibility": false,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "MenuBackground",
+									"sid": 778136905269857,
+									"parameters": {
+										"child": "MenuDecoration",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": false,
+										"transform-o": true,
+										"transform-z-elevation": false,
+										"transform-visibility": false,
+										"destroy-with-parent": true
+									}
+								}
+							],
+							"sid": 966371717196960
+						},
+						{
+							"eventType": "comment",
+							"text": "Show \"Click anywhere\" text."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 598116084869257,
+									"parameters": {
+										"seconds": "1.25",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "flash",
+									"objectClass": "TextClickAnywhere",
+									"sid": 201679853623858,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.3",
+										"off-time": "0.2",
+										"duration": "Infinity"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 950809952332725,
+									"parameters": {
+										"variable": "canAccessMenu",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 274110409045963
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Request pointer lock and go to the main menu."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-any-click",
+							"objectClass": "Mouse",
+							"sid": 785005903438035
+						}
+					],
+					"actions": [
+						{
+							"id": "request-pointer-lock",
+							"objectClass": "Mouse",
+							"sid": 771472554249085,
+							"parameters": {
+								"unadjusted-movement": false
+							}
+						},
+						{
+							"id": "set-cursor-style2",
+							"objectClass": "Mouse",
+							"sid": 296703053831753,
+							"parameters": {
+								"cursor-style": "none"
+							}
+						}
+					],
+					"sid": 894242485928725,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the player already has the pointer locked, go to the main menu."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "has-pointer-lock",
+									"objectClass": "Mouse",
+									"sid": 223817570865405
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 301817784947644,
+									"parameters": {
+										"variable": "canAccessMenu"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "goToMainMenu",
+									"sid": 572655972324249
+								}
+							],
+							"sid": 696516133912377
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-tag-playing",
+									"objectClass": "Audio",
+									"sid": 657125170890106,
+									"parameters": {
+										"tag": "\"BGM\""
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 895817016156487,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Play music (if enabled)."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-value",
+											"objectClass": "DictProfile",
+											"sid": 756772369696359,
+											"parameters": {
+												"key": "\"Sound\"",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playBGM",
+											"sid": 507552878403940,
+											"parameters": [
+												"\"CrystalCave\"",
+												true,
+												"0"
+											]
+										}
+									],
+									"sid": 407652486899439
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 327519142065998
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playBGM",
+											"sid": 149242359492326,
+											"parameters": [
+												"\"CrystalCave\"",
+												true,
+												"0"
+											]
+										},
+										{
+											"callFunction": "fadeBGM",
+											"sid": 377391302809861,
+											"parameters": [
+												true,
+												"0.5"
+											]
+										}
+									],
+									"sid": 762212771203194
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When the cursor gets locked, go to the main menu."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-pointer-locked",
+							"objectClass": "Mouse",
+							"sid": 447704971627185
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 337617214874918,
+							"parameters": {
+								"variable": "canAccessMenu"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "goToMainMenu",
+							"sid": 535432862699615
+						}
+					],
+					"sid": 399920200597568
+				}
+			],
+			"sid": 102382821572555
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Main Menu",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Main Menu Effects",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Scroll menu button backgrounds."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 202426969455433,
+									"parameters": {
+										"object": "MenuButtonBGs",
+										"expression": "MenuButtonBGs.enabled"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-image-offset-y",
+									"objectClass": "MenuButtonBGs",
+									"sid": 135692212281115,
+									"parameters": {
+										"offset-y": "Self.ImageOffsetY - 10 * dt"
+									}
+								}
+							],
+							"sid": 730053934629575
+						}
+					],
+					"sid": 159029140063023
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Main Menu Functions",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Enable a given menu button."
+						},
+						{
+							"functionName": "enableMenuButton",
+							"functionDescription": "Enable a given menu button.",
+							"functionCategory": "Menu",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "buttonID",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Button identification number.",
+									"sid": 582711637173983
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 490615737295332,
+									"parameters": {
+										"object": "MenuButton",
+										"expression": "MenuButton.buttonID",
+										"comparison": 0,
+										"value": "buttonID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "MenuButton",
+									"sid": 963071196256314,
+									"parameters": {
+										"instance-variable": "enabled",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "MenuButton",
+									"sid": 870646309544402,
+									"parameters": {
+										"frame-number": "1"
+									}
+								}
+							],
+							"sid": 343762288129394,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "MenuButton",
+											"sid": 838092474841429,
+											"parameters": {
+												"child": "MenuButtonBGs",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-effect-parameter",
+											"objectClass": "MenuButtonBGs",
+											"sid": 741766498464532,
+											"parameters": {
+												"effect": "\"AdjustHSL\"",
+												"parameter-index": "1",
+												"value": "100"
+											}
+										}
+									],
+									"sid": 189254560041595
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "MenuButton",
+											"sid": 762086238248779,
+											"parameters": {
+												"child": "MenuButtonFader",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-opacity",
+											"objectClass": "MenuButtonFader",
+											"sid": 329631794506548,
+											"parameters": {
+												"opacity": "Self.normalOpacity"
+											}
+										}
+									],
+									"sid": 536958223350939
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "MenuButton",
+											"sid": 657107258881597,
+											"parameters": {
+												"child": "EnemySprite",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-effect-parameter",
+											"objectClass": "EnemySprite",
+											"sid": 874941978199490,
+											"parameters": {
+												"effect": "\"AdjustHSL\"",
+												"parameter-index": "1",
+												"value": "100"
+											}
+										}
+									],
+									"sid": 751874824981160
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "MenuButton",
+											"sid": 775561428583622,
+											"parameters": {
+												"child": "TextButtonDesc",
+												"which": "own"
+											}
+										},
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 835755394011494,
+											"parameters": {
+												"object": "TextButtonDesc",
+												"expression": "TextButtonDesc.TagAt(0)",
+												"comparison": 0,
+												"value": "\"description\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "TextButtonDesc",
+											"sid": 907067667471804,
+											"parameters": {
+												"text": "replace(Self.trueText, \"_\", newline)"
+											}
+										}
+									],
+									"sid": 907340593807009
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Reset save game."
+						},
+						{
+							"functionName": "resetSaveGame",
+							"functionDescription": "Reset save game.",
+							"functionCategory": "Menu",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Disable interaction."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 273884875524877,
+									"parameters": {
+										"variable": "canClickMenuItems",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show fader."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 167131246919295,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Reset profile."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 812058500199154
+								},
+								{
+									"id": "clear-storage",
+									"objectClass": "LocalStorage",
+									"sid": 762949905304027
+								},
+								{
+									"type": "comment",
+									"text": "Restart the game."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 372358008205753
+								},
+								{
+									"id": "restart-layout",
+									"objectClass": "System",
+									"sid": 935715074003544
+								},
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 506242751928531,
+									"parameters": {
+										"reset-static": true
+									}
+								}
+							],
+							"sid": 383724592886709
+						},
+						{
+							"eventType": "comment",
+							"text": "Go to a given level."
+						},
+						{
+							"functionName": "goToLevel",
+							"functionDescription": "Go to a given level.",
+							"functionCategory": "Menu",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "level",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Level number.",
+									"sid": 215391332390703
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Fade out BGM."
+								},
+								{
+									"callFunction": "fadeBGM",
+									"sid": 414903480396707,
+									"parameters": [
+										false,
+										"0.5"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Show fader."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 890708545654794,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 744532971313506
+								},
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 206871116981565,
+									"parameters": {
+										"reset-static": true
+									}
+								}
+							],
+							"sid": 243648545450951,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Level 3."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 370465665886511,
+											"parameters": {
+												"variable": "level",
+												"comparison": 0,
+												"value": "3"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 757940172888642,
+											"parameters": {
+												"variable": "currLevel",
+												"value": "3"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 335409689989531,
+											"parameters": {
+												"variable": "enemyFaction",
+												"value": "\"Undead\""
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 450867218546152,
+											"parameters": {
+												"variable": "world",
+												"value": "\"Cemetery\""
+											}
+										}
+									],
+									"sid": 997297098205111
+								},
+								{
+									"eventType": "comment",
+									"text": "Level 2."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 854030395483892
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 775688225107492,
+											"parameters": {
+												"variable": "level",
+												"comparison": 0,
+												"value": "2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 460773895826258,
+											"parameters": {
+												"variable": "currLevel",
+												"value": "2"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 579693685954867,
+											"parameters": {
+												"variable": "enemyFaction",
+												"value": "\"Naga\""
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 539661450117570,
+											"parameters": {
+												"variable": "world",
+												"value": "\"Abyssal\""
+											}
+										}
+									],
+									"sid": 329924411348283
+								},
+								{
+									"eventType": "comment",
+									"text": "Level 1 (also fallback)."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 662813714866925
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 471196828793795,
+											"parameters": {
+												"variable": "currLevel",
+												"value": "1"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 341697240493699,
+											"parameters": {
+												"variable": "enemyFaction",
+												"value": "\"Orc\""
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 112240596340300,
+											"parameters": {
+												"variable": "world",
+												"value": "\"Forest\""
+											}
+										}
+									],
+									"sid": 817271065427260
+								},
+								{
+									"eventType": "comment",
+									"text": "Go to the game."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"callFunction": "stopBGM",
+											"sid": 621812163675319
+										},
+										{
+											"id": "go-to-layout",
+											"objectClass": "System",
+											"sid": 408462202940733,
+											"parameters": {
+												"layout": "Game"
+											}
+										}
+									],
+									"sid": 593181603275980
+								}
+							]
+						}
+					],
+					"sid": 997517449199120
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Main Menu Interactions",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Reset tip text."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 941695174474722
+								}
+							],
+							"actions": [
+								{
+									"id": "set-text",
+									"objectClass": "TextMenuTip",
+									"sid": 462749095583656,
+									"parameters": {
+										"text": "\"\""
+									}
+								}
+							],
+							"sid": 339077207360286
+						},
+						{
+							"eventType": "comment",
+							"text": "First, check if the player can interact with the menu."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 881371192693652,
+									"parameters": {
+										"variable": "canClickMenuItems"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "MenuButton",
+									"sid": 357902243054693,
+									"parameters": {
+										"instance-variable": "enabled"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 763625817558411,
+							"children": [
+								{
+									"eventType": "group",
+									"disabled": false,
+									"title": "Main Menu Hover",
+									"description": "",
+									"isActiveOnStart": true,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Check which button the player is hovering over and set the animations accordingly."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for-each",
+													"objectClass": "System",
+													"sid": 463123630397386,
+													"parameters": {
+														"object": "MenuButton"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 948070661587479,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Player is hovering the pointer over this button."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "is-overlapping-another-object",
+															"objectClass": "Crosshair",
+															"sid": 857754332733669,
+															"parameters": {
+																"object": "MenuButton"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-animation-frame",
+															"objectClass": "MenuButton",
+															"sid": 472578766300783,
+															"parameters": {
+																"frame-number": "2"
+															}
+														},
+														{
+															"id": "set-text",
+															"objectClass": "TextMenuTip",
+															"sid": 590707342680499,
+															"parameters": {
+																"text": "MenuButton.tipText"
+															}
+														}
+													],
+													"sid": 986964063319852,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-children",
+																	"objectClass": "MenuButton",
+																	"sid": 960853661751538,
+																	"parameters": {
+																		"child": "MenuButtonFader",
+																		"which": "own"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-opacity",
+																	"objectClass": "MenuButtonFader",
+																	"sid": 127949146019494,
+																	"parameters": {
+																		"opacity": "0"
+																	}
+																}
+															],
+															"sid": 218019678634970
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-children",
+																	"objectClass": "MenuButton",
+																	"sid": 779595850760143,
+																	"parameters": {
+																		"child": "EnemySprite",
+																		"which": "own"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-animation-speed",
+																	"objectClass": "EnemySprite",
+																	"sid": 239633580422357,
+																	"parameters": {
+																		"speed": "10"
+																	}
+																}
+															],
+															"sid": 293411096276660
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-children",
+																	"objectClass": "MenuButton",
+																	"sid": 767239716498530,
+																	"parameters": {
+																		"child": "MenuButtonBGs",
+																		"which": "own"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-boolean-instvar",
+																	"objectClass": "MenuButtonBGs",
+																	"sid": 599641707096325,
+																	"parameters": {
+																		"instance-variable": "enabled",
+																		"value": "true"
+																	}
+																}
+															],
+															"sid": 214735809489737
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-children",
+																	"objectClass": "MenuButton",
+																	"sid": 867513620063825,
+																	"parameters": {
+																		"child": "MenuButtonSoundIcon",
+																		"which": "own"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-animation-frame",
+																	"objectClass": "MenuButtonSoundIcon",
+																	"sid": 120225842066950,
+																	"parameters": {
+																		"frame-number": "1"
+																	}
+																}
+															],
+															"sid": 525142753494406
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-children",
+																	"objectClass": "MenuButton",
+																	"sid": 273588624143829,
+																	"parameters": {
+																		"child": "MenuButtonResetIcon",
+																		"which": "own"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-animation-frame",
+																	"objectClass": "MenuButtonResetIcon",
+																	"sid": 395168602481569,
+																	"parameters": {
+																		"frame-number": "1"
+																	}
+																}
+															],
+															"sid": 423147792168435
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "trigger-once-while-true",
+																	"objectClass": "System",
+																	"sid": 617747181337154
+																}
+															],
+															"actions": [
+																{
+																	"callFunction": "playSFX",
+																	"sid": 990090099220545,
+																	"parameters": [
+																		"\"MenuHover\"",
+																		"\"SFX MenuHover\"",
+																		"0",
+																		"1"
+																	]
+																}
+															],
+															"sid": 312862594184662
+														}
+													]
+												},
+												{
+													"eventType": "comment",
+													"text": "Player is not hovering the mouse over this button."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 132462190666073
+														},
+														{
+															"id": "is-overlapping-another-object",
+															"objectClass": "Crosshair",
+															"sid": 900467521198624,
+															"parameters": {
+																"object": "MenuButton"
+															},
+															"isInverted": true
+														}
+													],
+													"actions": [
+														{
+															"id": "set-animation-frame",
+															"objectClass": "MenuButton",
+															"sid": 818505197567058,
+															"parameters": {
+																"frame-number": "1"
+															}
+														}
+													],
+													"sid": 361156144428954,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-children",
+																	"objectClass": "MenuButton",
+																	"sid": 632051233755063,
+																	"parameters": {
+																		"child": "MenuButtonFader",
+																		"which": "own"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-opacity",
+																	"objectClass": "MenuButtonFader",
+																	"sid": 727347709436303,
+																	"parameters": {
+																		"opacity": "Self.normalOpacity"
+																	}
+																}
+															],
+															"sid": 825972305763386
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-children",
+																	"objectClass": "MenuButton",
+																	"sid": 775718255537229,
+																	"parameters": {
+																		"child": "EnemySprite",
+																		"which": "own"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-animation-speed",
+																	"objectClass": "EnemySprite",
+																	"sid": 974610053206170,
+																	"parameters": {
+																		"speed": "0"
+																	}
+																}
+															],
+															"sid": 633468678238313
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-children",
+																	"objectClass": "MenuButton",
+																	"sid": 632433796563782,
+																	"parameters": {
+																		"child": "MenuButtonBGs",
+																		"which": "own"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-boolean-instvar",
+																	"objectClass": "MenuButtonBGs",
+																	"sid": 857167985340314,
+																	"parameters": {
+																		"instance-variable": "enabled",
+																		"value": "false"
+																	}
+																}
+															],
+															"sid": 826247227896320
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-children",
+																	"objectClass": "MenuButton",
+																	"sid": 786804132984779,
+																	"parameters": {
+																		"child": "MenuButtonSoundIcon",
+																		"which": "own"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-animation-frame",
+																	"objectClass": "MenuButtonSoundIcon",
+																	"sid": 787195187025815,
+																	"parameters": {
+																		"frame-number": "0"
+																	}
+																}
+															],
+															"sid": 163528508846657
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-children",
+																	"objectClass": "MenuButton",
+																	"sid": 845951552112826,
+																	"parameters": {
+																		"child": "MenuButtonResetIcon",
+																		"which": "own"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-animation-frame",
+																	"objectClass": "MenuButtonResetIcon",
+																	"sid": 717041208118455,
+																	"parameters": {
+																		"frame-number": "0"
+																	}
+																}
+															],
+															"sid": 680678985441449
+														}
+													]
+												}
+											]
+										}
+									],
+									"sid": 892041946826497
+								},
+								{
+									"eventType": "group",
+									"disabled": false,
+									"title": "Main Menu Click",
+									"description": "",
+									"isActiveOnStart": true,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Player clicked a button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-click",
+													"objectClass": "Mouse",
+													"sid": 909223173548656,
+													"parameters": {
+														"mouse-button": "left",
+														"click-type": "clicked"
+													}
+												},
+												{
+													"id": "for-each",
+													"objectClass": "System",
+													"sid": 334641558072410,
+													"parameters": {
+														"object": "MenuButton"
+													}
+												},
+												{
+													"id": "is-overlapping-another-object",
+													"objectClass": "Crosshair",
+													"sid": 951463044953879,
+													"parameters": {
+														"object": "MenuButton"
+													}
+												},
+												{
+													"id": "is-processing-gets",
+													"objectClass": "LocalStorage",
+													"sid": 818824104897539,
+													"isInverted": true
+												},
+												{
+													"id": "is-processing-sets",
+													"objectClass": "LocalStorage",
+													"sid": 315300718852332,
+													"isInverted": true
+												}
+											],
+											"actions": [],
+											"sid": 199516998663996,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Toggle sound button."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "MenuButton",
+															"sid": 573724852036996,
+															"parameters": {
+																"instance-variable": "buttonID",
+																"comparison": 0,
+																"value": "0"
+															}
+														},
+														{
+															"id": "pick-children",
+															"objectClass": "MenuButton",
+															"sid": 851843791067208,
+															"parameters": {
+																"child": "MenuButtonSoundIcon",
+																"which": "own"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 383292922985394,
+													"children": [
+														{
+															"eventType": "comment",
+															"text": "Enable sound."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "compare-value",
+																	"objectClass": "DictProfile",
+																	"sid": 984888221323589,
+																	"parameters": {
+																		"key": "\"Sound\"",
+																		"comparison": 0,
+																		"value": "0"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-key",
+																	"objectClass": "DictProfile",
+																	"sid": 366079488749362,
+																	"parameters": {
+																		"key": "\"Sound\"",
+																		"value": "1"
+																	}
+																},
+																{
+																	"id": "set-animation",
+																	"objectClass": "MenuButtonSoundIcon",
+																	"sid": 241278776241380,
+																	"parameters": {
+																		"animation": "\"On\"",
+																		"from": "beginning"
+																	}
+																},
+																{
+																	"callFunction": "fadeBGM",
+																	"sid": 330382231769142,
+																	"parameters": [
+																		true,
+																		"0.1"
+																	]
+																},
+																{
+																	"callFunction": "saveProfile",
+																	"sid": 944377064019313
+																},
+																{
+																	"callFunction": "playSFX",
+																	"sid": 687468546083991,
+																	"parameters": [
+																		"\"MenuClick\"",
+																		"\"SFX MenuClick\"",
+																		"0",
+																		"1"
+																	]
+																}
+															],
+															"sid": 736894162793915
+														},
+														{
+															"eventType": "comment",
+															"text": "Disable sound."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "else",
+																	"objectClass": "System",
+																	"sid": 351616950266614
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-key",
+																	"objectClass": "DictProfile",
+																	"sid": 108917120121262,
+																	"parameters": {
+																		"key": "\"Sound\"",
+																		"value": "0"
+																	}
+																},
+																{
+																	"id": "set-animation",
+																	"objectClass": "MenuButtonSoundIcon",
+																	"sid": 382607845142666,
+																	"parameters": {
+																		"animation": "\"Off\"",
+																		"from": "beginning"
+																	}
+																},
+																{
+																	"callFunction": "fadeBGM",
+																	"sid": 444838528743891,
+																	"parameters": [
+																		false,
+																		"0.1"
+																	]
+																},
+																{
+																	"callFunction": "saveProfile",
+																	"sid": 291467053985482
+																}
+															],
+															"sid": 737421623737834
+														}
+													]
+												},
+												{
+													"eventType": "comment",
+													"text": "Level 1 button."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "MenuButton",
+															"sid": 270079767617104,
+															"parameters": {
+																"instance-variable": "buttonID",
+																"comparison": 0,
+																"value": "1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-boolean-eventvar",
+															"objectClass": "System",
+															"sid": 731194677046987,
+															"parameters": {
+																"variable": "canClickMenuItems",
+																"value": "false"
+															}
+														},
+														{
+															"callFunction": "playSFX",
+															"sid": 520670454364767,
+															"parameters": [
+																"\"MenuAccept\"",
+																"\"SFX MenuAccept\"",
+																"0",
+																"1"
+															]
+														},
+														{
+															"callFunction": "goToLevel",
+															"sid": 200576485750749,
+															"parameters": [
+																"1"
+															]
+														}
+													],
+													"sid": 564022021677930
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "MenuButton",
+															"sid": 990368539355080,
+															"parameters": {
+																"instance-variable": "buttonID",
+																"comparison": 0,
+																"value": "2"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-boolean-eventvar",
+															"objectClass": "System",
+															"sid": 516258052913608,
+															"parameters": {
+																"variable": "canClickMenuItems",
+																"value": "false"
+															}
+														},
+														{
+															"callFunction": "playSFX",
+															"sid": 374961974517762,
+															"parameters": [
+																"\"MenuAccept\"",
+																"\"SFX MenuAccept\"",
+																"0",
+																"1"
+															]
+														},
+														{
+															"callFunction": "goToLevel",
+															"sid": 570662647545218,
+															"parameters": [
+																"2"
+															]
+														}
+													],
+													"sid": 304125376783131
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "MenuButton",
+															"sid": 573885961415662,
+															"parameters": {
+																"instance-variable": "buttonID",
+																"comparison": 0,
+																"value": "3"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-boolean-eventvar",
+															"objectClass": "System",
+															"sid": 420670474379472,
+															"parameters": {
+																"variable": "canClickMenuItems",
+																"value": "false"
+															}
+														},
+														{
+															"callFunction": "playSFX",
+															"sid": 932628085433484,
+															"parameters": [
+																"\"MenuAccept\"",
+																"\"SFX MenuAccept\"",
+																"0",
+																"1"
+															]
+														},
+														{
+															"callFunction": "goToLevel",
+															"sid": 192197385086045,
+															"parameters": [
+																"3"
+															]
+														}
+													],
+													"sid": 229262546709024
+												},
+												{
+													"eventType": "comment",
+													"text": "Reset sound button."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "MenuButton",
+															"sid": 696803543390005,
+															"parameters": {
+																"instance-variable": "buttonID",
+																"comparison": 0,
+																"value": "4"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-boolean-instvar",
+															"objectClass": "MenuButton",
+															"sid": 528463940787339,
+															"parameters": {
+																"instance-variable": "holdingReset",
+																"value": "true"
+															}
+														},
+														{
+															"callFunction": "playSFX",
+															"sid": 146852111062882,
+															"parameters": [
+																"\"MenuClick\"",
+																"\"SFX MenuClick\"",
+																"0",
+																"1"
+															]
+														}
+													],
+													"sid": 661854783430029
+												}
+											]
+										}
+									],
+									"sid": 961194777591127
+								},
+								{
+									"eventType": "group",
+									"disabled": false,
+									"title": "Main Menu Hold",
+									"description": "",
+									"isActiveOnStart": true,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Check for interaction with the reset button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 416647998256689,
+													"parameters": {
+														"object": "MenuButton",
+														"expression": "MenuButton.buttonID",
+														"comparison": 0,
+														"value": "4"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 482725679032115,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Player is holding the reset button."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "mouse-button-is-down",
+															"objectClass": "Mouse",
+															"sid": 673362831923077,
+															"parameters": {
+																"mouse-button": "left"
+															}
+														},
+														{
+															"id": "is-overlapping-another-object",
+															"objectClass": "Crosshair",
+															"sid": 841524084373929,
+															"parameters": {
+																"object": "MenuButton"
+															}
+														},
+														{
+															"id": "is-boolean-instance-variable-set",
+															"objectClass": "MenuButton",
+															"sid": 488996860759169,
+															"parameters": {
+																"instance-variable": "holdingReset"
+															}
+														},
+														{
+															"id": "pick-children",
+															"objectClass": "MenuButton",
+															"sid": 880718849948608,
+															"parameters": {
+																"child": "MenuButtonResetAnim",
+																"which": "own"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-animation",
+															"objectClass": "MenuButtonResetAnim",
+															"sid": 913312795034730,
+															"parameters": {
+																"animation": "\"On\"",
+																"from": "current-frame"
+															}
+														}
+													],
+													"sid": 342537648937291
+												},
+												{
+													"eventType": "comment",
+													"text": "Player is not holding the reset button."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 950505023879919
+														}
+													],
+													"actions": [
+														{
+															"id": "set-animation",
+															"objectClass": "MenuButtonResetAnim",
+															"sid": 740293506417884,
+															"parameters": {
+																"animation": "\"Off\"",
+																"from": "beginning"
+															}
+														},
+														{
+															"id": "set-boolean-instvar",
+															"objectClass": "MenuButton",
+															"sid": 694246847223379,
+															"parameters": {
+																"instance-variable": "holdingReset",
+																"value": "false"
+															}
+														}
+													],
+													"sid": 919411070540282
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Reset save game."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-animation-playing",
+													"objectClass": "MenuButtonResetAnim",
+													"sid": 561538463287582,
+													"parameters": {
+														"animation": "\"On\""
+													}
+												},
+												{
+													"id": "compare-animation-frame",
+													"objectClass": "MenuButtonResetAnim",
+													"sid": 301658107209319,
+													"parameters": {
+														"comparison": 5,
+														"number": "Self.AnimationFrameCount - 1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "resetSaveGame",
+													"sid": 654842148632585
+												},
+												{
+													"callFunction": "playSFX",
+													"sid": 943083989923635,
+													"parameters": [
+														"\"MenuAccept\"",
+														"\"SFX MenuAccept\"",
+														"0",
+														"1"
+													]
+												}
+											],
+											"sid": 339489873304065
+										}
+									],
+									"sid": 975590385763889
+								}
+							]
+						}
+					],
+					"sid": 188318273206989
+				}
+			],
+			"sid": 915236451126164
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Menu Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "CAMERA_SPEED",
+					"type": "number",
+					"initialValue": "10",
+					"comment": "Camera speed.",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 109977319963061
+				},
+				{
+					"eventType": "variable",
+					"name": "SCANLINES_SPEED",
+					"type": "number",
+					"initialValue": "10",
+					"comment": "Scanlines speed.",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 625710197379800
+				},
+				{
+					"eventType": "variable",
+					"name": "currAngle",
+					"type": "number",
+					"initialValue": "60",
+					"comment": "Current camera angle",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 132382984782205
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the background and everything attached to it, so that it feels like the camera is moving."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 798550194185506
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Move background."
+						},
+						{
+							"id": "set-position",
+							"objectClass": "MenuBackground",
+							"sid": 585136587075423,
+							"parameters": {
+								"x": "LayoutWidth/2 + cos(currAngle - 60) * 480",
+								"y": "LayoutHeight/2 + sin(currAngle - 60) * 480"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Change current angle from the center."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 797670181067501,
+							"parameters": {
+								"variable": "currAngle",
+								"value": "(currAngle + CAMERA_SPEED * dt) % 360"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Scroll scanlines."
+						},
+						{
+							"id": "set-image-offset-y",
+							"objectClass": "MenuScanlines",
+							"sid": 488049813354120,
+							"parameters": {
+								"offset-y": "Self.ImageOffsetY - SCANLINES_SPEED * dt"
+							}
+						}
+					],
+					"sid": 589319029492325,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Set tint color according to the current angle."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 515998433881576,
+									"parameters": {
+										"value": "currAngle <= 120"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-layer-effect-parameter",
+									"objectClass": "System",
+									"sid": 382526519870601,
+									"parameters": {
+										"layer": "\"TitleScreen\"",
+										"effect": "\"Tint\"",
+										"parameter-index": "0",
+										"value": "rgba255(\n    lerp(255, 0, currAngle / 120),\n    lerp(64, 255, currAngle / 120),\n    lerp(64, 127, currAngle / 120),\n    255\n)"
+									}
+								}
+							],
+							"sid": 398644137893229
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 211811158608098
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 700677303020464,
+									"parameters": {
+										"value": "currAngle <= 240"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-layer-effect-parameter",
+									"objectClass": "System",
+									"sid": 562563463728561,
+									"parameters": {
+										"layer": "\"TitleScreen\"",
+										"effect": "\"Tint\"",
+										"parameter-index": "0",
+										"value": "rgba255(\n    lerp(0, 255, (currAngle - 120) / 120),\n    lerp(255, 255, (currAngle - 120) / 120),\n    lerp(127, 0, (currAngle - 120) / 120),\n    255\n)"
+									}
+								}
+							],
+							"sid": 423402217825910
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 867257519203215
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 111487807898118,
+									"parameters": {
+										"value": "currAngle < 360"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-layer-effect-parameter",
+									"objectClass": "System",
+									"sid": 190271019168207,
+									"parameters": {
+										"layer": "\"TitleScreen\"",
+										"effect": "\"Tint\"",
+										"parameter-index": "0",
+										"value": "rgba255(\n    lerp(255, 255, (currAngle - 240) / 120),\n    lerp(255, 64, (currAngle - 240) / 120),\n    lerp(0, 64, (currAngle - 240) / 120),\n    255\n)"
+									}
+								}
+							],
+							"sid": 802123812908014
+						}
+					]
+				}
+			],
+			"sid": 850588018728027
+		}
+	],
+	"sid": 645260030264780
+}

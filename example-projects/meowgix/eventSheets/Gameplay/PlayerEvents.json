@@ -1,0 +1,1059 @@
+{
+	"name": "PlayerEvents",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Player",
+							"sid": 232599341522307
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Create player sprite."
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 390590524809457,
+							"parameters": {
+								"object": "PlayerSprite",
+								"layer": "\"Entities\"",
+								"image-point": "0",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "Player",
+							"sid": 352121798660791,
+							"parameters": {
+								"child": "PlayerSprite",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": true,
+								"transform-h": true,
+								"transform-a": true,
+								"transform-o": true,
+								"transform-z-elevation": true,
+								"transform-visibility": false,
+								"destroy-with-parent": true
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create player shadow."
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 877566299421746,
+							"parameters": {
+								"object": "PlayerShadow",
+								"layer": "\"Shadows\"",
+								"image-point": "0",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "add-child",
+							"objectClass": "PlayerSprite",
+							"sid": 977742817092422,
+							"parameters": {
+								"child": "PlayerShadow",
+								"transform-x": true,
+								"transform-y": true,
+								"transform-w": true,
+								"transform-h": true,
+								"transform-a": true,
+								"transform-o": true,
+								"transform-z-elevation": true,
+								"transform-visibility": false,
+								"destroy-with-parent": true
+							}
+						}
+					],
+					"sid": 517504226223154
+				}
+			],
+			"sid": 828143411561066
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Experience",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update experience bar."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 908190325290491
+						}
+					],
+					"actions": [
+						{
+							"id": "set-height",
+							"objectClass": "UIExperienceBar",
+							"sid": 298274154296036,
+							"parameters": {
+								"height": "clamp(lerp(Self.Height, Self.maxHeight * Player.exp/Player.maxExp, 5 * dt), 0, Self.maxHeight)"
+							}
+						}
+					],
+					"sid": 294250948595622
+				},
+				{
+					"eventType": "comment",
+					"text": "Get experience points."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Get Exp",
+					"objectClass": "Player",
+					"functionDescription": "Get experience points.",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "experience",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Experience to add.",
+							"sid": 329083061545454
+						}
+					],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 439654811274002,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player leveled up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 660948538699623,
+									"parameters": {
+										"value": "Player.exp + experience > Player.maxExp"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play level up sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 552327107324211,
+									"parameters": [
+										"\"LevelUp\"",
+										"\"SFX LevelUp\"",
+										"-4",
+										"1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Add 1 level."
+								},
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Player",
+									"sid": 695296974913056,
+									"parameters": {
+										"instance-variable": "level",
+										"value": "1"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextLevel",
+									"sid": 780507294437756,
+									"parameters": {
+										"text": "Player.level"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Reset experience."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 979791307998137,
+									"parameters": {
+										"instance-variable": "exp",
+										"value": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set new experience goal to level up."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 793171119641054,
+									"parameters": {
+										"instance-variable": "maxExp",
+										"value": "round(EXP_CURVE_A * Player.level^EXP_CURVE_P - EXP_CURVE_B * Player.level + EXP_CURVE_C)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show level up popup."
+								},
+								{
+									"callFunction": "showLevelUpPopup",
+									"sid": 277610393071346
+								}
+							],
+							"sid": 389709553495211
+						},
+						{
+							"eventType": "comment",
+							"text": "Player got more exp, but didn't level up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 580100410676860
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Player",
+									"sid": 592854092166808,
+									"parameters": {
+										"instance-variable": "exp",
+										"value": "experience"
+									}
+								}
+							],
+							"sid": 493020417526392
+						}
+					]
+				}
+			],
+			"sid": 861524350253597
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Health",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player got hit by an enemy."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Hit",
+					"objectClass": "Player",
+					"functionDescription": "Player got hit by an enemy.",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "damage",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Damage taken by the player.",
+							"sid": 705035042025442
+						}
+					],
+					"eventType": "custom-ace-block",
+					"conditions": [
+						{
+							"id": "pick-children",
+							"objectClass": "Player",
+							"sid": 604927597906130,
+							"parameters": {
+								"child": "PlayerSprite",
+								"which": "own"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 779802264492385,
+							"parameters": {
+								"instance-variable": "invulnerable"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 338108287148473,
+							"parameters": {
+								"instance-variable": "dead"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "shake",
+							"objectClass": "Camera",
+							"sid": 867283857461230,
+							"behaviorType": "ScrollTo",
+							"parameters": {
+								"magnitude": "CAM_SHAKE_MAGNITUDE",
+								"duration": "CAM_SHAKE_DURATION * 2",
+								"mode": "reducing-magnitude"
+							}
+						},
+						{
+							"callFunction": "playSFX",
+							"sid": 458637553067099,
+							"parameters": [
+								"\"PlayerHit\"",
+								"\"SFX PlayerHit\"",
+								"-4",
+								"random(0.95, 1.1)"
+							]
+						}
+					],
+					"sid": 880951352399199,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player survived the hit."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Player",
+									"sid": 950133405960915,
+									"parameters": {
+										"instance-variable": "hp",
+										"comparison": 4,
+										"value": "damage"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Player",
+									"sid": 680772746853571,
+									"parameters": {
+										"instance-variable": "hp",
+										"value": "damage"
+									}
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "PlayerSprite",
+									"sid": 606586142600177,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FlashPlayer\"",
+										"start-value": "100",
+										"end-value": "200",
+										"time": "0.1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "yes",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 627353621610763
+						},
+						{
+							"eventType": "comment",
+							"text": "Player died."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 363145303510172
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Game will show \"end of level\" screen."
+								},
+								{
+									"callFunction": "blockSFX",
+									"sid": 628522826015573
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 408891504671300,
+									"parameters": {
+										"variable": "endOfLevelScreen",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-time-scale",
+									"objectClass": "System",
+									"sid": 859383860046675,
+									"parameters": {
+										"time-scale": "1.0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Mark player as dead and invulnerable."
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 100265272636741,
+									"parameters": {
+										"instance-variable": "dead",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 554817807177984,
+									"parameters": {
+										"instance-variable": "invulnerable",
+										"value": "true"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Destroy projectiles and enemies."
+								},
+								{
+									"callFunction": "destroyAllPlayerProjectiles",
+									"sid": 430377795707386
+								},
+								{
+									"callFunction": "destroyAllEnemies",
+									"sid": 544324731299795
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "EnemyProjectile",
+									"sid": 912618881458742,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DestroyEnemyProjectiles\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set HP to zero."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 767236115732158,
+									"parameters": {
+										"instance-variable": "hp",
+										"value": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide player's sprite."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "PlayerSprite",
+									"sid": 702574134025729,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HidePlayer\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 277625584276406
+								},
+								{
+									"callFunction": "unblockSFX",
+									"sid": 844630234921139
+								},
+								{
+									"callFunction": "fadeBGM",
+									"sid": 590651221668333,
+									"parameters": [
+										false,
+										"0.1"
+									]
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 546178913149319,
+									"parameters": {
+										"seconds": "0.1",
+										"use-timescale": true
+									}
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 251987645174114,
+									"parameters": [
+										"\"Defeat\"",
+										"\"SFX Defeat\"",
+										"-4",
+										"1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Show Game Over screen."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 672173913245608,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextEnding",
+									"sid": 519930602489573,
+									"parameters": {
+										"text": "Self.gameOverMsg"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextEnding",
+									"sid": 635432360070718,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowGameOver\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 426338664691580,
+									"parameters": {
+										"seconds": "3",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextEnding",
+									"sid": 825828646047153,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideGameOver\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Restart the level."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 237158534942529
+								},
+								{
+									"callFunction": "goToLevel",
+									"sid": 945949466854017,
+									"parameters": [
+										"currLevel"
+									]
+								}
+							],
+							"sid": 515068372632962
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Flash the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "PlayerSprite",
+							"sid": 396592190337852,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FlashPlayer\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "PlayerSprite",
+							"sid": 895687059682431,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Self.Tween.Value(\"FlashPlayer\")"
+							}
+						}
+					],
+					"sid": 741609383035428
+				},
+				{
+					"eventType": "comment",
+					"text": "Update health bar."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 714007556659736
+						}
+					],
+					"actions": [
+						{
+							"id": "set-height",
+							"objectClass": "UIHealthbar",
+							"sid": 462257943958063,
+							"parameters": {
+								"height": "clamp(lerp(Self.Height, Self.maxHeight * Player.hp/Player.maxHp, 5 * dt), 0, Self.maxHeight)"
+							}
+						}
+					],
+					"sid": 428089109987600
+				}
+			],
+			"sid": 196018623661357
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player movement."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 619665408219003,
+							"parameters": {
+								"variable": "console"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 424222955967052,
+							"parameters": {
+								"instance-variable": "dead"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 883367235302944,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 240983000550664,
+									"parameters": {
+										"key": 65
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 963529358204392,
+									"parameters": {
+										"key": 37
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 710169349304031,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "left"
+									}
+								}
+							],
+							"sid": 616457691927077,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 654920366955243,
+									"parameters": {
+										"key": 68
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 766343996685010,
+									"parameters": {
+										"key": 39
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 162872240425505,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "right"
+									}
+								}
+							],
+							"sid": 499656489680590,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 622096161917550,
+									"parameters": {
+										"key": 87
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 346175869949965,
+									"parameters": {
+										"key": 38
+									}
+								}
+							],
+							"actions": [],
+							"sid": 902736486132175,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Player must always be below Y=48."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-y",
+											"objectClass": "Player",
+											"sid": 573159600793092,
+											"parameters": {
+												"comparison": 4,
+												"y-co-ordinate": "Functions.getScreenTop + 48"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "simulate-control",
+											"objectClass": "Player",
+											"sid": 307709513213875,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"control": "up"
+											}
+										}
+									],
+									"sid": 653266178239064
+								}
+							],
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 200242424936145,
+									"parameters": {
+										"key": 83
+									}
+								},
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 717684356927993,
+									"parameters": {
+										"key": 40
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "simulate-control",
+									"objectClass": "Player",
+									"sid": 556032949072263,
+									"behaviorType": "8Direction",
+									"parameters": {
+										"control": "down"
+									}
+								}
+							],
+							"sid": 291880236469897,
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Animate player sprite."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 395127944677934,
+							"parameters": {
+								"variable": "restrictCrosshair"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 397317198573334,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "pDirPrefix",
+							"type": "string",
+							"initialValue": "F",
+							"comment": "Prefix that decides the orientation of the current animation.",
+							"isStatic": true,
+							"isConstant": false,
+							"sid": 497382015460828
+						},
+						{
+							"eventType": "comment",
+							"text": "Set the player's orientation using the crosshair angle."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 728376338159613,
+									"parameters": {
+										"value": "angle(Player.X, Player.Y, Crosshair.X, LayerToLayerY(\"Crosshair\", \"Entities\", Crosshair.X, Crosshair.Y)) < -110"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 336613575039179,
+									"parameters": {
+										"variable": "pDirPrefix",
+										"value": "\"L\""
+									}
+								}
+							],
+							"sid": 519814239596584
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 425799647230281
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 770832873384114,
+									"parameters": {
+										"value": "angle(Player.X, Player.Y, Crosshair.X, LayerToLayerY(\"Crosshair\", \"Entities\", Crosshair.X, Crosshair.Y)) > -70"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 628858108322194,
+									"parameters": {
+										"variable": "pDirPrefix",
+										"value": "\"R\""
+									}
+								}
+							],
+							"sid": 257944845793258
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 629040462941271
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 289856786119575,
+									"parameters": {
+										"variable": "pDirPrefix",
+										"value": "\"F\""
+									}
+								}
+							],
+							"sid": 985971308339228
+						},
+						{
+							"eventType": "comment",
+							"text": "Play walk animation and turn the player according to where the crosshair is pointed."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 324946303507433
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerSprite",
+									"sid": 663485217694348,
+									"parameters": {
+										"animation": "pDirPrefix & \"_Walk\"",
+										"from": "current-frame"
+									}
+								}
+							],
+							"sid": 223844794350263
+						}
+					]
+				}
+			],
+			"sid": 581887670926009
+		}
+	],
+	"sid": 597700265474724
+}

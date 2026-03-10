@@ -1,6 +1,6 @@
 
-import Globals from "./globals.js";
-import { MultiEventHandler } from "./multiEventHandler.js";
+import Globals from "./globals.ts";
+import { MultiEventHandler } from "./multiEventHandler.ts";
 
 // The RoomLayoutManager class is created for the Room layout.
 export class RoomLayoutManager

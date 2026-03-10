@@ -1,6 +1,6 @@
 
 // Import the helper class MultiEventHandler.
-import { MultiEventHandler } from "./multiEventHandler.js";
+import { MultiEventHandler } from "./multiEventHandler.ts";
 
 // A reference to the created MultiEventHandler if any.
 let eventHandlers: MultiEventHandler | null = null;

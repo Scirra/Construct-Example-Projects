@@ -1,6 +1,6 @@
 
 // Import the PointerInfo class, used to represent an individual pointer.
-import { PointerInfo } from "./pointerInfo.js";
+import { PointerInfo } from "./pointerInfo.ts";
 
 // All the current simultaneous pointers are stored in this map.
 // The keys are the pointer IDs, and the values are PointerInfo objects.

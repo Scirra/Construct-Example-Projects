@@ -1,7 +1,7 @@
 
 // Import globals and utilities
-import Globals from "./globals.js";
-import * as Utils from "./utilities.js";
+import Globals from "./globals.ts";
+import * as Utils from "./utilities.ts";
 
 // This is a custom class used to represent instances of the Goblin
 // object type in JavaScript code. Note the call to setInstanceClass()

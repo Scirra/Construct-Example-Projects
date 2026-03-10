@@ -1,5 +1,5 @@
 
-import Globals from "./globals.js";
+import Globals from "./globals.ts";
 
 runOnStartup(async runtime =>
 {

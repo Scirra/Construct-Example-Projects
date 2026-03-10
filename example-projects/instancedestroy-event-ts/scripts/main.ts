@@ -32,7 +32,7 @@ function OnPointerDown(e: PointerEvent, runtime: IRuntime)
 }
 
 // Called when any Piggy instance is destroyed
-function OnInstanceDestroy(e: ObjectClassInstanceDestroyEvent, runtime: IRuntime)
+function OnInstanceDestroy(e: InstanceDestroyEvent, runtime: IRuntime)
 {
 	// Show the UID (Unique ID) of the destroyed Piggy instance in the Text object.
 	// The instance that was destroyed is available as e.instance.

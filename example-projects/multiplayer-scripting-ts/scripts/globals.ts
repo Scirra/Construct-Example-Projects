@@ -1,6 +1,6 @@
 
-import { TitleLayoutManager } from "./titleLayout.js";
-import { RoomLayoutManager } from "./roomLayout.js";
+import { TitleLayoutManager } from "./titleLayout.ts";
+import { RoomLayoutManager } from "./roomLayout.ts";
 
 // Some global variables shared across layouts.
 export default {

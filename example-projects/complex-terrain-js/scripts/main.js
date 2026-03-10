@@ -136,7 +136,7 @@ function setupGame() {
     );
     
     // Set player elevation
-    player.zElevation = TERRAINHEIGHT
+    player.z = TERRAINHEIGHT
     
     // Create a mesh with (MESHRESX, MESHRESY) divisions
     terrain.createMesh(MESHRESX, MESHRESY);
@@ -146,7 +146,7 @@ function setupGame() {
         for (let j = 0; j < MESHRESY; j++) {
             terrain.setMeshPoint(i, j, {
                 mode: "relative", x: 0, y: 0, u: 0, v: 0,
-                zElevation: terrainElevation(
+                z: terrainElevation(
                     i - MESHRESX/2, j - MESHRESY/2
                 ) + TERRAINHEIGHT
             });
@@ -190,7 +190,7 @@ function setCamera3D() {
     // Use terrain function to get correct camera height at any given point
     const zxratio = terrain.width/MESHRESX;
     const zyratio = terrain.width/MESHRESY;
-    const camZ = 24 + player.zElevation + terrainElevation(
+    const camZ = 24 + player.z + terrainElevation(
         player.x/zxratio - MESHRESX/2, player.y/zyratio - MESHRESY/2
     )
     

@@ -1,7 +1,7 @@
 
-import Globals from "./globals.js";
-import { TitleLayoutManager } from "./titleLayout.js";
-import { RoomLayoutManager } from "./roomLayout.js";
+import Globals from "./globals.ts";
+import { TitleLayoutManager } from "./titleLayout.ts";
+import { RoomLayoutManager } from "./roomLayout.ts";
 
 // Get to the beforeprojectstart event
 runOnStartup(async runtime =>

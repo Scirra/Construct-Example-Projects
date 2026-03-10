@@ -132,7 +132,7 @@ function restartGame(runtime: IRuntime) {
     // Reset boss
     bossCol.x = 376;
     bossCol.y = 376;
-    bossCol.zElevation = 0;
+    bossCol.z = 0;
     uiLifeBar.width = 160;
     
     // Hide Death screen
@@ -226,11 +226,11 @@ function checkBossTimer(runtime: IRuntime) {
         const ry = Math.floor(Math.random() * 16) - 8;
         const p = runtime.objects.BossProjectile.createInstance("Game", bossCol.x, bossCol.y);
         const spd = dist2D(p.x, p.y, playerCol.x + rx, playerCol.y + ry)/BOSSPROJSPEED;
-        p.zElevation = 24;
+        p.z = 24;
         
         // Start projectile movement and explosion timer
         p.behaviors.Tween.startTween("position", [playerCol.x + rx, playerCol.y + ry], spd, "in-sine");
-        p.behaviors.Tween.startTween("z-elevation", 0, spd, "in-sine");
+        p.behaviors.Tween.startTween("z", 0, spd, "in-sine");
         tm.startTimer(spd, "bossProjectilesExplodeTimer", "once"); // Projectile explodes
     }
     
@@ -271,7 +271,7 @@ function getInputs(runtime: IRuntime) {
         bossCol.behaviors.Timer.startTimer(1, "bossAttackTimer", "once");
         
         // If player or boss is dead, restart the game
-        if (playerModel.height == 0 || bossCol.zElevation == -64) {
+        if (playerModel.height == 0 || bossCol.z == -64) {
             restartGame(runtime);
             
         // Otherwise enable inputs and show the proper UI
@@ -372,14 +372,14 @@ function getInputs(runtime: IRuntime) {
             setTimeout(() => bossModel.effects[0].setParameter(2, 1), 50);
         
             // Damage not enough to kill the boss
-            if (uiLifeBar.width > PDMG && bossCol.zElevation >= 0) {
+            if (uiLifeBar.width > PDMG && bossCol.z >= 0) {
                 uiLifeBar.width = Math.max(0, uiLifeBar.width - PDMG);
             
             // Damage is enough to kill the boss, so it dies
             } else {
                 uiLifeBar.width = 0;
                 bossModel.setFaceObject("right", tex.bIdle)
-                bossCol.behaviors.Tween.startTween("z-elevation", -64, 2, "in-sine");
+                bossCol.behaviors.Tween.startTween("z", -64, 2, "in-sine");
                 stopEverything(runtime);
                 setTimeout(() => endGame("won"), 2000);
             }
@@ -432,7 +432,7 @@ function computeCollisions(runtime: IRuntime) {
     
     //Check collision with Boss projectiles (kills the player)
     for (const b of runtime.objects.BossProjectile.getAllInstances())
-        if (dist2D(playerCol.x, playerCol.y, b.x, b.y) < 16 && b.zElevation < 16)
+        if (dist2D(playerCol.x, playerCol.y, b.x, b.y) < 16 && b.z < 16)
             playerDeath(runtime);
     
     // Limit the player inside the arena

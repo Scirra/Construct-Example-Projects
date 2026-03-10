@@ -1,0 +1,553 @@
+{
+	"name": "PlayerEvents",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Pathfinder",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Summon pathfinder."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 754669971990779,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 743448376904372,
+							"parameters": {
+								"variable": "tutorial"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 514908918613803,
+							"parameters": {
+								"variable": "gameOver"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 511249413410627,
+							"parameters": {
+								"variable": "finders",
+								"comparison": 4,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "subtract-from-eventvar",
+							"objectClass": "System",
+							"sid": 946964375476598,
+							"parameters": {
+								"variable": "finders",
+								"value": "1"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextFinders",
+							"sid": 826287265901320,
+							"parameters": {
+								"text": "finders"
+							}
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 348710269181335,
+							"parameters": {
+								"object": "Pathfinder",
+								"layer": "\"Entities\"",
+								"image-point": "0",
+								"create-hierarchy": true,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "find-path",
+							"objectClass": "Pathfinder",
+							"sid": 458914710017959,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"x": "TeleCrystal.X",
+								"y": "TeleCrystal.Y"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Pathfinder",
+							"sid": 135351621273258,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.05",
+								"type": "regular",
+								"tag": "\"SpawnTrail\""
+							}
+						}
+					],
+					"sid": 741044876119806
+				},
+				{
+					"eventType": "comment",
+					"text": "Found a path to the end room."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-path-found",
+							"objectClass": "Pathfinder",
+							"sid": 339560109265186,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Pathfinder",
+							"sid": 320967663398778,
+							"parameters": {
+								"instance-variable": "currentNode",
+								"value": "0"
+							}
+						},
+						{
+							"id": "move-to-position",
+							"objectClass": "Pathfinder",
+							"sid": 134397245681297,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"x": "Self.Pathfinding.NodeXAt(0)",
+								"y": "Self.Pathfinding.NodeYAt(0)",
+								"mode": "direct"
+							}
+						}
+					],
+					"sid": 173837392528448
+				},
+				{
+					"eventType": "comment",
+					"text": "Move to the next pathfinder node."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-arrived",
+							"objectClass": "Pathfinder",
+							"sid": 546329242452032,
+							"behaviorType": "MoveTo"
+						}
+					],
+					"actions": [],
+					"sid": 350149882670949,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If there's still a path for the finder to follow, and it's on-screen, keep going."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Pathfinder",
+									"sid": 271303995561320,
+									"parameters": {
+										"instance-variable": "currentNode",
+										"comparison": 2,
+										"value": "Self.Pathfinding.NodeCount - 1"
+									}
+								},
+								{
+									"id": "is-on-screen",
+									"objectClass": "Pathfinder",
+									"sid": 521159731930415
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-instvar",
+									"objectClass": "Pathfinder",
+									"sid": 360410747785567,
+									"parameters": {
+										"instance-variable": "currentNode",
+										"value": "1"
+									}
+								},
+								{
+									"id": "move-to-position",
+									"objectClass": "Pathfinder",
+									"sid": 538987821269031,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"x": "Self.Pathfinding.NodeXAt(Self.currentNode)",
+										"y": "Self.Pathfinding.NodeYAt(Self.currentNode)",
+										"mode": "direct"
+									}
+								}
+							],
+							"sid": 982952866070398
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, destroy."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 391706512344264
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Pathfinder",
+									"sid": 125276289624677,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DestroyFinder\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 646168746587666
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Pathfinder trail."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Pathfinder",
+							"sid": 411697128179557,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SpawnTrail\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Pathfinder",
+							"sid": 700939509510874,
+							"parameters": {
+								"object": "PathfinderTrail",
+								"layer": "\"Entities\"",
+								"image-point": "0",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "PathfinderTrail",
+							"sid": 414375922866957,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FadeTraill\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "PathfinderTrail",
+							"sid": 533124221527594,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ReduceTrail\"",
+								"property": "scale",
+								"end-x": "0.01",
+								"end-y": "0.01",
+								"time": "1",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "move-to-bottom",
+							"objectClass": "PathfinderTrail",
+							"sid": 753480048549133
+						}
+					],
+					"sid": 293028173974922
+				},
+				{
+					"eventType": "comment",
+					"text": "Set Minotaur's animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 232208113811638
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "Pathfinder",
+							"sid": 404848766546080,
+							"parameters": {
+								"animation": "\"Flying\" & Functions.convertAngle(Pathfinder.MoveTo.MovingAngle)",
+								"from": "current-frame"
+							}
+						}
+					],
+					"sid": 837546932777791
+				}
+			],
+			"sid": 574706769972200
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Animation",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Player is not moving."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-moving",
+							"objectClass": "Player",
+							"sid": 372752697443612,
+							"behaviorType": "TileMovement",
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerSprite",
+							"sid": 690874178579515,
+							"parameters": {
+								"animation": "\"Idle\" & Player.lastAngle",
+								"from": "current-frame"
+							}
+						}
+					],
+					"sid": 586949848077555
+				},
+				{
+					"eventType": "comment",
+					"text": "Player is moving to a specific direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 194293601999614
+						},
+						{
+							"id": "is-moving-direction",
+							"objectClass": "Player",
+							"sid": 477215312648515,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"direction": "right"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerSprite",
+							"sid": 228026810678115,
+							"parameters": {
+								"animation": "\"Walking0\"",
+								"from": "current-frame"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 198123886123056,
+							"parameters": {
+								"instance-variable": "lastAngle",
+								"value": "0"
+							}
+						}
+					],
+					"sid": 959961174707988
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 400180014669513
+						},
+						{
+							"id": "is-moving-direction",
+							"objectClass": "Player",
+							"sid": 953069183958938,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"direction": "left"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerSprite",
+							"sid": 114782621153604,
+							"parameters": {
+								"animation": "\"Walking180\"",
+								"from": "current-frame"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 888095389919505,
+							"parameters": {
+								"instance-variable": "lastAngle",
+								"value": "180"
+							}
+						}
+					],
+					"sid": 934212891654021
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 504965791620936
+						},
+						{
+							"id": "is-moving-direction",
+							"objectClass": "Player",
+							"sid": 159457414713449,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"direction": "down"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerSprite",
+							"sid": 177719045717349,
+							"parameters": {
+								"animation": "\"Walking90\"",
+								"from": "current-frame"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 129694414516322,
+							"parameters": {
+								"instance-variable": "lastAngle",
+								"value": "90"
+							}
+						}
+					],
+					"sid": 750037877418662
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "else",
+							"objectClass": "System",
+							"sid": 878777179865971
+						},
+						{
+							"id": "is-moving-direction",
+							"objectClass": "Player",
+							"sid": 177461165354748,
+							"behaviorType": "TileMovement",
+							"parameters": {
+								"direction": "up"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-animation",
+							"objectClass": "PlayerSprite",
+							"sid": 900715001662977,
+							"parameters": {
+								"animation": "\"Walking270\"",
+								"from": "current-frame"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 574849021191189,
+							"parameters": {
+								"instance-variable": "lastAngle",
+								"value": "270"
+							}
+						}
+					],
+					"sid": 628887291465787
+				}
+			],
+			"sid": 976264829477025
+		}
+	],
+	"sid": 629836132319861
+}

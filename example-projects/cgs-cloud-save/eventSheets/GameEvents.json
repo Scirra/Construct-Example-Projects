@@ -1,0 +1,788 @@
+{
+	"name": "GameEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "This is the speed new goblins are spawned at, and the player score."
+		},
+		{
+			"eventType": "variable",
+			"name": "GoblinSpeed",
+			"type": "number",
+			"initialValue": "80",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 25
+		},
+		{
+			"eventType": "variable",
+			"name": "Score",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 26
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Saving and loading",
+			"description": "Event blocks demonstrating how to use cloud save and load.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "The storage key to use for the cloud save. This could be changed to provide things like multiple save slots."
+				},
+				{
+					"eventType": "variable",
+					"name": "STORAGE_KEY",
+					"type": "string",
+					"initialValue": "mysave",
+					"comment": "",
+					"isStatic": true,
+					"isConstant": true,
+					"sid": 903023087001505
+				},
+				{
+					"eventType": "comment",
+					"text": "When saving, save the state to a string of JSON (rather than writing it directly to storage)."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 74,
+							"parameters": {
+								"key": 83
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "save-to-json",
+							"objectClass": "System",
+							"sid": 371062027853913
+						}
+					],
+					"sid": 73
+				},
+				{
+					"eventType": "comment",
+					"text": "When the save has finished, create a cloud save using the string of save state JSON."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-save-complete",
+							"objectClass": "System",
+							"sid": 326907072055141
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ShowMessage",
+							"sid": 193495630264415,
+							"parameters": [
+								"\"Saving...\""
+							]
+						},
+						{
+							"id": "create-cloud-save-text",
+							"objectClass": "ConstructGameServices",
+							"sid": 138001790383166,
+							"parameters": {
+								"key": "STORAGE_KEY",
+								"bucket-id": "\"\"",
+								"name": "\"save\"",
+								"data": "SaveStateJSON"
+							}
+						}
+					],
+					"sid": 165233289979248
+				},
+				{
+					"eventType": "comment",
+					"text": "Check for whether the cloud save completed successfully or encountered an error, and display the result."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-create-cloud-save-success",
+							"objectClass": "ConstructGameServices",
+							"sid": 165729607242058,
+							"parameters": {
+								"key": "STORAGE_KEY",
+								"bucket-id": "\"\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ShowMessage",
+							"sid": 330272959581240,
+							"parameters": [
+								"\"Save OK\""
+							]
+						}
+					],
+					"sid": 737444433035860
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-create-cloud-save-error",
+							"objectClass": "ConstructGameServices",
+							"sid": 551061488844397,
+							"parameters": {
+								"key": "STORAGE_KEY",
+								"bucket-id": "\"\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ShowMessage",
+							"sid": 966553174628184,
+							"parameters": [
+								"\"Save error\""
+							]
+						}
+					],
+					"sid": 336424725946394
+				},
+				{
+					"eventType": "comment",
+					"text": "When loading, start by downloading the string of JSON from a past cloud save."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 76,
+							"parameters": {
+								"key": 76
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ShowMessage",
+							"sid": 850138505867768,
+							"parameters": [
+								"\"Loading...\""
+							]
+						},
+						{
+							"id": "get-cloud-save",
+							"objectClass": "ConstructGameServices",
+							"sid": 146765961574681,
+							"parameters": {
+								"key": "STORAGE_KEY",
+								"bucket-id": "\"\"",
+								"type": "text"
+							}
+						}
+					],
+					"sid": 75
+				},
+				{
+					"eventType": "comment",
+					"text": "Check whether loading the cloud save completed successfully. If it did, proceed to load the game state from the resulting string."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-get-cloud-save-success",
+							"objectClass": "ConstructGameServices",
+							"sid": 197407970209336,
+							"parameters": {
+								"key": "STORAGE_KEY",
+								"bucket-id": "\"\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load-from-json",
+							"objectClass": "System",
+							"sid": 793626647034869,
+							"parameters": {
+								"json": "ConstructGameServices.CloudSaveText"
+							}
+						}
+					],
+					"sid": 308873403111925
+				},
+				{
+					"eventType": "comment",
+					"text": "Once the load of the saved state completes, display a success message."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-load-complete",
+							"objectClass": "System",
+							"sid": 549412978946588
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ShowMessage",
+							"sid": 235229060810059,
+							"parameters": [
+								"\"Load OK\""
+							]
+						}
+					],
+					"sid": 526521699359360
+				},
+				{
+					"eventType": "comment",
+					"text": "Show a message if loading the cloud save failed. Note this may occur if no prior save was made first."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-get-cloud-save-error",
+							"objectClass": "ConstructGameServices",
+							"sid": 507680711246764,
+							"parameters": {
+								"key": "STORAGE_KEY",
+								"bucket-id": "\"\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "ShowMessage",
+							"sid": 252397829462070,
+							"parameters": [
+								"\"Load error\""
+							]
+						}
+					],
+					"sid": 840254176730999
+				},
+				{
+					"eventType": "comment",
+					"text": "A helper function to show a message that fades out."
+				},
+				{
+					"functionName": "ShowMessage",
+					"functionDescription": "",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "message",
+							"type": "string",
+							"initialValue": "",
+							"comment": "",
+							"sid": 894485103420137
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "NotificationText",
+							"sid": 532344640674473,
+							"parameters": {
+								"text": "message"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "NotificationText",
+							"sid": 609830394648769,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "restart-fade",
+							"objectClass": "NotificationText",
+							"sid": 937722344546029,
+							"behaviorType": "Fade"
+						}
+					],
+					"sid": 655096340534017
+				}
+			],
+			"sid": 72
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game",
+			"description": "Event blocks for handling regular game logic.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Start goblins at a random angle."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 879774674809432
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle",
+							"objectClass": "Goblin",
+							"sid": 787224432494432,
+							"parameters": {
+								"angle": "random(360)"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "GameOverText",
+							"sid": 505443987368424,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						}
+					],
+					"sid": 742138120278050
+				},
+				{
+					"eventType": "comment",
+					"text": "Always look the player towards the mouse, and update the status text."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 971963055064608
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "Player",
+							"sid": 193728139247124,
+							"parameters": {
+								"x": "Mouse.X",
+								"y": "Mouse.Y"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "ScoreText",
+							"sid": 459666878129666,
+							"parameters": {
+								"text": "\"Score: \" & Score"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "PlayerIDText",
+							"sid": 498356386458420,
+							"parameters": {
+								"text": "\"Player ID: \" & ConstructGameServices.PlayerID"
+							}
+						}
+					],
+					"sid": 781182459854180
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-signed-in",
+							"objectClass": "ConstructGameServices",
+							"sid": 452978029975893,
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-text",
+							"objectClass": "ScoreText",
+							"sid": 137276371582191,
+							"parameters": {
+								"text": "\"Not signed in! Please sign in first\""
+							}
+						}
+					],
+					"sid": 914126013905775
+				},
+				{
+					"eventType": "comment",
+					"text": "Cast a spell on left click."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-click",
+							"objectClass": "Mouse",
+							"sid": 568862011629971,
+							"parameters": {
+								"mouse-button": "left",
+								"click-type": "clicked"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Player",
+							"sid": 246079444846495,
+							"parameters": {
+								"object": "Spell",
+								"layer": "\"Main\"",
+								"image-point": "1",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						}
+					],
+					"sid": 569061258313075
+				},
+				{
+					"eventType": "comment",
+					"text": "If a spell hits a goblin, create a spark flash effect and damage the goblin.  Also increase the speed goblins are spawning at."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Spell",
+							"sid": 136980588397428,
+							"parameters": {
+								"object": "Goblin"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Spell",
+							"sid": 962770294852859,
+							"parameters": {
+								"object": "SparkFlash",
+								"layer": "\"Main\"",
+								"image-point": "0",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "SparkFlash",
+							"sid": 669449048084278,
+							"parameters": {
+								"angle": "random(360)"
+							}
+						},
+						{
+							"id": "subtract-from-instvar",
+							"objectClass": "Goblin",
+							"sid": 517296824061496,
+							"parameters": {
+								"instance-variable": "health",
+								"value": "1"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Spell",
+							"sid": 388731203535514
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 544623858253208,
+							"parameters": {
+								"variable": "GoblinSpeed",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 312668182494839
+				},
+				{
+					"eventType": "comment",
+					"text": "When a goblin runs out of health (5 hits), destroy it and give some score points depending on how fast it was."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Goblin",
+							"sid": 342823224816573,
+							"parameters": {
+								"instance-variable": "health",
+								"comparison": 3,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Goblin",
+							"sid": 508483093754166
+						},
+						{
+							"id": "spawn-another-object",
+							"objectClass": "Goblin",
+							"sid": 771272354867582,
+							"parameters": {
+								"object": "SparkFlash",
+								"layer": "\"Main\"",
+								"image-point": "0",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "SparkFlash",
+							"sid": 941387754987590,
+							"parameters": {
+								"angle": "random(360)"
+							}
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 637115612065076,
+							"parameters": {
+								"variable": "Score",
+								"value": "Goblin.Movement.Speed"
+							}
+						}
+					],
+					"sid": 440851367205666
+				},
+				{
+					"eventType": "comment",
+					"text": "Stop goblins wandering off the layout."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-outside-layout",
+							"objectClass": "Goblin",
+							"sid": 229211848807484
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle-toward-position",
+							"objectClass": "Goblin",
+							"sid": 462512630005931,
+							"parameters": {
+								"x": "Player.X",
+								"y": "Player.Y"
+							}
+						}
+					],
+					"sid": 922877180981691
+				},
+				{
+					"eventType": "comment",
+					"text": "If a goblin is within 200 pixels of the player, make it start rotating towards them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 531771784793157,
+							"parameters": {
+								"object": "Goblin"
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 653646288230750,
+							"parameters": {
+								"first-value": "distance(Player.X, Player.Y, Goblin.X, Goblin.Y)",
+								"comparison": 2,
+								"second-value": "200"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "rotate-toward-position",
+							"objectClass": "Goblin",
+							"sid": 416172273930925,
+							"parameters": {
+								"degrees": "1",
+								"x": "Player.X",
+								"y": "Player.Y"
+							}
+						}
+					],
+					"sid": 152127262414130
+				},
+				{
+					"eventType": "comment",
+					"text": "Every 3 seconds, spawn a new goblin off to the right of the layout, at the current speed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-x-seconds",
+							"objectClass": "System",
+							"sid": 299047910861251,
+							"parameters": {
+								"interval-seconds": "3"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 230282875931421,
+							"parameters": {
+								"object-to-create": "Goblin",
+								"layer": "\"Main\"",
+								"x": "1500",
+								"y": "random(1024)",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-speed",
+							"objectClass": "Goblin",
+							"sid": 372952126052452,
+							"behaviorType": "Movement",
+							"parameters": {
+								"speed": "GoblinSpeed"
+							}
+						}
+					],
+					"sid": 388669959669074
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy the player if a goblin touches them!"
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Goblin",
+							"sid": 687108267619783,
+							"parameters": {
+								"object": "Player"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "Player",
+							"sid": 123945080945096
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "GameOverText",
+							"sid": 308063541297470,
+							"parameters": {
+								"visibility": "visible"
+							}
+						}
+					],
+					"sid": 673068979535465
+				},
+				{
+					"eventType": "comment",
+					"text": "Restart after game over if space pressed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-key-pressed",
+							"objectClass": "Keyboard",
+							"sid": 269935011560800,
+							"parameters": {
+								"key": 32
+							}
+						},
+						{
+							"id": "compare-two-values",
+							"objectClass": "System",
+							"sid": 186111148807198,
+							"parameters": {
+								"first-value": "Player.Count",
+								"comparison": 0,
+								"second-value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 151793878762649,
+							"parameters": {
+								"variable": "GoblinSpeed",
+								"value": "80"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 561138704964317,
+							"parameters": {
+								"variable": "Score",
+								"value": "0"
+							}
+						},
+						{
+							"id": "go-to-layout",
+							"objectClass": "System",
+							"sid": 483833335591643,
+							"parameters": {
+								"layout": "Game"
+							}
+						}
+					],
+					"sid": 440823240295930
+				}
+			],
+			"sid": 688395202961184
+		}
+	],
+	"sid": 221837366729784
+}

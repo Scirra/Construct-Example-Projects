@@ -2,7 +2,7 @@
 // Import the class MyClass exported from the script file myClass.js.
 // Learn more about imports here:
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
-import { MyClass } from "./myClass.js";
+import { MyClass } from "./myClass.ts";
 
 // Get to the beforeprojectstart event.
 runOnStartup(async runtime =>

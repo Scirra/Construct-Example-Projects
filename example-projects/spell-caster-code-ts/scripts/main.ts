@@ -1,12 +1,12 @@
 
 // Use a module to store our game's global variables
-import Globals from "./globals.js";
+import Globals from "./globals.ts";
 
 // Import main game methods, such as Tick and OnMouseDown
-import * as GameMethods from "./gameMethods.js";
+import * as GameMethods from "./gameMethods.ts";
 
 // Import GoblinInstance class from goblin.js
-import GoblinInstance from "./goblin.js";
+import GoblinInstance from "./goblin.ts";
 
 runOnStartup(async runtime =>
 {

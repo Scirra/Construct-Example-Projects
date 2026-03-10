@@ -25,8 +25,8 @@ async function OnBeforeProjectStart(runtime: IRuntime)
 	
 	// Create the Web Worker.
 	// See: https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker
-	// TypeScript note: all .ts files are compiled to .js, so much like with
-	// imports the actual name to load the worker from should end with .js.
+	// TypeScript note: all .ts files are compiled to .js, so the actual name
+	// to load the worker from should end with .js.
 	// Further, currently Construct expects all .ts files to be modules, so
 	// make sure the worker is loaded as a module too for it to work.
 	worker = new Worker("myworker.js", {

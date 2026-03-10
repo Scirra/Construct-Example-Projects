@@ -1,6 +1,6 @@
 
 // Import the collision utility methods.
-import { PushOutAngle, PushOutSolidAngle } from "./collisionMethods.js";
+import { PushOutAngle, PushOutSolidAngle } from "./collisionMethods.ts";
 
 // A function to call when clicking "push out", as a convenient way to change
 // what the button does.

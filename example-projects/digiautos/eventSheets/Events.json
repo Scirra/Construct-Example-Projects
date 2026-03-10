@@ -1,0 +1,3442 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Forsteri Studios\n\nWebsite: forsteristudios.com\nE-Mail: forsteristudios@gmail.com\nX: @forsteristudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "CAM_DIST",
+			"type": "number",
+			"initialValue": "1600",
+			"comment": "Standard distance between the player and the camera.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 248814324196490
+		},
+		{
+			"eventType": "variable",
+			"name": "CAR_TURN_TIME",
+			"type": "number",
+			"initialValue": "0.1",
+			"comment": "Time taken for a car to take a 90 degrees turn.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 270357218490894
+		},
+		{
+			"eventType": "variable",
+			"name": "MSG_WIN",
+			"type": "string",
+			"initialValue": "[color=#ff1900]Y[color=#ff8800]O[color=#fffa00]U [color=#00ff2e]W[color=#00ffa5]I[color=#00ddff]N[/color]",
+			"comment": "Win message.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 824336773213210
+		},
+		{
+			"eventType": "variable",
+			"name": "MSG_LOSE",
+			"type": "string",
+			"initialValue": "[color=#ff1900]Y[color=#ff8800]O[color=#fffa00]U [color=#00ff2e]L[color=#00ffa5]O[color=#00ddff]S[color=#9800ff]E[/color]",
+			"comment": "Lose message.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 477833378647563
+		},
+		{
+			"eventType": "variable",
+			"name": "TILE_SIZE",
+			"type": "number",
+			"initialValue": "80",
+			"comment": "Size of a tile.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 982193481877452
+		},
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "menu",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "Is the menu/tutorial visible?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 914757969882184
+		},
+		{
+			"eventType": "variable",
+			"name": "nCars",
+			"type": "number",
+			"initialValue": "6",
+			"comment": "Number of cars in this match.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 475818764797575
+		},
+		{
+			"eventType": "variable",
+			"name": "paused",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the game paused?",
+			"isStatic": true,
+			"isConstant": false,
+			"sid": 711191283629966
+		},
+		{
+			"eventType": "variable",
+			"name": "resultScreen",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the result screen being displayed?",
+			"isStatic": true,
+			"isConstant": false,
+			"sid": 936376023711534
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Menu",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup menu."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 118539999253458
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Change TextMenu's text to reflect the current number of cars."
+						},
+						{
+							"id": "set-text",
+							"objectClass": "TextMenu",
+							"sid": 327415467232356,
+							"parameters": {
+								"text": "replace(Self.Text, \"opponents: [color=#fffa00]5\", \"opponents: [color=#fffa00]\" & nCars - 1)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Load colors."
+						},
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 824908804827856,
+							"parameters": {
+								"tag": "\"Colors\"",
+								"file": "Colors.json"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 561081727839280
+						},
+						{
+							"id": "load",
+							"objectClass": "ArrColors",
+							"sid": 677990648843379,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create permutation table to vary colors each match."
+						},
+						{
+							"id": "createPermutationTable",
+							"objectClass": "AdvancedRandom",
+							"sid": 811857337797374,
+							"parameters": {
+								"length": "8",
+								"offset": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show menu."
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextMenu",
+							"sid": 897667996918592,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextMenu",
+							"sid": 748742017312744,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowTextMenu\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 140894698943639,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader85\"",
+								"property": "offsetOpacity",
+								"end-value": "85",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 961642426692595
+				},
+				{
+					"eventType": "comment",
+					"text": "Execute action."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 223592106967127,
+							"parameters": {
+								"variable": "menu"
+							}
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "Fader",
+							"sid": 938363414823872,
+							"behaviorType": "Tween",
+							"isInverted": true
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "TextMenu",
+							"sid": 770194665497773,
+							"behaviorType": "Tween",
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 701436225435418,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Change number of opponents."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 718393401343605,
+									"parameters": {
+										"key": 37
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 352045923823796,
+									"parameters": {
+										"variable": "nCars",
+										"value": "max(2, nCars - 1)"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextMenu",
+									"sid": 860685271234501,
+									"parameters": {
+										"text": "replace(Self.Text, \"opponents: [color=#fffa00]\" & nCars, \"opponents: [color=#fffa00]\" & nCars - 1)"
+									}
+								}
+							],
+							"sid": 220191044536444
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 816169322433430,
+									"parameters": {
+										"key": 39
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 907652601730122,
+									"parameters": {
+										"variable": "nCars",
+										"value": "min(8, nCars + 1)"
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextMenu",
+									"sid": 483935489103595,
+									"parameters": {
+										"text": "replace(Self.Text, \"opponents: [color=#fffa00]\" & nCars - 2, \"opponents: [color=#fffa00]\" & nCars - 1)"
+									}
+								}
+							],
+							"sid": 424407676601571
+						},
+						{
+							"eventType": "comment",
+							"text": "Start the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 839335366723550,
+									"parameters": {
+										"key": 32
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "setupMatch",
+									"sid": 322189898738287
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextMenu",
+									"sid": 691570041217377,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideTextMenu\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 120176887646613,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 921718277670134
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 932854748539634,
+									"parameters": {
+										"variable": "menu",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 574155246725570,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Car starts moving."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 185484318148606,
+											"parameters": {
+												"object": "Car"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "move-to-position",
+											"objectClass": "Car",
+											"sid": 139545336398916,
+											"behaviorType": "MoveTo",
+											"parameters": {
+												"x": "Self.X + cos(Self.Angle) * TILE_SIZE",
+												"y": "Self.Y + sin(Self.Angle) * TILE_SIZE",
+												"mode": "direct"
+											}
+										}
+									],
+									"sid": 286861557828839
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 885567093856077
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Camera follows the player."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 642792854629212
+						}
+					],
+					"actions": [],
+					"sid": 618081941932885,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Result screen camera - Looks at the arena from above."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 165571599026153,
+									"parameters": {
+										"variable": "resultScreen"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "look-at-position",
+									"objectClass": "3DCamera",
+									"sid": 237298019884348,
+									"parameters": {
+										"cam-x": "-Ground.Width/2",
+										"cam-y": "-Ground.Height/2",
+										"cam-z": "2400",
+										"look-x": "Ground.X + Ground.Width * 1.25",
+										"look-y": "Ground.Y + Ground.Height * 1.25",
+										"look-z": "0",
+										"up-x": "0",
+										"up-y": "0",
+										"up-z": "1"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Light",
+									"sid": 823126348113901,
+									"parameters": {
+										"width": "256",
+										"height": "256"
+									}
+								}
+							],
+							"sid": 163965947543075
+						},
+						{
+							"eventType": "comment",
+							"text": "Pause camera - Rotates near the player's car."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 608574215703656
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 894485364409755,
+									"parameters": {
+										"object": "Car",
+										"expression": "Car.isPlayer",
+										"comparison": 0,
+										"value": "1"
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 406122319750158,
+									"parameters": {
+										"variable": "paused"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "look-at-position",
+									"objectClass": "3DCamera",
+									"sid": 561769208052594,
+									"parameters": {
+										"cam-x": "Car.X - cos(wallclocktime * 50) * CAM_DIST/4",
+										"cam-y": "Car.Y - sin(wallclocktime * 50) * CAM_DIST/4",
+										"cam-z": "Car.ZElevation + CAM_DIST/8",
+										"look-x": "Car.X",
+										"look-y": "Car.Y",
+										"look-z": "Car.ZElevation",
+										"up-x": "0",
+										"up-y": "0",
+										"up-z": "1"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Light",
+									"sid": 671857736560816,
+									"parameters": {
+										"width": "512",
+										"height": "512"
+									}
+								}
+							],
+							"sid": 985276255132581
+						},
+						{
+							"eventType": "comment",
+							"text": "Game camera - Follows the player's car as a drone."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 986148771916927
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 542824606863752,
+									"parameters": {
+										"object": "Car",
+										"expression": "Car.isPlayer",
+										"comparison": 0,
+										"value": "1"
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 347206199540646,
+									"parameters": {
+										"variable": "menu"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "look-at-position",
+									"objectClass": "3DCamera",
+									"sid": 962004149049883,
+									"parameters": {
+										"cam-x": "Car.X - cos(Car.Angle) * CAM_DIST",
+										"cam-y": "Car.Y - sin(Car.Angle) * CAM_DIST",
+										"cam-z": "Car.ZElevation + CAM_DIST/2",
+										"look-x": "Car.X",
+										"look-y": "Car.Y",
+										"look-z": "Car.ZElevation",
+										"up-x": "0",
+										"up-y": "0",
+										"up-z": "1"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Light",
+									"sid": 751308746404274,
+									"parameters": {
+										"width": "512",
+										"height": "512"
+									}
+								}
+							],
+							"sid": 849931777021583
+						},
+						{
+							"eventType": "comment",
+							"text": "Transition camera - Gradually moves from the menu position to game position."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 811368526400199
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 299478731562397,
+									"parameters": {
+										"object": "Car",
+										"expression": "Car.isPlayer",
+										"comparison": 0,
+										"value": "1"
+									}
+								},
+								{
+									"id": "is-playing",
+									"objectClass": "TextMenu",
+									"sid": 445188720569641,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideTextMenu\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "look-at-position",
+									"objectClass": "3DCamera",
+									"sid": 493174434178231,
+									"parameters": {
+										"cam-x": "lerp(3DCamera.CameraX, Car.X - cos(Car.Angle) * CAM_DIST, TextMenu.Tween.Progress(\"HideTextMenu\"))",
+										"cam-y": "lerp(3DCamera.CameraY, Car.Y - sin(Car.Angle) * CAM_DIST, TextMenu.Tween.Progress(\"HideTextMenu\"))",
+										"cam-z": "lerp(3DCamera.CameraZ, Car.ZElevation + CAM_DIST/2, TextMenu.Tween.Progress(\"HideTextMenu\"))",
+										"look-x": "lerp(3DCamera.LookX, Car.X, TextMenu.Tween.Progress(\"HideTextMenu\"))",
+										"look-y": "lerp(3DCamera.LookY, Car.Y, TextMenu.Tween.Progress(\"HideTextMenu\"))",
+										"look-z": "lerp(3DCamera.LookZ, Car.ZElevation, TextMenu.Tween.Progress(\"HideTextMenu\"))",
+										"up-x": "0",
+										"up-y": "0",
+										"up-z": "1"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Light",
+									"sid": 780114415697161,
+									"parameters": {
+										"width": "512",
+										"height": "512"
+									}
+								}
+							],
+							"sid": 818598661272074
+						},
+						{
+							"eventType": "comment",
+							"text": "Menu camera - Looks at the arena from above."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 179287659868389
+								}
+							],
+							"actions": [
+								{
+									"id": "look-at-position",
+									"objectClass": "3DCamera",
+									"sid": 958852482199671,
+									"parameters": {
+										"cam-x": "-Ground.Width/2",
+										"cam-y": "-Ground.Height/2",
+										"cam-z": "2400",
+										"look-x": "Ground.X + Ground.Width * 1.25",
+										"look-y": "Ground.Y + Ground.Height * 1.25",
+										"look-z": "0",
+										"up-x": "0",
+										"up-y": "0",
+										"up-z": "1"
+									}
+								},
+								{
+									"id": "set-size",
+									"objectClass": "Light",
+									"sid": 405600262131740,
+									"parameters": {
+										"width": "256",
+										"height": "256"
+									}
+								}
+							],
+							"sid": 469208431727846
+						}
+					]
+				}
+			],
+			"sid": 194277541659348
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Effects",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup lights."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 764305790856019
+						}
+					],
+					"actions": [],
+					"sid": 216977493371388,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "For each spotlight, create a light object."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 524166606608653,
+									"parameters": {
+										"object": "Spotlight"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 167828689278473,
+									"parameters": {
+										"object-to-create": "Light",
+										"layer": "\"Lights\"",
+										"x": "0",
+										"y": "0",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "Light",
+									"sid": 101713264699843,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Light",
+									"sid": 326430565640742,
+									"parameters": {
+										"instance-variable": "spotlightUID",
+										"value": "Spotlight.UID"
+									}
+								}
+							],
+							"sid": 983550559863730
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move lights according to camera position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 344604597778872,
+							"parameters": {
+								"object": "Light"
+							}
+						},
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Spotlight",
+							"sid": 358226591569509,
+							"parameters": {
+								"unique-id": "Light.spotlightUID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Light",
+							"sid": 899062515719707,
+							"parameters": {
+								"x": "3DCamera.LayerToCanvasX(\"Rails\", Spotlight.X, Spotlight.Y, Spotlight.ZElevation)/(PlatformInfo.CanvasCssWidth/OriginalViewportWidth)",
+								"y": "3DCamera.LayerToCanvasY(\"Rails\", Spotlight.X, Spotlight.Y, Spotlight.ZElevation)/(PlatformInfo.CanvasCssHeight/OriginalViewportHeight)"
+							}
+						}
+					],
+					"sid": 823095697285060,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "When the spotlight is on-screen, show the corresponding light object."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-on-screen",
+									"objectClass": "Spotlight",
+									"sid": 552937410892140
+								}
+							],
+							"actions": [
+								{
+									"id": "set-opacity",
+									"objectClass": "Light",
+									"sid": 635495963254457,
+									"parameters": {
+										"opacity": "50"
+									}
+								}
+							],
+							"sid": 503509241073874
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, smoothly fade it out."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 383220019994920
+								}
+							],
+							"actions": [
+								{
+									"id": "set-opacity",
+									"objectClass": "Light",
+									"sid": 604168431489208,
+									"parameters": {
+										"opacity": "lerp(Self.Opacity, 0, 4 * dt)"
+									}
+								}
+							],
+							"sid": 625241813389002
+						}
+					]
+				}
+			],
+			"sid": 486464913357480
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup Match",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup match."
+				},
+				{
+					"functionName": "setupMatch",
+					"functionDescription": "Setup match.",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 120118314575674,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "playerIdx",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Random loop index value for the player.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 483629156811081
+						},
+						{
+							"eventType": "comment",
+							"text": "Pick a random index for the player."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 469560894321275,
+									"parameters": {
+										"variable": "playerIdx",
+										"value": "int(random(nCars))"
+									}
+								}
+							],
+							"sid": 776927920201345
+						},
+						{
+							"eventType": "comment",
+							"text": "Create the cars."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 412693937956160,
+									"parameters": {
+										"count": "nCars"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create car and set starting properties."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 355053199981802,
+									"parameters": {
+										"object-to-create": "Car",
+										"layer": "\"Cars\"",
+										"x": "round((Ground.Width/2 + cos(loopindex/nCars * 360) * Ground.Width/3) / TILE_SIZE + choose(-2, -1, 0, 1, 2)) * TILE_SIZE",
+										"y": "round((Ground.Height/2 + sin(loopindex/nCars * 360) * Ground.Height/3) / TILE_SIZE + choose(-2, -1, 0, 1, 2)) * TILE_SIZE",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Car",
+									"sid": 847493581188227,
+									"parameters": {
+										"instance-variable": "carID",
+										"value": "loopindex"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Car",
+									"sid": 623493658211538,
+									"parameters": {
+										"angle": "round(angle(Self.X, Self.Y, Ground.Width/2, Ground.Height/2) / 90) * 90"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create car model."
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Car",
+									"sid": 261853789588626,
+									"parameters": {
+										"object": "CarBody0",
+										"layer": "\"Cars\"",
+										"image-point": "0",
+										"create-hierarchy": true,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "add-child",
+									"objectClass": "Car",
+									"sid": 530377787243181,
+									"parameters": {
+										"child": "CarBody0",
+										"transform-x": true,
+										"transform-y": true,
+										"transform-w": false,
+										"transform-h": false,
+										"transform-a": true,
+										"transform-o": false,
+										"transform-z-elevation": true,
+										"transform-visibility": false,
+										"destroy-with-parent": true
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create starting trail."
+								},
+								{
+									"customAction": "Create trail",
+									"objectClass": "Car",
+									"sid": 217085092333801
+								}
+							],
+							"sid": 754128530504173,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Set textures for Body 0."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "CarBody0",
+											"sid": 154872014127878,
+											"parameters": {
+												"child": "CarBody0TexBottom",
+												"which": "own"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "CarBody0",
+											"sid": 496281428415062,
+											"parameters": {
+												"child": "CarBody0TexLeft",
+												"which": "own"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "CarBody0",
+											"sid": 638228727564146,
+											"parameters": {
+												"child": "CarBody0TexRight",
+												"which": "own"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "CarBody0",
+											"sid": 537039250876638,
+											"parameters": {
+												"child": "CarBody0TexTop",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarBody0TexBottom",
+											"sid": 919465544287092,
+											"parameters": {
+												"frame-number": "AdvancedRandom.Permutation(loopindex)"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarBody0TexLeft",
+											"sid": 625220450667071,
+											"parameters": {
+												"frame-number": "AdvancedRandom.Permutation(loopindex)"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarBody0TexRight",
+											"sid": 947567962277443,
+											"parameters": {
+												"frame-number": "AdvancedRandom.Permutation(loopindex)"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarBody0TexTop",
+											"sid": 664647653102408,
+											"parameters": {
+												"frame-number": "AdvancedRandom.Permutation(loopindex)"
+											}
+										}
+									],
+									"sid": 847060107239105
+								},
+								{
+									"eventType": "comment",
+									"text": "Set textures for Body 1."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "CarBody1",
+											"sid": 861968993404306,
+											"parameters": {
+												"child": "CarBody1TexBottom",
+												"which": "own"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "CarBody1",
+											"sid": 508439364318574,
+											"parameters": {
+												"child": "CarBody1TexLeft",
+												"which": "own"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "CarBody1",
+											"sid": 801429709252104,
+											"parameters": {
+												"child": "CarBody1TexTop",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarBody1TexBottom",
+											"sid": 470478164390179,
+											"parameters": {
+												"frame-number": "AdvancedRandom.Permutation(loopindex)"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarBody1TexLeft",
+											"sid": 109059562547401,
+											"parameters": {
+												"frame-number": "AdvancedRandom.Permutation(loopindex)"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarBody1TexTop",
+											"sid": 683397774183369,
+											"parameters": {
+												"frame-number": "AdvancedRandom.Permutation(loopindex)"
+											}
+										}
+									],
+									"sid": 217905509868036
+								},
+								{
+									"eventType": "comment",
+									"text": "Set textures for Body 2."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "CarBody2",
+											"sid": 693823776192313,
+											"parameters": {
+												"child": "CarBody2TexBottom",
+												"which": "own"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "CarBody2",
+											"sid": 173180024237808,
+											"parameters": {
+												"child": "CarBody2TexLeft",
+												"which": "own"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "CarBody2",
+											"sid": 548409444306448,
+											"parameters": {
+												"child": "CarBody2TexTop",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarBody2TexBottom",
+											"sid": 327317874280548,
+											"parameters": {
+												"frame-number": "AdvancedRandom.Permutation(loopindex)"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarBody2TexLeft",
+											"sid": 454080097884466,
+											"parameters": {
+												"frame-number": "AdvancedRandom.Permutation(loopindex)"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarBody2TexTop",
+											"sid": 244905703404934,
+											"parameters": {
+												"frame-number": "AdvancedRandom.Permutation(loopindex)"
+											}
+										}
+									],
+									"sid": 434956423380444
+								},
+								{
+									"eventType": "comment",
+									"text": "Car is a player. Mark as such."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 387048870957674,
+											"parameters": {
+												"value": "loopindex = playerIdx"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Car",
+											"sid": 976480115404672,
+											"parameters": {
+												"instance-variable": "isPlayer",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 303682153355610
+								},
+								{
+									"eventType": "comment",
+									"text": "Car is an AI. Create sensors."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 565142594128409
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Car",
+											"sid": 573367449447951,
+											"parameters": {
+												"instance-variable": "maxTurnProb",
+												"value": "int(loopindex > (2*nCars/3) ? random(10, 30) : (loopindex < nCars/3 ? random(81, 400) : random(31, 80)))"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Front sensor."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 534881103633316,
+											"parameters": {
+												"object-to-create": "SensorTrail",
+												"layer": "\"Cars\"",
+												"x": "Car.X",
+												"y": "Car.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "SensorTrail",
+											"sid": 282136749527120,
+											"parameters": {
+												"instance-variable": "sensorDir",
+												"value": "\"front\""
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "SensorTrail",
+											"sid": 622283660686340,
+											"parameters": {
+												"angle": "Car.Angle"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Car",
+											"sid": 818685419131963,
+											"parameters": {
+												"child": "SensorTrail",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": true,
+												"transform-o": false,
+												"transform-z-elevation": true,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Left sensor."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 839942515381643,
+											"parameters": {
+												"object-to-create": "SensorTrail",
+												"layer": "\"Cars\"",
+												"x": "Car.X",
+												"y": "Car.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "SensorTrail",
+											"sid": 533138544434902,
+											"parameters": {
+												"instance-variable": "sensorDir",
+												"value": "\"left\""
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "SensorTrail",
+											"sid": 872117670644307,
+											"parameters": {
+												"angle": "Car.Angle - 90"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Car",
+											"sid": 579497597683920,
+											"parameters": {
+												"child": "SensorTrail",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": true,
+												"transform-o": false,
+												"transform-z-elevation": true,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Right sensor."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 735381735875969,
+											"parameters": {
+												"object-to-create": "SensorTrail",
+												"layer": "\"Cars\"",
+												"x": "Car.X",
+												"y": "Car.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "SensorTrail",
+											"sid": 883576105766268,
+											"parameters": {
+												"instance-variable": "sensorDir",
+												"value": "\"right\""
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "SensorTrail",
+											"sid": 370021953796298,
+											"parameters": {
+												"angle": "Car.Angle + 90"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Car",
+											"sid": 116678843319609,
+											"parameters": {
+												"child": "SensorTrail",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": true,
+												"transform-o": false,
+												"transform-z-elevation": true,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Special car sensor (to avoid head-on collisions)."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 296046131077327,
+											"parameters": {
+												"object-to-create": "SensorCar",
+												"layer": "\"Cars\"",
+												"x": "Car.X",
+												"y": "Car.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "SensorCar",
+											"sid": 996062194227908,
+											"parameters": {
+												"angle": "Car.Angle"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Car",
+											"sid": 153472707689128,
+											"parameters": {
+												"child": "SensorCar",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": true,
+												"transform-o": false,
+												"transform-z-elevation": true,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										}
+									],
+									"sid": 392442822547382
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 942091558639882
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Trail",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Stop all cars."
+				},
+				{
+					"functionName": "stopCars",
+					"functionDescription": "Stop all cars.",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-max-speed",
+							"objectClass": "Car",
+							"sid": 870970600510666,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"max-speed": "0.0"
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Car",
+							"sid": 359062932161428,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"enabled": false
+							}
+						},
+						{
+							"id": "set-enabled",
+							"objectClass": "Car",
+							"sid": 627325778006960,
+							"behaviorType": "Tween",
+							"parameters": {
+								"mode": "disabled"
+							}
+						}
+					],
+					"sid": 411907660923350
+				},
+				{
+					"eventType": "comment",
+					"text": "Check if the player is alive."
+				},
+				{
+					"functionName": "isPlayerAlive",
+					"functionDescription": "Check if the player is alive.",
+					"functionCategory": "",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 150428514133681,
+							"parameters": {
+								"value": "0"
+							}
+						}
+					],
+					"sid": 129257821229851,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 911785170592944,
+									"parameters": {
+										"object": "Car"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Car",
+									"sid": 121862120763071,
+									"parameters": {
+										"instance-variable": "isPlayer"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 766109110702145,
+									"parameters": {
+										"value": "1"
+									}
+								}
+							],
+							"sid": 335254112940269
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy a car. Show \"YOU LOSE\"/\"YOU WIN\" when appropriate."
+				},
+				{
+					"functionName": "destroyCar",
+					"functionDescription": "Destroy a car. Show \"YOU LOSE\"/\"YOU WIN\" when appropriate.",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "UID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Unique identifier for this car.",
+							"sid": 579186255393111
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Car",
+							"sid": 565088696533688,
+							"parameters": {
+								"unique-id": "UID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"customAction": "Destroy trails",
+							"objectClass": "Car",
+							"sid": 559154228784727
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Car",
+							"sid": 752994914083538
+						}
+					],
+					"sid": 370861056399197,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player died. Show \"YOU LOSE\" message."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Car",
+									"sid": 362344077233487,
+									"parameters": {
+										"instance-variable": "isPlayer"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 926888848935933,
+									"parameters": {
+										"variable": "resultScreen",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 189917759826133,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 409961690102807,
+											"parameters": {
+												"object": "TextResult"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-one-property",
+											"objectClass": "TextResult",
+											"sid": 833145710381531,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShowResultText\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "0.25",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 137711161138835,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "has-tags",
+													"objectClass": "TextResult",
+													"sid": 124330617520254,
+													"parameters": {
+														"tags": "\"colored\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-text",
+													"objectClass": "TextResult",
+													"sid": 497940496297691,
+													"parameters": {
+														"text": "MSG_LOSE"
+													}
+												}
+											],
+											"sid": 875716882563256
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 614063113865032
+												}
+											],
+											"actions": [
+												{
+													"id": "set-text",
+													"objectClass": "TextResult",
+													"sid": 659461030105379,
+													"parameters": {
+														"text": "\"YOU LOSE\""
+													}
+												}
+											],
+											"sid": 697049531917829
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Check if the player is the last one standing. If that's the case, show \"YOU WIN\" message."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 173832260147019
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 659199167753446,
+									"parameters": {
+										"value": "Car.Count = 2"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 708603902742086,
+									"parameters": {
+										"value": "Functions.isPlayerAlive"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 590762402566485,
+									"parameters": {
+										"variable": "resultScreen",
+										"value": "true"
+									}
+								},
+								{
+									"callFunction": "stopCars",
+									"sid": 243852254659885
+								}
+							],
+							"sid": 460905335749839,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 335606064257146,
+											"parameters": {
+												"object": "TextResult"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-one-property",
+											"objectClass": "TextResult",
+											"sid": 559286054206790,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShowResultText\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "0.25",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 372109074263267,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "has-tags",
+													"objectClass": "TextResult",
+													"sid": 501705071165812,
+													"parameters": {
+														"tags": "\"colored\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-text",
+													"objectClass": "TextResult",
+													"sid": 770061142927498,
+													"parameters": {
+														"text": "MSG_WIN"
+													}
+												}
+											],
+											"sid": 236255113730507
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 576000828438742
+												}
+											],
+											"actions": [
+												{
+													"id": "set-text",
+													"objectClass": "TextResult",
+													"sid": 102019083086387,
+													"parameters": {
+														"text": "\"YOU WIN\""
+													}
+												}
+											],
+											"sid": 328434815955992
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy trails belonging to this car."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Destroy trails",
+					"objectClass": "Car",
+					"functionDescription": "Destroy trails belonging to this car.",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 948757188179551,
+							"parameters": {
+								"object": "Trail",
+								"expression": "Trail.carID",
+								"comparison": 0,
+								"value": "Car.carID"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Destroy physical trails."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Trail",
+							"sid": 830009619250411,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"DestroyTrail\"",
+								"property": "offsetZElevation",
+								"end-value": "Self.ZElevation - Self.Height * 2",
+								"time": "0.25",
+								"ease": "easeinsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 909520409802269
+				},
+				{
+					"eventType": "comment",
+					"text": "Create a new trail object for this car."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Create trail",
+					"objectClass": "Car",
+					"functionDescription": "Create a new trail object for this car.",
+					"functionCategory": "",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 125265260521412,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "parentTrailUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Parent trail's UID.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 985307213874047
+						},
+						{
+							"eventType": "comment",
+							"text": "Remove \"current\" property from any previously created trail of this car."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 247413392475800,
+									"parameters": {
+										"object": "Trail",
+										"expression": "Trail.carID",
+										"comparison": 0,
+										"value": "Car.carID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Trail",
+									"sid": 859737546853026,
+									"parameters": {
+										"instance-variable": "current",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 657285992356565
+						},
+						{
+							"eventType": "comment",
+							"text": "Create a new trail."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Car",
+									"sid": 363034362969948,
+									"parameters": {
+										"child": "CarBody0",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Car",
+									"sid": 620052814680228,
+									"parameters": {
+										"object": "Trail",
+										"layer": "\"Cars\"",
+										"image-point": "0",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set the origin, angle, and color."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Trail",
+									"sid": 320994350997676,
+									"parameters": {
+										"instance-variable": "originX",
+										"value": "Car.X"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Trail",
+									"sid": 600463460782378,
+									"parameters": {
+										"instance-variable": "originY",
+										"value": "Car.Y"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Trail",
+									"sid": 969652425703604,
+									"parameters": {
+										"angle": "Car.Angle"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "Trail",
+									"sid": 774109699105774,
+									"parameters": {
+										"color": "rgba255(\n    ArrColors.At(AdvancedRandom.Permutation(Car.carID), 0),\n    ArrColors.At(AdvancedRandom.Permutation(Car.carID), 1),\n    ArrColors.At(AdvancedRandom.Permutation(Car.carID), 2), \n    255\n)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make this the current trail and assign it to this car."
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Trail",
+									"sid": 456599007072613,
+									"parameters": {
+										"instance-variable": "current",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Trail",
+									"sid": 554141256591240,
+									"parameters": {
+										"instance-variable": "carID",
+										"value": "Car.carID"
+									}
+								}
+							],
+							"sid": 847303960567334
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Trails grow as the cars move."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 950658267883799
+						}
+					],
+					"actions": [],
+					"sid": 303685325306949,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 501311446793238,
+									"parameters": {
+										"object": "Car"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 870074842319854,
+									"parameters": {
+										"object": "Trail",
+										"expression": "Trail.carID",
+										"comparison": 0,
+										"value": "Car.carID"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 681189458517571,
+									"parameters": {
+										"object": "Trail",
+										"expression": "Trail.current",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-width",
+									"objectClass": "Trail",
+									"sid": 570810409045133,
+									"parameters": {
+										"width": "distance(Self.originX, Self.originY, Car.X, Car.Y)"
+									}
+								}
+							],
+							"sid": 969661715897850
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "A car has collided with a trail."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Car",
+							"sid": 964171132797476,
+							"parameters": {
+								"object": "Trail"
+							}
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "Trail",
+							"sid": 117913143956102,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"DestroyTrail\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 511606083647655,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the trail does not belong to this car, it's a crash."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Trail",
+									"sid": 965057591117006,
+									"parameters": {
+										"instance-variable": "carID",
+										"comparison": 1,
+										"value": "Car.carID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "destroyCar",
+									"sid": 602398146435499,
+									"parameters": [
+										"Car.UID"
+									]
+								}
+							],
+							"sid": 567349698797755
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, if the trail is not the most recent one (the current), it's also a crash."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 283193399272825
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Trail",
+									"sid": 860577415799322,
+									"parameters": {
+										"instance-variable": "current"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "destroyCar",
+									"sid": 837361024119765,
+									"parameters": [
+										"Car.UID"
+									]
+								}
+							],
+							"sid": 287437681538655
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "A car collided with another car, therefore both should be destroyed."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Cars",
+							"sid": 406376500231447,
+							"parameters": {
+								"object": "Car"
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "destroyCar",
+							"sid": 617854007406475,
+							"parameters": [
+								"Car.UID"
+							]
+						},
+						{
+							"callFunction": "destroyCar",
+							"sid": 307890455809257,
+							"parameters": [
+								"Cars.UID"
+							]
+						}
+					],
+					"sid": 414939726158153
+				}
+			],
+			"sid": 323825365665466
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "General Car Events",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Car arrived at waypoint."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-arrived",
+							"objectClass": "Car",
+							"sid": 748683997239230,
+							"behaviorType": "MoveTo"
+						},
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 773377941265469,
+							"parameters": {
+								"object": "Car"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 937839655653465,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Car will turn."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Car",
+									"sid": 168344998715641,
+									"parameters": {
+										"instance-variable": "turn",
+										"comparison": 1,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Car",
+									"sid": 534045020908475,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Turning\"",
+										"property": "offsetAngle",
+										"end-value": "Self.Angle + Self.turn * 90",
+										"time": "CAR_TURN_TIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Car",
+									"sid": 616242484923588,
+									"parameters": {
+										"instance-variable": "turn",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 326518124219154
+						},
+						{
+							"eventType": "comment",
+							"text": "Car will keep going straight."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 814681216973093
+								}
+							],
+							"actions": [
+								{
+									"id": "move-to-position",
+									"objectClass": "Car",
+									"sid": 153362500226111,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"x": "Self.X + cos(Self.Angle) * TILE_SIZE",
+										"y": "Self.Y + sin(Self.Angle) * TILE_SIZE",
+										"mode": "direct"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Car",
+									"sid": 430645513894943,
+									"parameters": {
+										"instance-variable": "turn",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 770580480499961
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Make car go to its newly designated direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tweens-finished",
+							"objectClass": "Car",
+							"sid": 249421616305631,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Turning\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "move-to-position",
+							"objectClass": "Car",
+							"sid": 447825476134824,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"x": "Self.X + cos(Self.Angle) * TILE_SIZE",
+								"y": "Self.Y + sin(Self.Angle) * TILE_SIZE",
+								"mode": "direct"
+							}
+						},
+						{
+							"customAction": "Create trail",
+							"objectClass": "Car",
+							"sid": 117869420959387
+						}
+					],
+					"sid": 928299257692916
+				}
+			],
+			"sid": 605087357021957
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "CPU Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Verify if a specific sensor is currently detecting a trail."
+				},
+				{
+					"functionName": "checkSensor",
+					"functionDescription": "Verify if a specific sensor is currently detecting a trail.",
+					"functionCategory": "AI",
+					"functionReturnType": "number",
+					"functionCopyPicked": true,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "sensorDir",
+							"type": "string",
+							"initialValue": "front",
+							"comment": "Sensor direction (front, left, right).",
+							"sid": 543539747688117
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-function-return-value",
+							"objectClass": "Functions",
+							"sid": 811533403244844,
+							"parameters": {
+								"value": "0"
+							}
+						}
+					],
+					"sid": 234842504591207,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Detect trails."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Car",
+									"sid": 589990626357572,
+									"parameters": {
+										"child": "SensorTrail",
+										"which": "own"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 491352325783574,
+									"parameters": {
+										"object": "SensorTrail",
+										"expression": "SensorTrail.sensorDir",
+										"comparison": 0,
+										"value": "sensorDir"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "SensorTrail",
+									"sid": 930006556132953,
+									"parameters": {
+										"object": "Trail"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 961853954503086,
+									"parameters": {
+										"value": "1"
+									}
+								}
+							],
+							"sid": 834345578016245
+						},
+						{
+							"eventType": "comment",
+							"text": "Detect cars."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 334823742376851,
+									"parameters": {
+										"value": "sensorDir = \"car\""
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "Car",
+									"sid": 771465936568679,
+									"parameters": {
+										"child": "SensorCar",
+										"which": "own"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "SensorCar",
+									"sid": 275928592618317,
+									"parameters": {
+										"object": "Cars"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 604810748763628,
+									"parameters": {
+										"value": "1"
+									}
+								}
+							],
+							"sid": 139558446207107
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Control AI movement."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 810874500325889,
+							"parameters": {
+								"object": "Car"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Car",
+							"sid": 785936477880715,
+							"parameters": {
+								"instance-variable": "isPlayer"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-playing",
+							"objectClass": "Car",
+							"sid": 411384846754139,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Turning\""
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "Car",
+							"sid": 610598674515114,
+							"parameters": {
+								"instance-variable": "turn",
+								"comparison": 0,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 488057935067043,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "There's a trail/car ahead. AI needs to turn."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 463645778283139,
+									"parameters": {
+										"value": "Functions.checkSensor(\"front\")"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 785458028917747,
+									"parameters": {
+										"value": "Functions.checkSensor(\"car\")"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 485243871221791,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "AI cannot turn left."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 407645165514995,
+											"parameters": {
+												"value": "Functions.checkSensor(\"left\")"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Car",
+											"sid": 984075602380217,
+											"parameters": {
+												"instance-variable": "turn",
+												"value": "1"
+											}
+										}
+									],
+									"sid": 474828225684407
+								},
+								{
+									"eventType": "comment",
+									"text": "AI cannot turn right."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 356829750921653
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 821573420254467,
+											"parameters": {
+												"value": "Functions.checkSensor(\"right\")"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Car",
+											"sid": 755692247145061,
+											"parameters": {
+												"instance-variable": "turn",
+												"value": "-1"
+											}
+										}
+									],
+									"sid": 167353156924398
+								},
+								{
+									"eventType": "comment",
+									"text": "AI can turn either left or right."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 708295973201220
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Car",
+											"sid": 908092000093486,
+											"parameters": {
+												"instance-variable": "turn",
+												"value": "choose(-1, 1)"
+											}
+										}
+									],
+									"sid": 210497531717411
+								}
+							],
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "There is no trail/car ahead."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 391048110893097
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Car",
+									"sid": 811219308653014,
+									"parameters": {
+										"instance-variable": "turn",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 271000095229054,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the probability of turning is overwhelming, make AI turn, if possible."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 862626730959396,
+											"parameters": {
+												"value": "random(Car.maxTurnProb) < Car.turnProb"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Car",
+											"sid": 886180190124123,
+											"parameters": {
+												"instance-variable": "turnProb",
+												"value": "0"
+											}
+										}
+									],
+									"sid": 298423638087561,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "AI cannot turn left."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 672852798947775,
+													"parameters": {
+														"value": "Functions.checkSensor(\"left\")"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Car",
+													"sid": 201480953940074,
+													"parameters": {
+														"instance-variable": "turn",
+														"value": "1"
+													}
+												}
+											],
+											"sid": 636553680774586
+										},
+										{
+											"eventType": "comment",
+											"text": "AI cannot turn right."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 929755204420328
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 383881934190016,
+													"parameters": {
+														"value": "Functions.checkSensor(\"right\")"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Car",
+													"sid": 440900487192273,
+													"parameters": {
+														"instance-variable": "turn",
+														"value": "-1"
+													}
+												}
+											],
+											"sid": 386297531980672
+										},
+										{
+											"eventType": "comment",
+											"text": "AI can turn either left or right."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 633553944858532
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Car",
+													"sid": 982618091491402,
+													"parameters": {
+														"instance-variable": "turn",
+														"value": "choose(-1, 1)"
+													}
+												}
+											],
+											"sid": 852353605317126
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Increase probability of turning."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 484707518011048
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Car",
+											"sid": 702549228374024,
+											"parameters": {
+												"instance-variable": "turnProb",
+												"value": "Self.turnProb + 0.1* dt"
+											}
+										}
+									],
+									"sid": 734886426433294
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 215943435371651
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Controls",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Pause",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Toggle Pause."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 556617980547021,
+									"parameters": {
+										"key": 27
+									}
+								},
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 873374218059401,
+									"parameters": {
+										"key": 19
+									}
+								},
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 736951695145446,
+									"parameters": {
+										"key": 80
+									}
+								}
+							],
+							"actions": [],
+							"sid": 399566595915745,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Check if the game can be paused at this moment."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-any-playing",
+											"objectClass": "Fader",
+											"sid": 837501836237377,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "TextMenu",
+											"sid": 178027013970765,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 558354115505336,
+											"parameters": {
+												"variable": "resultScreen"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 491395708323325,
+											"parameters": {
+												"variable": "menu"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [],
+									"sid": 643535575188943,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Unpause."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 698352902762732,
+													"parameters": {
+														"variable": "paused"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-time-scale",
+													"objectClass": "System",
+													"sid": 839018429016669,
+													"parameters": {
+														"time-scale": "1.0"
+													}
+												},
+												{
+													"id": "set-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 769081090062431,
+													"parameters": {
+														"variable": "paused",
+														"value": "false"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Stop flashing \"GAME PAUSED\"."
+												},
+												{
+													"id": "stop-flashing",
+													"objectClass": "TextPause",
+													"sid": 858631897083951,
+													"behaviorType": "Flash"
+												},
+												{
+													"id": "set-visible",
+													"objectClass": "TextPause",
+													"sid": 968283537409545,
+													"parameters": {
+														"visibility": "invisible"
+													}
+												},
+												{
+													"id": "set-object-time-scale",
+													"objectClass": "System",
+													"sid": 765577724607134,
+													"parameters": {
+														"object": "TextPause",
+														"time-scale": "1.0"
+													}
+												}
+											],
+											"sid": 170977376213391
+										},
+										{
+											"eventType": "comment",
+											"text": "Pause."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 672220875687987
+												}
+											],
+											"actions": [
+												{
+													"id": "set-time-scale",
+													"objectClass": "System",
+													"sid": 946818453004643,
+													"parameters": {
+														"time-scale": "0.0"
+													}
+												},
+												{
+													"id": "set-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 431291693789550,
+													"parameters": {
+														"variable": "paused",
+														"value": "true"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Flash \"GAME PAUSED\"."
+												},
+												{
+													"id": "flash",
+													"objectClass": "TextPause",
+													"sid": 480538816754685,
+													"behaviorType": "Flash",
+													"parameters": {
+														"on-time": "0.3",
+														"off-time": "0.2",
+														"duration": "Infinity"
+													}
+												},
+												{
+													"id": "set-object-time-scale",
+													"objectClass": "System",
+													"sid": 852682467350459,
+													"parameters": {
+														"object": "TextPause",
+														"time-scale": "1.0"
+													}
+												}
+											],
+											"sid": 969781975895843
+										}
+									]
+								}
+							],
+							"isOrBlock": true
+						}
+					],
+					"sid": 953924577323809
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Restart",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Restart the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 109367749465173,
+									"parameters": {
+										"key": 32
+									}
+								},
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 210320979604511,
+									"parameters": {
+										"key": 82
+									}
+								}
+							],
+							"actions": [],
+							"sid": 583105059263389,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 136531080615495,
+											"parameters": {
+												"variable": "menu"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 512519560384310,
+											"parameters": {
+												"variable": "paused"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Fader",
+											"sid": 995839914030176,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "TextMenu",
+											"sid": 635041462527369,
+											"behaviorType": "Tween",
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Hide result text."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "TextResult",
+											"sid": 753641458898190,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"HideTextResult\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.25",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Show fader."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Fader",
+											"sid": 592705046798870,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShowFader\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "0.25",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 292746449914747
+										},
+										{
+											"type": "comment",
+											"text": "Restart layout and the essential variables."
+										},
+										{
+											"id": "restart-layout",
+											"objectClass": "System",
+											"sid": 706088388990570
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 827175693797749,
+											"parameters": {
+												"variable": "menu",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 363928166236122,
+											"parameters": {
+												"variable": "paused",
+												"value": "false"
+											}
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 346755665534014,
+											"parameters": {
+												"variable": "resultScreen",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 151012883283773
+								}
+							],
+							"isOrBlock": true
+						}
+					],
+					"sid": 577041451964285
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Car Controls",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Turn left."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 616545109117324,
+									"parameters": {
+										"key": 37
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 274448187169151,
+									"parameters": {
+										"object": "Car",
+										"expression": "Car.isPlayer",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Car",
+									"sid": 156758655910703,
+									"parameters": {
+										"instance-variable": "turn",
+										"value": "-1"
+									}
+								}
+							],
+							"sid": 444019800318225
+						},
+						{
+							"eventType": "comment",
+							"text": "Turn right."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 986211819866659,
+									"parameters": {
+										"key": 39
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 639714568143719,
+									"parameters": {
+										"object": "Car",
+										"expression": "Car.isPlayer",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Car",
+									"sid": 746611869201005,
+									"parameters": {
+										"instance-variable": "turn",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 459350575044519
+						}
+					],
+					"sid": 288690775196989
+				}
+			],
+			"sid": 108434713947006
+		}
+	],
+	"sid": 152819920873761
+}

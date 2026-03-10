@@ -1,10 +1,10 @@
 
 // Import globals and utilities
-import Globals from "./globals.js";
-import * as Utils from "./utilities.js";
+import Globals from "./globals.ts";
+import * as Utils from "./utilities.ts";
 
 // TypeScript note: import the GoblinInstance class so it can be used as a type
-import GoblinInstance from "./goblin.js";
+import GoblinInstance from "./goblin.ts";
 
 export function Tick(runtime: IRuntime)
 {

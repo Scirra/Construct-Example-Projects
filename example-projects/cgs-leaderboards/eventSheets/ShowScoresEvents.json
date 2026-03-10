@@ -1,0 +1,301 @@
+{
+	"name": "ShowScoresEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Retrieve the leaderboard scores on startup."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 459665781959725
+				}
+			],
+			"actions": [
+				{
+					"id": "get-leaderboard-scores",
+					"objectClass": "ConstructGameServices",
+					"sid": 321762898673584,
+					"parameters": {
+						"leaderboard-id": "LEADERBOARD_ID",
+						"results-per-page": "10",
+						"page": "0",
+						"country": "\"\"",
+						"range": "all",
+						"range-offset": "0",
+						"culture": "\"\""
+					}
+				}
+			],
+			"sid": 576692459177185
+		},
+		{
+			"eventType": "comment",
+			"text": "Show scores if they were retrieved successfully."
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-success",
+					"objectClass": "ConstructGameServices",
+					"sid": 210391746298375,
+					"parameters": {
+						"type": "get-scores"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "ShowScoresStatus",
+					"sid": 281963546516821,
+					"parameters": {
+						"text": "\"Retrieved scores OK\""
+					}
+				},
+				{
+					"callFunction": "DisplayScores",
+					"sid": 274245430677623
+				}
+			],
+			"sid": 820758427359675
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-error",
+					"objectClass": "ConstructGameServices",
+					"sid": 261554715392503,
+					"parameters": {
+						"type": "get-scores"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-text",
+					"objectClass": "ShowScoresStatus",
+					"sid": 102746172170585,
+					"parameters": {
+						"text": "\"Error retrieving scores\""
+					}
+				}
+			],
+			"sid": 470934640163543
+		},
+		{
+			"eventType": "comment",
+			"text": "Constants for positioning text objects in the results list."
+		},
+		{
+			"eventType": "variable",
+			"name": "SCORE_MARGIN_Y",
+			"type": "number",
+			"initialValue": "30",
+			"comment": "The space in between score rows",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 156747114455986
+		},
+		{
+			"eventType": "variable",
+			"name": "SCORE_COUNTRY_MARGIN",
+			"type": "number",
+			"initialValue": "50",
+			"comment": "How far to the right countries appear",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 197613706865833
+		},
+		{
+			"eventType": "variable",
+			"name": "SCORE_NAME_MARGIN",
+			"type": "number",
+			"initialValue": "100",
+			"comment": "How far to the right names appear",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 749284440425824
+		},
+		{
+			"eventType": "variable",
+			"name": "SCORE_VALUE_MARGIN",
+			"type": "number",
+			"initialValue": "400",
+			"comment": "How far to the right score values appear",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 890634515618859
+		},
+		{
+			"functionName": "DisplayScores",
+			"functionDescription": "",
+			"functionCategory": "",
+			"functionReturnType": "none",
+			"functionCopyPicked": false,
+			"functionIsAsync": false,
+			"functionParameters": [],
+			"eventType": "function-block",
+			"conditions": [],
+			"actions": [
+				{
+					"id": "destroy",
+					"objectClass": "ScoreResultText",
+					"sid": 458086868118441
+				}
+			],
+			"sid": 133688387944395,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "For each score, create four text objects, each showing the rank, country, name and score value. Show the rank and score in bold."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "repeat",
+							"objectClass": "System",
+							"sid": 444975739344359,
+							"parameters": {
+								"count": "ConstructGameServices.ScoreCount"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 525690497763845,
+							"parameters": {
+								"object-to-create": "ScoreResultText",
+								"layer": "0",
+								"x": "LeaderboardOrigin.X",
+								"y": "LeaderboardOrigin.Y + SCORE_MARGIN_Y * loopindex",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "ScoreResultText",
+							"sid": 991970630009254,
+							"parameters": {
+								"text": "ConstructGameServices.ScoreFormattedRankAt(loopindex)"
+							}
+						},
+						{
+							"id": "set-font-face",
+							"objectClass": "ScoreResultText",
+							"sid": 592339507189055,
+							"parameters": {
+								"font-face": "\"Arial\"",
+								"style": "bold"
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 604482389718623,
+							"parameters": {
+								"object-to-create": "ScoreResultText",
+								"layer": "0",
+								"x": "LeaderboardOrigin.X + SCORE_COUNTRY_MARGIN",
+								"y": "LeaderboardOrigin.Y + SCORE_MARGIN_Y * loopindex",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "ScoreResultText",
+							"sid": 548323939570028,
+							"parameters": {
+								"text": "ConstructGameServices.ScoreCountryAt(loopindex)"
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 732170281365217,
+							"parameters": {
+								"object-to-create": "ScoreResultText",
+								"layer": "0",
+								"x": "LeaderboardOrigin.X + SCORE_NAME_MARGIN",
+								"y": "LeaderboardOrigin.Y + SCORE_MARGIN_Y * loopindex",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "ScoreResultText",
+							"sid": 523231723788277,
+							"parameters": {
+								"text": "ConstructGameServices.ScorePlayerNameAt(loopindex)"
+							}
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 713305239724009,
+							"parameters": {
+								"object-to-create": "ScoreResultText",
+								"layer": "0",
+								"x": "LeaderboardOrigin.X + SCORE_VALUE_MARGIN",
+								"y": "LeaderboardOrigin.Y + SCORE_MARGIN_Y * loopindex",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "ScoreResultText",
+							"sid": 450214600673898,
+							"parameters": {
+								"text": "ConstructGameServices.ScoreFormattedAt(loopindex)"
+							}
+						},
+						{
+							"id": "set-font-face",
+							"objectClass": "ScoreResultText",
+							"sid": 576457580591812,
+							"parameters": {
+								"font-face": "\"Arial\"",
+								"style": "bold"
+							}
+						}
+					],
+					"sid": 822421874994294
+				}
+			]
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-clicked",
+					"objectClass": "Back",
+					"sid": 195743334653649
+				}
+			],
+			"actions": [
+				{
+					"id": "go-to-layout",
+					"objectClass": "System",
+					"sid": 279004394530696,
+					"parameters": {
+						"layout": "SubmitScore"
+					}
+				}
+			],
+			"sid": 831285236501312
+		}
+	],
+	"sid": 627870046670765
+}

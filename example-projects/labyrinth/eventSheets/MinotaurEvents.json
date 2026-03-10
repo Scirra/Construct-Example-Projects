@@ -1,0 +1,2645 @@
+{
+	"name": "MinotaurEvents",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Minotaur Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup minotaur."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-created",
+							"objectClass": "Minotaur",
+							"sid": 485105487442367
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Start behavior flowchart."
+						},
+						{
+							"id": "start-flowchart",
+							"objectClass": "FlowchartController",
+							"sid": 207792785397642,
+							"parameters": {
+								"flowchart-name": "Minotaur",
+								"start-node-tag": "\"\"",
+								"flowchart-tag": "\"minotaur\"",
+								"set-as-current": true
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Add obstacles to navigation map."
+						},
+						{
+							"id": "add-obstacle",
+							"objectClass": "Minotaur",
+							"sid": 850105782252096,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"obstacle": "Navmap"
+							}
+						}
+					],
+					"sid": 973510819497207
+				}
+			],
+			"sid": 173810022035874
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Minotaur Enable",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "When the player walks over the minotaur trigger, enable the monster."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Player",
+							"sid": 455179203591976,
+							"parameters": {
+								"object": "EnableMinotaur"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Minotaur",
+							"sid": 997630406911389,
+							"parameters": {
+								"instance-variable": "enabled"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"customAction": "Enable",
+							"objectClass": "Minotaur",
+							"sid": 812804979794215
+						}
+					],
+					"sid": 187502476948936
+				},
+				{
+					"eventType": "comment",
+					"text": "Minotaur starts hunting the player."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Enable",
+					"objectClass": "Minotaur",
+					"functionDescription": "Minotaur starts hunting the player.",
+					"functionCategory": "Core",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Minotaur",
+							"sid": 297015635423293,
+							"parameters": {
+								"instance-variable": "enabled",
+								"value": "true"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Minotaur",
+							"sid": 772600039703974,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.25",
+								"type": "once",
+								"tag": "\"Think\""
+							}
+						}
+					],
+					"sid": 981555487564033
+				},
+				{
+					"eventType": "comment",
+					"text": "Start thinking chain."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "Minotaur",
+							"sid": 915250343411264,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Think\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"customAction": "Think",
+							"objectClass": "Minotaur",
+							"sid": 472304752816321
+						}
+					],
+					"sid": 193243928552608
+				}
+			],
+			"sid": 317905902896639
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Minotaur Off-screen",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the minotaur was on-screen, and isn't anymore, start counting the off-screen time."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-on-screen",
+							"objectClass": "Minotaur",
+							"sid": 954055444698919,
+							"isInverted": true
+						},
+						{
+							"id": "trigger-once-while-true",
+							"objectClass": "System",
+							"sid": 117318879698079
+						}
+					],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "Minotaur",
+							"sid": 204443045238951,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "8",
+								"type": "once",
+								"tag": "\"Offscreen\""
+							}
+						}
+					],
+					"sid": 502074147080443
+				}
+			],
+			"sid": 674760690359125
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Minotaur Logic",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "MINO_MELEE_DIST",
+					"type": "number",
+					"initialValue": "64",
+					"comment": "Maximum distance at which the Minotaur can attack the player.",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 590950783667847
+				},
+				{
+					"eventType": "comment",
+					"text": "Analyze world state and perform an action."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Think",
+					"objectClass": "Minotaur",
+					"functionDescription": "Analyze world state and perform an action.",
+					"functionCategory": "Core",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 334734815108637,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "(LEAF) [b]act:[/b] Perform an action."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-node-tag",
+									"objectClass": "FlowchartController",
+									"sid": 630618968166388,
+									"parameters": {
+										"comparison": 0,
+										"value": "\"act\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 603380901251867,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "chosenAction",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Number of the chosen action.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 480270005608231
+								},
+								{
+									"eventType": "comment",
+									"text": "Choose a random action."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 591493629763331,
+											"parameters": {
+												"variable": "chosenAction",
+												"value": "int(random(FlowchartController.OutputCount))"
+											}
+										}
+									],
+									"sid": 994209069285606
+								},
+								{
+									"eventType": "comment",
+									"text": "Perform an action."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-output-name",
+											"objectClass": "FlowchartController",
+											"sid": 311856447468464,
+											"parameters": {
+												"output-index": "chosenAction",
+												"comparison": 0,
+												"value": "\"Attack\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Attack",
+											"objectClass": "Minotaur",
+											"sid": 455089538589316
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Minotaur",
+											"sid": 742982608586818,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.5",
+												"type": "once",
+												"tag": "\"Think\""
+											}
+										}
+									],
+									"sid": 589388845400167
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 431203261593460
+										},
+										{
+											"id": "compare-output-name",
+											"objectClass": "FlowchartController",
+											"sid": 629541302013801,
+											"parameters": {
+												"output-index": "chosenAction",
+												"comparison": 0,
+												"value": "\"Charge\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Charge",
+											"objectClass": "Minotaur",
+											"sid": 136572154482002
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Minotaur",
+											"sid": 499177847992990,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "1",
+												"type": "once",
+												"tag": "\"Think\""
+											}
+										}
+									],
+									"sid": 305141571282184
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 421196182262955
+										},
+										{
+											"id": "compare-output-name",
+											"objectClass": "FlowchartController",
+											"sid": 869373066073777,
+											"parameters": {
+												"output-index": "chosenAction",
+												"comparison": 0,
+												"value": "\"Stalk\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Stalk",
+											"objectClass": "Minotaur",
+											"sid": 901082050186459
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Minotaur",
+											"sid": 426056909025951,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "1",
+												"type": "once",
+												"tag": "\"Think\""
+											}
+										}
+									],
+									"sid": 143755004044971
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 668687436089337
+										},
+										{
+											"id": "compare-output-name",
+											"objectClass": "FlowchartController",
+											"sid": 713292455784165,
+											"parameters": {
+												"output-index": "chosenAction",
+												"comparison": 0,
+												"value": "\"Patrol\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Patrol",
+											"objectClass": "Minotaur",
+											"sid": 177674227276301
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Minotaur",
+											"sid": 924378920324779,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "random(3, 5)",
+												"type": "once",
+												"tag": "\"Think\""
+											}
+										}
+									],
+									"sid": 802241638547580
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 289861022186192
+										},
+										{
+											"id": "compare-output-name",
+											"objectClass": "FlowchartController",
+											"sid": 148564113212705,
+											"parameters": {
+												"output-index": "chosenAction",
+												"comparison": 0,
+												"value": "\"Guard\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Guard",
+											"objectClass": "Minotaur",
+											"sid": 690825230685301
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Minotaur",
+											"sid": 505607899191106,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "random(5)",
+												"type": "once",
+												"tag": "\"Think\""
+											}
+										}
+									],
+									"sid": 927587435705536
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 794755855718737
+										},
+										{
+											"id": "compare-output-name",
+											"objectClass": "FlowchartController",
+											"sid": 235648272588214,
+											"parameters": {
+												"output-index": "chosenAction",
+												"comparison": 0,
+												"value": "\"Teleport\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 230616956850246,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-timer-running",
+													"objectClass": "Minotaur",
+													"sid": 647301183573080,
+													"behaviorType": "Timer",
+													"parameters": {
+														"tag": "\"TeleportCooldown\""
+													},
+													"isInverted": true
+												},
+												{
+													"id": "is-timer-running",
+													"objectClass": "Minotaur",
+													"sid": 597571852550679,
+													"behaviorType": "Timer",
+													"parameters": {
+														"tag": "\"Offscreen\""
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Teleport",
+													"objectClass": "Minotaur",
+													"sid": 210455926476579
+												},
+												{
+													"id": "start-timer",
+													"objectClass": "Minotaur",
+													"sid": 754311669697608,
+													"behaviorType": "Timer",
+													"parameters": {
+														"duration": "5",
+														"type": "once",
+														"tag": "\"Think\""
+													}
+												},
+												{
+													"id": "start-timer",
+													"objectClass": "Minotaur",
+													"sid": 591385373589124,
+													"behaviorType": "Timer",
+													"parameters": {
+														"duration": "8",
+														"type": "once",
+														"tag": "\"TeleportCooldown\""
+													}
+												}
+											],
+											"sid": 428988708973229
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 878144757035735
+												}
+											],
+											"actions": [
+												{
+													"id": "reset-flowchart",
+													"objectClass": "FlowchartController",
+													"sid": 834987539412637
+												},
+												{
+													"customAction": "Think",
+													"objectClass": "Minotaur",
+													"sid": 920660916124749
+												}
+											],
+											"sid": 550297312114075
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Reset flowchart."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "reset-flowchart",
+											"objectClass": "FlowchartController",
+											"sid": 140477005703885
+										}
+									],
+									"sid": 549676438622160
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "(PATH) traverse the flowchart."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 168450207508215
+								}
+							],
+							"actions": [],
+							"sid": 765161627093543,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "[b]checkDist:[/b] check if the player is nearby or far away."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-at-start-node",
+											"objectClass": "FlowchartController",
+											"sid": 732824402023004
+										}
+									],
+									"actions": [],
+									"sid": 260878910300876,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Player is nearby."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-on-screen",
+													"objectClass": "Minotaur",
+													"sid": 249154584831097
+												}
+											],
+											"actions": [
+												{
+													"id": "goto-next-flowchart-node",
+													"objectClass": "FlowchartController",
+													"sid": 515953768872760,
+													"parameters": {
+														"index-or-name": "\"pNearby\""
+													}
+												}
+											],
+											"sid": 421927301001832
+										},
+										{
+											"eventType": "comment",
+											"text": "Player is far away."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 825634616721076
+												}
+											],
+											"actions": [
+												{
+													"id": "goto-next-flowchart-node",
+													"objectClass": "FlowchartController",
+													"sid": 703296875540781,
+													"parameters": {
+														"index-or-name": "\"pFar\""
+													}
+												}
+											],
+											"sid": 486772623544487
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "[b]checkVisibility:[/b] check if the player is reachable."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 681739094123314
+										},
+										{
+											"id": "compare-node-tag",
+											"objectClass": "FlowchartController",
+											"sid": 163717358196566,
+											"parameters": {
+												"comparison": 0,
+												"value": "\"checkVisibility\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 285876242503617,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Player is visible."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "has-los-to-object",
+													"objectClass": "Minotaur",
+													"sid": 364575141729348,
+													"behaviorType": "LineOfSight",
+													"parameters": {
+														"object": "Player",
+														"image-point": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "goto-next-flowchart-node",
+													"objectClass": "FlowchartController",
+													"sid": 915758206490859,
+													"parameters": {
+														"index-or-name": "\"pVisible\""
+													}
+												}
+											],
+											"sid": 193115891563236
+										},
+										{
+											"eventType": "comment",
+											"text": "Player is not visible."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 376270735351902
+												}
+											],
+											"actions": [
+												{
+													"id": "goto-next-flowchart-node",
+													"objectClass": "FlowchartController",
+													"sid": 812906719571042,
+													"parameters": {
+														"index-or-name": "\"pNotVisible\""
+													}
+												}
+											],
+											"sid": 314951071616434
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "[b]checkRange:[/b] check if the player is in range of a melee attack."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 802372271910271
+										},
+										{
+											"id": "compare-node-tag",
+											"objectClass": "FlowchartController",
+											"sid": 323030863957683,
+											"parameters": {
+												"comparison": 0,
+												"value": "\"checkRange\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 103834587798514,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Player is in range of a melee attack."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 513505169250963,
+													"parameters": {
+														"value": "distance(Player.X, Player.Y, Minotaur.X, Minotaur.Y) < MINO_MELEE_DIST"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "goto-next-flowchart-node",
+													"objectClass": "FlowchartController",
+													"sid": 405306406897430,
+													"parameters": {
+														"index-or-name": "\"pInRange\""
+													}
+												}
+											],
+											"sid": 488962181007793
+										},
+										{
+											"eventType": "comment",
+											"text": "Player is not in range."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 416560691640134
+												}
+											],
+											"actions": [
+												{
+													"id": "goto-next-flowchart-node",
+													"objectClass": "FlowchartController",
+													"sid": 445406161937617,
+													"parameters": {
+														"index-or-name": "\"pNotInRange\""
+													}
+												}
+											],
+											"sid": 766356823511691
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "[b]checkBehavior:[/b] check what the minotaur is currently doing to choose the next action."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 273816338939754
+										},
+										{
+											"id": "compare-node-tag",
+											"objectClass": "FlowchartController",
+											"sid": 715678201516548,
+											"parameters": {
+												"comparison": 0,
+												"value": "\"checkBehavior\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 224440546937156,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Minotaur is guarding."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-moving",
+													"objectClass": "Minotaur",
+													"sid": 937182248284958,
+													"behaviorType": "MoveTo",
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"id": "goto-next-flowchart-node",
+													"objectClass": "FlowchartController",
+													"sid": 460496252763021,
+													"parameters": {
+														"index-or-name": "\"mGuarding\""
+													}
+												}
+											],
+											"sid": 957882174189353
+										},
+										{
+											"eventType": "comment",
+											"text": "Minotaur is not guarding."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 592840558630268
+												}
+											],
+											"actions": [
+												{
+													"id": "goto-next-flowchart-node",
+													"objectClass": "FlowchartController",
+													"sid": 742047563346339,
+													"parameters": {
+														"index-or-name": "\"mNotGuarding\""
+													}
+												}
+											],
+											"sid": 521095287099915
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Keep thinking."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"customAction": "Think",
+											"objectClass": "Minotaur",
+											"sid": 953602839518722
+										}
+									],
+									"sid": 596763763134534
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 160431473390039
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Minotaur Teleport",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Start teleport procedure."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Teleport",
+					"objectClass": "Minotaur",
+					"functionDescription": "Start teleport procedure.",
+					"functionCategory": "Action",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Minotaur",
+							"sid": 841089140553629,
+							"parameters": {
+								"instance-variable": "teleporting"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Minotaur",
+							"sid": 994366033592561,
+							"parameters": {
+								"instance-variable": "teleporting",
+								"value": "true"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Minotaur",
+							"sid": 414237855213413,
+							"parameters": {
+								"instance-variable": "patrolling",
+								"value": "false"
+							}
+						},
+						{
+							"id": "stop",
+							"objectClass": "Minotaur",
+							"sid": 891820244190903,
+							"behaviorType": "Pathfinding"
+						},
+						{
+							"id": "stop",
+							"objectClass": "Minotaur",
+							"sid": 427912753006625,
+							"behaviorType": "MoveTo"
+						}
+					],
+					"sid": 738508307292659,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Pick a random, out of range, teleport node to spawn the minotaur."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-on-screen",
+									"objectClass": "TeleportNode",
+									"sid": 466905234776050,
+									"isInverted": true
+								},
+								{
+									"id": "pick-random-instance",
+									"objectClass": "System",
+									"sid": 847062609116920,
+									"parameters": {
+										"object": "TeleportNode"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "Minotaur",
+									"sid": 269736825651486,
+									"parameters": {
+										"object": "TeleportNode",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "find-path",
+									"objectClass": "Minotaur",
+									"sid": 778558302159284,
+									"behaviorType": "Pathfinding",
+									"parameters": {
+										"x": "Player.X",
+										"y": "Player.Y"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 316062104417463
+								},
+								{
+									"id": "stop",
+									"objectClass": "Minotaur",
+									"sid": 339454880098271,
+									"behaviorType": "MoveTo"
+								}
+							],
+							"sid": 604629021784399,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Trace nodes to the player."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 983810078958678,
+											"parameters": {
+												"count": "Minotaur.Pathfinding.NodeCount"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 548936164827414,
+											"parameters": {
+												"object-to-create": "MinotaurNode",
+												"layer": "\"Nodes\"",
+												"x": "Minotaur.Pathfinding.NodeXAt(loopindex)",
+												"y": "Minotaur.Pathfinding.NodeYAt(loopindex)",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "MinotaurNode",
+											"sid": 405196537351086,
+											"parameters": {
+												"instance-variable": "nodeID",
+												"value": "loopindex"
+											}
+										}
+									],
+									"sid": 564213832764218
+								},
+								{
+									"eventType": "comment",
+									"text": "Attempt to teleport to a node close to the player."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 944111856746866,
+											"parameters": {
+												"seconds": "0",
+												"use-timescale": true
+											}
+										},
+										{
+											"customAction": "Teleport to Node",
+											"objectClass": "Minotaur",
+											"sid": 799693389515580
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 948575628005155,
+											"parameters": {
+												"seconds": "1.0",
+												"use-timescale": true
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Minotaur",
+											"sid": 114174513553885,
+											"parameters": {
+												"instance-variable": "teleporting",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 687655418083980
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Attempt to teleport the Minotaur to the nearest node outside the player’s line of sight."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Teleport to Node",
+					"objectClass": "Minotaur",
+					"functionDescription": "Teleport the Minotaur to the nearest node outside the player’s line of sight.",
+					"functionCategory": "Auxiliary",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 956656979399793,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-ordered",
+									"objectClass": "System",
+									"sid": 518791090375251,
+									"parameters": {
+										"object": "MinotaurNode",
+										"expression": "MinotaurNode.nodeID",
+										"order": "descending"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 486459595779983,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-on-screen",
+											"objectClass": "MinotaurNode",
+											"sid": 178729820106679,
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "Minotaur",
+											"sid": 514989954306333,
+											"parameters": {
+												"object": "MinotaurNode",
+												"image-point-optional": "0"
+											}
+										},
+										{
+											"id": "find-path",
+											"objectClass": "Minotaur",
+											"sid": 454990844575814,
+											"behaviorType": "Pathfinding",
+											"parameters": {
+												"x": "Player.X",
+												"y": "Player.Y"
+											}
+										},
+										{
+											"id": "stop-loop",
+											"objectClass": "System",
+											"sid": 113612076324703
+										}
+									],
+									"sid": 310170784851858
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 857283840287031
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Minotaur Animation",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Set Minotaur's animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-any-playing",
+							"objectClass": "Minotaur",
+							"sid": 433681637850520,
+							"behaviorType": "Tween",
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Minotaur",
+							"sid": 340958974596103,
+							"parameters": {
+								"instance-variable": "lastAngle",
+								"value": "Functions.rightAngle(Functions.convertAngle(Minotaur.MoveTo.MovingAngle))"
+							}
+						}
+					],
+					"sid": 437641786765828,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-moving",
+									"objectClass": "Minotaur",
+									"sid": 362869696128512,
+									"behaviorType": "MoveTo"
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "MinotaurSprite",
+									"sid": 140345231255011,
+									"parameters": {
+										"animation": "\"Walking\" & Minotaur.lastAngle",
+										"from": "current-frame"
+									}
+								}
+							],
+							"sid": 871849812504825
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 839800820859637
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Minotaur",
+									"sid": 607946034872579,
+									"parameters": {
+										"instance-variable": "patrolling"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "MinotaurSprite",
+									"sid": 642697278898407,
+									"parameters": {
+										"animation": "\"Idle\" & Minotaur.lastAngle",
+										"from": "current-frame"
+									}
+								}
+							],
+							"sid": 457551455744484
+						}
+					]
+				}
+			],
+			"sid": 559655488034254
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Minotaur Movement",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "MINO_STALK_SPEED",
+					"type": "number",
+					"initialValue": "35",
+					"comment": "Minotaur stalking speed.",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 737456208060821
+				},
+				{
+					"eventType": "variable",
+					"name": "MINO_CHARGE_SPEED",
+					"type": "number",
+					"initialValue": "65",
+					"comment": "Minotaur charging speed.",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 288019640137007
+				},
+				{
+					"eventType": "variable",
+					"name": "MINO_ATTACK_TIME",
+					"type": "number",
+					"initialValue": "0.5",
+					"comment": "Time taken for the minotaur's spinning attack to reach the player.",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 734148029749311
+				},
+				{
+					"eventType": "comment",
+					"text": "Stand still."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Guard",
+					"objectClass": "Minotaur",
+					"functionDescription": "Stand still.",
+					"functionCategory": "Action",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Minotaur",
+							"sid": 651635299701525,
+							"parameters": {
+								"instance-variable": "patrolling",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-max-speed",
+							"objectClass": "Minotaur",
+							"sid": 316603596255343,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"max-speed": "MINO_STALK_SPEED"
+							}
+						},
+						{
+							"id": "stop",
+							"objectClass": "Minotaur",
+							"sid": 849249987793895,
+							"behaviorType": "MoveTo"
+						}
+					],
+					"sid": 580579693034734
+				},
+				{
+					"eventType": "comment",
+					"text": "Stalk the player."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Stalk",
+					"objectClass": "Minotaur",
+					"functionDescription": "Stalk the player.",
+					"functionCategory": "Action",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 604592942388940,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-moving",
+									"objectClass": "Minotaur",
+									"sid": 680236465592835,
+									"behaviorType": "MoveTo",
+									"isInverted": true
+								},
+								{
+									"id": "compare-speed",
+									"objectClass": "Minotaur",
+									"sid": 194717683760079,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"comparison": 0,
+										"speed": "MINO_CHARGE_SPEED"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Minotaur",
+									"sid": 334211724267250,
+									"parameters": {
+										"instance-variable": "patrolling",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-max-speed",
+									"objectClass": "Minotaur",
+									"sid": 261383803352282,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"max-speed": "MINO_STALK_SPEED"
+									}
+								},
+								{
+									"customAction": "Recalculate Path",
+									"objectClass": "Minotaur",
+									"sid": 521460777225353
+								}
+							],
+							"sid": 546134120762093,
+							"isOrBlock": true
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Charge towards the player."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Charge",
+					"objectClass": "Minotaur",
+					"functionDescription": "Charge towards the player.",
+					"functionCategory": "Action",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Minotaur",
+							"sid": 438353493115643,
+							"parameters": {
+								"instance-variable": "patrolling",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-max-speed",
+							"objectClass": "Minotaur",
+							"sid": 134322910235830,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"max-speed": "MINO_CHARGE_SPEED"
+							}
+						},
+						{
+							"customAction": "Recalculate Path",
+							"objectClass": "Minotaur",
+							"sid": 348512645286858
+						}
+					],
+					"sid": 244715457324391
+				},
+				{
+					"eventType": "comment",
+					"text": "Attack the player."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Attack",
+					"objectClass": "Minotaur",
+					"functionDescription": "Attack the player.",
+					"functionCategory": "Action",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 571615573137849,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-x",
+									"objectClass": "Minotaur",
+									"sid": 796697738145299,
+									"parameters": {
+										"comparison": 0,
+										"x-co-ordinate": "Player.X"
+									}
+								},
+								{
+									"id": "compare-y",
+									"objectClass": "Minotaur",
+									"sid": 866628754955956,
+									"parameters": {
+										"comparison": 0,
+										"y-co-ordinate": "Player.Y"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Minotaur",
+									"sid": 989819137531217,
+									"parameters": {
+										"instance-variable": "patrolling",
+										"value": "false"
+									}
+								},
+								{
+									"id": "stop",
+									"objectClass": "Minotaur",
+									"sid": 154027097291667,
+									"behaviorType": "MoveTo"
+								},
+								{
+									"type": "comment",
+									"text": "Perform spin attack."
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "Minotaur",
+									"sid": 259991626686170,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"Attack\"",
+										"start-value": "0",
+										"end-value": "1",
+										"time": "MINO_ATTACK_TIME",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "MinotaurSprite",
+									"sid": 880902917762067,
+									"parameters": {
+										"animation": "\"Spin\"",
+										"from": "current-frame"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Freeze minotaur."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 886259446864328
+								}
+							],
+							"sid": 197520077772348,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 291587918602777,
+									"parameters": {
+										"variable": "gameOver"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "MinotaurSprite",
+									"sid": 345109706642037,
+									"parameters": {
+										"animation": "\"Idle\" & Minotaur.lastAngle",
+										"from": "current-frame"
+									}
+								},
+								{
+									"id": "stop-all-timers",
+									"objectClass": "Minotaur",
+									"sid": 418131303579639,
+									"behaviorType": "Timer"
+								},
+								{
+									"id": "set-max-speed",
+									"objectClass": "Minotaur",
+									"sid": 405842649679477,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"max-speed": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Destroy the player and start game over procedure."
+								},
+								{
+									"id": "set-ignoring-input",
+									"objectClass": "Player",
+									"sid": 863243116012424,
+									"behaviorType": "TileMovement",
+									"parameters": {
+										"input": "start-ignoring"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 505265036833659,
+									"parameters": {
+										"variable": "gameOver",
+										"value": "true"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Player",
+									"sid": 175384498679214,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadePlayer\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.25",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 388597268947820
+								},
+								{
+									"callFunction": "gameOver",
+									"sid": 162830348135150,
+									"parameters": [
+										false
+									]
+								}
+							],
+							"sid": 755962434492455
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Patrol the labyrinth."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Patrol",
+					"objectClass": "Minotaur",
+					"functionDescription": "Patrol the labyrinth.",
+					"functionCategory": "Action",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "stop",
+							"objectClass": "Minotaur",
+							"sid": 853990806620378,
+							"behaviorType": "MoveTo"
+						},
+						{
+							"id": "set-max-speed",
+							"objectClass": "Minotaur",
+							"sid": 852911457013073,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"max-speed": "MINO_STALK_SPEED"
+							}
+						},
+						{
+							"id": "set-boolean-instvar",
+							"objectClass": "Minotaur",
+							"sid": 546013892210243,
+							"parameters": {
+								"instance-variable": "patrolling",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 500353558580357
+				},
+				{
+					"eventType": "comment",
+					"text": "Recalculate path to the player."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Recalculate Path",
+					"objectClass": "Minotaur",
+					"functionDescription": "Recalculate path to the player.",
+					"functionCategory": "Auxiliary",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "find-path",
+							"objectClass": "Minotaur",
+							"sid": 451876932837597,
+							"behaviorType": "Pathfinding",
+							"parameters": {
+								"x": "Player.X",
+								"y": "Player.Y"
+							}
+						}
+					],
+					"sid": 571062308367106
+				},
+				{
+					"eventType": "comment",
+					"text": "A path to the player was found."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-path-found",
+							"objectClass": "Minotaur",
+							"sid": 445582189369718,
+							"behaviorType": "Pathfinding"
+						}
+					],
+					"actions": [
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Minotaur",
+							"sid": 726224419346218,
+							"parameters": {
+								"instance-variable": "currentNode",
+								"value": "0"
+							}
+						},
+						{
+							"id": "destroy",
+							"objectClass": "MinotaurNode",
+							"sid": 373607243418600
+						},
+						{
+							"id": "move-to-position",
+							"objectClass": "Minotaur",
+							"sid": 644804659602710,
+							"behaviorType": "MoveTo",
+							"parameters": {
+								"x": "Self.Pathfinding.NodeXAt(0)",
+								"y": "Self.Pathfinding.NodeYAt(0)",
+								"mode": "direct"
+							}
+						}
+					],
+					"sid": 177296768741311,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Trace nodes to the player."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 489350067992985,
+									"parameters": {
+										"count": "Minotaur.Pathfinding.NodeCount"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 370850716184219,
+									"parameters": {
+										"object-to-create": "MinotaurNode",
+										"layer": "\"Nodes\"",
+										"x": "Minotaur.Pathfinding.NodeXAt(loopindex)",
+										"y": "Minotaur.Pathfinding.NodeYAt(loopindex)",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "MinotaurNode",
+									"sid": 756498247752357,
+									"parameters": {
+										"instance-variable": "nodeID",
+										"value": "loopindex"
+									}
+								}
+							],
+							"sid": 555649942018312
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Arrived at a pathfinder node."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-arrived",
+							"objectClass": "Minotaur",
+							"sid": 406884847077818,
+							"behaviorType": "MoveTo"
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Minotaur",
+							"sid": 868621233342982,
+							"parameters": {
+								"instance-variable": "patrolling"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"customAction": "Recalculate Path",
+							"objectClass": "Minotaur",
+							"sid": 946700306154828
+						},
+						{
+							"id": "add-to-instvar",
+							"objectClass": "Minotaur",
+							"sid": 817842739561274,
+							"parameters": {
+								"instance-variable": "currentNode",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 521888119064257,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move to the next node."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Minotaur",
+									"sid": 106666679295625,
+									"parameters": {
+										"instance-variable": "currentNode",
+										"comparison": 2,
+										"value": "Self.Pathfinding.NodeCount - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "move-to-position",
+									"objectClass": "Minotaur",
+									"sid": 580422358803435,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"x": "Self.Pathfinding.NodeXAt(Self.currentNode)",
+										"y": "Self.Pathfinding.NodeYAt(Self.currentNode)",
+										"mode": "direct"
+									}
+								}
+							],
+							"sid": 536448985460677
+						},
+						{
+							"eventType": "comment",
+							"text": "Immediately recalculate path to the player if the Minotaur has arrived at the last node."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 382080663812373
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Recalculate Path",
+									"objectClass": "Minotaur",
+									"sid": 817248522796980
+								}
+							],
+							"sid": 842978280244424
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move minotaur to player's position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Minotaur",
+							"sid": 976346559257291,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Attack\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Minotaur",
+							"sid": 888987007026825,
+							"parameters": {
+								"x": "lerp(Self.X, Player.X, Self.Tween.Value(\"Attack\"))",
+								"y": "lerp(Self.Y, Player.Y, Self.Tween.Value(\"Attack\"))"
+							}
+						}
+					],
+					"sid": 293019063963248
+				},
+				{
+					"eventType": "comment",
+					"text": "Minotaur is patrolling."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Minotaur",
+							"sid": 824399691888996,
+							"parameters": {
+								"instance-variable": "patrolling"
+							}
+						},
+						{
+							"id": "is-moving",
+							"objectClass": "Minotaur",
+							"sid": 679055190484585,
+							"behaviorType": "MoveTo",
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 234060023495305,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "mX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Minotaur's tile X position.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 324275690348727
+						},
+						{
+							"eventType": "variable",
+							"name": "mY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Minotaur's tile Y position.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 119346429367886
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 318433294791657,
+									"parameters": {
+										"variable": "mX",
+										"value": "int(Minotaur.X / TW)"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 189554581780930,
+									"parameters": {
+										"variable": "mY",
+										"value": "int(Minotaur.Y / TH)"
+									}
+								}
+							],
+							"sid": 752953788302644
+						},
+						{
+							"eventType": "variable",
+							"name": "availableDirs",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Available directions to move towards.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 885002360807975
+						},
+						{
+							"eventType": "comment",
+							"text": "Minotaur is moving to the right."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Minotaur",
+									"sid": 973696568732631,
+									"parameters": {
+										"instance-variable": "lastPatrolMovement",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 843284867677186,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 714820323219423,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX + 1, mY)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 127803031715175,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 0\""
+											}
+										}
+									],
+									"sid": 350836809596292
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 982161197952407,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX, mY - 1)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 221895217491671,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 270\""
+											}
+										}
+									],
+									"sid": 409256440561543
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 870994329203634,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX, mY + 1)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 122018765944751,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 90\""
+											}
+										}
+									],
+									"sid": 474970703852967
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 155688300105186,
+											"parameters": {
+												"value": "tokencount(availableDirs, \" \") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 133156142949044,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "\"180\""
+											}
+										}
+									],
+									"sid": 699539390298707
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Minotaur is moving down."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Minotaur",
+									"sid": 171097917441129,
+									"parameters": {
+										"instance-variable": "lastPatrolMovement",
+										"comparison": 0,
+										"value": "90"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 966055191957726,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 342856237017290,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX, mY + 1)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 304664016896131,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 90\""
+											}
+										}
+									],
+									"sid": 451532021503823
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 297826766247368,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX - 1, mY)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 245118273650332,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 180\""
+											}
+										}
+									],
+									"sid": 860703867274936
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 257205899895404,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX + 1, mY)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 425858201831605,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 0\""
+											}
+										}
+									],
+									"sid": 336735923109522
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 179456643185531,
+											"parameters": {
+												"value": "tokencount(availableDirs, \" \") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 977004003664940,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "\"270\""
+											}
+										}
+									],
+									"sid": 816992771339865
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Minotaur is moving to the left."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Minotaur",
+									"sid": 453437620499482,
+									"parameters": {
+										"instance-variable": "lastPatrolMovement",
+										"comparison": 0,
+										"value": "180"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 361213169333240,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 487891174343300,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX - 1, mY)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 616082079973631,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 180\""
+											}
+										}
+									],
+									"sid": 899243289262643
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 449312331823380,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX, mY - 1)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 673768274634157,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 270\""
+											}
+										}
+									],
+									"sid": 318210853598877
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 746156526721654,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX, mY + 1)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 139444258730946,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 90\""
+											}
+										}
+									],
+									"sid": 517766592201578
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 278488281845659,
+											"parameters": {
+												"value": "tokencount(availableDirs, \" \") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 332366332075656,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "\"0\""
+											}
+										}
+									],
+									"sid": 849521173684304
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Minotaur is moving up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Minotaur",
+									"sid": 882283417693043,
+									"parameters": {
+										"instance-variable": "lastPatrolMovement",
+										"comparison": 0,
+										"value": "270"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 859714078052949,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 166516445286685,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX, mY - 1)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 301757334084871,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 270\""
+											}
+										}
+									],
+									"sid": 275504201649343
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 144127343095731,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX - 1, mY)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 328226071678389,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 180\""
+											}
+										}
+									],
+									"sid": 349987056084371
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 179627518383562,
+											"parameters": {
+												"value": "Functions.tileMinoWalkable(mX + 1, mY)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 417558445440044,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "availableDirs & \" 0\""
+											}
+										}
+									],
+									"sid": 329369249993913
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 583235834549312,
+											"parameters": {
+												"value": "tokencount(availableDirs, \" \") = 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 498626080991686,
+											"parameters": {
+												"variable": "availableDirs",
+												"value": "\"90\""
+											}
+										}
+									],
+									"sid": 782898130568060
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Move minotaur to a random available direction."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 555319984760121,
+									"parameters": {
+										"variable": "availableDirs",
+										"value": "trim(availableDirs)"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Minotaur",
+									"sid": 399233610711092,
+									"parameters": {
+										"instance-variable": "lastPatrolMovement",
+										"value": "int(tokenat(availableDirs, int(random(tokencount(availableDirs, \" \"))), \" \"))"
+									}
+								},
+								{
+									"id": "move-to-position",
+									"objectClass": "Minotaur",
+									"sid": 767962289780432,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"x": "TW * (round(Self.X / TW) + cos(Self.lastPatrolMovement) - 0.5)",
+										"y": "TH * (round(Self.Y / TH) + sin(Self.lastPatrolMovement) - 0.5)",
+										"mode": "direct"
+									}
+								}
+							],
+							"sid": 385438364842442
+						}
+					]
+				}
+			],
+			"sid": 830007079424450
+		}
+	],
+	"sid": 228205324628148
+}

@@ -1,5 +1,5 @@
 
-import Globals from "./globals.js";
+import Globals from "./globals.ts";
 
 // This function runs when the button is clicked (see the event sheet)
 export async function StartCamera()

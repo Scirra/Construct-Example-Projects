@@ -1,0 +1,4932 @@
+{
+	"name": "Game events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Forsteri Studios\n\nWebsite: forsteristudios.com\nE-Mail: forsteristudios@gmail.com\nX: @forsteristudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Multiplayer settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "GAME_NAME",
+			"type": "string",
+			"initialValue": "cellf_defense_game",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 2783528050303823
+		},
+		{
+			"eventType": "variable",
+			"name": "INSTANCE_NAME",
+			"type": "string",
+			"initialValue": "default",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 313861102059647
+		},
+		{
+			"eventType": "variable",
+			"name": "ROOM_NAME",
+			"type": "string",
+			"initialValue": "main",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 9805164627532192
+		},
+		{
+			"eventType": "variable",
+			"name": "MAX_PEERS",
+			"type": "number",
+			"initialValue": "8",
+			"comment": "Maximum number of peers.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 284083691079099
+		},
+		{
+			"eventType": "comment",
+			"text": "Peer settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "PEER_MIN_SIZE",
+			"type": "number",
+			"initialValue": "32",
+			"comment": "Starting (minimum) diameter.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 416742179743087
+		},
+		{
+			"eventType": "variable",
+			"name": "PEER_MAX_SIZE",
+			"type": "number",
+			"initialValue": "3096",
+			"comment": "Maximum diameter.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 910100624309512
+		},
+		{
+			"eventType": "variable",
+			"name": "PEER_MAX_SPEED",
+			"type": "number",
+			"initialValue": "400",
+			"comment": "Maximum speed.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 205476952388112
+		},
+		{
+			"eventType": "variable",
+			"name": "PEER_BOOST_SPEED",
+			"type": "number",
+			"initialValue": "650",
+			"comment": "Maximum speed.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 811362766355613
+		},
+		{
+			"eventType": "variable",
+			"name": "PEER_MIN_SPEED",
+			"type": "number",
+			"initialValue": "80",
+			"comment": "Minimum speed.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 594220012189332
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tools",
+			"description": "Tool functions that are called in different parts of the code.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Compute the maximum speed of a peer, given its size."
+				},
+				{
+					"functionName": "computeSpeed",
+					"functionDescription": "Compute the maximum speed of a peer, given its size.",
+					"functionCategory": "Tools",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "size",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Size of the peer.",
+							"sid": 137532641832444
+						},
+						{
+							"name": "boosted",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Is this peer boosted?",
+							"sid": 591371413570331
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 186596519975246,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "t",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Normalized size.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 405613478870402
+						},
+						{
+							"eventType": "variable",
+							"name": "p",
+							"type": "number",
+							"initialValue": "3.5",
+							"comment": "Exponent (different values generate different non-linear curves).",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 469826762881822
+						},
+						{
+							"eventType": "comment",
+							"text": "Calculate t."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 312948101862811,
+									"parameters": {
+										"variable": "t",
+										"value": "(size - PEER_MIN_SIZE) / (PEER_MAX_SIZE - PEER_MIN_SIZE)"
+									}
+								}
+							],
+							"sid": 514533358293268
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player is boosted, user PEED_BOOST_SPEED instead of PEER_MAX_SPEED to compute the final speed."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 104325296101390,
+									"parameters": {
+										"variable": "boosted",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 558379243506389,
+									"parameters": {
+										"value": "PEER_MIN_SPEED + (PEER_MAX_SPEED - PEER_MIN_SPEED) * ((1 - t)^p)"
+									}
+								}
+							],
+							"sid": 302620087851269
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 111834472544667
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 502748245768594,
+									"parameters": {
+										"value": "PEER_MIN_SPEED + (PEER_BOOST_SPEED - PEER_MIN_SPEED) * ((1 - t)^p)"
+									}
+								}
+							],
+							"sid": 885437953983960
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Find a good spawn point."
+				},
+				{
+					"functionName": "findSpawnPoint",
+					"functionDescription": "Find a good spawn point.",
+					"functionCategory": "Tools",
+					"functionReturnType": "string",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 189258201036948,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "bestMinDist",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Greatest (best) minimum distance to another peer.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 730299102343545
+						},
+						{
+							"eventType": "variable",
+							"name": "bestX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Best X position so far.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 260530711618269
+						},
+						{
+							"eventType": "variable",
+							"name": "bestY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Best Y position so far.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 807296235708803
+						},
+						{
+							"eventType": "comment",
+							"text": "Sample 1000 potential spawn points on the map and select the one with the greatest distance from all other peers."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 188928149265774,
+									"parameters": {
+										"count": "1000"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 976986452504620,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "randomX",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Random X position.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 548848652201545
+								},
+								{
+									"eventType": "variable",
+									"name": "randomY",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Random Y position.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 443711340870837
+								},
+								{
+									"eventType": "variable",
+									"name": "minDist",
+									"type": "number",
+									"initialValue": "99999999",
+									"comment": "Minimum distance to another peer.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 578937009818921
+								},
+								{
+									"eventType": "comment",
+									"text": "Choose a random coordinate."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 892100164540993,
+											"parameters": {
+												"variable": "randomX",
+												"value": "random(SpawnLimitTop.X, SpawnLimitBot.X)"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 418665660299414,
+											"parameters": {
+												"variable": "randomY",
+												"value": "random(SpawnLimitTop.Y, SpawnLimitBot.Y)"
+											}
+										}
+									],
+									"sid": 127613731889555
+								},
+								{
+									"eventType": "comment",
+									"text": "Get the minimum distance to the peers."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 495105751236725,
+											"parameters": {
+												"object": "Peers"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 453859633340497,
+											"parameters": {
+												"value": "Peer.UID <> Peers.UID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 101337018274473,
+											"parameters": {
+												"variable": "minDist",
+												"value": "min(minDist, distance(randomX, randomY, Peers.X, Peers.Y))"
+											}
+										}
+									],
+									"sid": 765128199748790
+								},
+								{
+									"eventType": "comment",
+									"text": "Check if the minimum distance is greater than the best one found so far. If so, update the best variables."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 974310693962785,
+											"parameters": {
+												"value": "minDist > bestMinDist"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 228004762851412,
+											"parameters": {
+												"variable": "bestX",
+												"value": "randomX"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 519914185088249,
+											"parameters": {
+												"variable": "bestY",
+												"value": "randomY"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 312850634384748,
+											"parameters": {
+												"variable": "bestMinDist",
+												"value": "minDist"
+											}
+										}
+									],
+									"sid": 646933760960807
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Return (x, y) spawn point."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 137091676477625,
+									"parameters": {
+										"value": "bestX & \" \" & bestY"
+									}
+								}
+							],
+							"sid": 150688610233601
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Add log messages and make the text scroll when there are more than 5 logs present."
+				},
+				{
+					"functionName": "addLog",
+					"functionDescription": "Add log messages and make the text scroll when there are more than 5 logs present.",
+					"functionCategory": "Log",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "message",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Message to be logged.",
+							"sid": 461118231039956
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "push",
+							"objectClass": "LogMessagesArr",
+							"sid": 847332454426566,
+							"parameters": {
+								"where": "back",
+								"value": "message",
+								"axis": "x"
+							}
+						},
+						{
+							"id": "set-text",
+							"objectClass": "LogMessagesText",
+							"sid": 291501046364625,
+							"parameters": {
+								"text": "\"\""
+							}
+						}
+					],
+					"sid": 388329556145842,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If there are over 5 logs, delete the oldest log."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-size",
+									"objectClass": "LogMessagesArr",
+									"sid": 864700402428794,
+									"parameters": {
+										"axis": "x",
+										"comparison": 4,
+										"value": "5"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "pop",
+									"objectClass": "LogMessagesArr",
+									"sid": 392228074366526,
+									"parameters": {
+										"where": "front",
+										"axis": "x"
+									}
+								}
+							],
+							"sid": 873573006987181
+						},
+						{
+							"eventType": "comment",
+							"text": "Build the log text considering the contents inside the log array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-element",
+									"objectClass": "LogMessagesArr",
+									"sid": 581910983608818,
+									"parameters": {
+										"axes": "x"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "append-text",
+									"objectClass": "LogMessagesText",
+									"sid": 725154809322362,
+									"parameters": {
+										"text": "LogMessagesArr.CurValue & newline"
+									}
+								}
+							],
+							"sid": 662247626917473
+						}
+					]
+				}
+			],
+			"sid": 975141697612947
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Signalling",
+			"description": "Manages connecting to the signalling server and joining the room.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "On start of layout, connect to the signalling server, set up which client input values the peers will be using, and sync some objects."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 8545342922442215
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Let the client send inputs to the host."
+						},
+						{
+							"id": "add-client-input-value",
+							"objectClass": "Multiplayer",
+							"sid": 702075236254735,
+							"parameters": {
+								"tag": "\"gotoX\"",
+								"precision": "normal-float-4-bytes",
+								"interpolation": "linear"
+							}
+						},
+						{
+							"id": "add-client-input-value",
+							"objectClass": "Multiplayer",
+							"sid": 324959989919592,
+							"parameters": {
+								"tag": "\"gotoY\"",
+								"precision": "normal-float-4-bytes",
+								"interpolation": "linear"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Let the client receive information about Peer objects from the host."
+						},
+						{
+							"id": "sync-object-2",
+							"objectClass": "Multiplayer",
+							"sid": 481891721214123,
+							"parameters": {
+								"object": "Peer",
+								"x": true,
+								"y": true,
+								"angle": true,
+								"precision": "normal-float-4-bytes",
+								"bandwidth": "normal-bandwidth-unpredictable"
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 655624331804906,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "anim",
+									"objectClass": "Peer"
+								},
+								"precision": "very-low-uint8-1-byte",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 941682605900267,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "peerSize",
+									"objectClass": "Peer"
+								},
+								"precision": "normal-float-4-bytes",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 815647175652131,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "moving",
+									"objectClass": "Peer"
+								},
+								"precision": "very-low-uint8-1-byte",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 761087792888742,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "justSpawned",
+									"objectClass": "Peer"
+								},
+								"precision": "very-low-uint8-1-byte",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 159761943154829,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "gotoX",
+									"objectClass": "Peer"
+								},
+								"precision": "normal-float-4-bytes",
+								"interpolation": "linear",
+								"client-value-tag": "\"gotoX\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 797260066274266,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "gotoY",
+									"objectClass": "Peer"
+								},
+								"precision": "normal-float-4-bytes",
+								"interpolation": "linear",
+								"client-value-tag": "\"gotoY\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 141467661356546,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "boost",
+									"objectClass": "Peer"
+								},
+								"precision": "very-low-uint8-1-byte",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 795027120880227,
+							"parameters": {
+								"object": "Peer",
+								"instance-variable": {
+									"name": "vision",
+									"objectClass": "Peer"
+								},
+								"precision": "very-low-uint8-1-byte",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Let the client receive information about Food objects from the host."
+						},
+						{
+							"id": "sync-object-2",
+							"objectClass": "Multiplayer",
+							"sid": 714019648132738,
+							"parameters": {
+								"object": "Food",
+								"x": true,
+								"y": true,
+								"angle": false,
+								"precision": "normal-float-4-bytes",
+								"bandwidth": "very-low-bandwidth-essentially-static"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Let the client receive information about Boost objects from the host."
+						},
+						{
+							"id": "sync-object-2",
+							"objectClass": "Multiplayer",
+							"sid": 713492707687373,
+							"parameters": {
+								"object": "Boost",
+								"x": true,
+								"y": true,
+								"angle": false,
+								"precision": "normal-float-4-bytes",
+								"bandwidth": "very-low-bandwidth-essentially-static"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Let the client receive information about Vision objects from the host."
+						},
+						{
+							"id": "sync-object-2",
+							"objectClass": "Multiplayer",
+							"sid": 912500398587016,
+							"parameters": {
+								"object": "Vision",
+								"x": true,
+								"y": true,
+								"angle": false,
+								"precision": "normal-float-4-bytes",
+								"bandwidth": "very-low-bandwidth-essentially-static"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Let the client receive information about DeathAnimation objects from the host."
+						},
+						{
+							"id": "sync-object-2",
+							"objectClass": "Multiplayer",
+							"sid": 250112442578603,
+							"parameters": {
+								"object": "DeathAnimation",
+								"x": true,
+								"y": true,
+								"angle": true,
+								"precision": "normal-float-4-bytes",
+								"bandwidth": "very-low-bandwidth-essentially-static"
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 298332746179439,
+							"parameters": {
+								"object": "DeathAnimation",
+								"instance-variable": {
+									"name": "anim",
+									"objectClass": "DeathAnimation"
+								},
+								"precision": "very-low-uint8-1-byte",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"id": "sync-instance-variable",
+							"objectClass": "Multiplayer",
+							"sid": 809960151607665,
+							"parameters": {
+								"object": "DeathAnimation",
+								"instance-variable": {
+									"name": "peerSize",
+									"objectClass": "DeathAnimation"
+								},
+								"precision": "normal-float-4-bytes",
+								"interpolation": "none",
+								"client-value-tag": "\"\""
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Let the client receive information about the Virus objects from the host."
+						},
+						{
+							"id": "sync-object-2",
+							"objectClass": "Multiplayer",
+							"sid": 639518007823523,
+							"parameters": {
+								"object": "Virus",
+								"x": true,
+								"y": true,
+								"angle": false,
+								"precision": "normal-float-4-bytes",
+								"bandwidth": "low-bandwidth-highly-predictable"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Connect to the signalling server."
+						},
+						{
+							"id": "connect",
+							"objectClass": "Multiplayer",
+							"sid": 864871814108262,
+							"parameters": {
+								"server": "\"wss://multiplayer.construct.net\""
+							}
+						}
+					],
+					"sid": 4621074164691963
+				},
+				{
+					"eventType": "comment",
+					"text": "When connected, request to log in."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-connected",
+							"objectClass": "Multiplayer",
+							"sid": 633718780657259
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "addLog",
+							"sid": 891006002438031,
+							"parameters": [
+								"\"Connected, logging in...\""
+							]
+						},
+						{
+							"id": "log-in",
+							"objectClass": "Multiplayer",
+							"sid": 5152430702167834,
+							"parameters": {
+								"alias": "MyNickname"
+							}
+						}
+					],
+					"sid": 6173368493187684
+				},
+				{
+					"eventType": "comment",
+					"text": "When logged in, request to join the room."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-logged-in",
+							"objectClass": "Multiplayer",
+							"sid": 5883027386699968
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "addLog",
+							"sid": 816109599584440,
+							"parameters": [
+								"\"Logged in with alias: \" & Multiplayer.MyAlias & \" (\" & Multiplayer.MyID & \")\" & newline & \"Joining room...\""
+							]
+						},
+						{
+							"id": "join-room",
+							"objectClass": "Multiplayer",
+							"sid": 516212231978847,
+							"parameters": {
+								"game": "GAME_NAME",
+								"instance": "INSTANCE_NAME",
+								"room": "ROOM_NAME",
+								"max-peers": "MAX_PEERS"
+							}
+						}
+					],
+					"sid": 7761898484234081
+				},
+				{
+					"eventType": "comment",
+					"text": "After the player joined the room, activate either the Host or the Peer group."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-joined-room",
+							"objectClass": "Multiplayer",
+							"sid": 9574597696892548
+						}
+					],
+					"actions": [],
+					"sid": 1579184355259559,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "As the host, also start important timers, associate with existing peer object, and fade the game in."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-host",
+									"objectClass": "Multiplayer",
+									"sid": 6151152733133221
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "addLog",
+									"sid": 288961442980966,
+									"parameters": [
+										"\"Joined room as host\""
+									]
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 5094248200865487,
+									"parameters": {
+										"group-name": "\"Host\"",
+										"state": "activated"
+									}
+								}
+							],
+							"sid": 611524856039149,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Create starting food objects."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 257082017390697,
+											"parameters": {
+												"count": "500"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "createNewFood",
+											"sid": 867456353909188
+										}
+									],
+									"sid": 335134507234907
+								},
+								{
+									"eventType": "comment",
+									"text": "Start game timer."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "start-timer",
+											"objectClass": "GameTimer",
+											"sid": 473494218695639,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "random(3, 7)",
+												"type": "once",
+												"tag": "\"SpawnVirus\""
+											}
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "GameTimer",
+											"sid": 358888746549126,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "random(5, 12)",
+												"type": "once",
+												"tag": "\"SpawnBoost\""
+											}
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "GameTimer",
+											"sid": 377251269038688,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "random(5, 12)",
+												"type": "once",
+												"tag": "\"SpawnVision\""
+											}
+										}
+									],
+									"sid": 628939609931919
+								},
+								{
+									"eventType": "comment",
+									"text": "Set host's peer object properties."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "Peer",
+											"sid": 533829656150836,
+											"parameters": {
+												"x": "random(SpawnLimitTop.X + 128, SpawnLimitBot.X - 128)",
+												"y": "random(SpawnLimitTop.Y + 128, SpawnLimitBot.Y - 128)"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 976880070189486,
+											"parameters": {
+												"instance-variable": "gotoX",
+												"value": "Self.X"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 319711477390726,
+											"parameters": {
+												"instance-variable": "gotoY",
+												"value": "Self.Y"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 221082913967771,
+											"parameters": {
+												"instance-variable": "peerID",
+												"value": "Multiplayer.MyID"
+											}
+										},
+										{
+											"id": "associate-object-with-peer",
+											"objectClass": "Multiplayer",
+											"sid": 341510069512458,
+											"parameters": {
+												"object": "Peer",
+												"peer-id": "Multiplayer.MyID"
+											}
+										}
+									],
+									"sid": 915633466012511
+								},
+								{
+									"eventType": "comment",
+									"text": "Scroll to peer object and hide fader."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "scroll-to-position",
+											"objectClass": "System",
+											"sid": 525285613181721,
+											"parameters": {
+												"x": "Peer.X",
+												"y": "Peer.Y"
+											}
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 887377027305969,
+											"parameters": {
+												"seconds": "0.25",
+												"use-timescale": true
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Fader",
+											"sid": 192185722693474,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"HideFader\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "1",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 259393821736421
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "When not the host, the Peer object already in the layout is destroyed. 'Sync object' will create the peer object for the current player, which will be associated. (See the 'Peer' group's 'On object created')"
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 4491209143547917
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "addLog",
+									"sid": 932372020491156,
+									"parameters": [
+										"\"Joined room as peer\""
+									]
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 3086355252968577,
+									"parameters": {
+										"group-name": "\"Peer\"",
+										"state": "activated"
+									}
+								},
+								{
+									"callFunction": "addLog",
+									"sid": 390953381993613,
+									"parameters": [
+										"\"Connecting to host...\""
+									]
+								},
+								{
+									"id": "destroy",
+									"objectClass": "Peer",
+									"sid": 9105323197347260
+								}
+							],
+							"sid": 8025172574882813
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "If a peer leaves, gets disconnected or encounters an error, add it to the log."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-disconnected",
+							"objectClass": "Multiplayer",
+							"sid": 7355024061540087
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "addLog",
+							"sid": 661756315006612,
+							"parameters": [
+								"\"Signalling disconnected\""
+							]
+						}
+					],
+					"sid": 3191386697509821
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-error",
+							"objectClass": "Multiplayer",
+							"sid": 7405991194607134
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "addLog",
+							"sid": 443101548670459,
+							"parameters": [
+								"\"Signalling error: \" & Multiplayer.ErrorMessage"
+							]
+						}
+					],
+					"sid": 7454512880658015
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-left-room",
+							"objectClass": "Multiplayer",
+							"sid": 4349773980818516
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "addLog",
+							"sid": 798607560333980,
+							"parameters": [
+								"\"Signalling: left room\""
+							]
+						}
+					],
+					"sid": 833882481570433
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-kicked",
+							"objectClass": "Multiplayer",
+							"sid": 3123559417693109
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "addLog",
+							"sid": 614891547175878,
+							"parameters": [
+								"\"Kicked (either could not connect to host or host quit)\""
+							]
+						}
+					],
+					"sid": 5945267911170749
+				}
+			],
+			"sid": 5828038468308097
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game",
+			"description": "Manages the gameplay and synchronization.",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Peer",
+					"description": "Events specific to peers (i.e. non-host users)",
+					"isActiveOnStart": false,
+					"children": [
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Join",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "When a Peer is created from 'Sync object', Multiplayer.PeerID has the ID of the peer that the object represents. This must be stored in an instance variable to know which peer the object represents."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-created",
+											"objectClass": "Peer",
+											"sid": 661379850422259
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 696601519182390,
+											"parameters": {
+												"instance-variable": "peerID",
+												"value": "Multiplayer.PeerID"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 447340703032987,
+											"parameters": {
+												"instance-variable": "gotoX",
+												"value": "Self.X"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 705666506625215,
+											"parameters": {
+												"instance-variable": "gotoY",
+												"value": "Self.Y"
+											}
+										},
+										{
+											"id": "associate-object-with-peer",
+											"objectClass": "Multiplayer",
+											"sid": 942783192166823,
+											"parameters": {
+												"object": "Peer",
+												"peer-id": "Multiplayer.PeerID"
+											}
+										}
+									],
+									"sid": 558039056104225,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the peer that is created represents the local player, enable local input prediction for it. This means instead of being locked to whatever position it is on the host, it can start to move around. However as it moves it will correct its position if it starts to deviate from where it is on the host, so it's important both the peer and the host move it in exactly the same way."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 697317679949016,
+													"parameters": {
+														"object": "Peer",
+														"expression": "Peer.peerID",
+														"comparison": 0,
+														"value": "Multiplayer.MyID"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "enable-local-input-prediction",
+													"objectClass": "Multiplayer",
+													"sid": 515149602289418,
+													"parameters": {
+														"object": "Peer",
+														"avoid-solids": false,
+														"platform-mode": false
+													}
+												}
+											],
+											"sid": 971848257068944
+										},
+										{
+											"eventType": "comment",
+											"text": "After peer's object has been created, hide fader to start the gameplay."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "scroll-to-position",
+													"objectClass": "System",
+													"sid": 203977137203735,
+													"parameters": {
+														"x": "Peer.X",
+														"y": "Peer.Y"
+													}
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 573648096810056,
+													"parameters": {
+														"seconds": "0.25",
+														"use-timescale": true
+													}
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "Fader",
+													"sid": 767295062500298,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"HideFader\"",
+														"property": "offsetOpacity",
+														"end-value": "0",
+														"time": "1",
+														"ease": "easeinsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												}
+											],
+											"sid": 566097496921694
+										}
+									]
+								}
+							],
+							"sid": 668027545441629
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Client Side Update",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "'On client update' triggers when the Multiplayer object is about to send local inputs to the host, so they need to be updated."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-client-update",
+											"objectClass": "Multiplayer",
+											"sid": 610585382292432
+										},
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 228387562910635,
+											"parameters": {
+												"object": "Peer",
+												"expression": "Peer.peerID",
+												"comparison": 0,
+												"value": "Multiplayer.MyID"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 214038600477309,
+											"parameters": {
+												"value": "distance(Peer.X, Peer.Y, Mouse.X(\"Peers\"), Mouse.Y(\"Peers\")) > Peer.Width / 2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 712337225717713,
+											"parameters": {
+												"instance-variable": "gotoX",
+												"value": "Mouse.X(\"Peers\")"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 311115079333904,
+											"parameters": {
+												"instance-variable": "gotoY",
+												"value": "Mouse.Y(\"Peers\")"
+											}
+										},
+										{
+											"id": "set-client-state",
+											"objectClass": "Multiplayer",
+											"sid": 189342717094759,
+											"parameters": {
+												"tag": "\"gotoX\"",
+												"value": "Peer.gotoX"
+											}
+										},
+										{
+											"id": "set-client-state",
+											"objectClass": "Multiplayer",
+											"sid": 806604319508533,
+											"parameters": {
+												"tag": "\"gotoY\"",
+												"value": "Peer.gotoY"
+											}
+										}
+									],
+									"sid": 456512899006642
+								},
+								{
+									"eventType": "comment",
+									"text": "Update peer's movement."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 488790549610771,
+											"parameters": {
+												"object": "Peer",
+												"expression": "Peer.peerID",
+												"comparison": 0,
+												"value": "Multiplayer.MyID"
+											}
+										},
+										{
+											"id": "is-connected",
+											"objectClass": "Multiplayer",
+											"sid": 489764498003220
+										}
+									],
+									"actions": [
+										{
+											"id": "set-max-speed",
+											"objectClass": "Peer",
+											"sid": 458864794067696,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"max-speed": "Functions.computeSpeed(Peer.peerSize, Peer.boost)"
+											}
+										}
+									],
+									"sid": 555472523693045,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Peer wants to go to a position far enough from the position they are already at."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 339146883386376,
+													"parameters": {
+														"value": "distance(Peer.X, Peer.Y, Peer.gotoX, Peer.gotoY) > Peer.Width / 2"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-vector-x",
+													"objectClass": "Peer",
+													"sid": 922829412726801,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-x": "cos(angle(Self.X, Self.Y, Self.gotoX, Self.gotoY)) * Self.8Direction.MaxSpeed"
+													}
+												},
+												{
+													"id": "set-vector-y",
+													"objectClass": "Peer",
+													"sid": 950249371690115,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-y": "sin(angle(Self.X, Self.Y, Self.gotoX, Self.gotoY)) * Self.8Direction.MaxSpeed"
+													}
+												}
+											],
+											"sid": 503433134559357
+										},
+										{
+											"eventType": "comment",
+											"text": "Peer doesn't want to move, as they are pointing to where the already are."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 174661799677951
+												}
+											],
+											"actions": [
+												{
+													"id": "set-vector-x",
+													"objectClass": "Peer",
+													"sid": 503928825334222,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-x": "0"
+													}
+												},
+												{
+													"id": "set-vector-y",
+													"objectClass": "Peer",
+													"sid": 295231390830629,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-y": "0"
+													}
+												}
+											],
+											"sid": 527725675616425
+										},
+										{
+											"eventType": "comment",
+											"text": "Prohibit the peer from leaving the arena."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-position",
+													"objectClass": "Peer",
+													"sid": 887530420672213,
+													"parameters": {
+														"x": "clamp(Self.X, ArenaLimitTop.X, ArenaLimitBot.X)",
+														"y": "clamp(Self.Y, ArenaLimitTop.Y, ArenaLimitBot.Y)"
+													}
+												}
+											],
+											"sid": 919386952450265
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Update peer sizes according to information shared by the host."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 239120438905192,
+											"parameters": {
+												"object": "Peer"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-size",
+											"objectClass": "Peer",
+											"sid": 459081162186198,
+											"parameters": {
+												"width": "Self.peerSize",
+												"height": "Self.peerSize"
+											}
+										}
+									],
+									"sid": 861056837341082
+								}
+							],
+							"sid": 747547769968238
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Death Animation",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Play death animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-created",
+											"objectClass": "DeathAnimation",
+											"sid": 160113591126276
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Set correct animation frame and size."
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "DeathAnimation",
+											"sid": 247548747357893,
+											"parameters": {
+												"frame-number": "Self.anim"
+											}
+										},
+										{
+											"id": "set-size",
+											"objectClass": "DeathAnimation",
+											"sid": 549830869638497,
+											"parameters": {
+												"width": "Self.peerSize",
+												"height": "Self.peerSize"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Fade-out and shrink before destroying."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "DeathAnimation",
+											"sid": 406954325441926,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"DeathAnimation\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "DeathAnimation",
+											"sid": 431274896781376,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"DeathAnimationSize\"",
+												"property": "size",
+												"end-x": "0.001",
+												"end-y": "0.001",
+												"time": "1",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 627526548437247
+								}
+							],
+							"sid": 577943929276039
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Virus (peer)",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Choose a random rotation orientation and speed for the virus object."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-created",
+											"objectClass": "Virus",
+											"sid": 877537407884702
+										}
+									],
+									"actions": [
+										{
+											"id": "set-speed",
+											"objectClass": "Virus",
+											"sid": 491853462524459,
+											"behaviorType": "Rotate",
+											"parameters": {
+												"speed": "choose(-120, -90, -60, -30, 30, 60, 90, 120)"
+											}
+										}
+									],
+									"sid": 746511027743186
+								},
+								{
+									"eventType": "comment",
+									"text": "Create particles when a virus object has been destroyed"
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-destroyed",
+											"objectClass": "Virus",
+											"sid": 448569925440330
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 507763485766408,
+											"parameters": {
+												"object-to-create": "VirusParticles",
+												"layer": "\"Bubbles\"",
+												"x": "Virus.X",
+												"y": "Virus.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										}
+									],
+									"sid": 819308889687472
+								}
+							],
+							"sid": 495636175800052
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Consumables (peer)",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Set random animation frame for the food object."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-created",
+											"objectClass": "Food",
+											"sid": 426824569692062
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Food",
+											"sid": 866122764736188,
+											"parameters": {
+												"frame-number": "choose(0, 1, 2, 3)"
+											}
+										},
+										{
+											"id": "set-speed",
+											"objectClass": "Food",
+											"sid": 463042434085581,
+											"behaviorType": "Rotate",
+											"parameters": {
+												"speed": "choose(-120, -90, -60, -30, 30, 60, 90, 120)"
+											}
+										}
+									],
+									"sid": 185211081650247
+								},
+								{
+									"eventType": "comment",
+									"text": "Create particles when a food object has been consumed."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-destroyed",
+											"objectClass": "Food",
+											"sid": 801415121407516
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 317510542964286,
+											"parameters": {
+												"object-to-create": "FoodParticles",
+												"layer": "\"Bubbles\"",
+												"x": "Food.X",
+												"y": "Food.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										}
+									],
+									"sid": 557143041816245
+								},
+								{
+									"eventType": "comment",
+									"text": "Set random rotation orientation and speed for the boost object."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-created",
+											"objectClass": "Boost",
+											"sid": 284721581716713
+										}
+									],
+									"actions": [
+										{
+											"id": "set-speed",
+											"objectClass": "Boost",
+											"sid": 224012308150676,
+											"behaviorType": "Rotate",
+											"parameters": {
+												"speed": "choose(-120, -90, -60, -30, 30, 60, 90, 120)"
+											}
+										}
+									],
+									"sid": 149456007329137
+								},
+								{
+									"eventType": "comment",
+									"text": "Create particles when a boost object has been consumed."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-destroyed",
+											"objectClass": "Boost",
+											"sid": 422651101029981
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 280302582023652,
+											"parameters": {
+												"object-to-create": "FoodParticles",
+												"layer": "\"Bubbles\"",
+												"x": "Boost.X",
+												"y": "Boost.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										}
+									],
+									"sid": 205684225721814
+								},
+								{
+									"eventType": "comment",
+									"text": "Create particles when a vision object has been consumed."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-destroyed",
+											"objectClass": "Vision",
+											"sid": 101165882981785
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 445220397927440,
+											"parameters": {
+												"object-to-create": "FoodParticles",
+												"layer": "\"Bubbles\"",
+												"x": "Vision.X",
+												"y": "Vision.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										}
+									],
+									"sid": 853587055073364
+								}
+							],
+							"sid": 997274459573406
+						}
+					],
+					"sid": 3251139189519888
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Host",
+					"description": "Events specific to the host.",
+					"isActiveOnStart": false,
+					"children": [
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Boost",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Spawn boost object and set its properties."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-timer",
+											"objectClass": "GameTimer",
+											"sid": 454472668618518,
+											"behaviorType": "Timer",
+											"parameters": {
+												"tag": "\"SpawnBoost\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 769900928409580,
+											"parameters": {
+												"object-to-create": "Boost",
+												"layer": "\"Food\"",
+												"x": "random(SpawnLimitTop.X, SpawnLimitBot.X)",
+												"y": "random(SpawnLimitTop.Y, SpawnLimitBot.Y)",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-speed",
+											"objectClass": "Boost",
+											"sid": 956187377669543,
+											"behaviorType": "Rotate",
+											"parameters": {
+												"speed": "choose(-120, -90, -60, -30, 30, 60, 90, 120)"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Reset timer."
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "GameTimer",
+											"sid": 616598002399718,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "random(5, 12)",
+												"type": "once",
+												"tag": "\"SpawnBoost\""
+											}
+										}
+									],
+									"sid": 854672870988194
+								}
+							],
+							"sid": 795602084621358
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Vision",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Spawn vision object and set its properties."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-timer",
+											"objectClass": "GameTimer",
+											"sid": 314640273944658,
+											"behaviorType": "Timer",
+											"parameters": {
+												"tag": "\"SpawnVision\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 783486817526384,
+											"parameters": {
+												"object-to-create": "Vision",
+												"layer": "\"Food\"",
+												"x": "random(SpawnLimitTop.X, SpawnLimitBot.X)",
+												"y": "random(SpawnLimitTop.Y, SpawnLimitBot.Y)",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Reset timer."
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "GameTimer",
+											"sid": 970539630321551,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "random(5, 12)",
+												"type": "once",
+												"tag": "\"SpawnVision\""
+											}
+										}
+									],
+									"sid": 789643315088934
+								}
+							],
+							"sid": 793595302467038
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Virus",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Spawn virus object and set its properties."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-timer",
+											"objectClass": "GameTimer",
+											"sid": 589780493611152,
+											"behaviorType": "Timer",
+											"parameters": {
+												"tag": "\"SpawnVirus\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Reset timer."
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "GameTimer",
+											"sid": 504242087974510,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "random(3, 7)",
+												"type": "once",
+												"tag": "\"SpawnVirus\""
+											}
+										}
+									],
+									"sid": 705896531747031,
+									"children": [
+										{
+											"eventType": "variable",
+											"name": "xPos",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Virus spawn X position.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 913490506375150
+										},
+										{
+											"eventType": "variable",
+											"name": "yPos",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Virus spawn Y position.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 677487167665435
+										},
+										{
+											"eventType": "comment",
+											"text": "Full liberty in the X axis, but limited choices in the Y axis."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 544823239463545,
+													"parameters": {
+														"value": "random(10) < 5"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 712871661451181,
+													"parameters": {
+														"variable": "xPos",
+														"value": "random(VirusLimitTop.X + 64, VirusLimitBot.X - 64)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 498170148114993,
+													"parameters": {
+														"variable": "yPos",
+														"value": "choose(VirusLimitTop.Y + 64, VirusLimitBot.Y - 64)"
+													}
+												}
+											],
+											"sid": 317778848360710
+										},
+										{
+											"eventType": "comment",
+											"text": "Full liberty in the Y axis, but limited choices in the X axis."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 543987918613504
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 670843335604402,
+													"parameters": {
+														"variable": "xPos",
+														"value": "choose(VirusLimitTop.X + 64, VirusLimitBot.X - 64)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 337183801374458,
+													"parameters": {
+														"variable": "yPos",
+														"value": "random(VirusLimitTop.Y + 64, VirusLimitBot.Y - 64)"
+													}
+												}
+											],
+											"sid": 830930552168701
+										},
+										{
+											"eventType": "comment",
+											"text": "Create the virus and set randomized properties."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 397969347384337,
+													"parameters": {
+														"object-to-create": "Virus",
+														"layer": "\"Virus\"",
+														"x": "xPos",
+														"y": "yPos",
+														"create-hierarchy": false,
+														"template-name": "\"\""
+													}
+												},
+												{
+													"id": "set-speed",
+													"objectClass": "Virus",
+													"sid": 722271593005809,
+													"behaviorType": "Bullet",
+													"parameters": {
+														"speed": "random(250, 500)"
+													}
+												},
+												{
+													"id": "set-speed",
+													"objectClass": "Virus",
+													"sid": 616357292928208,
+													"behaviorType": "Rotate",
+													"parameters": {
+														"speed": "choose(-120, -90, -60, -30, 30, 60, 90, 120)"
+													}
+												}
+											],
+											"sid": 152690565323312,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Either pick a random peer as the target."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 348531767086673,
+															"parameters": {
+																"value": "random(10) < 6"
+															}
+														},
+														{
+															"id": "pick-random-instance",
+															"objectClass": "System",
+															"sid": 509115606708452,
+															"parameters": {
+																"object": "Peer"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-angle-of-motion",
+															"objectClass": "Virus",
+															"sid": 280909480779325,
+															"behaviorType": "Bullet",
+															"parameters": {
+																"angle": "angle(Self.X, Self.Y, Peer.X, Peer.Y)"
+															}
+														}
+													],
+													"sid": 269418198422041
+												},
+												{
+													"eventType": "comment",
+													"text": "Or pick a random position as the target."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 394809213760120
+														}
+													],
+													"actions": [
+														{
+															"id": "set-angle-of-motion",
+															"objectClass": "Virus",
+															"sid": 432499581339112,
+															"behaviorType": "Bullet",
+															"parameters": {
+																"angle": "angle(Self.X, Self.Y, random(LayoutWidth/2 - 2048, LayoutWidth/2 + 2048), random(LayoutHeight/2 - 1024, LayoutHeight/2 + 1024))"
+															}
+														}
+													],
+													"sid": 929893504910757
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Destroy virus if it goes too far outside the arena."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 565559312119418,
+											"parameters": {
+												"object": "Virus"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 217748384415054,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-x",
+													"objectClass": "Virus",
+													"sid": 567779140249561,
+													"parameters": {
+														"comparison": 2,
+														"x-co-ordinate": "VirusLimitTop.X"
+													}
+												},
+												{
+													"id": "compare-x",
+													"objectClass": "Virus",
+													"sid": 653697010407190,
+													"parameters": {
+														"comparison": 4,
+														"x-co-ordinate": "VirusLimitBot.X"
+													}
+												},
+												{
+													"id": "compare-y",
+													"objectClass": "Virus",
+													"sid": 320940571993586,
+													"parameters": {
+														"comparison": 2,
+														"y-co-ordinate": "VirusLimitTop.Y"
+													}
+												},
+												{
+													"id": "compare-y",
+													"objectClass": "Virus",
+													"sid": 263028155474683,
+													"parameters": {
+														"comparison": 4,
+														"y-co-ordinate": "VirusLimitBot.Y"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "destroy",
+													"objectClass": "Virus",
+													"sid": 600528256129398
+												}
+											],
+											"sid": 285351350449131,
+											"isOrBlock": true
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "If a virus overlap a peer, self-destruct, and reduce the peer's size by half. Also spawn particles."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-collision-with-another-object",
+											"objectClass": "Virus",
+											"sid": 544945487336409,
+											"parameters": {
+												"object": "Peer"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 933977723584599,
+											"parameters": {
+												"instance-variable": "peerSize",
+												"value": "round(max(Peer.peerSize / 2, PEER_MIN_SIZE))"
+											}
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 356389245687884,
+											"parameters": {
+												"object-to-create": "VirusParticles",
+												"layer": "\"Bubbles\"",
+												"x": "Virus.X",
+												"y": "Virus.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Virus",
+											"sid": 544168965682083
+										}
+									],
+									"sid": 384357585935724
+								}
+							],
+							"sid": 191851362756782
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Peer Connection",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "The host creates a Peer object for each client that joins the game. 'Sync object' will then notify all the peers that this object was created."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-peer-connected",
+											"objectClass": "Multiplayer",
+											"sid": 140541038417269
+										}
+									],
+									"actions": [],
+									"sid": 339133308418475,
+									"children": [
+										{
+											"eventType": "variable",
+											"name": "spawnPoint",
+											"type": "string",
+											"initialValue": "",
+											"comment": "Tuple (x, y) for spawn point coordinates.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 253953995076522
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Find a good spawn point."
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 719697746843440,
+													"parameters": {
+														"variable": "spawnPoint",
+														"value": "Functions.findSpawnPoint"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Create peer object and set properties."
+												},
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 286310535873262,
+													"parameters": {
+														"object-to-create": "Peer",
+														"layer": "\"Peers\"",
+														"x": "float(tokenat(spawnPoint, 0, \" \"))",
+														"y": "float(tokenat(spawnPoint, 1, \" \"))",
+														"create-hierarchy": false,
+														"template-name": "\"\""
+													}
+												},
+												{
+													"id": "set-animation-frame",
+													"objectClass": "Peer",
+													"sid": 461552216401870,
+													"parameters": {
+														"frame-number": "Peer.Count % 8"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 562991049597522,
+													"parameters": {
+														"instance-variable": "anim",
+														"value": "Self.AnimationFrame"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 277409749794696,
+													"parameters": {
+														"instance-variable": "gotoX",
+														"value": "Self.X"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 703139401790637,
+													"parameters": {
+														"instance-variable": "gotoY",
+														"value": "Self.Y"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 101159030087669,
+													"parameters": {
+														"instance-variable": "peerSize",
+														"value": "round(Self.Width)"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 560493650458032,
+													"parameters": {
+														"instance-variable": "peerID",
+														"value": "Multiplayer.PeerID"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Associate the Peer object to the player with matching ID."
+												},
+												{
+													"id": "associate-object-with-peer",
+													"objectClass": "Multiplayer",
+													"sid": 276404160839257,
+													"parameters": {
+														"object": "Peer",
+														"peer-id": "Multiplayer.PeerID"
+													}
+												}
+											],
+											"sid": 822157630861969
+										}
+									]
+								}
+							],
+							"sid": 839473045668054
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Host Update",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "The host can control its own object directly, as it runs the authoritative version of the game."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 787275858954401,
+											"parameters": {
+												"object": "Peer",
+												"expression": "Peer.peerID",
+												"comparison": 0,
+												"value": "Multiplayer.MyID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 163669182626858,
+											"parameters": {
+												"instance-variable": "gotoX",
+												"value": "Mouse.X(\"Peers\")"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 759297462895236,
+											"parameters": {
+												"instance-variable": "gotoY",
+												"value": "Mouse.Y(\"Peers\")"
+											}
+										}
+									],
+									"sid": 974830284049590
+								}
+							],
+							"sid": 712703655572557
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Clients Update",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "The host also updates all the other peers to reflect their respective inputs."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Peer",
+											"sid": 158833119268126,
+											"parameters": {
+												"instance-variable": "peerID",
+												"comparison": 1,
+												"value": "Multiplayer.MyID"
+											}
+										},
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 612429149855761,
+											"parameters": {
+												"object": "Peer"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 691794995059884,
+											"parameters": {
+												"instance-variable": "gotoX",
+												"value": "Multiplayer.PeerState(Peer.peerid, \"gotoX\")"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 555526352406932,
+											"parameters": {
+												"instance-variable": "gotoY",
+												"value": "Multiplayer.PeerState(Peer.peerid, \"gotoY\")"
+											}
+										}
+									],
+									"sid": 881393448559677
+								},
+								{
+									"eventType": "comment",
+									"text": "Relay logs to other peers."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-peer-message",
+											"objectClass": "Multiplayer",
+											"sid": 418974335371069,
+											"parameters": {
+												"tag": "\"log\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "broadcast-message",
+											"objectClass": "Multiplayer",
+											"sid": 816861618926718,
+											"parameters": {
+												"from-id": "Multiplayer.FromID",
+												"tag": "\"log\"",
+												"message": "Multiplayer.Message",
+												"mode": "reliable-ordered"
+											}
+										}
+									],
+									"sid": 486630574054027
+								}
+							],
+							"sid": 516922516821258
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Host & Clients Update",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Update peers size and movement."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 873195962296778,
+											"parameters": {
+												"object": "Peer"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Peer",
+											"sid": 375745644444452,
+											"parameters": {
+												"instance-variable": "peerID",
+												"comparison": 1,
+												"value": "\"!@#$%¨&*()\""
+											}
+										},
+										{
+											"id": "is-connected",
+											"objectClass": "Multiplayer",
+											"sid": 405846216835003
+										}
+									],
+									"actions": [
+										{
+											"id": "set-size",
+											"objectClass": "Peer",
+											"sid": 371083600001686,
+											"parameters": {
+												"width": "Self.peerSize",
+												"height": "Self.peerSize"
+											}
+										},
+										{
+											"id": "set-max-speed",
+											"objectClass": "Peer",
+											"sid": 597024411910909,
+											"behaviorType": "8Direction",
+											"parameters": {
+												"max-speed": "Functions.computeSpeed(Peer.peerSize, Peer.boost)"
+											}
+										}
+									],
+									"sid": 494918784149084,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Peer wants to go to a position far enough from the position they are already at."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 849924270600368,
+													"parameters": {
+														"value": "distance(Peer.X, Peer.Y, Peer.gotoX, Peer.gotoY) > Peer.Width / 2"
+													}
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 143817647263891,
+													"parameters": {
+														"value": "(Peer.gotoX <> 0) & (Peer.gotoY <> 0)"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-vector-x",
+													"objectClass": "Peer",
+													"sid": 298255164576856,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-x": "cos(angle(Peer.X, Peer.Y, Peer.gotoX, Peer.gotoY)) * Self.8Direction.MaxSpeed"
+													}
+												},
+												{
+													"id": "set-vector-y",
+													"objectClass": "Peer",
+													"sid": 718751904544319,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-y": "sin(angle(Peer.X, Peer.Y, Peer.gotoX, Peer.gotoY)) * Self.8Direction.MaxSpeed"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 837062534597764,
+													"parameters": {
+														"instance-variable": "moving",
+														"value": "1"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 391020801831329,
+													"parameters": {
+														"instance-variable": "justSpawned",
+														"value": "0"
+													}
+												}
+											],
+											"sid": 127715298200737
+										},
+										{
+											"eventType": "comment",
+											"text": "Peer doesn't want to move, as they are pointing to where the already are."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 290390826819697
+												}
+											],
+											"actions": [
+												{
+													"id": "set-vector-x",
+													"objectClass": "Peer",
+													"sid": 848711710612405,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-x": "0"
+													}
+												},
+												{
+													"id": "set-vector-y",
+													"objectClass": "Peer",
+													"sid": 363593777818108,
+													"behaviorType": "8Direction",
+													"parameters": {
+														"vector-y": "0"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 227733141971105,
+													"parameters": {
+														"instance-variable": "moving",
+														"value": "0"
+													}
+												}
+											],
+											"sid": 591284148446959
+										},
+										{
+											"eventType": "comment",
+											"text": "Prohibit the peer from leaving the arena."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-position",
+													"objectClass": "Peer",
+													"sid": 548037108832606,
+													"parameters": {
+														"x": "clamp(Self.X, ArenaLimitTop.X, ArenaLimitBot.X)",
+														"y": "clamp(Self.Y, ArenaLimitTop.Y, ArenaLimitBot.Y)"
+													}
+												}
+											],
+											"sid": 499663635286738
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Peer has been eaten by another peer."
+								},
+								{
+									"functionName": "peerEaten",
+									"functionDescription": "Peer has been eaten by another peer.",
+									"functionCategory": "Host",
+									"functionReturnType": "number",
+									"functionCopyPicked": false,
+									"functionIsAsync": false,
+									"functionParameters": [
+										{
+											"name": "peerUID",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Eaten peer's UID.",
+											"sid": 448764169679282
+										},
+										{
+											"name": "peerName",
+											"type": "string",
+											"initialValue": "",
+											"comment": "Name of the peer who ate this peer.",
+											"sid": 324247226591573
+										}
+									],
+									"eventType": "function-block",
+									"conditions": [
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Peer",
+											"sid": 641673266131198,
+											"parameters": {
+												"unique-id": "peerUID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Half of the size of this peer will be transferred to the other peer."
+										},
+										{
+											"id": "set-function-return-value",
+											"objectClass": "Functions",
+											"sid": 351693048356226,
+											"parameters": {
+												"value": "round(Peer.peerSize / 2)"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Broadcast message announcing the name of the peer who absorbed and the name of the peer who was absorbed."
+										},
+										{
+											"id": "broadcast-message",
+											"objectClass": "Multiplayer",
+											"sid": 820841498018165,
+											"parameters": {
+												"from-id": "\"\"",
+												"tag": "\"log\"",
+												"message": "\"'\" & peerName & \"' absorbed '\" & Multiplayer.PeerAliasFromID(Peer.peerID) & \"'\"",
+												"mode": "reliable-unordered"
+											}
+										},
+										{
+											"callFunction": "addLog",
+											"sid": 464149110821222,
+											"parameters": [
+												"\"'\" & peerName & \"' absorbed '\" & Multiplayer.PeerAliasFromID(Peer.peerID) & \"'\""
+											]
+										}
+									],
+									"sid": 948871514636539,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Create death animation."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Create the object."
+												},
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 174428838495081,
+													"parameters": {
+														"object-to-create": "DeathAnimation",
+														"layer": "\"Peers\"",
+														"x": "Peer.X",
+														"y": "Peer.Y",
+														"create-hierarchy": false,
+														"template-name": "\"\""
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Set its properties."
+												},
+												{
+													"id": "set-animation-frame",
+													"objectClass": "DeathAnimation",
+													"sid": 366455525175538,
+													"parameters": {
+														"frame-number": "Peer.AnimationFrame"
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "DeathAnimation",
+													"sid": 818876099822245,
+													"parameters": {
+														"angle": "Peer.Angle"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "DeathAnimation",
+													"sid": 474874055340057,
+													"parameters": {
+														"instance-variable": "anim",
+														"value": "Peer.AnimationFrame"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "DeathAnimation",
+													"sid": 536071164957567,
+													"parameters": {
+														"instance-variable": "peerSize",
+														"value": "Peer.peerSize"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Play fade animation."
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "DeathAnimation",
+													"sid": 291405742329177,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"DeathAnimation\"",
+														"property": "offsetOpacity",
+														"end-value": "0",
+														"time": "1",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "DeathAnimation",
+													"sid": 220077651862413,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"DeathAnimationSize\"",
+														"property": "size",
+														"end-x": "0.001",
+														"end-y": "0.001",
+														"time": "1",
+														"ease": "easeoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Use a separate timer to destroy it, so that peers have enough time to see the complete fade-out."
+												},
+												{
+													"id": "start-timer",
+													"objectClass": "DeathAnimation",
+													"sid": 668078409093502,
+													"behaviorType": "Timer",
+													"parameters": {
+														"duration": "2.0",
+														"type": "once",
+														"tag": "\"destroyDeathAnimation\""
+													}
+												}
+											],
+											"sid": 675831323577525
+										},
+										{
+											"eventType": "variable",
+											"name": "spawnPoint",
+											"type": "string",
+											"initialValue": "",
+											"comment": "Tuple (x, y) for spawn point coordinates.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 523641683181561
+										},
+										{
+											"eventType": "comment",
+											"text": "Respawn peer at a good position, and reset their properties."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 502528491622915,
+													"parameters": {
+														"variable": "spawnPoint",
+														"value": "Functions.findSpawnPoint"
+													}
+												},
+												{
+													"id": "set-position",
+													"objectClass": "Peer",
+													"sid": 883229987995518,
+													"parameters": {
+														"x": "float(tokenat(spawnPoint, 0, \" \"))",
+														"y": "float(tokenat(spawnPoint, 1, \" \"))"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 225750430691049,
+													"parameters": {
+														"instance-variable": "gotoX",
+														"value": "float(tokenat(spawnPoint, 0, \" \"))"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 364309874104432,
+													"parameters": {
+														"instance-variable": "gotoY",
+														"value": "float(tokenat(spawnPoint, 1, \" \"))"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 527577695254130,
+													"parameters": {
+														"instance-variable": "peerSize",
+														"value": "PEER_MIN_SIZE"
+													}
+												},
+												{
+													"id": "set-size",
+													"objectClass": "Peer",
+													"sid": 342491963179375,
+													"parameters": {
+														"width": "PEER_MIN_SIZE",
+														"height": "PEER_MIN_SIZE"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 712769370494513,
+													"parameters": {
+														"instance-variable": "moving",
+														"value": "0"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 630014524628138,
+													"parameters": {
+														"instance-variable": "justSpawned",
+														"value": "1"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 317244323602013,
+													"parameters": {
+														"instance-variable": "boost",
+														"value": "0"
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Peer",
+													"sid": 190031226636413,
+													"parameters": {
+														"instance-variable": "vision",
+														"value": "0"
+													}
+												}
+											],
+											"sid": 621919830237281
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Check if a peer was eaten by another peer."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 618836937765267,
+											"parameters": {
+												"object": "Peers"
+											}
+										},
+										{
+											"id": "pick-overlapping-point",
+											"objectClass": "System",
+											"sid": 623249748273995,
+											"parameters": {
+												"object": "Peer",
+												"x": "Peers.X",
+												"y": "Peers.Y"
+											}
+										},
+										{
+											"id": "compare-width",
+											"objectClass": "Peer",
+											"sid": 101944883730924,
+											"parameters": {
+												"comparison": 4,
+												"width": "Peers.Width"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 243724213356196,
+											"parameters": {
+												"instance-variable": "peerSize",
+												"value": "round(min(Self.peerSize + Functions.peerEaten(Peers.UID, Multiplayer.PeerAliasFromID(Peer.peerID)), PEER_MAX_SIZE))"
+											}
+										}
+									],
+									"sid": 551833129088997
+								},
+								{
+									"eventType": "comment",
+									"text": "Destroy death animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-timer",
+											"objectClass": "DeathAnimation",
+											"sid": 467664884855290,
+											"behaviorType": "Timer",
+											"parameters": {
+												"tag": "\"destroyDeathAnimation\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "DeathAnimation",
+											"sid": 943704705994464
+										}
+									],
+									"sid": 437435478841936
+								}
+							],
+							"sid": 780316932822126
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Consumables (host)",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Create new food object and set its properties."
+								},
+								{
+									"functionName": "createNewFood",
+									"functionDescription": "Create new food object.",
+									"functionCategory": "Host",
+									"functionReturnType": "none",
+									"functionCopyPicked": false,
+									"functionIsAsync": false,
+									"functionParameters": [],
+									"eventType": "function-block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 729366576270414,
+											"parameters": {
+												"object-to-create": "Food",
+												"layer": "\"Food\"",
+												"x": "random(SpawnLimitTop.X, SpawnLimitBot.X)",
+												"y": "random(SpawnLimitTop.Y, SpawnLimitBot.Y)",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Food",
+											"sid": 731818107073067,
+											"parameters": {
+												"frame-number": "choose(0, 1, 2, 3)"
+											}
+										},
+										{
+											"id": "set-speed",
+											"objectClass": "Food",
+											"sid": 276204992344684,
+											"behaviorType": "Rotate",
+											"parameters": {
+												"speed": "choose(-120, -90, -60, -30, 30, 60, 90, 120)"
+											}
+										}
+									],
+									"sid": 776960327752176
+								},
+								{
+									"eventType": "comment",
+									"text": "Peers can consume food objects."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 418455902847471,
+											"parameters": {
+												"object": "Food"
+											}
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Food",
+											"sid": 827518840105772,
+											"parameters": {
+												"object": "Peer"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Create particles."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 903160842712307,
+											"parameters": {
+												"object-to-create": "FoodParticles",
+												"layer": "\"Bubbles\"",
+												"x": "Food.X",
+												"y": "Food.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Destroy food and increase peer's size."
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Food",
+											"sid": 991129814685407
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 468121189889432,
+											"parameters": {
+												"instance-variable": "peerSize",
+												"value": "round(min(Self.peerSize + 1, PEER_MAX_SIZE))"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Create new food at a random location."
+										},
+										{
+											"callFunction": "createNewFood",
+											"sid": 966903751596924
+										}
+									],
+									"sid": 145827531587521
+								},
+								{
+									"eventType": "comment",
+									"text": "Peers can consume boost objects."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 243809327690991,
+											"parameters": {
+												"object": "Boost"
+											}
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Boost",
+											"sid": 684474233037671,
+											"parameters": {
+												"object": "Peer"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Peer",
+											"sid": 873524646292707,
+											"parameters": {
+												"instance-variable": "peerSize",
+												"comparison": 2,
+												"value": "PEER_MAX_SIZE / 3"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Create particles."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 454418516107102,
+											"parameters": {
+												"object-to-create": "FoodParticles",
+												"layer": "\"Bubbles\"",
+												"x": "Boost.X",
+												"y": "Boost.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Destroy boost and buff the peer."
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Boost",
+											"sid": 823269761927427
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 357548896748618,
+											"parameters": {
+												"instance-variable": "boost",
+												"value": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Set up timer to stop the boost."
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Peer",
+											"sid": 852785853558042,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "10.0",
+												"type": "once",
+												"tag": "\"stopBoost\""
+											}
+										}
+									],
+									"sid": 532826195364197
+								},
+								{
+									"eventType": "comment",
+									"text": "Stop peer's boost."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-timer",
+											"objectClass": "Peer",
+											"sid": 149398864233400,
+											"behaviorType": "Timer",
+											"parameters": {
+												"tag": "\"stopBoost\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 797383400691717,
+											"parameters": {
+												"instance-variable": "boost",
+												"value": "0"
+											}
+										}
+									],
+									"sid": 538694350268579
+								},
+								{
+									"eventType": "comment",
+									"text": "Peers can consume vision objects."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 335016337003885,
+											"parameters": {
+												"object": "Vision"
+											}
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "Vision",
+											"sid": 280353464531633,
+											"parameters": {
+												"object": "Peer"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Peer",
+											"sid": 624640416115362,
+											"parameters": {
+												"instance-variable": "peerSize",
+												"comparison": 2,
+												"value": "PEER_MAX_SIZE / 3"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Create particles."
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 659111244051407,
+											"parameters": {
+												"object-to-create": "FoodParticles",
+												"layer": "\"Bubbles\"",
+												"x": "Vision.X",
+												"y": "Vision.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Destroy boost and buff the peer."
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Vision",
+											"sid": 561798586750444
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 738987974511146,
+											"parameters": {
+												"instance-variable": "vision",
+												"value": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Set up timer to remove the augmented vision."
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Peer",
+											"sid": 489324449607892,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "10.0",
+												"type": "once",
+												"tag": "\"stopVision\""
+											}
+										}
+									],
+									"sid": 982741134866992
+								},
+								{
+									"eventType": "comment",
+									"text": "Remove peer's augmented vision."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-timer",
+											"objectClass": "Peer",
+											"sid": 187683283272184,
+											"behaviorType": "Timer",
+											"parameters": {
+												"tag": "\"stopVision\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Peer",
+											"sid": 255112460799345,
+											"parameters": {
+												"instance-variable": "vision",
+												"value": "0"
+											}
+										}
+									],
+									"sid": 705214871442744
+								}
+							],
+							"sid": 851476378110257
+						}
+					],
+					"sid": 5993157518437331
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Common",
+					"description": "Events that are common to both the host and peers.",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Z-Order",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Sort Peers Z-Order by size."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "every-tick",
+											"objectClass": "System",
+											"sid": 471438266706803
+										}
+									],
+									"actions": [
+										{
+											"id": "sort-z-order",
+											"objectClass": "System",
+											"sid": 297956166699535,
+											"parameters": {
+												"object": "Peer",
+												"instance-variable": {
+													"name": "peerSize",
+													"objectClass": "Peer"
+												}
+											}
+										}
+									],
+									"sid": 465293929737593
+								}
+							],
+							"sid": 778164228830956
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Leaderboard",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Update leaderboard."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "every-tick",
+											"objectClass": "System",
+											"sid": 666719039931069
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "LeaderboardNames",
+											"sid": 875201220321427,
+											"parameters": {
+												"text": "\"\""
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "LeaderboardScore",
+											"sid": 860050934244156,
+											"parameters": {
+												"text": "\"\""
+											}
+										}
+									],
+									"sid": 737229824899524,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Order leaderboard from highest score to lowest score."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "for-each-ordered",
+													"objectClass": "System",
+													"sid": 706817150272543,
+													"parameters": {
+														"object": "Peer",
+														"expression": "Peer.peerSize",
+														"order": "descending"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 179618153813347,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "First insertion does not add a new line before the score."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-text",
+															"objectClass": "LeaderboardScore",
+															"sid": 412921544292700,
+															"parameters": {
+																"text-to-compare": "\"\"",
+																"case-sensitivity": "ignore-case"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-text",
+															"objectClass": "LeaderboardNames",
+															"sid": 781337165870126,
+															"parameters": {
+																"text": "\"  \" & Multiplayer.PeerAliasFromID(Peer.peerID)"
+															}
+														},
+														{
+															"id": "set-text",
+															"objectClass": "LeaderboardScore",
+															"sid": 125408223029709,
+															"parameters": {
+																"text": "zeropad(Peer.peerSize - PEER_MIN_SIZE, 4)"
+															}
+														}
+													],
+													"sid": 770599865582251
+												},
+												{
+													"eventType": "comment",
+													"text": "Subsequent insertions do."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 326763230252612
+														}
+													],
+													"actions": [
+														{
+															"id": "set-text",
+															"objectClass": "LeaderboardNames",
+															"sid": 482998531880600,
+															"parameters": {
+																"text": "Self.Text & newline & \"  \" & Multiplayer.PeerAliasFromID(Peer.peerID)"
+															}
+														},
+														{
+															"id": "set-text",
+															"objectClass": "LeaderboardScore",
+															"sid": 801637520543052,
+															"parameters": {
+																"text": "Self.Text & newline & zeropad(Peer.peerSize - PEER_MIN_SIZE, 4)"
+															}
+														}
+													],
+													"sid": 948548788077546
+												}
+											]
+										}
+									]
+								}
+							],
+							"sid": 616363050612492
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Logs",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Whenever a peer joins or leaves, log the event so the user can see what happened."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-peer-connected",
+											"objectClass": "Multiplayer",
+											"sid": 691452151527800
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "addLog",
+											"sid": 242102656718190,
+											"parameters": [
+												"\"'\" & Multiplayer.PeerAlias & \"' joined\""
+											]
+										}
+									],
+									"sid": 579718973648293
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-peer-disconnected",
+											"objectClass": "Multiplayer",
+											"sid": 988686171151962
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "addLog",
+											"sid": 597510047828025,
+											"parameters": [
+												"\"'\" & Multiplayer.PeerAlias & \"' left\""
+											]
+										}
+									],
+									"sid": 766005715344327
+								},
+								{
+									"eventType": "comment",
+									"text": "Add received logs to the log history."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-peer-message",
+											"objectClass": "Multiplayer",
+											"sid": 589166101251155,
+											"parameters": {
+												"tag": "\"log\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "addLog",
+											"sid": 498617859406838,
+											"parameters": [
+												"Multiplayer.Message"
+											]
+										}
+									],
+									"sid": 616194368770257
+								}
+							],
+							"sid": 707154518627138
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Arrows",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Hide all arrows."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 482933961135681,
+											"parameters": {
+												"object": "Arrow"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "Arrow",
+											"sid": 997583980088543,
+											"parameters": {
+												"x": "-10000",
+												"y": "-10000"
+											}
+										}
+									],
+									"sid": 640600528823106
+								},
+								{
+									"eventType": "comment",
+									"text": "Peer can only see arrows if they have consumed a vision powerup."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 106001603927982,
+											"parameters": {
+												"object": "Peer",
+												"expression": "Peer.peerID",
+												"comparison": 0,
+												"value": "Multiplayer.MyID"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 398445507048276,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Peer",
+													"sid": 555492137363640,
+													"parameters": {
+														"instance-variable": "vision",
+														"comparison": 0,
+														"value": "1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-visible",
+													"objectClass": "Arrow",
+													"sid": 116353203232277,
+													"parameters": {
+														"visibility": "visible"
+													}
+												}
+											],
+											"sid": 503923471969926
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 768054436698697
+												}
+											],
+											"actions": [
+												{
+													"id": "set-visible",
+													"objectClass": "Arrow",
+													"sid": 435565967762316,
+													"parameters": {
+														"visibility": "invisible"
+													}
+												}
+											],
+											"sid": 203698855991006
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Show arrows pointing to the enemies."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 183119844909814,
+											"parameters": {
+												"object": "Peer"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Peer",
+											"sid": 111810689682553,
+											"parameters": {
+												"instance-variable": "peerID",
+												"comparison": 1,
+												"value": "Multiplayer.MyID"
+											}
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 715464994440109,
+											"parameters": {
+												"object": "Arrow",
+												"expression": "Arrow.AnimationFrame = Peer.AnimationFrame"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 650254548393829,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Hide arrow."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-on-screen",
+													"objectClass": "Peer",
+													"sid": 535948040502076
+												}
+											],
+											"actions": [
+												{
+													"id": "set-position",
+													"objectClass": "Arrow",
+													"sid": 770133795825229,
+													"parameters": {
+														"x": "-10000",
+														"y": "-10000"
+													}
+												}
+											],
+											"sid": 439470538448010
+										},
+										{
+											"eventType": "comment",
+											"text": "Show arrow."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 919920232743006
+												}
+											],
+											"actions": [],
+											"sid": 726429076059012,
+											"children": [
+												{
+													"eventType": "variable",
+													"name": "cosAngle",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "Cosine of the angle between the centered peer and the other peer.",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 397681454581451
+												},
+												{
+													"eventType": "variable",
+													"name": "sinAngle",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "Sine of the angle between the centered peer and the other peer.",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 670268664614979
+												},
+												{
+													"eventType": "variable",
+													"name": "scale",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "Scaling factor for X and Y bounds.",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 471151983544935
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "set-angle",
+															"objectClass": "Arrow",
+															"sid": 387199176068299,
+															"parameters": {
+																"angle": "angle(ViewportMidX(\"Peers\"), ViewportMidY(\"Peers\"), Peer.X, Peer.Y)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 100916132201643,
+															"parameters": {
+																"variable": "cosAngle",
+																"value": "cos(Arrow.Angle)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 378676440219025,
+															"parameters": {
+																"variable": "sinAngle",
+																"value": "sin(Arrow.Angle)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 700940402629757,
+															"parameters": {
+																"variable": "scale",
+																"value": "min((ViewportWidth(\"Info\")/2) / abs(cosAngle), (ViewportHeight(\"Info\")/2) / abs(sinAngle))"
+															}
+														},
+														{
+															"id": "set-position",
+															"objectClass": "Arrow",
+															"sid": 510072019783202,
+															"parameters": {
+																"x": "(ViewportWidth(\"Info\")/2) + cosAngle * scale",
+																"y": "(ViewportHeight(\"Info\")/2) + sinAngle * scale"
+															}
+														}
+													],
+													"sid": 484771783904205
+												}
+											]
+										}
+									]
+								}
+							],
+							"sid": 698828460623986
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Consumables (both)",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Show or hide powerups depending on the peer's size."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 978228054875637,
+											"parameters": {
+												"object": "Peer",
+												"expression": "Peer.peerID",
+												"comparison": 0,
+												"value": "Multiplayer.MyID"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 159580605414367,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Peer",
+													"sid": 349049459622586,
+													"parameters": {
+														"instance-variable": "peerSize",
+														"comparison": 2,
+														"value": "PEER_MAX_SIZE / 3"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-visible",
+													"objectClass": "Vision",
+													"sid": 806104579291093,
+													"parameters": {
+														"visibility": "visible"
+													}
+												},
+												{
+													"id": "set-visible",
+													"objectClass": "Boost",
+													"sid": 334753753158259,
+													"parameters": {
+														"visibility": "visible"
+													}
+												}
+											],
+											"sid": 979237536039479
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 330873886869817
+												}
+											],
+											"actions": [
+												{
+													"id": "set-visible",
+													"objectClass": "Vision",
+													"sid": 545247609114085,
+													"parameters": {
+														"visibility": "invisible"
+													}
+												},
+												{
+													"id": "set-visible",
+													"objectClass": "Boost",
+													"sid": 669302996111512,
+													"parameters": {
+														"visibility": "invisible"
+													}
+												}
+											],
+											"sid": 872979057208292
+										}
+									]
+								}
+							],
+							"sid": 148584082270801
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Virus (both)",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Update virus movement particles."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 386245113420304,
+											"parameters": {
+												"object": "Virus"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "move-to-layer",
+											"objectClass": "Virus",
+											"sid": 149557299543935,
+											"parameters": {
+												"layer": "\"Virus\""
+											}
+										},
+										{
+											"id": "set-position",
+											"objectClass": "VirusMovementParticles",
+											"sid": 862805928661372,
+											"parameters": {
+												"x": "Virus.X",
+												"y": "Virus.Y"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "VirusMovementParticles",
+											"sid": 625792962019913,
+											"parameters": {
+												"angle": "Virus.Bullet.AngleOfMotion + 180"
+											}
+										},
+										{
+											"id": "move-to-layer",
+											"objectClass": "VirusMovementParticles",
+											"sid": 751071260145115,
+											"parameters": {
+												"layer": "\"Bubbles\""
+											}
+										}
+									],
+									"sid": 911602870149983
+								}
+							],
+							"sid": 632175823973269
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Peer Object",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Adjust camera position and zoom level."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 335796950620775,
+											"parameters": {
+												"object": "Peer",
+												"expression": "Peer.peerID",
+												"comparison": 0,
+												"value": "Multiplayer.MyID"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 992157138538766,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the peer has just spawned, move the camera instantly."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Peer",
+													"sid": 466895143816409,
+													"parameters": {
+														"instance-variable": "justSpawned",
+														"comparison": 0,
+														"value": "1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "scroll-to-position",
+													"objectClass": "System",
+													"sid": 372034260513584,
+													"parameters": {
+														"x": "Peer.X",
+														"y": "Peer.Y"
+													}
+												}
+											],
+											"sid": 725482881639307
+										},
+										{
+											"eventType": "comment",
+											"text": "Otherwise, move it smoothly."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 309518294928425
+												}
+											],
+											"actions": [
+												{
+													"id": "scroll-to-position",
+													"objectClass": "System",
+													"sid": 590018224582837,
+													"parameters": {
+														"x": "lerp(scrollx, Peer.X, 8 * dt)",
+														"y": "lerp(scrolly, Peer.Y, 8 * dt)"
+													}
+												}
+											],
+											"sid": 436622787953782
+										},
+										{
+											"eventType": "variable",
+											"name": "currLayerScale",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Layer scale changes according to peer's size.",
+											"isStatic": true,
+											"isConstant": false,
+											"sid": 981611578524680
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Set game scale according to the size of the peer."
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 663195206217435,
+													"parameters": {
+														"variable": "currLayerScale",
+														"value": "lerp(LayerScale(\"Peers\"), max(3.0 * (PEER_MIN_SIZE /(Peer.Width * 10)^0.6), 0.25), 10 * dt)"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Apply scale to layers."
+												},
+												{
+													"id": "set-layer-scale",
+													"objectClass": "System",
+													"sid": 484502454863004,
+													"parameters": {
+														"layer": "\"Background\"",
+														"scale": "currLayerScale"
+													}
+												},
+												{
+													"id": "set-layer-scale",
+													"objectClass": "System",
+													"sid": 865474819882268,
+													"parameters": {
+														"layer": "\"Food\"",
+														"scale": "currLayerScale"
+													}
+												},
+												{
+													"id": "set-layer-scale",
+													"objectClass": "System",
+													"sid": 772838644101101,
+													"parameters": {
+														"layer": "\"Bubbles\"",
+														"scale": "currLayerScale"
+													}
+												},
+												{
+													"id": "set-layer-scale",
+													"objectClass": "System",
+													"sid": 978976629478170,
+													"parameters": {
+														"layer": "\"Peers\"",
+														"scale": "currLayerScale"
+													}
+												},
+												{
+													"id": "set-layer-scale",
+													"objectClass": "System",
+													"sid": 625797307665237,
+													"parameters": {
+														"layer": "\"Virus\"",
+														"scale": "currLayerScale"
+													}
+												},
+												{
+													"id": "set-layer-scale",
+													"objectClass": "System",
+													"sid": 536145951595846,
+													"parameters": {
+														"layer": "\"PeerText\"",
+														"scale": "currLayerScale"
+													}
+												}
+											],
+											"sid": 203397983142073
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Update peer object parts."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 231393631651835,
+											"parameters": {
+												"object": "Peer"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Update peer's animation."
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Peer",
+											"sid": 609445012789420,
+											"parameters": {
+												"frame-number": "Peer.anim"
+											}
+										},
+										{
+											"id": "move-to-layer",
+											"objectClass": "Peer",
+											"sid": 407317123996057,
+											"parameters": {
+												"layer": "\"Peers\""
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update name."
+										},
+										{
+											"id": "move-to-layer",
+											"objectClass": "PeerNameText",
+											"sid": 519085649691930,
+											"parameters": {
+												"layer": "\"PeerText\""
+											}
+										},
+										{
+											"id": "set-position",
+											"objectClass": "PeerNameText",
+											"sid": 317600783324090,
+											"parameters": {
+												"x": "Peer.X",
+												"y": "Peer.Y - 6 * Peer.Height / 10"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "PeerNameText",
+											"sid": 865053276703536,
+											"parameters": {
+												"text": "\"[outlineBack=#000000][lineThickness=4]\" & Multiplayer.PeerAliasFromID(Peer.peerid)"
+											}
+										},
+										{
+											"id": "set-width",
+											"objectClass": "PeerNameText",
+											"sid": 855039022422057,
+											"parameters": {
+												"width": "Peer.peerSize"
+											}
+										},
+										{
+											"id": "set-height",
+											"objectClass": "PeerNameText",
+											"sid": 184165981344587,
+											"parameters": {
+												"height": "Peer.peerSize"
+											}
+										},
+										{
+											"id": "set-font-size",
+											"objectClass": "PeerNameText",
+											"sid": 916627033837190,
+											"parameters": {
+												"size-pt": "Peer.peerSize/8"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update movement particles."
+										},
+										{
+											"id": "set-position",
+											"objectClass": "MovementParticles",
+											"sid": 662356908647086,
+											"parameters": {
+												"x": "Peer.X",
+												"y": "Peer.Y"
+											}
+										},
+										{
+											"id": "set-x-randomiser",
+											"objectClass": "MovementParticles",
+											"sid": 652412858738539,
+											"parameters": {
+												"x-randomiser": "Peer.peerSize / 2"
+											}
+										},
+										{
+											"id": "set-y-randomiser",
+											"objectClass": "MovementParticles",
+											"sid": 664435509203714,
+											"parameters": {
+												"y-randomiser": "Peer.peerSize / 2"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "MovementParticles",
+											"sid": 362740454138127,
+											"parameters": {
+												"angle": "Peer.Angle + 180"
+											}
+										},
+										{
+											"id": "set-size",
+											"objectClass": "MovementParticles",
+											"sid": 652466250361992,
+											"parameters": {
+												"size": "Peer.peerSize / 4"
+											}
+										},
+										{
+											"id": "move-to-layer",
+											"objectClass": "MovementParticles",
+											"sid": 201565230541832,
+											"parameters": {
+												"layer": "\"Bubbles\""
+											}
+										},
+										{
+											"id": "set-speed",
+											"objectClass": "MovementParticles",
+											"sid": 649754224597470,
+											"parameters": {
+												"speed": "(Peer.peerSize/32) * 25 + 100"
+											}
+										}
+									],
+									"sid": 954722644766042,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Spawn particles."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 204066513666322,
+													"parameters": {
+														"value": "Peer.moving"
+													}
+												},
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Peer",
+													"sid": 976157869919646,
+													"parameters": {
+														"instance-variable": "peerSize",
+														"comparison": 3,
+														"value": "PEER_MAX_SIZE / 3"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-rate",
+													"objectClass": "MovementParticles",
+													"sid": 290901262481001,
+													"parameters": {
+														"rate": "50"
+													}
+												}
+											],
+											"sid": 509471741327130
+										},
+										{
+											"eventType": "comment",
+											"text": "Do not spawn particles."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 617288268187537
+												}
+											],
+											"actions": [
+												{
+													"id": "set-rate",
+													"objectClass": "MovementParticles",
+													"sid": 303547405774623,
+													"parameters": {
+														"rate": "0"
+													}
+												}
+											],
+											"sid": 424582508906202
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Peers shine when boosted."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 375591651987626,
+											"parameters": {
+												"object": "Peer"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 931438781725588,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Peer",
+													"sid": 331858096532944,
+													"parameters": {
+														"instance-variable": "boost",
+														"comparison": 0,
+														"value": "1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-effect-parameter",
+													"objectClass": "Peer",
+													"sid": 283899784128073,
+													"parameters": {
+														"effect": "\"AdjustHSL\"",
+														"parameter-index": "2",
+														"value": "110 + Self.Sine.Value"
+													}
+												}
+											],
+											"sid": 218087950000009
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 344933061192904
+												}
+											],
+											"actions": [
+												{
+													"id": "set-effect-parameter",
+													"objectClass": "Peer",
+													"sid": 291928930111110,
+													"parameters": {
+														"effect": "\"AdjustHSL\"",
+														"parameter-index": "2",
+														"value": "100"
+													}
+												}
+											],
+											"sid": 210644621104208
+										}
+									]
+								}
+							],
+							"sid": 783962549213697
+						}
+					],
+					"sid": 5870562097836775
+				}
+			],
+			"sid": 8255319576193919
+		}
+	],
+	"sid": 434100748332892
+}

@@ -272,7 +272,7 @@ function bowUIOnAnimationEnd() {
             arrow2.opacity = 100;
             arrow.x = player.x + 4;
             arrow.y = player.y;
-            arrow.zElevation = 7;
+            arrow.z = 7;
             
             // Utility constant to shorten the code
             const travelTime = currTarget.instVars.travelTime;
@@ -283,7 +283,7 @@ function bowUIOnAnimationEnd() {
                 "position", [ax, ay], travelTime, "linear", {tags: "xyMove"}
             );
             arrow.behaviors.Tween.startTween(
-                "z-elevation", az, travelTime, "linear", {tags: "zMove"}
+                "z", az, travelTime, "linear", {tags: "zMove"}
             );
             for (const t of arrow.behaviors.Tween.tweensByTags("xyMove"))
                 t.finished.then(() => computeScore() );
@@ -355,8 +355,8 @@ function computeScore() {
     
     // Calculate the distance between the arrow and the center of the target
     const d = dist3D(
-        arrow.x, arrow.y, arrow.zElevation,
-        currTarget.x, currTarget.y, currTarget.zElevation
+        arrow.x, arrow.y, arrow.z,
+        currTarget.x, currTarget.y, currTarget.z
     );
     
     // Make arrow invisible
@@ -385,7 +385,7 @@ function onTick(runtime: IRuntime) {
 function checkIfArrowHitGround() {
     // If the arrow hit the ground, stop it
     
-    if (arrow.zElevation <= -1) {
+    if (arrow.z <= -1) {
         for (const t of arrow.behaviors.Tween.tweensByTags("zMove")) {
             for (const y of arrow.behaviors.Tween.tweensByTags("xyMove")) {
                 y.stop();
@@ -455,7 +455,7 @@ function setCamera3DArrow(runtime: IRuntime) {
     );
     const camZ = lerp(
         camera.getCameraPosition()[2],
-        arrow.zElevation + 6,
+        arrow.z + 6,
         LERPFACTOR * 60 * runtime.dt
     );
 
@@ -467,7 +467,7 @@ function setCamera3DArrow(runtime: IRuntime) {
         camera.getLookPosition()[1], arrow.y, LERPFACTOR * 60 * runtime.dt
     );
     const camLookZ = lerp(
-        camera.getLookPosition()[2], arrow.zElevation,
+        camera.getLookPosition()[2], arrow.z,
         LERPFACTOR * 60 * runtime.dt
     );
 

@@ -1,0 +1,2142 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Forsteri Studios\n\nWebsite: forsteristudios.com\nE-Mail: forsteristudios@gmail.com\nX: @forsteristudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "BAR_WIDTH",
+			"type": "number",
+			"initialValue": "458",
+			"comment": "Line length bar width.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 300693780698647
+		},
+		{
+			"eventType": "variable",
+			"name": "LVL_MAX_DRAW",
+			"type": "string",
+			"initialValue": "2000 1400 1200 1900",
+			"comment": "Max line length for each level.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 980334645171449
+		},
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "running",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the player running the simulation?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 601918585060333
+		},
+		{
+			"eventType": "variable",
+			"name": "maxDrawing",
+			"type": "number",
+			"initialValue": "1000",
+			"comment": "Maximum total length of lines.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 977462039115860
+		},
+		{
+			"eventType": "variable",
+			"name": "usedDrawing",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Total line length used by the player.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 122779309342124
+		},
+		{
+			"eventType": "variable",
+			"name": "tutorial",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "Is the tutorial enabled?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 219836843249527
+		},
+		{
+			"eventType": "variable",
+			"name": "lineUID",
+			"type": "number",
+			"initialValue": "-1",
+			"comment": "Current line being drawn.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 932154559149633
+		},
+		{
+			"eventType": "variable",
+			"name": "levelTransition",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the game transitioning between levels?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 276768707470565
+		},
+		{
+			"eventType": "variable",
+			"name": "gravity",
+			"type": "number",
+			"initialValue": "10",
+			"comment": "Global gravity value.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 174639713448091
+		},
+		{
+			"eventType": "variable",
+			"name": "level",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Current level.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 476236690194817
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Setup the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 277107152016900
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Load the first level."
+						},
+						{
+							"callFunction": "loadLevel",
+							"sid": 805693845150384,
+							"parameters": [
+								"0"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Disable interaction (tutorial will be on-screen)."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 335181912259855,
+							"parameters": {
+								"group-name": "\"Interaction\"",
+								"state": "deactivated"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide game over message."
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextGameOver",
+							"sid": 532772679695044,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Animate tutorial with a fade-in."
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextTutorial",
+							"sid": 507464595993219,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 262019268801985,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"Fader90\"",
+								"property": "offsetOpacity",
+								"end-value": "90",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTutorial",
+							"sid": 477300300454776,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowTutorial\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 731021024471022
+				},
+				{
+					"eventType": "comment",
+					"text": "Close the tutorial and start the game."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-tap",
+							"objectClass": "Touch",
+							"sid": 564985828397111
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "Fader",
+							"sid": 793698090415355,
+							"behaviorType": "Tween",
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 375983569829008,
+							"parameters": {
+								"variable": "tutorial"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Hide tutorial."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 392272200561195,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "TextTutorial",
+							"sid": 599211545609924,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideTutorial\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 586336798241031
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 719508159629247,
+							"parameters": {
+								"variable": "tutorial",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Enable interaction."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 639972628649836,
+							"parameters": {
+								"group-name": "\"Interaction\"",
+								"state": "activated"
+							}
+						}
+					],
+					"sid": 542726688462315
+				}
+			],
+			"sid": 333664814942570
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Levels",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Load objects from a given level."
+				},
+				{
+					"functionName": "loadLevel",
+					"functionDescription": "Load objects from a given level.",
+					"functionCategory": "Levels",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "levelNo",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Level number.",
+							"sid": 615565290974647
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Reset variables."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 646430140291073,
+							"parameters": {
+								"variable": "maxDrawing",
+								"value": "int(tokenat(LVL_MAX_DRAW, levelNo, \" \"))"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 843036971419878,
+							"parameters": {
+								"variable": "running",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 967738637633006,
+							"parameters": {
+								"variable": "usedDrawing",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 207546136727475,
+							"parameters": {
+								"variable": "lineUID",
+								"value": "-1"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 493027592576652,
+							"parameters": {
+								"variable": "level",
+								"value": "levelNo"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 237393791197327,
+							"parameters": {
+								"variable": "levelTransition",
+								"value": "false"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 549037492399722,
+							"parameters": {
+								"variable": "gravity",
+								"value": "10"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Reset gravity."
+						},
+						{
+							"id": "set-world-gravity",
+							"objectClass": "Ball",
+							"sid": 569289080875545,
+							"behaviorType": "Physics",
+							"parameters": {
+								"gravity": "gravity"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Destroy old objects."
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Background",
+							"sid": 460196686474896
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Obstacle",
+							"sid": 954025667126811
+						},
+						{
+							"id": "destroy",
+							"objectClass": "ObstacleCustom",
+							"sid": 713487716515011
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Booster",
+							"sid": 937578594769804
+						},
+						{
+							"id": "destroy",
+							"objectClass": "GravityInverter",
+							"sid": 935042921277592
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Goal",
+							"sid": 386987267603949
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Ball",
+							"sid": 585440660584698
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Line",
+							"sid": 244174699660577
+						},
+						{
+							"type": "comment",
+							"text": "Create new objects."
+						},
+						{
+							"id": "recreate-initial-objects",
+							"objectClass": "System",
+							"sid": 362565863958868,
+							"parameters": {
+								"object": "Background",
+								"from-x": "0",
+								"from-y": "0",
+								"to-x": "1080",
+								"to-y": "1920",
+								"source-layout": "\"Level\" & levelNo",
+								"source-layer": "-1",
+								"dest-layer": "-1",
+								"offset-x": "0",
+								"offset-y": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "recreate-initial-objects",
+							"objectClass": "System",
+							"sid": 101116774382360,
+							"parameters": {
+								"object": "Obstacle",
+								"from-x": "0",
+								"from-y": "0",
+								"to-x": "1080",
+								"to-y": "1920",
+								"source-layout": "\"Level\" & levelNo",
+								"source-layer": "-1",
+								"dest-layer": "-1",
+								"offset-x": "0",
+								"offset-y": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "recreate-initial-objects",
+							"objectClass": "System",
+							"sid": 667678369031982,
+							"parameters": {
+								"object": "ObstacleCustom",
+								"from-x": "0",
+								"from-y": "0",
+								"to-x": "1080",
+								"to-y": "1920",
+								"source-layout": "\"Level\" & levelNo",
+								"source-layer": "-1",
+								"dest-layer": "-1",
+								"offset-x": "0",
+								"offset-y": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "recreate-initial-objects",
+							"objectClass": "System",
+							"sid": 344098719111883,
+							"parameters": {
+								"object": "Booster",
+								"from-x": "0",
+								"from-y": "0",
+								"to-x": "1080",
+								"to-y": "1920",
+								"source-layout": "\"Level\" & levelNo",
+								"source-layer": "-1",
+								"dest-layer": "-1",
+								"offset-x": "0",
+								"offset-y": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "recreate-initial-objects",
+							"objectClass": "System",
+							"sid": 633144694583383,
+							"parameters": {
+								"object": "GravityInverter",
+								"from-x": "0",
+								"from-y": "0",
+								"to-x": "1080",
+								"to-y": "1920",
+								"source-layout": "\"Level\" & levelNo",
+								"source-layer": "-1",
+								"dest-layer": "-1",
+								"offset-x": "0",
+								"offset-y": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "recreate-initial-objects",
+							"objectClass": "System",
+							"sid": 721872030800938,
+							"parameters": {
+								"object": "Goal",
+								"from-x": "0",
+								"from-y": "0",
+								"to-x": "1080",
+								"to-y": "1920",
+								"source-layout": "\"Level\" & levelNo",
+								"source-layer": "-1",
+								"dest-layer": "-1",
+								"offset-x": "0",
+								"offset-y": "0",
+								"create-hierarchy": false
+							}
+						},
+						{
+							"id": "recreate-initial-objects",
+							"objectClass": "System",
+							"sid": 986727052768329,
+							"parameters": {
+								"object": "Ball",
+								"from-x": "0",
+								"from-y": "0",
+								"to-x": "1080",
+								"to-y": "1920",
+								"source-layout": "\"Level\" & levelNo",
+								"source-layer": "-1",
+								"dest-layer": "-1",
+								"offset-x": "0",
+								"offset-y": "0",
+								"create-hierarchy": false
+							}
+						}
+					],
+					"sid": 976694093096064
+				}
+			],
+			"sid": 997324588389982
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Drawing Meter",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update total length used by the player."
+				},
+				{
+					"functionName": "updateMeter",
+					"functionDescription": "Update total length used by the player.",
+					"functionCategory": "Lines",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 325600346303707,
+							"parameters": {
+								"seconds": "0",
+								"use-timescale": true
+							}
+						}
+					],
+					"sid": 547964413566489,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "sumOfLengths",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Total length of all lines in the level.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 465987515124262
+						},
+						{
+							"eventType": "comment",
+							"text": "Sum lengths."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 664974134922233,
+									"parameters": {
+										"object": "Line"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 988336352309889,
+									"parameters": {
+										"variable": "sumOfLengths",
+										"value": "Line.Width"
+									}
+								}
+							],
+							"sid": 655338135865343
+						},
+						{
+							"eventType": "comment",
+							"text": "Update UI."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-width",
+									"objectClass": "LineStock",
+									"sid": 439837799972500,
+									"parameters": {
+										"width": "lerp(0, BAR_WIDTH, 1 - sumOfLengths/maxDrawing)"
+									}
+								}
+							],
+							"sid": 121856234633002
+						}
+					]
+				}
+			],
+			"sid": 848381896314475
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Interaction",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "UI Buttons",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Button has been touched."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-nth-touch-start",
+									"objectClass": "Touch",
+									"sid": 767218244230559,
+									"parameters": {
+										"touch-number": "0"
+									}
+								},
+								{
+									"id": "is-touching-object",
+									"objectClass": "Touch",
+									"sid": 750372887604337,
+									"parameters": {
+										"object": "Button"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Button",
+									"sid": 932925799072084,
+									"parameters": {
+										"instance-variable": "enabled"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 719402201084289,
+									"parameters": {
+										"value": "Touch.TouchCount = 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Button",
+									"sid": 924156048972328,
+									"parameters": {
+										"animation": "\"Pressed\"",
+										"from": "current-frame"
+									}
+								}
+							],
+							"sid": 540391494242903
+						},
+						{
+							"eventType": "comment",
+							"text": "Touch was released."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-nth-touch-end",
+									"objectClass": "Touch",
+									"sid": 561381143589238,
+									"parameters": {
+										"touch-number": "0"
+									}
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "Button",
+									"sid": 450873213668490,
+									"parameters": {
+										"animation": "\"Pressed\""
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Button",
+									"sid": 283615904205243,
+									"parameters": {
+										"instance-variable": "enabled"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Button",
+									"sid": 767027397306677,
+									"parameters": {
+										"animation": "\"Normal\"",
+										"from": "current-frame"
+									}
+								}
+							],
+							"sid": 416471159886037,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If touch was released on top of the button, activate it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-touching-object",
+											"objectClass": "Touch",
+											"sid": 426103138061449,
+											"parameters": {
+												"object": "Button"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 550992903949682,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Run button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-animation-frame",
+													"objectClass": "Button",
+													"sid": 868604034972103,
+													"parameters": {
+														"comparison": 0,
+														"number": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "runSimulation",
+													"sid": 754640275292351
+												}
+											],
+											"sid": 312359223038479
+										},
+										{
+											"eventType": "comment",
+											"text": "Reset button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-animation-frame",
+													"objectClass": "Button",
+													"sid": 345201953010904,
+													"parameters": {
+														"comparison": 0,
+														"number": "1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "resetLevel",
+													"sid": 280621600776305
+												}
+											],
+											"sid": 233899129254315
+										}
+									]
+								}
+							]
+						}
+					],
+					"sid": 541436749624693
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Lines",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The player may only edit lines when physics simulation is not running."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 292148903848037,
+									"parameters": {
+										"variable": "running"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 644402840098907,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Start drawing a new line."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-nth-touch-start",
+											"objectClass": "Touch",
+											"sid": 532588647872494,
+											"parameters": {
+												"touch-number": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 186984063167226,
+											"parameters": {
+												"value": "maxDrawing - usedDrawing > 0"
+											}
+										},
+										{
+											"id": "is-touching-object",
+											"objectClass": "Touch",
+											"sid": 400777080657690,
+											"parameters": {
+												"object": "Button"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "is-touching-object",
+											"objectClass": "Touch",
+											"sid": 394427819582949,
+											"parameters": {
+												"object": "UIBounds"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 557382289843711,
+											"parameters": {
+												"value": "Touch.X >= 0 & Touch.X <= LayoutWidth"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 919231012586097,
+											"parameters": {
+												"value": "Touch.Y >= 0 & Touch.Y <= LayoutHeight - UIBounds.Height"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 517161502373039,
+											"parameters": {
+												"object-to-create": "Line",
+												"layer": "\"World\"",
+												"x": "Touch.X",
+												"y": "Touch.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 274920271561577,
+											"parameters": {
+												"variable": "lineUID",
+												"value": "Line.UID"
+											}
+										}
+									],
+									"sid": 334952956634033
+								},
+								{
+									"eventType": "comment",
+									"text": "Adjust current line (length and angle)."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "has-nth-touch",
+											"objectClass": "Touch",
+											"sid": 103767553721103,
+											"parameters": {
+												"touch-number": "0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 311394134003900,
+											"parameters": {
+												"value": "maxDrawing - usedDrawing > 0"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 534560798944707,
+											"parameters": {
+												"value": "Touch.X >= 0 & Touch.X <= LayoutWidth"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 744309407965106,
+											"parameters": {
+												"value": "Touch.Y >= 0 & Touch.Y <= LayoutHeight - UIBounds.Height"
+											}
+										},
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Line",
+											"sid": 292893117330272,
+											"parameters": {
+												"unique-id": "lineUID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "Line",
+											"sid": 867017331096541,
+											"parameters": {
+												"width": "clamp(distance(Self.X, Self.Y, Touch.X, Touch.Y), 16, maxDrawing - usedDrawing)"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Line",
+											"sid": 108710270627151,
+											"parameters": {
+												"angle": "angle(Self.X, Self.Y, Touch.X, Touch.Y)"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Update drawing meter."
+										},
+										{
+											"callFunction": "updateMeter",
+											"sid": 236135935722477
+										}
+									],
+									"sid": 610106348435899
+								},
+								{
+									"eventType": "comment",
+									"text": "Finish adjusting the line."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-nth-touch-end",
+											"objectClass": "Touch",
+											"sid": 976762553156697,
+											"parameters": {
+												"touch-number": "0"
+											}
+										},
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Line",
+											"sid": 420895092331547,
+											"parameters": {
+												"unique-id": "lineUID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 603305847078455,
+											"parameters": {
+												"variable": "usedDrawing",
+												"value": "Line.Width"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 633531189692666,
+											"parameters": {
+												"variable": "lineUID",
+												"value": "-1"
+											}
+										}
+									],
+									"sid": 178147581979967
+								},
+								{
+									"eventType": "comment",
+									"text": "Delete lines."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-tap-object",
+											"objectClass": "Touch",
+											"sid": 558503451589929,
+											"parameters": {
+												"object": "Line"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Delete the line."
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Line",
+											"sid": 399002611809482
+										},
+										{
+											"type": "comment",
+											"text": "Update drawing meter."
+										},
+										{
+											"id": "subtract-from-eventvar",
+											"objectClass": "System",
+											"sid": 562222874040318,
+											"parameters": {
+												"variable": "usedDrawing",
+												"value": "Line.Width"
+											}
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 840194891114063,
+											"parameters": {
+												"seconds": "0",
+												"use-timescale": true
+											}
+										},
+										{
+											"callFunction": "updateMeter",
+											"sid": 506710806737995
+										}
+									],
+									"sid": 164023557880448
+								}
+							]
+						}
+					],
+					"sid": 666718679150798
+				}
+			],
+			"sid": 256415937372958
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Gameplay",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Run physics simulation."
+				},
+				{
+					"functionName": "runSimulation",
+					"functionDescription": "Run physics simulation.",
+					"functionCategory": "Gameplay",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-enabled",
+							"objectClass": "Ball",
+							"sid": 723553624141904,
+							"behaviorType": "Physics",
+							"parameters": {
+								"mode": "enabled"
+							}
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 900249524646445,
+							"parameters": {
+								"variable": "running",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 771202541196210,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Disable run button."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 754156537853747,
+									"parameters": {
+										"object": "Button",
+										"expression": "Button.AnimationFrame",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Button",
+									"sid": 955568947807517,
+									"parameters": {
+										"animation": "\"Disabled\"",
+										"from": "current-frame"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Button",
+									"sid": 763011034019719,
+									"parameters": {
+										"instance-variable": "enabled",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 634302817526273
+						},
+						{
+							"eventType": "comment",
+							"text": "Enable reset button."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 733621951491899,
+									"parameters": {
+										"object": "Button",
+										"expression": "Button.AnimationFrame",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Button",
+									"sid": 375120741824974,
+									"parameters": {
+										"animation": "\"Normal\"",
+										"from": "current-frame"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Button",
+									"sid": 873619430528579,
+									"parameters": {
+										"instance-variable": "enabled",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 524212251509783
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Reset current level."
+				},
+				{
+					"functionName": "resetLevel",
+					"functionDescription": "Reset current level.",
+					"functionCategory": "Gameplay",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Disable interaction."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 958588553412509,
+							"parameters": {
+								"group-name": "\"Interaction\"",
+								"state": "deactivated"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start level transition."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 494446702997195,
+							"parameters": {
+								"variable": "levelTransition",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Fade out."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 319723244290620,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 143298241166214
+						}
+					],
+					"sid": 686811467647075,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Enable reset button."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 934876721258012,
+									"parameters": {
+										"object": "Button",
+										"expression": "Button.AnimationFrame",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Button",
+									"sid": 720467122459115,
+									"parameters": {
+										"animation": "\"Normal\"",
+										"from": "current-frame"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Button",
+									"sid": 398543793234103,
+									"parameters": {
+										"instance-variable": "enabled",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 178813337819500
+						},
+						{
+							"eventType": "comment",
+							"text": "Enable run button."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 341531720594472,
+									"parameters": {
+										"object": "Button",
+										"expression": "Button.AnimationFrame",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Button",
+									"sid": 263719418244399,
+									"parameters": {
+										"animation": "\"Normal\"",
+										"from": "current-frame"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Button",
+									"sid": 185465660946686,
+									"parameters": {
+										"instance-variable": "enabled",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 906956816582774
+						},
+						{
+							"eventType": "comment",
+							"text": "Run the remaining procedures."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Load the current level."
+								},
+								{
+									"callFunction": "loadLevel",
+									"sid": 450661374553649,
+									"parameters": [
+										"level"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Update drawing meter."
+								},
+								{
+									"callFunction": "updateMeter",
+									"sid": 554746496619555
+								},
+								{
+									"type": "comment",
+									"text": "Fade in."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 624560728807644,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.25",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Enable interaction."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 570901263658274
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 499243097459962,
+									"parameters": {
+										"group-name": "\"Interaction\"",
+										"state": "activated"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Stop level transition."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 960500977181945,
+									"parameters": {
+										"variable": "levelTransition",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 643678301882098
+						}
+					]
+				}
+			],
+			"sid": 988944291971989
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Ball",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "If the ball collides with the goal post, the player beat the level."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Ball",
+							"sid": 939992725580021,
+							"parameters": {
+								"object": "Goal"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 535114805221986,
+							"parameters": {
+								"variable": "levelTransition"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-animation-playing",
+							"objectClass": "Goal",
+							"sid": 318284167866876,
+							"parameters": {
+								"animation": "\"Disabled\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Change goalpost animation."
+						},
+						{
+							"id": "set-animation",
+							"objectClass": "Goal",
+							"sid": 269532984954359,
+							"parameters": {
+								"animation": "\"Enabled\"",
+								"from": "beginning"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Start level transition."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 995518848480368,
+							"parameters": {
+								"variable": "levelTransition",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Disable interaction."
+						},
+						{
+							"id": "set-group-active",
+							"objectClass": "System",
+							"sid": 274440767406196,
+							"parameters": {
+								"group-name": "\"Interaction\"",
+								"state": "deactivated"
+							}
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 635139169372170,
+							"parameters": {
+								"seconds": "0.5",
+								"use-timescale": true
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Fade out."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 519738641910508,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "1.0",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 644854192738925
+						}
+					],
+					"sid": 674987149464151,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player beat the whole game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 828934742688995,
+									"parameters": {
+										"variable": "level",
+										"comparison": 0,
+										"value": "3"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Show game over screen."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextGameOver",
+									"sid": 175393731867111,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowGameOver\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "1.0",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 747940993271777,
+									"parameters": {
+										"seconds": "3",
+										"use-timescale": true
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide game over screen."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextGameOver",
+									"sid": 763252118739390,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideGameOver\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "1.0",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Restart the game."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 716272102536357
+								},
+								{
+									"id": "restart-layout",
+									"objectClass": "System",
+									"sid": 511505936558453
+								},
+								{
+									"id": "reset-global-variables",
+									"objectClass": "System",
+									"sid": 617739593932083,
+									"parameters": {
+										"reset-static": true
+									}
+								}
+							],
+							"sid": 524565811839125
+						},
+						{
+							"eventType": "comment",
+							"text": "Player beat the level."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 891215949433836
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Load the next level."
+								},
+								{
+									"callFunction": "loadLevel",
+									"sid": 127363407026277,
+									"parameters": [
+										"level + 1"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Update UI."
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "LevelCounter",
+									"sid": 922784519649615,
+									"parameters": {
+										"frame-number": "level"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Update drawing meter."
+								},
+								{
+									"callFunction": "updateMeter",
+									"sid": 868832627155858
+								},
+								{
+									"type": "comment",
+									"text": "Fade in."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 827799041091977,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Enable interaction."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 273967164170133
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 355434567916998,
+									"parameters": {
+										"group-name": "\"Interaction\"",
+										"state": "activated"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Stop level transition."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 904004816782597,
+									"parameters": {
+										"variable": "levelTransition",
+										"value": "false"
+									}
+								}
+							],
+							"sid": 582848850069121,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Enable reset button."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 508045607884652,
+											"parameters": {
+												"object": "Button",
+												"expression": "Button.AnimationFrame",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "Button",
+											"sid": 370445949770207,
+											"parameters": {
+												"animation": "\"Normal\"",
+												"from": "current-frame"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Button",
+											"sid": 726125222312362,
+											"parameters": {
+												"instance-variable": "enabled",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 655017292516199
+								},
+								{
+									"eventType": "comment",
+									"text": "Enable run button."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 725674082714900,
+											"parameters": {
+												"object": "Button",
+												"expression": "Button.AnimationFrame",
+												"comparison": 0,
+												"value": "1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "Button",
+											"sid": 992886088093581,
+											"parameters": {
+												"animation": "\"Normal\"",
+												"from": "current-frame"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Button",
+											"sid": 173842180600820,
+											"parameters": {
+												"instance-variable": "enabled",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 239448600104074
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "When the ball collides with a booster, apply an impulse in the booster's direction."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Ball",
+							"sid": 384818828832234,
+							"parameters": {
+								"object": "Booster"
+							}
+						},
+						{
+							"id": "is-timer-running",
+							"objectClass": "Booster",
+							"sid": 968390535276222,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Cooldown\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "set-velocity",
+							"objectClass": "Ball",
+							"sid": 339325069915859,
+							"behaviorType": "Physics",
+							"parameters": {
+								"x-component": "0",
+								"y-component": "0"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 500617849904687
+						},
+						{
+							"id": "apply-impulse-at-angle",
+							"objectClass": "Ball",
+							"sid": 447428284008869,
+							"behaviorType": "Physics",
+							"parameters": {
+								"impulse": "Booster.impulse",
+								"angle": "Booster.Angle",
+								"image-point": "0"
+							}
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "Booster",
+							"sid": 998260894087716,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "0.5",
+								"type": "once",
+								"tag": "\"Cooldown\""
+							}
+						}
+					],
+					"sid": 926473394188005
+				},
+				{
+					"eventType": "comment",
+					"text": "When the ball collides with a gravity inverter, invert global gravity."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-collision-with-another-object",
+							"objectClass": "Ball",
+							"sid": 170543743129323,
+							"parameters": {
+								"object": "GravityInverter"
+							}
+						},
+						{
+							"id": "is-timer-running",
+							"objectClass": "GravityInverter",
+							"sid": 146294958465620,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"Cooldown\""
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"id": "start-timer",
+							"objectClass": "GravityInverter",
+							"sid": 710097026537786,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "1.0",
+								"type": "once",
+								"tag": "\"Cooldown\""
+							}
+						},
+						{
+							"id": "tween-value",
+							"objectClass": "Ball",
+							"sid": 981468381222823,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BrakeY\"",
+								"start-value": "Self.Physics.VelocityY",
+								"end-value": "0",
+								"time": "0.25",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 648424172269236
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 816784382223540,
+							"parameters": {
+								"variable": "gravity",
+								"value": "-gravity"
+							}
+						},
+						{
+							"id": "set-world-gravity",
+							"objectClass": "Ball",
+							"sid": 115160229692479,
+							"behaviorType": "Physics",
+							"parameters": {
+								"gravity": "gravity"
+							}
+						}
+					],
+					"sid": 795969816907550
+				},
+				{
+					"eventType": "comment",
+					"text": "Starting braking before the gravity is inverted."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "Ball",
+							"sid": 954251512551753,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"BrakeY\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-velocity",
+							"objectClass": "Ball",
+							"sid": 255611775555734,
+							"behaviorType": "Physics",
+							"parameters": {
+								"x-component": "Self.Physics.VelocityX",
+								"y-component": "Self.Tween.Value(\"BrakeY\")"
+							}
+						}
+					],
+					"sid": 328735107450606
+				}
+			],
+			"sid": 765739726640824
+		}
+	],
+	"sid": 669944507412868
+}

@@ -510,7 +510,7 @@ function updateTerrainElevation(tElev: number) {
 		// Apply new elevation.
 		terrain.setMeshPoint(tx, ty, {
 			mode: "relative", x: 0, y: 0, u: 0, v: 0,
-			zElevation: zElev
+			z: zElev
 		});
 
 		// Store in terrainGrid.
@@ -641,7 +641,7 @@ function smoothenTerrain() {
 		// Apply elevation.
 		terrain.setMeshPoint(p[0], p[1], {
 			mode: "relative", x: 0, y: 0, u: 0, v: 0,
-			zElevation: terrainGrid[p[0]][p[1]]
+			z: terrainGrid[p[0]][p[1]]
 		});
 	}
 }
@@ -667,7 +667,7 @@ function roughenTerrain() {
 		terrainGrid[p[0]][p[1]] = newElev;
 		terrain.setMeshPoint(p[0], p[1], {
 			mode: "relative", x: 0, y: 0, u: 0, v: 0,
-			zElevation: newElev
+			z: newElev
 		});
 	}
 }
