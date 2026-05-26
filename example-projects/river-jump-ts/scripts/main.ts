@@ -158,7 +158,7 @@ function setupGame() {
     // Set starting look position
     camera.lookAtPosition(
         camPos.x, camPos.y, camPos.z,
-        player.x, player.y, player.z + 128,
+        player.x, player.y, player.z + 280,
         0, 1, 0
     );
     
@@ -185,9 +185,9 @@ function timerEvent(e: TimerBehaviorEvent) {
             newX = lastX - xOffset * plat.getFirstInstance()!.width;
         }
 
-        // Create the platform and set its z-Elevation
+        // Create the platform and set its Z co-ordinate
         const p = plat.createInstance("World", newX, 180);
-        p.z = 256;
+        p.z = 563;
 
         // Mark last X as the new X of the platform
         lastX = p.x;
@@ -219,8 +219,7 @@ function timerEvent(e: TimerBehaviorEvent) {
                     break;
             }
 
-            // Create the landblock and set its z-Elevation
-            lb.z = 128 + Math.floor(Math.random() * 48);
+            lb.z = 280 + Math.floor(Math.random() * 106);
         }
     }
 }
@@ -296,17 +295,17 @@ function movePlayer(runtime: IRuntime) {
             // Check if the player is over the block
             const ovlpX = Math.abs(b.x - player.x) < b.width/2 + 4;
             const ovlpZ = Math.abs(
-                b.z + b.zHeight/2 - player.z
-            ) < b.zHeight/2;
+                b.z + b.depth/2 - player.z
+            ) < b.depth/2;
             playerOverBlock ||= ovlpX && ovlpZ;
             
             // Move the block
             b.behaviors.Tween.startTween(
-                "z", b.z - b.zHeight, 1, "linear"
+                "z", b.z - b.depth, 1, "linear"
             );
             
             // Destroy platforms that are far away
-            if (b.z < -768) {
+            if (b.z < -1690) {
                 b.destroy();
             }
         }
@@ -329,12 +328,12 @@ function movePlayer(runtime: IRuntime) {
     // Set the shadow right below the player
     shadow.x = player.x;
     shadow.y = river.y - 8;
-    shadow.z = player.z - 6;
+    shadow.z = player.z - 13;
     
     // Define the height depending on wether it is over a platform or not
     for (const b of plat.getAllInstances()) {
         const ovlpXY = shadow.testOverlap(b);
-        const ovlpZ = Math.abs(b.z - shadow.z) < b.zHeight;
+        const ovlpZ = Math.abs(b.z - shadow.z) < b.depth;
         if (ovlpXY && ovlpZ) {
             shadow.y = b.y - 8;
         }
@@ -401,10 +400,10 @@ function moveWorld(runtime: IRuntime) {
     
     // Move the land blocks
     for (const lb of landBlocks) {
-        lb.z -= 16 * runtime.dt;
+        lb.z -= 35 * runtime.dt;
         
         // Land blocks are destroyed if they are too far away
-        if (lb.z < -768) {
+        if (lb.z < -1690) {
             lb.destroy();
         }
     }

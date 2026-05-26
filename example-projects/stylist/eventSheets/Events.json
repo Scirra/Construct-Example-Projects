@@ -1,0 +1,4331 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Forsteri Studios\n\nWebsite: forsteristudios.com\nE-Mail: forsteristudios@gmail.com\nX: @forsteristudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "carouselCategory",
+			"type": "string",
+			"initialValue": "hair",
+			"comment": "Currently selected clothing category.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 543409429847375
+		},
+		{
+			"eventType": "variable",
+			"name": "carouselSize",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Size of the carousel.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 970152302523888
+		},
+		{
+			"eventType": "variable",
+			"name": "carouselCenter",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Central carousel item.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 381096732643757
+		},
+		{
+			"eventType": "variable",
+			"name": "focusColor",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Which color to change (0 - Base | 1 - Accent | 2 - Skin | 3 - Eyes | 4 - Lipstick)",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 629762845027724
+		},
+		{
+			"eventType": "variable",
+			"name": "photoMode",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the game in photo mode?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 175765236801970
+		},
+		{
+			"eventType": "variable",
+			"name": "canRandomize",
+			"type": "boolean",
+			"initialValue": "true",
+			"comment": "Can the player randomize the character?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 869804524370101
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "CAROUSEL_SCROLL_INTERVAL",
+			"type": "number",
+			"initialValue": "0.1",
+			"comment": "How fast the carousel scrolls.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 279676804936029
+		},
+		{
+			"eventType": "variable",
+			"name": "CAROUSEL_SPACING",
+			"type": "number",
+			"initialValue": "224",
+			"comment": "Distance between the center of carousel items.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 812724977330902
+		},
+		{
+			"eventType": "comment",
+			"text": "The value below is obtained by adding Construct's internal values for white and black. This gives the reference value used to mirror any color across the black-white range. So black becomes white, white becomes black, and any intermediate color becomes its opposite."
+		},
+		{
+			"eventType": "variable",
+			"name": "COLOR_INVERT",
+			"type": "number",
+			"initialValue": "-281492157630462",
+			"comment": "",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 995687813857415
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Load colors."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 399469113946968
+						}
+					],
+					"actions": [
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 401912212359843,
+							"parameters": {
+								"tag": "\"colors\"",
+								"file": {
+									"path": "colors.json"
+								}
+							}
+						}
+					],
+					"sid": 367088839347850
+				},
+				{
+					"eventType": "comment",
+					"text": "Create grid of color objects. The player will interact with these objects to change colors."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 480589882793680,
+							"parameters": {
+								"tag": "\"colors\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "ArrColors",
+							"sid": 962509135207486,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						}
+					],
+					"sid": 743076335054772,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 394177970400827,
+									"parameters": {
+										"name": "\"row\"",
+										"start-index": "0",
+										"end-index": "ArrColors.Height - 1"
+									}
+								},
+								{
+									"id": "for",
+									"objectClass": "System",
+									"sid": 846519121019035,
+									"parameters": {
+										"name": "\"col\"",
+										"start-index": "0",
+										"end-index": "ArrColors.Width - 1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 948381537379038,
+									"parameters": {
+										"object-to-create": "ColorSquare",
+										"layer": "\"CustomizeScreen\"",
+										"x": "ColorPickerFrame.X + 40 * loopindex(\"col\")",
+										"y": "ColorPickerFrame.Y + 40 * loopindex(\"row\")",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "ColorSquare",
+									"sid": 454971659151407,
+									"parameters": {
+										"color": "HexColor(ArrColors.At(loopindex(\"col\"), loopindex(\"row\")))"
+									}
+								}
+							],
+							"sid": 802748417696205
+						},
+						{
+							"eventType": "comment",
+							"text": "Move color picker to the top."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "move-to-top",
+									"objectClass": "ColorPicker",
+									"sid": 854944085321751
+								}
+							],
+							"sid": 892561505532434
+						},
+						{
+							"eventType": "comment",
+							"text": "Setup the rest of the game."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Hide fader."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 714793320686229,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set starting carousel items."
+								},
+								{
+									"callFunction": "swapCarousel",
+									"sid": 996659927370343,
+									"parameters": [
+										"\"hair\""
+									]
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 733979901602542,
+									"parameters": {
+										"seconds": "0",
+										"use-timescale": true
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Randomize clothes."
+								},
+								{
+									"callFunction": "randomizeClothes",
+									"sid": 730919832707930
+								},
+								{
+									"type": "comment",
+									"text": "Randomize colors."
+								},
+								{
+									"callFunction": "randomizeColors",
+									"sid": 940582212882696
+								},
+								{
+									"type": "comment",
+									"text": "Update all clothing categories."
+								},
+								{
+									"callFunction": "UpdateAllCategories",
+									"sid": 578554605458130
+								}
+							],
+							"sid": 770257604667364
+						}
+					]
+				}
+			],
+			"sid": 786708636468277
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Screens",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Show wardobre screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 492852423221236,
+							"parameters": {
+								"object": "WardrobeButton",
+								"type": "start"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 861118626268709,
+							"parameters": {
+								"variable": "photoMode"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Update layer visibility."
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 778529967747200,
+							"parameters": {
+								"layer": "\"CarouselScreen\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 876363916193394,
+							"parameters": {
+								"layer": "\"CustomizeScreen\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update tab buttons."
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "WardrobeButton",
+							"sid": 981547042347834,
+							"parameters": {
+								"frame-number": "1"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "CustomizeButton",
+							"sid": 251738895498962,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "CharacterButton",
+							"sid": 170289767086418,
+							"parameters": {
+								"frame-number": "0"
+							}
+						}
+					],
+					"sid": 936331490526669
+				},
+				{
+					"eventType": "comment",
+					"text": "Show current clothing item customization screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 623286905378397,
+							"parameters": {
+								"object": "CustomizeButton",
+								"type": "start"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 642365088931133,
+							"parameters": {
+								"variable": "photoMode"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Update layer visibility."
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 329539134777836,
+							"parameters": {
+								"layer": "\"CarouselScreen\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 180405426548846,
+							"parameters": {
+								"layer": "\"CustomizeScreen\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update button visibility."
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "CharacterColorButtons",
+							"sid": 392994840342574,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "ClothingColorButtons",
+							"sid": 654728208076687,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update tab buttons."
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "WardrobeButton",
+							"sid": 955061257253544,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "CustomizeButton",
+							"sid": 739854591753416,
+							"parameters": {
+								"frame-number": "1"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "CharacterButton",
+							"sid": 527783394462663,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set the base color as focused."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 942240636385675,
+							"parameters": {
+								"variable": "focusColor",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "ClothingColor1Button",
+							"sid": 910265021383235,
+							"parameters": {
+								"frame-number": "1"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "ClothingColor2Button",
+							"sid": 755902220119799,
+							"parameters": {
+								"frame-number": "0"
+							}
+						}
+					],
+					"sid": 962891507119109,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move color picker to the currently selected color."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 551172162409457,
+									"parameters": {
+										"object": "CarouselItem",
+										"expression": "CarouselItem.itemID",
+										"comparison": 0,
+										"value": "carouselCenter"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "CarouselItem",
+									"sid": 960092632924202,
+									"parameters": {
+										"child": "CarouselSprite",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "selectColor",
+									"sid": 306290492631266,
+									"parameters": [
+										"CarouselSprite.ColorValue"
+									]
+								}
+							],
+							"sid": 753907985687567
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Show character customization screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 285855967663074,
+							"parameters": {
+								"object": "CharacterButton",
+								"type": "start"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 646899247725519,
+							"parameters": {
+								"variable": "photoMode"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Update layer visibility."
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 863023174785829,
+							"parameters": {
+								"layer": "\"CarouselScreen\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 795764138611323,
+							"parameters": {
+								"layer": "\"CustomizeScreen\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update button visibility."
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "CharacterColorButtons",
+							"sid": 225270406990918,
+							"parameters": {
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "ClothingColorButtons",
+							"sid": 549690660884138,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Update tab buttons."
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "WardrobeButton",
+							"sid": 909019400020256,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "CustomizeButton",
+							"sid": 497742908447087,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "CharacterButton",
+							"sid": 899352459344379,
+							"parameters": {
+								"frame-number": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set the skin color as focused."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 941798446439406,
+							"parameters": {
+								"variable": "focusColor",
+								"value": "2"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "SkinColorButton",
+							"sid": 513776796216618,
+							"parameters": {
+								"frame-number": "1"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "EyesColorButton",
+							"sid": 534466501058743,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "MouthColorButton",
+							"sid": 938566813128703,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Move color picker to the currently selected color."
+						},
+						{
+							"callFunction": "selectColor",
+							"sid": 360244201674365,
+							"parameters": [
+								"Char.ColorValue"
+							]
+						}
+					],
+					"sid": 667730679090833
+				}
+			],
+			"sid": 444885826445399
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Colors",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Randomize all colors."
+				},
+				{
+					"functionName": "randomizeColors",
+					"functionDescription": "Randomize all colors.",
+					"functionCategory": "Color",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 524190319421468,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Randomize the color of the clothes."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 514351794391330,
+									"parameters": {
+										"object": "CarouselSprite",
+										"expression": "CarouselSprite.TagAt(0)",
+										"comparison": 0,
+										"value": "\"carousel\""
+									}
+								},
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 188505125460712,
+									"parameters": {
+										"object": "CarouselSprite"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-default-color",
+									"objectClass": "CarouselSprite",
+									"sid": 501939335499893,
+									"parameters": {
+										"color": "HexColor(ArrColors.At(int(random(ArrColors.Width)), int(random(ArrColors.Height))))"
+									}
+								},
+								{
+									"callFunction": "updateClothes",
+									"sid": 803820718020523,
+									"parameters": [
+										"CarouselSprite.UID"
+									]
+								}
+							],
+							"sid": 524194929537404
+						},
+						{
+							"eventType": "comment",
+							"text": "Randomize the colors of the character."
+						},
+						{
+							"eventType": "variable",
+							"name": "randomXY",
+							"type": "string",
+							"initialValue": "0 0",
+							"comment": "Random XY coordinate from the color palette.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 858871840641073
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Random skin color."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 326750468876702,
+									"parameters": {
+										"variable": "randomXY",
+										"value": "choose(\"0 1\", \"1 1\", \"1 17\", \"2 16\")"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "Char",
+									"sid": 185479042592362,
+									"parameters": {
+										"color": "HexColor(\n    ArrColors.At(\n        int(tokenat(randomXY, 0, \" \")),\n        int(tokenat(randomXY, 1, \" \"))\n    )\n)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Random eyes color."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 995851052655250,
+									"parameters": {
+										"variable": "randomXY",
+										"value": "choose(\"2 5\", \"2 14\", \"9 3\", \"15 3\", \"25 15\")"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "CharEyesColor",
+									"sid": 974971978672074,
+									"parameters": {
+										"color": "HexColor(\n    ArrColors.At(\n        int(tokenat(randomXY, 0, \" \")),\n        int(tokenat(randomXY, 1, \" \"))\n    )\n)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Random mouth color."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 331500167775205,
+									"parameters": {
+										"variable": "randomXY",
+										"value": "choose(\"0 11\", \"1 7\", \"14 10\", \"19 5\", \"9 13\")"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "CharMouth",
+									"sid": 617411121849575,
+									"parameters": {
+										"color": "HexColor(ArrColors.At(int(random(ArrColors.Width)), 6))"
+									}
+								}
+							],
+							"sid": 986748139771812
+						},
+						{
+							"eventType": "comment",
+							"text": "Update carousel."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"callFunction": "updateCarousel",
+									"sid": 307389284288802,
+									"parameters": [
+										true
+									]
+								}
+							],
+							"sid": 770753896314526
+						},
+						{
+							"eventType": "comment",
+							"text": "Update picker (base color)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 346805020937551,
+									"parameters": {
+										"variable": "focusColor",
+										"comparison": 0,
+										"value": "0"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 581234151947450,
+									"parameters": {
+										"object": "CarouselItem",
+										"expression": "CarouselItem.itemID",
+										"comparison": 0,
+										"value": "carouselCenter"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "CarouselItem",
+									"sid": 353920607161730,
+									"parameters": {
+										"child": "CarouselSprite",
+										"which": "own"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 303303845378034,
+									"parameters": {
+										"object": "ColorSquare",
+										"expression": "ColorSquare.ColorValue",
+										"comparison": 0,
+										"value": "CarouselSprite.ColorValue"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "ColorPicker",
+									"sid": 579376496253583,
+									"parameters": {
+										"object": "ColorSquare",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "ColorPicker",
+									"sid": 413525819346005,
+									"parameters": {
+										"color": "COLOR_INVERT - CarouselSprite.ColorValue"
+									}
+								}
+							],
+							"sid": 152548337242368
+						},
+						{
+							"eventType": "comment",
+							"text": "Update picker (clothing accent color)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 173119676551180
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 364515527706882,
+									"parameters": {
+										"variable": "focusColor",
+										"comparison": 0,
+										"value": "1"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 467373204744200,
+									"parameters": {
+										"object": "CarouselItem",
+										"expression": "CarouselItem.itemID",
+										"comparison": 0,
+										"value": "carouselCenter"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "CarouselItem",
+									"sid": 776900098650709,
+									"parameters": {
+										"child": "CarouselSprite",
+										"which": "own"
+									}
+								},
+								{
+									"id": "pick-nth-child",
+									"objectClass": "CarouselSprite",
+									"sid": 383625796782246,
+									"parameters": {
+										"child": "CarouselSprites",
+										"index-type": "filtered",
+										"instance": "0"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 362860858279968,
+									"parameters": {
+										"object": "ColorSquare",
+										"expression": "ColorSquare.ColorValue",
+										"comparison": 0,
+										"value": "CarouselSprites.ColorValue"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "ColorPicker",
+									"sid": 863518755331850,
+									"parameters": {
+										"object": "ColorSquare",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "ColorPicker",
+									"sid": 651515836792183,
+									"parameters": {
+										"color": "COLOR_INVERT - CarouselSprites.ColorValue"
+									}
+								}
+							],
+							"sid": 289379430977278
+						},
+						{
+							"eventType": "comment",
+							"text": "Update picker (skin color)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 870698698485211
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 623250569801177,
+									"parameters": {
+										"variable": "focusColor",
+										"comparison": 0,
+										"value": "2"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 438281673951880,
+									"parameters": {
+										"object": "ColorSquare",
+										"expression": "ColorSquare.ColorValue",
+										"comparison": 0,
+										"value": "Char.ColorValue"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "ColorPicker",
+									"sid": 914137158657273,
+									"parameters": {
+										"object": "ColorSquare",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "ColorPicker",
+									"sid": 636406429438571,
+									"parameters": {
+										"color": "COLOR_INVERT - Char.ColorValue"
+									}
+								}
+							],
+							"sid": 986858869021152
+						},
+						{
+							"eventType": "comment",
+							"text": "Update picker (Eyes color)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 198184425240306
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 872544359274854,
+									"parameters": {
+										"variable": "focusColor",
+										"comparison": 0,
+										"value": "3"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 934880482088299,
+									"parameters": {
+										"object": "ColorSquare",
+										"expression": "ColorSquare.ColorValue",
+										"comparison": 0,
+										"value": "CharEyes.ColorValue"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "ColorPicker",
+									"sid": 266282256508463,
+									"parameters": {
+										"object": "ColorSquare",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "ColorPicker",
+									"sid": 182094256966123,
+									"parameters": {
+										"color": "COLOR_INVERT - CharEyesColor.ColorValue"
+									}
+								}
+							],
+							"sid": 254076437196338
+						},
+						{
+							"eventType": "comment",
+							"text": "Update picker (Lipstick/mouth color)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 732735649401303
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 350216430298755,
+									"parameters": {
+										"object": "ColorSquare",
+										"expression": "ColorSquare.ColorValue",
+										"comparison": 0,
+										"value": "CharMouth.ColorValue"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "ColorPicker",
+									"sid": 248681915356890,
+									"parameters": {
+										"object": "ColorSquare",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "ColorPicker",
+									"sid": 216572029756877,
+									"parameters": {
+										"color": "COLOR_INVERT - CharMouth.ColorValue"
+									}
+								}
+							],
+							"sid": 641367978854003
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move the picker to the specified color position."
+				},
+				{
+					"functionName": "selectColor",
+					"functionDescription": "Move the picker to a given color position.",
+					"functionCategory": "Color",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "colorValue",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Color value to look for.",
+							"sid": 149754029349149
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 590163011515726,
+							"parameters": {
+								"object": "ColorSquare",
+								"expression": "ColorSquare.ColorValue",
+								"comparison": 0,
+								"value": "colorValue"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "ColorPicker",
+							"sid": 969869856614339,
+							"parameters": {
+								"object": "ColorSquare",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "set-default-color",
+							"objectClass": "ColorPicker",
+							"sid": 397197762646963,
+							"parameters": {
+								"color": "COLOR_INVERT - colorValue"
+							}
+						}
+					],
+					"sid": 535219165640681
+				},
+				{
+					"eventType": "comment",
+					"text": "Only interact with colors when the customisation screen layer is visible and photo mode is disabled."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "layer-is-visible",
+							"objectClass": "System",
+							"sid": 198207309025884,
+							"parameters": {
+								"layer": "\"CustomizeScreen\""
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 816063735120370,
+							"parameters": {
+								"variable": "photoMode"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 245012875321720,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Change the color of the selected object."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-touched-object",
+									"objectClass": "Touch",
+									"sid": 605457713379186,
+									"parameters": {
+										"object": "ColorSquare",
+										"type": "start"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 958692389535108,
+									"parameters": {
+										"object": "CarouselItem",
+										"expression": "CarouselItem.itemID",
+										"comparison": 0,
+										"value": "carouselCenter"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "CarouselItem",
+									"sid": 634927238476081,
+									"parameters": {
+										"child": "CarouselSprite",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Move the color picker (no need to call selectColor(colorValue), as the position of the color square is already known)."
+								},
+								{
+									"id": "set-position-to-another-object",
+									"objectClass": "ColorPicker",
+									"sid": 334586048484825,
+									"parameters": {
+										"object": "ColorSquare",
+										"image-point-optional": "0"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "ColorPicker",
+									"sid": 505314285867930,
+									"parameters": {
+										"color": "COLOR_INVERT - ColorSquare.ColorValue"
+									}
+								}
+							],
+							"sid": 999170777848526,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Clothing item's main color."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 845809519169053,
+											"parameters": {
+												"variable": "focusColor",
+												"comparison": 0,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-default-color",
+											"objectClass": "CarouselSprite",
+											"sid": 783480699351718,
+											"parameters": {
+												"color": "ColorSquare.ColorValue"
+											}
+										}
+									],
+									"sid": 774365760683635
+								},
+								{
+									"eventType": "comment",
+									"text": "Clothing item's accent color."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 217680660564306
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 677620531015506,
+											"parameters": {
+												"variable": "focusColor",
+												"comparison": 0,
+												"value": "1"
+											}
+										},
+										{
+											"id": "pick-nth-child",
+											"objectClass": "CarouselSprite",
+											"sid": 385529145917888,
+											"parameters": {
+												"child": "CarouselSprites",
+												"index-type": "filtered",
+												"instance": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-default-color",
+											"objectClass": "CarouselSprites",
+											"sid": 963998156216686,
+											"parameters": {
+												"color": "ColorSquare.ColorValue"
+											}
+										}
+									],
+									"sid": 918494852208276
+								},
+								{
+									"eventType": "comment",
+									"text": "Skin color."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 901588109763104
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 222867904898695,
+											"parameters": {
+												"variable": "focusColor",
+												"comparison": 0,
+												"value": "2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-default-color",
+											"objectClass": "Char",
+											"sid": 139147144117726,
+											"parameters": {
+												"color": "ColorSquare.ColorValue"
+											}
+										}
+									],
+									"sid": 379978671560074
+								},
+								{
+									"eventType": "comment",
+									"text": "Eyes color."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 275958991992535
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 897353974349069,
+											"parameters": {
+												"variable": "focusColor",
+												"comparison": 0,
+												"value": "3"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-default-color",
+											"objectClass": "CharEyesColor",
+											"sid": 469129086869866,
+											"parameters": {
+												"color": "ColorSquare.ColorValue"
+											}
+										}
+									],
+									"sid": 606900199075186
+								},
+								{
+									"eventType": "comment",
+									"text": "Lipstick/Mouth color."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 977524595193080
+										}
+									],
+									"actions": [
+										{
+											"id": "set-default-color",
+											"objectClass": "CharMouth",
+											"sid": 438311454399932,
+											"parameters": {
+												"color": "ColorSquare.ColorValue"
+											}
+										}
+									],
+									"sid": 560142804523221
+								},
+								{
+									"eventType": "comment",
+									"text": "Update clothes."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"callFunction": "updateClothes",
+											"sid": 925059494254725,
+											"parameters": [
+												"CarouselSprite.UID"
+											]
+										}
+									],
+									"sid": 158894926315231
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Focus clothing item's main color."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-touched-object",
+									"objectClass": "Touch",
+									"sid": 307396561072543,
+									"parameters": {
+										"object": "ClothingColor1Button",
+										"type": "start"
+									}
+								},
+								{
+									"id": "is-visible",
+									"objectClass": "ClothingColor1Button",
+									"sid": 408350369304980
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 619233568191818,
+									"parameters": {
+										"object": "CarouselItem",
+										"expression": "CarouselItem.itemID",
+										"comparison": 0,
+										"value": "carouselCenter"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "CarouselItem",
+									"sid": 774621898756733,
+									"parameters": {
+										"child": "CarouselSprite",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "ClothingColor1Button",
+									"sid": 553116018800263,
+									"parameters": {
+										"frame-number": "1"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "ClothingColor2Button",
+									"sid": 207460098762086,
+									"parameters": {
+										"frame-number": "0"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 942818432615921,
+									"parameters": {
+										"variable": "focusColor",
+										"value": "0"
+									}
+								},
+								{
+									"callFunction": "selectColor",
+									"sid": 549573203847035,
+									"parameters": [
+										"CarouselSprite.ColorValue"
+									]
+								}
+							],
+							"sid": 828655433016937
+						},
+						{
+							"eventType": "comment",
+							"text": "Focus clothing item's accent color."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-touched-object",
+									"objectClass": "Touch",
+									"sid": 491052434489517,
+									"parameters": {
+										"object": "ClothingColor2Button",
+										"type": "start"
+									}
+								},
+								{
+									"id": "is-visible",
+									"objectClass": "ClothingColor2Button",
+									"sid": 817952710852646
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 220147545606796,
+									"parameters": {
+										"object": "CarouselItem",
+										"expression": "CarouselItem.itemID",
+										"comparison": 0,
+										"value": "carouselCenter"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "CarouselItem",
+									"sid": 561772763665669,
+									"parameters": {
+										"child": "CarouselSprite",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "ClothingColor1Button",
+									"sid": 945505676977367,
+									"parameters": {
+										"frame-number": "0"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "ClothingColor2Button",
+									"sid": 956031382155980,
+									"parameters": {
+										"frame-number": "1"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 713222000136773,
+									"parameters": {
+										"variable": "focusColor",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 402946122649916,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If there is a child item, select its color, otherwise do nothing."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-nth-child",
+											"objectClass": "CarouselSprite",
+											"sid": 461920030069283,
+											"parameters": {
+												"child": "CarouselSprites",
+												"index-type": "filtered",
+												"instance": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "selectColor",
+											"sid": 117952894025675,
+											"parameters": [
+												"CarouselSprites.ColorValue"
+											]
+										}
+									],
+									"sid": 970756322786688
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Focus skin color."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-touched-object",
+									"objectClass": "Touch",
+									"sid": 643893547233838,
+									"parameters": {
+										"object": "SkinColorButton",
+										"type": "start"
+									}
+								},
+								{
+									"id": "is-visible",
+									"objectClass": "SkinColorButton",
+									"sid": 310906135808679
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "SkinColorButton",
+									"sid": 706450748211887,
+									"parameters": {
+										"frame-number": "1"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "EyesColorButton",
+									"sid": 436750845918546,
+									"parameters": {
+										"frame-number": "0"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "MouthColorButton",
+									"sid": 492639466394723,
+									"parameters": {
+										"frame-number": "0"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 255674509278414,
+									"parameters": {
+										"variable": "focusColor",
+										"value": "2"
+									}
+								},
+								{
+									"callFunction": "selectColor",
+									"sid": 624615670815324,
+									"parameters": [
+										"Char.ColorValue"
+									]
+								}
+							],
+							"sid": 787306903533702
+						},
+						{
+							"eventType": "comment",
+							"text": "Focus eyes color."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-touched-object",
+									"objectClass": "Touch",
+									"sid": 391665248515655,
+									"parameters": {
+										"object": "EyesColorButton",
+										"type": "start"
+									}
+								},
+								{
+									"id": "is-visible",
+									"objectClass": "EyesColorButton",
+									"sid": 407835506686020
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "SkinColorButton",
+									"sid": 408418082036846,
+									"parameters": {
+										"frame-number": "0"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "EyesColorButton",
+									"sid": 844971656918375,
+									"parameters": {
+										"frame-number": "1"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "MouthColorButton",
+									"sid": 825714106193831,
+									"parameters": {
+										"frame-number": "0"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 328244116123297,
+									"parameters": {
+										"variable": "focusColor",
+										"value": "3"
+									}
+								},
+								{
+									"callFunction": "selectColor",
+									"sid": 605374832969728,
+									"parameters": [
+										"CharEyesColor.ColorValue"
+									]
+								}
+							],
+							"sid": 501054855967225
+						},
+						{
+							"eventType": "comment",
+							"text": "Focus lipstick/mouth color."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-touched-object",
+									"objectClass": "Touch",
+									"sid": 227139280209127,
+									"parameters": {
+										"object": "MouthColorButton",
+										"type": "start"
+									}
+								},
+								{
+									"id": "is-visible",
+									"objectClass": "MouthColorButton",
+									"sid": 624539135889880
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "SkinColorButton",
+									"sid": 764266637942908,
+									"parameters": {
+										"frame-number": "0"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "EyesColorButton",
+									"sid": 382044596096818,
+									"parameters": {
+										"frame-number": "0"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "MouthColorButton",
+									"sid": 139130791886532,
+									"parameters": {
+										"frame-number": "1"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 349584297617184,
+									"parameters": {
+										"variable": "focusColor",
+										"value": "4"
+									}
+								},
+								{
+									"callFunction": "selectColor",
+									"sid": 977214558583537,
+									"parameters": [
+										"CharMouth.ColorValue"
+									]
+								}
+							],
+							"sid": 910702012217526
+						}
+					]
+				}
+			],
+			"sid": 212052472171240
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Carousel",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Randomize clothes."
+				},
+				{
+					"functionName": "randomizeClothes",
+					"functionDescription": "Randomize clothes.",
+					"functionCategory": "Carousel",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 517481481341137,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 128795029463073,
+									"parameters": {
+										"object": "CarouselSprite",
+										"expression": "CarouselSprite.category",
+										"comparison": 0,
+										"value": "\"hair\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-key",
+									"objectClass": "DictOffsets",
+									"sid": 777097625363021,
+									"parameters": {
+										"key": "\"hair\"",
+										"value": "int(random(CarouselSprite.PickedCount))"
+									}
+								}
+							],
+							"sid": 642635764378902
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 150969727986131,
+									"parameters": {
+										"object": "CarouselSprite",
+										"expression": "CarouselSprite.category",
+										"comparison": 0,
+										"value": "\"upper\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-key",
+									"objectClass": "DictOffsets",
+									"sid": 449689235300261,
+									"parameters": {
+										"key": "\"upper\"",
+										"value": "int(random(CarouselSprite.PickedCount))"
+									}
+								}
+							],
+							"sid": 737038699407533
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 628194651874562,
+									"parameters": {
+										"object": "CarouselSprite",
+										"expression": "CarouselSprite.category",
+										"comparison": 0,
+										"value": "\"shoes\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-key",
+									"objectClass": "DictOffsets",
+									"sid": 661581153981762,
+									"parameters": {
+										"key": "\"shoes\"",
+										"value": "int(random(CarouselSprite.PickedCount))"
+									}
+								}
+							],
+							"sid": 597294278644243
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 575407651659004,
+									"parameters": {
+										"object": "CarouselSprite",
+										"expression": "CarouselSprite.category",
+										"comparison": 0,
+										"value": "\"accessory\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-key",
+									"objectClass": "DictOffsets",
+									"sid": 414234668492147,
+									"parameters": {
+										"key": "\"accessory\"",
+										"value": "int(random(CarouselSprite.PickedCount))"
+									}
+								}
+							],
+							"sid": 382262893897517
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 868635039704873,
+									"parameters": {
+										"object": "CarouselSprite",
+										"expression": "CarouselSprite.category",
+										"comparison": 0,
+										"value": "\"lower\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "add-key",
+									"objectClass": "DictOffsets",
+									"sid": 459279615438475,
+									"parameters": {
+										"key": "\"lower\"",
+										"value": "int(random(CarouselSprite.PickedCount))"
+									}
+								}
+							],
+							"sid": 723260951014417
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Update carousel items."
+				},
+				{
+					"functionName": "updateCarousel",
+					"functionDescription": "Update carousel items.",
+					"functionCategory": "Carousel",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "immediately",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "Should the update happen immediately?",
+							"sid": 372198286267336
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 217925709243349,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update every carousel item."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 159393894087088,
+									"parameters": {
+										"object": "CarouselItem"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "CarouselItem",
+									"sid": 370020886130502,
+									"parameters": {
+										"child": "CarouselSprite",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 544047961326840,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Central item has full size."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "CarouselItem",
+											"sid": 670509309941122,
+											"parameters": {
+												"instance-variable": "itemID",
+												"comparison": 0,
+												"value": "carouselCenter"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-two-properties",
+											"objectClass": "CarouselItem",
+											"sid": 953972282746660,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ChangeScale\"",
+												"property": "scale",
+												"end-x": "1",
+												"end-y": "1",
+												"time": "immediately ? 0 : CAROUSEL_SCROLL_INTERVAL",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"callFunction": "updateClothes",
+											"sid": 834075106315286,
+											"parameters": [
+												"CarouselSprite.UID"
+											]
+										}
+									],
+									"sid": 827318128092769
+								},
+								{
+									"eventType": "comment",
+									"text": "Items adjacent to the center are smaller."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 505033280253880
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 989011697253628,
+											"parameters": {
+												"value": "abs(carouselCenter - CarouselItem.itemID) = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-two-properties",
+											"objectClass": "CarouselItem",
+											"sid": 862627097479191,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ChangeScale\"",
+												"property": "scale",
+												"end-x": "0.75",
+												"end-y": "0.75",
+												"time": "immediately ? 0 : CAROUSEL_SCROLL_INTERVAL",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 147011902705845
+								},
+								{
+									"eventType": "comment",
+									"text": "Other items are invisible (scale=0)."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 831010359822703
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-two-properties",
+											"objectClass": "CarouselItem",
+											"sid": 472370128247161,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ChangeScale\"",
+												"property": "scale",
+												"end-x": "0",
+												"end-y": "0",
+												"time": "immediately ? 0 : CAROUSEL_SCROLL_INTERVAL",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 791377664462160
+								},
+								{
+									"eventType": "comment",
+									"text": "Move children sprites to the top."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "move-to-top",
+											"objectClass": "CarouselSprite",
+											"sid": 818485621110247
+										}
+									],
+									"sid": 558123359633376
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "CarouselSprite",
+											"sid": 129209513318991,
+											"parameters": {
+												"child": "CarouselSprites",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "move-to-top",
+											"objectClass": "CarouselSprites",
+											"sid": 536163788156225
+										}
+									],
+									"sid": 963753882076340
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Move central item to the top."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 801934767292487,
+									"parameters": {
+										"object": "CarouselItem",
+										"expression": "CarouselItem.itemID",
+										"comparison": 0,
+										"value": "carouselCenter"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "CarouselItem",
+									"sid": 593010374068154,
+									"parameters": {
+										"child": "CarouselSprite",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "move-to-top",
+									"objectClass": "CarouselItem",
+									"sid": 879526750998350
+								},
+								{
+									"id": "move-to-top",
+									"objectClass": "CarouselSprite",
+									"sid": 831294051705881
+								}
+							],
+							"sid": 588482808910327,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "CarouselSprite",
+											"sid": 256993096635990,
+											"parameters": {
+												"child": "CarouselSprites",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "move-to-top",
+											"objectClass": "CarouselSprites",
+											"sid": 739698234545979
+										}
+									],
+									"sid": 567738854483238
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Switch categories."
+				},
+				{
+					"functionName": "changeCategory",
+					"functionDescription": "Switch categories.",
+					"functionCategory": "Carousel",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "selected",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Selected category.",
+							"sid": 736225404205407
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 601562433690712,
+							"parameters": {
+								"variable": "selected",
+								"comparison": 1,
+								"value": "carouselCategory"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Create a new carousel of clothes."
+						},
+						{
+							"callFunction": "swapCarousel",
+							"sid": 989228323625847,
+							"parameters": [
+								"selected"
+							]
+						}
+					],
+					"sid": 902568080244913,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update category tabs."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 958303036475969,
+									"parameters": {
+										"object": "CategoryTab"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "CategoryTab",
+									"sid": 491012775679923,
+									"parameters": {
+										"frame-number": "CategoryTab.TagAt(0) = selected"
+									}
+								}
+							],
+							"sid": 253158109941325
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Scroll carousel."
+				},
+				{
+					"functionName": "scrollCarousel",
+					"functionDescription": "Scroll carousel.",
+					"functionCategory": "Carousel",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "dir",
+							"type": "number",
+							"initialValue": "1",
+							"comment": "Scroll direction.",
+							"sid": 739478700462157
+						},
+						{
+							"name": "immediately",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "Scroll immediately?",
+							"sid": 184217641063835
+						},
+						{
+							"name": "auto",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "Is this an automatic scroll?",
+							"sid": 560375584031610
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 734111703313675,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update category offset if the player manually scrolled the carousel."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 909782824426664,
+									"parameters": {
+										"variable": "auto"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-key",
+									"objectClass": "DictOffsets",
+									"sid": 645437683926860,
+									"parameters": {
+										"key": "carouselCategory",
+										"value": "Self.Get(carouselCategory) + dir"
+									}
+								}
+							],
+							"sid": 563814786676325
+						},
+						{
+							"eventType": "comment",
+							"text": "Move each carousel item."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-ordered",
+									"objectClass": "System",
+									"sid": 681774432265438,
+									"parameters": {
+										"object": "CarouselItem",
+										"expression": "CarouselItem.itemID",
+										"order": "ascending"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 191645141204507,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Every time the player scrolls the carousel, an item will wrap around to the other side."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "CarouselItem",
+											"sid": 373677810700946,
+											"parameters": {
+												"instance-variable": "itemID",
+												"comparison": 0,
+												"value": "(dir = -1) ? 0 : (carouselSize - 1)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "CarouselItem",
+											"sid": 647759228766669,
+											"parameters": {
+												"instance-variable": "itemID",
+												"value": "(dir = -1) ? (carouselSize - 1) : 0"
+											}
+										}
+									],
+									"sid": 437766112595977
+								},
+								{
+									"eventType": "comment",
+									"text": "Every other element is moved 1 position sideways."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 290816464215736
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "CarouselItem",
+											"sid": 432425396070751,
+											"parameters": {
+												"instance-variable": "itemID",
+												"value": "Self.itemID + dir"
+											}
+										}
+									],
+									"sid": 822745179737449
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Update carousel elements."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "CarouselItem",
+									"sid": 970597744704402,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ChangeX\"",
+										"property": "offsetX",
+										"end-value": "CarouselCenterObject.X + (CarouselItem.itemID - carouselCenter) * CAROUSEL_SPACING",
+										"time": "immediately ? 0 : CAROUSEL_SCROLL_INTERVAL",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 224224894736982,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 921988103167332,
+											"parameters": {
+												"variable": "immediately"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateCarousel",
+											"sid": 455736203251533,
+											"parameters": [
+												true
+											]
+										}
+									],
+									"sid": 174919748647434
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 405403011849078
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "updateCarousel",
+											"sid": 799892984775669,
+											"parameters": [
+												false
+											]
+										}
+									],
+									"sid": 614217989105907
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Create a new carousel of clothes."
+				},
+				{
+					"functionName": "swapCarousel",
+					"functionDescription": "Create a new carousel of clothes.",
+					"functionCategory": "Carousel",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "category",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Carousel category.",
+							"sid": 397776526522580
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 508888830030969,
+							"parameters": {
+								"variable": "carouselCategory",
+								"value": "category"
+							}
+						}
+					],
+					"sid": 611502880482511,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Destroy previous carousel."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "has-tags",
+									"objectClass": "CarouselSprite",
+									"sid": 523758816452128,
+									"parameters": {
+										"tags": "\"carousel\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "CarouselItem",
+									"sid": 357171039089856
+								},
+								{
+									"id": "set-position",
+									"objectClass": "CarouselSprite",
+									"sid": 797624970048050,
+									"parameters": {
+										"x": "-10000",
+										"y": "-10000"
+									}
+								},
+								{
+									"id": "set-scale",
+									"objectClass": "CarouselSprite",
+									"sid": 952279424139326,
+									"parameters": {
+										"scale": "1.0"
+									}
+								}
+							],
+							"sid": 912366066140161
+						},
+						{
+							"eventType": "comment",
+							"text": "Set carousel size based on the selected category."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 442220691919123,
+									"parameters": {
+										"object": "CarouselSprite",
+										"expression": "CarouselSprite.category",
+										"comparison": 0,
+										"value": "category"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 161932447817948,
+									"parameters": {
+										"variable": "carouselSize",
+										"value": "CarouselSprite.PickedCount"
+									}
+								}
+							],
+							"sid": 434788748372312
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 546493745778847
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 261571252843443,
+									"parameters": {
+										"variable": "carouselSize",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 263436090878230
+						},
+						{
+							"eventType": "comment",
+							"text": "Get the central carousel item ID."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 433291822467630,
+									"parameters": {
+										"variable": "carouselCenter",
+										"value": "floor(carouselSize/2)"
+									}
+								}
+							],
+							"sid": 421610860135663
+						},
+						{
+							"eventType": "comment",
+							"text": "Create items and set them up accordingly."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 977155075107205,
+									"parameters": {
+										"count": "carouselSize"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 480489800835110,
+									"parameters": {
+										"object-to-create": "CarouselItem",
+										"layer": "\"CarouselScreen\"",
+										"x": "CarouselCenterObject.X + (loopindex - carouselCenter) * CAROUSEL_SPACING",
+										"y": "CarouselCenterObject.Y",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "CarouselItem",
+									"sid": 614058780769167,
+									"parameters": {
+										"instance-variable": "itemID",
+										"value": "loopindex"
+									}
+								}
+							],
+							"sid": 698219697678263
+						},
+						{
+							"eventType": "comment",
+							"text": "Place clothes inside the carousel items and set them as children."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 186200098014718,
+									"parameters": {
+										"seconds": "0",
+										"use-timescale": true
+									}
+								}
+							],
+							"sid": 604227102713763,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 732524842337477,
+											"parameters": {
+												"object": "CarouselSprite",
+												"expression": "CarouselSprite.category",
+												"comparison": 0,
+												"value": "category"
+											}
+										},
+										{
+											"id": "for-each-ordered",
+											"objectClass": "System",
+											"sid": 312700290247493,
+											"parameters": {
+												"object": "CarouselSprite",
+												"expression": "CarouselSprite.clothingID",
+												"order": "ascending"
+											}
+										},
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 684719681971385,
+											"parameters": {
+												"object": "CarouselItem",
+												"expression": "CarouselItem.itemID",
+												"comparison": 0,
+												"value": "loopindex"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "CarouselSprite",
+											"sid": 880347122893960,
+											"parameters": {
+												"object": "CarouselItem",
+												"image-point-optional": "0"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "CarouselItem",
+											"sid": 641470088860449,
+											"parameters": {
+												"child": "CarouselSprite",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-z-elevation": true,
+												"transform-w": true,
+												"transform-h": true,
+												"transform-a": false,
+												"transform-o": true,
+												"transform-visibility": true,
+												"destroy-with-parent": false
+											}
+										}
+									],
+									"sid": 609348574390586
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Update carousel items and offsets (positions)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 536989897602197,
+									"parameters": {
+										"seconds": "0",
+										"use-timescale": true
+									}
+								},
+								{
+									"callFunction": "updateCarousel",
+									"sid": 247053262842882,
+									"parameters": [
+										true
+									]
+								}
+							],
+							"sid": 471286476199918,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "repeat",
+											"objectClass": "System",
+											"sid": 161244672771478,
+											"parameters": {
+												"count": "abs(DictOffsets.Get(category))"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "scrollCarousel",
+											"sid": 287989062985377,
+											"parameters": [
+												"sign(DictOffsets.Get(category))",
+												true,
+												true
+											]
+										}
+									],
+									"sid": 515195016025091
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Carousel is interactable only when its layer is visible and photo mode is disabled."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "layer-is-visible",
+							"objectClass": "System",
+							"sid": 916783901338159,
+							"parameters": {
+								"layer": "\"CarouselScreen\""
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 832371768879455,
+							"parameters": {
+								"variable": "photoMode"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 650531275400100,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Scroll carousel."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-touched-object",
+									"objectClass": "Touch",
+									"sid": 611023834960480,
+									"parameters": {
+										"object": "ItemArrow",
+										"type": "start"
+									}
+								},
+								{
+									"id": "is-any-playing",
+									"objectClass": "ItemArrow",
+									"sid": 540207971914216,
+									"behaviorType": "Tween",
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-two-properties",
+									"objectClass": "ItemArrow",
+									"sid": 124433549720273,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ChangeScale\"",
+										"property": "scale",
+										"end-x": "1.25",
+										"end-y": "1.25",
+										"time": "0.05",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "yes",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 230383905402440,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Left."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "has-tags",
+											"objectClass": "ItemArrow",
+											"sid": 222125561096146,
+											"parameters": {
+												"tags": "\"left\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "scrollCarousel",
+											"sid": 664221980668134,
+											"parameters": [
+												"1",
+												false,
+												false
+											]
+										}
+									],
+									"sid": 987496310391415
+								},
+								{
+									"eventType": "comment",
+									"text": "Right."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 844010814233722
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "scrollCarousel",
+											"sid": 314297611900208,
+											"parameters": [
+												"-1",
+												false,
+												false
+											]
+										}
+									],
+									"sid": 732746179573037
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Change category tab."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-touched-object",
+									"objectClass": "Touch",
+									"sid": 949835211242299,
+									"parameters": {
+										"object": "CategoryTab",
+										"type": "start"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "changeCategory",
+									"sid": 849702948611120,
+									"parameters": [
+										"CategoryTab.TagAt(0)"
+									]
+								}
+							],
+							"sid": 161260900751743
+						}
+					]
+				}
+			],
+			"sid": 268810488508212
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Character",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Update all categories."
+				},
+				{
+					"functionName": "UpdateAllCategories",
+					"functionDescription": "Update all clothing categories.",
+					"functionCategory": "Character",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "changeCategory",
+							"sid": 450621287521058,
+							"parameters": [
+								"\"upper\""
+							]
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 853936581640942,
+							"parameters": {
+								"seconds": "0",
+								"use-timescale": true
+							}
+						},
+						{
+							"callFunction": "changeCategory",
+							"sid": 493778511526742,
+							"parameters": [
+								"\"shoes\""
+							]
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 198585792826030,
+							"parameters": {
+								"seconds": "0",
+								"use-timescale": true
+							}
+						},
+						{
+							"callFunction": "changeCategory",
+							"sid": 342136878369791,
+							"parameters": [
+								"\"accessory\""
+							]
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 390721943139717,
+							"parameters": {
+								"seconds": "0",
+								"use-timescale": true
+							}
+						},
+						{
+							"callFunction": "changeCategory",
+							"sid": 618610582918329,
+							"parameters": [
+								"\"lower\""
+							]
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 496921324560495,
+							"parameters": {
+								"seconds": "0",
+								"use-timescale": true
+							}
+						},
+						{
+							"callFunction": "changeCategory",
+							"sid": 644078206601630,
+							"parameters": [
+								"\"hair\""
+							]
+						}
+					],
+					"sid": 597090910236194
+				},
+				{
+					"eventType": "comment",
+					"text": "Update character's clothes."
+				},
+				{
+					"functionName": "updateClothes",
+					"functionDescription": "Update character's clothes.",
+					"functionCategory": "Character",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "carouselUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Carousel clothing UID.",
+							"sid": 889185605571056
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 122142269361569,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "category",
+							"type": "string",
+							"initialValue": "hair",
+							"comment": "Clothing category.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 460541506791731
+						},
+						{
+							"eventType": "variable",
+							"name": "animationName",
+							"type": "string",
+							"initialValue": "Empty",
+							"comment": "Animation name.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 964569728351057
+						},
+						{
+							"eventType": "variable",
+							"name": "children",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Number of children.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 277963529729805
+						},
+						{
+							"eventType": "variable",
+							"name": "posX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "X position.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 487633597739335
+						},
+						{
+							"eventType": "variable",
+							"name": "posY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Y position.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 684533250439978
+						},
+						{
+							"eventType": "variable",
+							"name": "mainColor",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Main color value.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 993210543256028
+						},
+						{
+							"eventType": "variable",
+							"name": "childColor",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Color of the child object.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 507016939126310
+						},
+						{
+							"eventType": "variable",
+							"name": "priority",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Z-Order priority.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 304729525670100
+						},
+						{
+							"eventType": "variable",
+							"name": "childUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Carousel sprite child UID.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 878849347528231
+						},
+						{
+							"eventType": "comment",
+							"text": "Store all necessary information from the selected clothing item."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "CarouselSprite",
+									"sid": 311956725799795,
+									"parameters": {
+										"unique-id": "carouselUID"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 375223852392898,
+									"parameters": {
+										"variable": "category",
+										"value": "CarouselSprite.category"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 351822730878337,
+									"parameters": {
+										"variable": "animationName",
+										"value": "CarouselSprite.AnimationName"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 678710219922398,
+									"parameters": {
+										"variable": "children",
+										"value": "CarouselSprite.ChildCount"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 463900663847203,
+									"parameters": {
+										"variable": "posX",
+										"value": "CarouselSprite.posX"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 940707348008891,
+									"parameters": {
+										"variable": "posY",
+										"value": "CarouselSprite.posY"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 743140241673130,
+									"parameters": {
+										"variable": "mainColor",
+										"value": "CarouselSprite.ColorValue"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 848624171576886,
+									"parameters": {
+										"variable": "priority",
+										"value": "CarouselSprite.priority"
+									}
+								}
+							],
+							"sid": 612783162288012,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-nth-child",
+											"objectClass": "CarouselSprite",
+											"sid": 578083566471284,
+											"parameters": {
+												"child": "CarouselSprites",
+												"index-type": "filtered",
+												"instance": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 519307570913388,
+											"parameters": {
+												"variable": "childColor",
+												"value": "CarouselSprites.ColorValue"
+											}
+										}
+									],
+									"sid": 923039573746609
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Apply everything to character's clothing item."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 493999127238656,
+									"parameters": {
+										"object": "CarouselSprite",
+										"expression": "CarouselSprite.TagAt(0)",
+										"comparison": 0,
+										"value": "category"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "CarouselSprite",
+									"sid": 158012867520720,
+									"parameters": {
+										"animation": "animationName",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "CarouselSprite",
+									"sid": 563977691831095,
+									"parameters": {
+										"x": "posX",
+										"y": "posY"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "CarouselSprite",
+									"sid": 887293448330798,
+									"parameters": {
+										"color": "mainColor"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "CarouselSprite",
+									"sid": 696702237610255,
+									"parameters": {
+										"instance-variable": "priority",
+										"value": "priority"
+									}
+								}
+							],
+							"sid": 922604355825377,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-nth-child",
+											"objectClass": "CarouselSprite",
+											"sid": 176171918537422,
+											"parameters": {
+												"child": "CarouselSprites",
+												"index-type": "filtered",
+												"instance": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 459536721938100,
+											"parameters": {
+												"variable": "childUID",
+												"value": "CarouselSprites.UID"
+											}
+										}
+									],
+									"sid": 776361960002112
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Update child object."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "CarouselSprite",
+									"sid": 858735589380491,
+									"parameters": {
+										"unique-id": "childUID"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 157133816331732,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If there is a child object to be updated, do it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 342894557698761,
+											"parameters": {
+												"variable": "children",
+												"comparison": 4,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "CarouselSprite",
+											"sid": 201141520879604,
+											"parameters": {
+												"animation": "animationName",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "CarouselSprite",
+											"sid": 461832686982469,
+											"parameters": {
+												"frame-number": "1"
+											}
+										},
+										{
+											"id": "set-default-color",
+											"objectClass": "CarouselSprite",
+											"sid": 927070781607216,
+											"parameters": {
+												"color": "childColor"
+											}
+										},
+										{
+											"id": "set-scale",
+											"objectClass": "CarouselSprite",
+											"sid": 152685996511614,
+											"parameters": {
+												"scale": "1"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "CarouselSprite",
+											"sid": 439026799936918,
+											"parameters": {
+												"instance-variable": "priority",
+												"value": "priority + 1"
+											}
+										}
+									],
+									"sid": 708482556228020
+								},
+								{
+									"eventType": "comment",
+									"text": "Otherwise, just set its animation as empty (so it's invisible)."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 734788039336333
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "CarouselSprite",
+											"sid": 553145337521127,
+											"parameters": {
+												"animation": "\"Empty\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 559485142088798
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Update Z-Order."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 727725899294853,
+									"parameters": {
+										"object": "CarouselSprite",
+										"expression": "CarouselSprite.TagAt(0)",
+										"comparison": 1,
+										"value": "\"carousel\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "sort-z-order",
+									"objectClass": "System",
+									"sid": 530773987774983,
+									"parameters": {
+										"object": "CarouselSprite",
+										"instance-variable": {
+											"name": "priority",
+											"objectClass": "CarouselSprite"
+										}
+									}
+								}
+							],
+							"sid": 731828987222153
+						}
+					]
+				}
+			],
+			"sid": 666304959484358
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Photo",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Take a photo of the character."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 153625635795552,
+							"parameters": {
+								"object": "PhotoButton",
+								"type": "start"
+							}
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "PhotoButton",
+							"sid": 874313004490404,
+							"behaviorType": "Tween",
+							"isInverted": true
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 762802411169481,
+							"parameters": {
+								"variable": "photoMode"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Photo mode is on (disable all other controls)."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 257395846068034,
+							"parameters": {
+								"variable": "photoMode",
+								"value": "true"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Animate the button."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "PhotoButton",
+							"sid": 629050858978142,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ScaleButton\"",
+								"property": "scale",
+								"end-x": "1.25",
+								"end-y": "1.25",
+								"time": "0.05",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Play a \"camera flash\" animation."
+						},
+						{
+							"id": "set-default-color",
+							"objectClass": "Fader",
+							"sid": 914549062508669,
+							"parameters": {
+								"color": "rgba255(255, 255, 255, 255)"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 617454781840905,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "While the flash is on, modify the visibility and position of the layers."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 884959211051432
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 143153556661831,
+							"parameters": {
+								"layer": "\"Photo\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 170665139629392,
+							"parameters": {
+								"layer": "\"GameUI\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 195400221844189,
+							"parameters": {
+								"layer": "\"Background\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-scroll",
+							"objectClass": "System",
+							"sid": 682537496042316,
+							"parameters": {
+								"layer": "\"Character\"",
+								"scroll-x": "OriginalViewportWidth/2 + 664",
+								"scroll-y": "OriginalViewportHeight/2"
+							}
+						},
+						{
+							"id": "set-layer-scroll",
+							"objectClass": "System",
+							"sid": 249081462755806,
+							"parameters": {
+								"layer": "\"CharacterClothes\"",
+								"scroll-x": "OriginalViewportWidth/2 + 664",
+								"scroll-y": "OriginalViewportHeight/2"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide flash."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 223661502398593,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Take a screen shot."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 949923603805694
+						},
+						{
+							"id": "snapshot-canvas",
+							"objectClass": "System",
+							"sid": 844500283764931,
+							"parameters": {
+								"format": "png",
+								"jpeg-quality": "75",
+								"x": "0",
+								"y": "0",
+								"width": "0",
+								"height": "0"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 780094239964103
+						},
+						{
+							"type": "comment",
+							"text": "Download a photo of the character."
+						},
+						{
+							"id": "invoke-download",
+							"objectClass": "Browser",
+							"sid": 946263149403145,
+							"parameters": {
+								"url": "CanvasSnapshot",
+								"filename": "\"CharacterPhoto.png\""
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 504807905788667
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 631484930269500,
+							"parameters": {
+								"seconds": "5.0",
+								"use-timescale": true
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Fade out."
+						},
+						{
+							"id": "set-default-color",
+							"objectClass": "Fader",
+							"sid": 951307937573940,
+							"parameters": {
+								"color": "rgba255(0, 0, 0, 255)"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 976572565052302,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Setup the carousel screen."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 666737296175718
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 932093140875697,
+							"parameters": {
+								"layer": "\"Photo\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 104972256538862,
+							"parameters": {
+								"layer": "\"GameUI\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 250223056851213,
+							"parameters": {
+								"layer": "\"Background\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 879704298735930,
+							"parameters": {
+								"layer": "\"CarouselScreen\"",
+								"visibility": "visible"
+							}
+						},
+						{
+							"id": "set-layer-visible",
+							"objectClass": "System",
+							"sid": 818332013623712,
+							"parameters": {
+								"layer": "\"CustomizeScreen\"",
+								"visibility": "invisible"
+							}
+						},
+						{
+							"id": "set-layer-scroll",
+							"objectClass": "System",
+							"sid": 453507335636891,
+							"parameters": {
+								"layer": "\"Character\"",
+								"scroll-x": "OriginalViewportWidth/2",
+								"scroll-y": "OriginalViewportHeight/2"
+							}
+						},
+						{
+							"id": "set-layer-scroll",
+							"objectClass": "System",
+							"sid": 228720798962217,
+							"parameters": {
+								"layer": "\"CharacterClothes\"",
+								"scroll-x": "OriginalViewportWidth/2",
+								"scroll-y": "OriginalViewportHeight/2"
+							}
+						},
+						{
+							"callFunction": "changeCategory",
+							"sid": 460909885143855,
+							"parameters": [
+								"\"hair\""
+							]
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "WardrobeButton",
+							"sid": 810851359357769,
+							"parameters": {
+								"frame-number": "1"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "CustomizeButton",
+							"sid": 654424670194632,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "CharacterButton",
+							"sid": 505567595606807,
+							"parameters": {
+								"frame-number": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Go back to the carousel screen."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 961101201681967,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 738865577376971
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 198186453724986,
+							"parameters": {
+								"variable": "photoMode",
+								"value": "false"
+							}
+						}
+					],
+					"sid": 828604972593307
+				}
+			],
+			"sid": 375935519813695
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Randomize",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Randomize character."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-touched-object",
+							"objectClass": "Touch",
+							"sid": 194652300394451,
+							"parameters": {
+								"object": "RollColorsButton",
+								"type": "start"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 821944435693564,
+							"parameters": {
+								"variable": "canRandomize"
+							}
+						},
+						{
+							"id": "compare-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 398894711932499,
+							"parameters": {
+								"variable": "photoMode"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Block the player from randomizing the character for a while."
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 304763946171338,
+							"parameters": {
+								"variable": "canRandomize",
+								"value": "false"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Animte the button."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "RollColorsButton",
+							"sid": 804334572268121,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ChangeScale\"",
+								"property": "scale",
+								"end-x": "1.25",
+								"end-y": "1.25",
+								"time": "0.05",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Show the fader."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 695418159779011,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "0.075",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Randomize clothes and colors."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 457340419136835
+						},
+						{
+							"callFunction": "randomizeClothes",
+							"sid": 852009575545873
+						},
+						{
+							"callFunction": "randomizeColors",
+							"sid": 407687764355569
+						},
+						{
+							"callFunction": "UpdateAllCategories",
+							"sid": 307239285275088
+						},
+						{
+							"type": "comment",
+							"text": "Hide the fader."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 856046832580371,
+							"parameters": {
+								"seconds": "0.05",
+								"use-timescale": true
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 421316088975429,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.075",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Let the player randomize the character again."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 485153396024493
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 688749664050571,
+							"parameters": {
+								"variable": "canRandomize",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 184935225438028
+				}
+			],
+			"sid": 656971965289187
+		}
+	],
+	"sid": 202234059641541
+}

@@ -1,0 +1,955 @@
+{
+	"name": "ShopEvents",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "selectedShopSoft",
+			"type": "string",
+			"initialValue": "Exploit_Data",
+			"comment": "Currently selected software in the shop menu.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 407539908285232
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Shop Menu",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Shop Setup",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Setup or update the shop screen."
+						},
+						{
+							"functionName": "updateShop",
+							"functionDescription": "Setup or update the shop screen.",
+							"functionCategory": "Shop",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [],
+							"sid": 400138059263179,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 523253560076940,
+											"parameters": {
+												"object": "Shop_Software"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 447040219097277,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Enable / Disable software buttons according to player credits and number of instances."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 423410843463408,
+													"parameters": {
+														"value": "Functions.pGetCredits >= Functions.getSoftwarePrice(Shop_Software.software)"
+													}
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 170111726882336,
+													"parameters": {
+														"value": "Functions.pGetSoftCount(Shop_Software.software, Shop_Software.exploit) < Functions.getSoftwareMaxInst(Shop_Software.software)"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-opacity",
+													"objectClass": "Shop_Software",
+													"sid": 984957193472130,
+													"parameters": {
+														"opacity": "100"
+													}
+												}
+											],
+											"sid": 704565288997839
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 217408988532900
+												}
+											],
+											"actions": [
+												{
+													"id": "set-opacity",
+													"objectClass": "Shop_Software",
+													"sid": 651238279165282,
+													"parameters": {
+														"opacity": "20"
+													}
+												}
+											],
+											"sid": 653372508983998
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Get currently selected software."
+								},
+								{
+									"eventType": "comment",
+									"text": "Immediately update everything regarding the currently selected software."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 678497348856558,
+											"parameters": {
+												"object": "Shop_Software",
+												"expression": "Shop_Software.software",
+												"comparison": 0,
+												"value": "tokenat(selectedShopSoft, 0, \"_\")"
+											}
+										},
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 225902283753586,
+											"parameters": {
+												"object": "Shop_Software",
+												"expression": "Shop_Software.exploit",
+												"comparison": 0,
+												"value": "tokenat(selectedShopSoft, 1, \"_\")"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "Shop_Selection",
+											"sid": 299668991719835,
+											"parameters": {
+												"object": "Shop_Software",
+												"image-point-optional": "0"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Shop_Software",
+											"sid": 832854524224011,
+											"parameters": {
+												"child": "Shop_Selection",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-z-elevation": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": false,
+												"transform-o": false,
+												"transform-visibility": false,
+												"destroy-with-parent": false
+											}
+										}
+									],
+									"sid": 998543714695983,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Check whether the purchase button should start disabled."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 900886716393932,
+													"parameters": {
+														"value": "Functions.pGetCredits < Functions.getSoftwarePrice(Shop_Software.software)"
+													}
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 292156037989222,
+													"parameters": {
+														"value": "Functions.pGetSoftCount(Shop_Software.software, Shop_Software.exploit) >= Functions.getSoftwareMaxInst(Shop_Software.software)"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-opacity",
+													"objectClass": "Shop_Purchase",
+													"sid": 926358080838772,
+													"parameters": {
+														"opacity": "20"
+													}
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "Shop_Purchase",
+													"sid": 695076924732226,
+													"parameters": {
+														"instance-variable": "enabled",
+														"value": "false"
+													}
+												}
+											],
+											"sid": 890583620735987,
+											"isOrBlock": true
+										},
+										{
+											"eventType": "comment",
+											"text": "Display name, description, price, and count."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-text",
+													"objectClass": "Shop_SoftName",
+													"sid": 696629306505219,
+													"parameters": {
+														"text": "Shop_Software.software"
+													}
+												},
+												{
+													"id": "set-text",
+													"objectClass": "Shop_SoftPrice",
+													"sid": 870203086573797,
+													"parameters": {
+														"text": "Functions.getSoftwarePrice(Shop_Software.software)"
+													}
+												},
+												{
+													"id": "set-text",
+													"objectClass": "Shop_SoftAmt",
+													"sid": 182490474681440,
+													"parameters": {
+														"text": "Functions.pGetSoftCount(Shop_Software.software, Shop_Software.exploit) & \"/\" & Functions.getSoftwareMaxInst(Shop_Software.software)"
+													}
+												}
+											],
+											"sid": 934102358574546,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "If software is an exploit, display additional information."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "Shop_Software",
+															"sid": 102960253580573,
+															"parameters": {
+																"instance-variable": "exploit",
+																"comparison": 1,
+																"value": "\"\""
+															}
+														}
+													],
+													"actions": [],
+													"sid": 175995066352390,
+													"children": [
+														{
+															"eventType": "variable",
+															"name": "desc",
+															"type": "string",
+															"initialValue": "",
+															"comment": "Software description.",
+															"isStatic": false,
+															"isConstant": false,
+															"sid": 439248417571958
+														},
+														{
+															"eventType": "block",
+															"conditions": [],
+															"actions": [
+																{
+																	"id": "set-eventvar-value",
+																	"objectClass": "System",
+																	"sid": 505269875340097,
+																	"parameters": {
+																		"variable": "desc",
+																		"value": "Functions.getSoftwareDescription(Shop_Software.software)"
+																	}
+																},
+																{
+																	"id": "set-eventvar-value",
+																	"objectClass": "System",
+																	"sid": 625481744408866,
+																	"parameters": {
+																		"variable": "desc",
+																		"value": "desc &  \" \\[\" & Shop_Software.exploit & \"] nodes.\""
+																	}
+																},
+																{
+																	"id": "set-text",
+																	"objectClass": "Shop_SoftDesc",
+																	"sid": 814488581792165,
+																	"parameters": {
+																		"text": "desc"
+																	}
+																}
+															],
+															"sid": 967721309092635
+														}
+													]
+												},
+												{
+													"eventType": "comment",
+													"text": "Otherwise, just show the regular description."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 678764048215777
+														}
+													],
+													"actions": [
+														{
+															"id": "set-text",
+															"objectClass": "Shop_SoftDesc",
+															"sid": 809843935161590,
+															"parameters": {
+																"text": "Functions.getSoftwareDescription(Shop_Software.software)"
+															}
+														}
+													],
+													"sid": 460684469798433
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Display current balance."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "Shop_PlayerCredits",
+											"sid": 699505069840171,
+											"parameters": {
+												"text": "zeropad(Functions.pGetCredits, 7)"
+											}
+										}
+									],
+									"sid": 900338140828558
+								}
+							]
+						}
+					],
+					"sid": 598190949211564
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Shop Functions",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Functionality below works only in the shop screen."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 615614193959004,
+									"parameters": {
+										"variable": "shopScreen"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 896564903472400,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Select software for purchase."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-touched-object",
+											"objectClass": "Touch",
+											"sid": 320969594067402,
+											"parameters": {
+												"object": "Shop_Software",
+												"type": "start"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playSFX",
+											"sid": 560570753544836,
+											"parameters": [
+												"\"selectLow\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Set text information."
+										},
+										{
+											"id": "set-text",
+											"objectClass": "Shop_SoftName",
+											"sid": 564338066054156,
+											"parameters": {
+												"text": "Shop_Software.software"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "Shop_SoftDesc",
+											"sid": 472753826022248,
+											"parameters": {
+												"text": "Functions.getSoftwareDescription(Shop_Software.software)"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "Shop_SoftPrice",
+											"sid": 943527942381873,
+											"parameters": {
+												"text": "Functions.getSoftwarePrice(Shop_Software.software)"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "Shop_SoftAmt",
+											"sid": 186432570613461,
+											"parameters": {
+												"text": "Functions.pGetSoftCount(Shop_Software.software, Shop_Software.exploit) & \"/\" & Functions.getSoftwareMaxInst(Shop_Software.software)"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Set selection."
+										},
+										{
+											"id": "remove-from-parent",
+											"objectClass": "Shop_Selection",
+											"sid": 143625409733087
+										},
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "Shop_Selection",
+											"sid": 788877267971563,
+											"parameters": {
+												"object": "Shop_Software",
+												"image-point-optional": "0"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Shop_Software",
+											"sid": 181982766871888,
+											"parameters": {
+												"child": "Shop_Selection",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-z-elevation": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": false,
+												"transform-o": false,
+												"transform-visibility": false,
+												"destroy-with-parent": false
+											}
+										}
+									],
+									"sid": 598314159597548,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If software is an exploit, display additional information."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Shop_Software",
+													"sid": 327439516712787,
+													"parameters": {
+														"instance-variable": "exploit",
+														"comparison": 1,
+														"value": "\"\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Set currently selected software name."
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 737951297078514,
+													"parameters": {
+														"variable": "selectedShopSoft",
+														"value": "\"Exploit_\" & Shop_Software.exploit"
+													}
+												}
+											],
+											"sid": 115648672332708,
+											"children": [
+												{
+													"eventType": "variable",
+													"name": "desc",
+													"type": "string",
+													"initialValue": "",
+													"comment": "Software description.",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 802064971995890
+												},
+												{
+													"eventType": "comment",
+													"text": "Update description."
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 744185541919169,
+															"parameters": {
+																"variable": "desc",
+																"value": "Functions.getSoftwareDescription(Shop_Software.software)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 982185474432705,
+															"parameters": {
+																"variable": "desc",
+																"value": "desc &  \" \\[\" & Shop_Software.exploit & \"] nodes.\""
+															}
+														},
+														{
+															"id": "set-text",
+															"objectClass": "Shop_SoftDesc",
+															"sid": 861008486263747,
+															"parameters": {
+																"text": "desc"
+															}
+														}
+													],
+													"sid": 261088979334490
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Otherwise, just show the regular description."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 340568408612628
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Set currently selected software name."
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 913053135527582,
+													"parameters": {
+														"variable": "selectedShopSoft",
+														"value": "Shop_Software.software"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Update description."
+												},
+												{
+													"id": "set-text",
+													"objectClass": "Shop_SoftDesc",
+													"sid": 480077346598957,
+													"parameters": {
+														"text": "Functions.getSoftwareDescription(Shop_Software.software)"
+													}
+												}
+											],
+											"sid": 546750429993593
+										},
+										{
+											"eventType": "comment",
+											"text": "If the player has enough credits and is below the maximum number of instances for this software, enable the purchase button."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 440309044221195,
+													"parameters": {
+														"value": "Functions.pGetCredits >= Functions.getSoftwarePrice(Shop_Software.software)"
+													}
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 863449215203242,
+													"parameters": {
+														"value": "Functions.pGetSoftCount(Shop_Software.software, Shop_Software.exploit) < Functions.getSoftwareMaxInst(Shop_Software.software)"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-one-property",
+													"objectClass": "Shop_Purchase",
+													"sid": 996418812414456,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"EnableButton\"",
+														"property": "offsetOpacity",
+														"end-value": "100",
+														"time": "0.1",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "Shop_Purchase",
+													"sid": 563919366825416,
+													"parameters": {
+														"instance-variable": "enabled",
+														"value": "true"
+													}
+												}
+											],
+											"sid": 304182184895966
+										},
+										{
+											"eventType": "comment",
+											"text": "Otherwise, disable it."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 716275025028208
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-one-property",
+													"objectClass": "Shop_Purchase",
+													"sid": 592413373686516,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"DisableButton\"",
+														"property": "offsetOpacity",
+														"end-value": "20",
+														"time": "0.1",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "Shop_Purchase",
+													"sid": 339842380431107,
+													"parameters": {
+														"instance-variable": "enabled",
+														"value": "false"
+													}
+												}
+											],
+											"sid": 937029087413120
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Purchase software (if the player has enough credits)."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-touched-object",
+											"objectClass": "Touch",
+											"sid": 398554366459064,
+											"parameters": {
+												"object": "Shop_Purchase",
+												"type": "start"
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Shop_Purchase",
+											"sid": 700501217664195,
+											"parameters": {
+												"instance-variable": "enabled"
+											}
+										},
+										{
+											"id": "is-processing-gets",
+											"objectClass": "LocalStorage",
+											"sid": 846814815873424,
+											"isInverted": true
+										},
+										{
+											"id": "is-processing-sets",
+											"objectClass": "LocalStorage",
+											"sid": 958364048337521,
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playSFX",
+											"sid": 488285126643621,
+											"parameters": [
+												"\"confirm\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Animate purchase button."
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Shop_Purchase",
+											"sid": 717475934198731,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ButtonPress\"",
+												"property": "scale",
+												"end-x": "0.75",
+												"end-y": "0.75",
+												"time": "0.075",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "yes",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Subtract credits and add software."
+										},
+										{
+											"callFunction": "pSubCredits",
+											"sid": 573740055396075,
+											"parameters": [
+												"Functions.getSoftwarePrice(tokenat(selectedShopSoft, 0, \"_\"))"
+											]
+										},
+										{
+											"callFunction": "pAddSoftCount",
+											"sid": 251270107837923,
+											"parameters": [
+												"tokenat(selectedShopSoft, 0, \"_\")",
+												"tokenat(selectedShopSoft, 1, \"_\")",
+												"1"
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Update shop and main menu."
+										},
+										{
+											"callFunction": "updateShop",
+											"sid": 246126768776846
+										},
+										{
+											"callFunction": "updateMainMenuSoftware",
+											"sid": 268032501249621,
+											"parameters": [
+												false
+											]
+										}
+									],
+									"sid": 991007899888399
+								},
+								{
+									"eventType": "comment",
+									"text": "Go back to the main menu."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-touched-object",
+											"objectClass": "Touch",
+											"sid": 109322654142839,
+											"parameters": {
+												"object": "Shop_Back",
+												"type": "start"
+											}
+										},
+										{
+											"id": "on-key-pressed",
+											"objectClass": "Keyboard",
+											"sid": 994250345394714,
+											"parameters": {
+												"key": 27
+											}
+										}
+									],
+									"actions": [],
+									"sid": 900113876770188,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-any-playing",
+													"objectClass": "Main_Shop",
+													"sid": 976362633550168,
+													"behaviorType": "Tween",
+													"isInverted": true
+												},
+												{
+													"id": "is-any-playing",
+													"objectClass": "Settings_Fader",
+													"sid": 251893184063451,
+													"behaviorType": "Tween",
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "playSFX",
+													"sid": 527096361437835,
+													"parameters": [
+														"\"cancel\"",
+														"\"SFX\"",
+														"0",
+														"1"
+													]
+												},
+												{
+													"id": "tween-value",
+													"objectClass": "Main_Shop",
+													"sid": 243174022553564,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"ShopMenu\"",
+														"start-value": "2880",
+														"end-value": "960",
+														"time": "0.35",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "wait-for-previous-actions",
+													"objectClass": "System",
+													"sid": 949764438885587
+												},
+												{
+													"id": "set-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 529809384702738,
+													"parameters": {
+														"variable": "shopScreen",
+														"value": "false"
+													}
+												},
+												{
+													"callFunction": "updateMainMenuSoftware",
+													"sid": 848097763419174,
+													"parameters": [
+														false
+													]
+												}
+											],
+											"sid": 817819861227070
+										}
+									],
+									"isOrBlock": true
+								}
+							]
+						}
+					],
+					"sid": 960652460552465
+				}
+			],
+			"sid": 624883858575759
+		}
+	],
+	"sid": 176437374447559
+}

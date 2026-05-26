@@ -92,7 +92,6 @@ let geometries;
 
 // Global objects
 let camera;
-let keyboard;
 
 // Settings
 const TURNSPEED = 0.125; // How fast the squares turn
@@ -148,7 +147,6 @@ function onBeforeLayoutStart(runtime) {
     
     // Get global objects
     camera = runtime.objects.Camera3D;
-    keyboard = runtime.keyboard;
     
     // Configure initial parameters for the game
     setupGame(runtime);
@@ -162,7 +160,7 @@ function onKeyDown(e, runtime) {
         if (e.key == " " && launcher.instVars.ready) {
             launcher.instVars.ready = false;
             launcher.behaviors.Tween.startTween(
-                "z-elevation", launcher.zElevation - 16, 0.1, "in-back",
+                "z", launcher.z - 35, 0.1, "in-back",
                 {pingPong: true}
             )
         }
@@ -215,8 +213,8 @@ function setupGame(runtime) {
     
     // Set camera
     camera.lookAtPosition(
-        camPos.x, camPos.y, camPos.zElevation,
-        camFocus.x, camFocus.y, camFocus.zElevation,
+        camPos.x, camPos.y, camPos.z,
+        camFocus.x, camFocus.y, camFocus.z,
         0, 1, 0
     );
     
@@ -238,7 +236,7 @@ function launcherBoltCollision(runtime) {
     // Check collision between the launcher and the bolt
 
     // Check if the launcher is pushing the bolt
-    if (launcher.zElevation < 236) {
+    if (launcher.z < 519) {
     
         for (const bolt of getBolts(runtime)) {
         
@@ -247,7 +245,7 @@ function launcherBoltCollision(runtime) {
             
                 // Launch bolt to the other side of the map and set the state
                 bolt.behaviors.Tween.startTween(
-                    "z-elevation", 0, 0.28, "linear"
+                    "z", 0, 0.28, "linear"
                 )
                 bolt.instVars.state = "launched";
                 
@@ -273,7 +271,7 @@ function launcherBoltCollision(runtime) {
                 );
                 newBolt.instVars.state = "spawning";
                 newBolt.setSize(0, 0);
-                newBolt.zElevation = 226;
+                newBolt.z = 497;
                 
                 // Make new bolt ready to be launched and reset launcher
                 newBolt.behaviors.Timer.addEventListener(
@@ -309,8 +307,8 @@ function boltSquareCollision(runtime) {
         let cond2;
         for (const s of getSquares(runtime)) {
             if (s.x == 160 && s.y == 83.9) {
-                cond1 = bolt.zElevation >= s.zElevation - 6;
-                cond2 = bolt.zElevation <= s.zElevation + 6;
+                cond1 = bolt.z >= s.z - 13;
+                cond2 = bolt.z <= s.z + 13;
                 parentSquare = s;
                 break;
             }
@@ -329,7 +327,7 @@ function boltSquareCollision(runtime) {
                     {
                         transformX: true,
                         transformY: true,
-                        transformZElevation: true,
+                        transformZ: true,
                         destroyWithParent: true
                     }
                 );
@@ -346,16 +344,16 @@ function scrollFallingSquares(runtime) {
     for (const s of getSquares(runtime)) {
         if (s.instVars.falling) {
             // Scroll back the square
-            s.zElevation -= 1.6 * 60 * runtime.dt;
+            s.z -= 3.5 * 60 * runtime.dt;
             
             // Check if the square has to move down to simulate falling
-            const fallZElev = (s.instVars.side == "left" ? 156 : 152);
-            if (s.zElevation < fallZElev && s.y < 132) {
+            const fallZ = (s.instVars.side == "left" ? 343 : 334);
+            if (s.z < fallZ && s.y < 132) {
                 s.y += 4 * 60 * runtime.dt;
             }
             
             // If the square is out of bounds, destroy it
-            if (s.zElevation < 0) {
+            if (s.z < 0) {
                 s.destroy();
             }
         }
@@ -369,8 +367,8 @@ function spawnSquares(runtime) {
         // Create the square
         const s = runtime.objects.Square.createInstance("World", ss.x, ss.y);
         
-        // Set elevation and side
-        s.zElevation = ss.zElevation;
+        // Set Z and side
+        s.z = ss.z;
         s.instVars.side = ss.instVars.side;
         
         // Depending on the side, it rolls to a specific direction

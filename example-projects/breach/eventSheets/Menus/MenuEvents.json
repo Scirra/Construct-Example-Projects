@@ -1,0 +1,2530 @@
+{
+	"name": "MenuEvents",
+	"events": [
+		{
+			"eventType": "include",
+			"includeSheet": "ShopEvents"
+		},
+		{
+			"eventType": "include",
+			"includeSheet": "SettingsEvents"
+		},
+		{
+			"eventType": "comment",
+			"text": "Menu variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "settingsScreen",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the settings screen visible?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 676896319005960
+		},
+		{
+			"eventType": "variable",
+			"name": "shopScreen",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the shop screen visible?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 795400488700497
+		},
+		{
+			"eventType": "variable",
+			"name": "selectedLevel",
+			"type": "number",
+			"initialValue": "1",
+			"comment": "Level selected.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 303108337148618
+		},
+		{
+			"eventType": "comment",
+			"text": "Player profile variables."
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Main Menu",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Menu Animations",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Scroll the background and scanlines."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-image-offset-y",
+									"objectClass": "Title_Background",
+									"sid": 135347804737191,
+									"parameters": {
+										"offset-y": "Self.ImageOffsetY + 400 * dt"
+									}
+								}
+							],
+							"sid": 772962617184026
+						}
+					],
+					"sid": 245172589551916
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Menu Setup",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Setup main menu."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 563671632383882
+								}
+							],
+							"actions": [
+								{
+									"id": "request-project-file",
+									"objectClass": "AJAX",
+									"sid": 257126456247049,
+									"parameters": {
+										"tag": "\"ArrLevels\"",
+										"file": {
+											"path": "Arrays/ArrLevels.json"
+										}
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Main_WhiteFader",
+									"sid": 968230085909129,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideWhiteFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "flash",
+									"objectClass": "Main_DescText",
+									"sid": 839247855730161,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.3",
+										"off-time": "0.2",
+										"duration": "Infinity"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Reset global variables."
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 949723473082011,
+									"parameters": {
+										"variable": "settingsScreen",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 666039593556143,
+									"parameters": {
+										"variable": "shopScreen",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 867609404495845,
+									"parameters": {
+										"variable": "selectedLevel",
+										"value": "Functions.pGetLevel"
+									}
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 722223132673776,
+									"parameters": {
+										"variable": "detected",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set current level."
+								},
+								{
+									"id": "set-text",
+									"objectClass": "Main_LevelNo",
+									"sid": 284758238814143,
+									"parameters": {
+										"text": "\"Level \" & selectedLevel"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "Main_Thumbnail",
+									"sid": 569624721795640,
+									"parameters": {
+										"animation": "\"Level\" & selectedLevel",
+										"from": "beginning"
+									}
+								},
+								{
+									"callFunction": "updateSelectionArrows",
+									"sid": 971012272108604
+								},
+								{
+									"callFunction": "playBGMSeq",
+									"sid": 839641188444099
+								}
+							],
+							"sid": 936128143085830,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Setup inventory items starting properties."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 999926129994865,
+											"parameters": {
+												"object": "Main_Software"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Mark starting coordinates."
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Main_Software",
+											"sid": 749797401801441,
+											"parameters": {
+												"instance-variable": "startingX",
+												"value": "Self.X"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Main_Software",
+											"sid": 789902367005847,
+											"parameters": {
+												"instance-variable": "startingY",
+												"value": "Self.Y"
+											}
+										}
+									],
+									"sid": 400838007199218
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"callFunction": "updateMainMenuSoftware",
+											"sid": 604830181841108,
+											"parameters": [
+												true
+											]
+										}
+									],
+									"sid": 830991666761425
+								},
+								{
+									"eventType": "comment",
+									"text": "Setup the shop menu."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"callFunction": "updateShop",
+											"sid": 303340130318977
+										}
+									],
+									"sid": 947256469569784
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Reload levels."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-completed",
+									"objectClass": "AJAX",
+									"sid": 671403384777203,
+									"parameters": {
+										"tag": "\"ArrLevels\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "load",
+									"objectClass": "ArrLevel",
+									"sid": 818719856568938,
+									"parameters": {
+										"json": "AJAX.LastData"
+									}
+								}
+							],
+							"sid": 738281018916633
+						}
+					],
+					"sid": 338259214391904
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Main software State",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update software states."
+						},
+						{
+							"functionName": "updateMainMenuSoftware",
+							"functionDescription": "Update software states.",
+							"functionCategory": "Menu",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "checkArrLoadout",
+									"type": "boolean",
+									"initialValue": "true",
+									"comment": "Check array loadout to populate installed software.",
+									"sid": 873671968175863
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [],
+							"sid": 809589483799349,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 963745052287790,
+											"parameters": {
+												"object": "Main_Software"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 256640344575736,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Display how many instances of this software the player owns."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-children",
+													"objectClass": "Main_Software",
+													"sid": 337206569282128,
+													"parameters": {
+														"child": "Main_SoftwareCount",
+														"which": "own"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Main_Software",
+													"sid": 677164289421792,
+													"parameters": {
+														"instance-variable": "instances",
+														"value": "Functions.pGetSoftCount(Self.software, Self.exploit)"
+													}
+												},
+												{
+													"id": "set-text",
+													"objectClass": "Main_SoftwareCount",
+													"sid": 895465094670622,
+													"parameters": {
+														"text": "Main_Software.instances"
+													}
+												}
+											],
+											"sid": 547883897620788
+										},
+										{
+											"eventType": "comment",
+											"text": "Enable or disable software item according to its number of instances in the inventory and current menu state."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 131619874086157,
+													"parameters": {
+														"object": "Main_Software",
+														"expression": "Main_Software.instances",
+														"comparison": 4,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-opacity",
+													"objectClass": "Main_Software",
+													"sid": 719984661908049,
+													"parameters": {
+														"opacity": "100"
+													}
+												}
+											],
+											"sid": 652986519800966,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-boolean-eventvar",
+															"objectClass": "System",
+															"sid": 380967919640895,
+															"parameters": {
+																"variable": "shopScreen"
+															},
+															"isInverted": true
+														},
+														{
+															"id": "compare-boolean-eventvar",
+															"objectClass": "System",
+															"sid": 830671223034411,
+															"parameters": {
+																"variable": "settingsScreen"
+															},
+															"isInverted": true
+														}
+													],
+													"actions": [
+														{
+															"id": "set-enabled",
+															"objectClass": "Main_Software",
+															"sid": 291986719474847,
+															"behaviorType": "DragDrop",
+															"parameters": {
+																"state": "enabled"
+															}
+														}
+													],
+													"sid": 813815034554114
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 317354573844924
+														}
+													],
+													"actions": [
+														{
+															"id": "set-enabled",
+															"objectClass": "Main_Software",
+															"sid": 247434381197455,
+															"behaviorType": "DragDrop",
+															"parameters": {
+																"state": "disabled"
+															}
+														}
+													],
+													"sid": 763142120761605
+												}
+											]
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 358650409953674
+												}
+											],
+											"actions": [
+												{
+													"id": "set-enabled",
+													"objectClass": "Main_Software",
+													"sid": 770398638064548,
+													"behaviorType": "DragDrop",
+													"parameters": {
+														"state": "disabled"
+													}
+												},
+												{
+													"id": "set-opacity",
+													"objectClass": "Main_Software",
+													"sid": 331465372810865,
+													"parameters": {
+														"opacity": "20"
+													}
+												}
+											],
+											"sid": 411041177058786
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Move software to loadout, if it was there previously."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 255884337761453,
+											"parameters": {
+												"variable": "checkArrLoadout"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 114961132988856,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "repeat",
+													"objectClass": "System",
+													"sid": 614570407261611,
+													"parameters": {
+														"count": "ArrLoadout.Width"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 429015288579888,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 993657724319959,
+															"parameters": {
+																"object": "Main_Software",
+																"expression": "Main_Software.software",
+																"comparison": 0,
+																"value": "tokenat(ArrLoadout.At(loopindex), 0, \"_\")"
+															}
+														},
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 754716745406668,
+															"parameters": {
+																"object": "Main_Software",
+																"expression": "Main_Software.exploit",
+																"comparison": 0,
+																"value": "tokenat(ArrLoadout.At(loopindex), 1, \"_\")"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 339586451082459,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-by-comparison",
+																	"objectClass": "System",
+																	"sid": 837232825419534,
+																	"parameters": {
+																		"object": "Main_Slot",
+																		"expression": "Main_Slot.TagAt(0)",
+																		"comparison": 0,
+																		"value": "str(loopindex)"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-position-to-another-object",
+																	"objectClass": "Main_Software",
+																	"sid": 701979168732846,
+																	"parameters": {
+																		"object": "Main_Slot",
+																		"image-point-optional": "0"
+																	}
+																},
+																{
+																	"id": "add-child",
+																	"objectClass": "Main_Slot",
+																	"sid": 273800335804946,
+																	"parameters": {
+																		"child": "Main_Software",
+																		"transform-x": false,
+																		"transform-y": false,
+																		"transform-z-elevation": false,
+																		"transform-w": false,
+																		"transform-h": false,
+																		"transform-a": false,
+																		"transform-o": false,
+																		"transform-visibility": false,
+																		"destroy-with-parent": false
+																	}
+																},
+																{
+																	"id": "set-instvar-value",
+																	"objectClass": "Main_Slot",
+																	"sid": 402603741987893,
+																	"parameters": {
+																		"instance-variable": "software",
+																		"value": "Main_Software.software"
+																	}
+																},
+																{
+																	"id": "set-instvar-value",
+																	"objectClass": "Main_Slot",
+																	"sid": 774376613298883,
+																	"parameters": {
+																		"instance-variable": "exploit",
+																		"value": "Main_Software.exploit"
+																	}
+																}
+															],
+															"sid": 199525264250040
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Set sound button state according to player's sound preference."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 314523129907382,
+											"parameters": {
+												"object": "Settings_Button",
+												"expression": "Settings_Button.AnimationName",
+												"comparison": 0,
+												"value": "\"ToggleSound\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Settings_Button",
+											"sid": 543019388781013,
+											"parameters": {
+												"frame-number": "Functions.pGetSoundOn"
+											}
+										}
+									],
+									"sid": 654676918174144
+								}
+							]
+						}
+					],
+					"sid": 375929195014733
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Main Screen",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Control Buttons",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Check if the functionality below is available."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 202291792131986,
+											"parameters": {
+												"variable": "shopScreen"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Main_WhiteFader",
+											"sid": 556076660386684,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Main_BlackFader",
+											"sid": 192816612397331,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 923749251891302,
+											"parameters": {
+												"value": "Functions.draggingSoftware"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [],
+									"sid": 816279711357319,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Open settings menu."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-touched-object",
+													"objectClass": "Touch",
+													"sid": 749660556491991,
+													"parameters": {
+														"object": "Main_Settings",
+														"type": "start"
+													}
+												},
+												{
+													"id": "on-key-pressed",
+													"objectClass": "Keyboard",
+													"sid": 835845803402670,
+													"parameters": {
+														"key": 27
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "openSettings",
+													"sid": 207031887702003
+												},
+												{
+													"callFunction": "playSFX",
+													"sid": 420366798680210,
+													"parameters": [
+														"\"select\"",
+														"\"SFX\"",
+														"0",
+														"1"
+													]
+												}
+											],
+											"sid": 131229759652574,
+											"isOrBlock": true
+										},
+										{
+											"eventType": "comment",
+											"text": "Open shop menu."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-touched-object",
+													"objectClass": "Touch",
+													"sid": 675793239921622,
+													"parameters": {
+														"object": "Main_Shop",
+														"type": "start"
+													}
+												},
+												{
+													"id": "is-any-playing",
+													"objectClass": "Main_Shop",
+													"sid": 700335828249004,
+													"behaviorType": "Tween",
+													"isInverted": true
+												},
+												{
+													"id": "compare-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 951902483173648,
+													"parameters": {
+														"variable": "settingsScreen"
+													},
+													"isInverted": true
+												},
+												{
+													"id": "is-any-playing",
+													"objectClass": "Settings_Fader",
+													"sid": 953325020409357,
+													"behaviorType": "Tween",
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "playSFX",
+													"sid": 913224157236293,
+													"parameters": [
+														"\"select\"",
+														"\"SFX\"",
+														"0",
+														"1"
+													]
+												},
+												{
+													"id": "set-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 799728324507568,
+													"parameters": {
+														"variable": "shopScreen",
+														"value": "true"
+													}
+												},
+												{
+													"id": "set-enabled",
+													"objectClass": "Main_Software",
+													"sid": 605927353031023,
+													"behaviorType": "DragDrop",
+													"parameters": {
+														"state": "disabled"
+													}
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "Main_Shop",
+													"sid": 781215549682847,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"ButtonPress\"",
+														"property": "scale",
+														"end-x": "0.75",
+														"end-y": "0.75",
+														"time": "0.075",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "yes",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "tween-value",
+													"objectClass": "Main_Shop",
+													"sid": 767733931451288,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"ShopMenu\"",
+														"start-value": "960",
+														"end-value": "2880",
+														"time": "0.35",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"id": "wait-for-previous-actions",
+													"objectClass": "System",
+													"sid": 206434547323599
+												}
+											],
+											"sid": 939388350513481
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Move main menu and shop menu."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-playing",
+											"objectClass": "Main_Shop",
+											"sid": 530577613092431,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShopMenu\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "scroll-to-x",
+											"objectClass": "System",
+											"sid": 713519765251604,
+											"parameters": {
+												"x": "Main_Shop.Tween.Value(\"ShopMenu\")"
+											}
+										}
+									],
+									"sid": 286299422019922
+								}
+							],
+							"sid": 352463998940336
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Inventory",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Remove software from slot."
+								},
+								{
+									"functionName": "removeSoftwareFromSlot",
+									"functionDescription": "Remove software from slot.",
+									"functionCategory": "Inventory",
+									"functionReturnType": "none",
+									"functionCopyPicked": false,
+									"functionIsAsync": false,
+									"functionParameters": [
+										{
+											"name": "softwareUID",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Software item UID.",
+											"sid": 123676472446477
+										}
+									],
+									"eventType": "function-block",
+									"conditions": [
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Main_Software",
+											"sid": 440719748657606,
+											"parameters": {
+												"unique-id": "softwareUID"
+											}
+										},
+										{
+											"id": "pick-parent",
+											"objectClass": "Main_Software",
+											"sid": 903558004781915,
+											"parameters": {
+												"parent": "Main_Slot",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Main_Slot",
+											"sid": 480881974019124,
+											"parameters": {
+												"instance-variable": "software",
+												"value": "\"\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Main_Slot",
+											"sid": 352369364580550,
+											"parameters": {
+												"instance-variable": "exploit",
+												"value": "\"\""
+											}
+										},
+										{
+											"id": "remove-from-parent",
+											"objectClass": "Main_Software",
+											"sid": 601583954707046
+										}
+									],
+									"sid": 840778059605685
+								},
+								{
+									"eventType": "comment",
+									"text": "Get software parent slot."
+								},
+								{
+									"functionName": "getSoftwareParentSlot",
+									"functionDescription": "Get software parent slot.",
+									"functionCategory": "Inventory",
+									"functionReturnType": "number",
+									"functionCopyPicked": false,
+									"functionIsAsync": false,
+									"functionParameters": [
+										{
+											"name": "softwareUID",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Software UID.",
+											"sid": 614188544538237
+										}
+									],
+									"eventType": "function-block",
+									"conditions": [
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Main_Software",
+											"sid": 563630033033483,
+											"parameters": {
+												"unique-id": "softwareUID"
+											}
+										},
+										{
+											"id": "pick-parent",
+											"objectClass": "Main_Software",
+											"sid": 828835994865475,
+											"parameters": {
+												"parent": "Main_Slot",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-function-return-value",
+											"objectClass": "Functions",
+											"sid": 200003099617950,
+											"parameters": {
+												"value": "Main_Slot.UID"
+											}
+										}
+									],
+									"sid": 264932389983427
+								},
+								{
+									"eventType": "comment",
+									"text": "Disable drag and drop in certain scenarios."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-drag-start",
+											"objectClass": "Main_Software",
+											"sid": 321153543271682,
+											"behaviorType": "DragDrop"
+										}
+									],
+									"actions": [],
+									"sid": 889934926478562,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-any-playing",
+													"objectClass": "Main_WhiteFader",
+													"sid": 308650114248212,
+													"behaviorType": "Tween"
+												},
+												{
+													"id": "is-any-playing",
+													"objectClass": "Main_BlackFader",
+													"sid": 522266453590429,
+													"behaviorType": "Tween"
+												}
+											],
+											"actions": [
+												{
+													"id": "drop",
+													"objectClass": "Main_Software",
+													"sid": 618894572271348,
+													"behaviorType": "DragDrop"
+												}
+											],
+											"sid": 778271028717312,
+											"isOrBlock": true
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Show software description."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-touched-object",
+											"objectClass": "Touch",
+											"sid": 676305312520429,
+											"parameters": {
+												"object": "Main_Software",
+												"type": "start"
+											}
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Main_WhiteFader",
+											"sid": 628294808877828,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Main_BlackFader",
+											"sid": 525422472970044,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "Main_Software",
+											"sid": 407589453919189,
+											"parameters": {
+												"child": "Main_SoftwareCount",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playSFX",
+											"sid": 562057397758507,
+											"parameters": [
+												"\"selectLow\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										},
+										{
+											"id": "stop-flashing",
+											"objectClass": "Main_DescText",
+											"sid": 849422365949851,
+											"behaviorType": "Flash"
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "Main_DescText",
+											"sid": 336589455978931,
+											"parameters": {
+												"visibility": "visible"
+											}
+										},
+										{
+											"id": "remove-from-parent",
+											"objectClass": "Main_Selection",
+											"sid": 652626934139010
+										},
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "Main_Selection",
+											"sid": 607454716922716,
+											"parameters": {
+												"object": "Main_Software",
+												"image-point-optional": "0"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Main_Software",
+											"sid": 630493619671596,
+											"parameters": {
+												"child": "Main_Selection",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-z-elevation": true,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": false,
+												"transform-o": false,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										},
+										{
+											"id": "move-to-top",
+											"objectClass": "Main_Software",
+											"sid": 466111264479361
+										},
+										{
+											"id": "move-to-top",
+											"objectClass": "Main_Selection",
+											"sid": 455256644546016
+										},
+										{
+											"id": "move-to-top",
+											"objectClass": "Main_SoftwareCount",
+											"sid": 431552321699104
+										}
+									],
+									"sid": 204373633331086,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If software is an exploit, display additional information."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Main_Software",
+													"sid": 627080040866315,
+													"parameters": {
+														"instance-variable": "exploit",
+														"comparison": 1,
+														"value": "\"\""
+													}
+												}
+											],
+											"actions": [],
+											"sid": 360978403680033,
+											"children": [
+												{
+													"eventType": "variable",
+													"name": "desc",
+													"type": "string",
+													"initialValue": "",
+													"comment": "Software description.",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 136390286528053
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 372901049275554,
+															"parameters": {
+																"variable": "desc",
+																"value": "Functions.getSoftwareDescription(Main_Software.software)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 710251068145780,
+															"parameters": {
+																"variable": "desc",
+																"value": "desc &  \" \\[\" & Main_Software.exploit & \"] nodes.\""
+															}
+														},
+														{
+															"id": "set-text",
+															"objectClass": "Main_DescText",
+															"sid": 465666911415291,
+															"parameters": {
+																"text": "desc"
+															}
+														}
+													],
+													"sid": 202086412083816
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Otherwise, just show the regular description."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 352297571668436
+												}
+											],
+											"actions": [
+												{
+													"id": "set-text",
+													"objectClass": "Main_DescText",
+													"sid": 486407100596489,
+													"parameters": {
+														"text": "Functions.getSoftwareDescription(Main_Software.software)"
+													}
+												}
+											],
+											"sid": 126244581134734
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Show bruteforce description."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-touched-object",
+											"objectClass": "Touch",
+											"sid": 262884243843076,
+											"parameters": {
+												"object": "Main_SlotBruteforce",
+												"type": "start"
+											}
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 700664400728811,
+											"parameters": {
+												"variable": "shopScreen"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Main_WhiteFader",
+											"sid": 333050219003665,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Main_BlackFader",
+											"sid": 144226574611334,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "Main_SlotBruteforce",
+											"sid": 225953139786407,
+											"parameters": {
+												"child": "Main_MiscText",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playSFX",
+											"sid": 744219051128782,
+											"parameters": [
+												"\"selectLow\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										},
+										{
+											"id": "remove-from-parent",
+											"objectClass": "Main_Selection",
+											"sid": 300013723118683
+										},
+										{
+											"id": "move-to-top",
+											"objectClass": "Main_Selection",
+											"sid": 526004826058170
+										},
+										{
+											"id": "set-position-to-another-object",
+											"objectClass": "Main_Selection",
+											"sid": 588880714563515,
+											"parameters": {
+												"object": "Main_SlotBruteforce",
+												"image-point-optional": "0"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "Main_DescText",
+											"sid": 674863887108989,
+											"parameters": {
+												"text": "Functions.getSoftwareDescription(\"Bruteforce\")"
+											}
+										},
+										{
+											"id": "move-to-top",
+											"objectClass": "Main_MiscText",
+											"sid": 267477150289614
+										}
+									],
+									"sid": 170520491501761
+								},
+								{
+									"eventType": "comment",
+									"text": "Move software from inventory to loadout or vice-versa."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "on-drop",
+											"objectClass": "Main_Software",
+											"sid": 672125964990208,
+											"behaviorType": "DragDrop"
+										}
+									],
+									"actions": [
+										{
+											"id": "set-enabled",
+											"objectClass": "Main_Software",
+											"sid": 328451847725175,
+											"behaviorType": "DragDrop",
+											"parameters": {
+												"state": "disabled"
+											}
+										}
+									],
+									"sid": 320966901187452,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "When a software is dropped on top of one or more loadout slots, move it there."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-overlapping-another-object",
+													"objectClass": "Main_Software",
+													"sid": 200573416774088,
+													"parameters": {
+														"object": "Main_Slot"
+													}
+												},
+												{
+													"id": "pick-by-highest-lowest-value",
+													"objectClass": "System",
+													"sid": 947211508132597,
+													"parameters": {
+														"object": "Main_Slot",
+														"which": "lowest",
+														"expression": "distance(Main_Slot.X, Main_Slot.Y, Main_Software.X, Main_Software.Y)",
+														"pick-all-tied": false
+													}
+												}
+											],
+											"actions": [],
+											"sid": 510076207461334,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Check if either the slot is free, or it's the slot the software was already on. If so, move it there."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 658132261973670,
+															"parameters": {
+																"value": "Functions.getSoftwareParentSlot(Main_Software.UID) = Main_Slot.UID"
+															}
+														},
+														{
+															"id": "has-children",
+															"objectClass": "Main_Slot",
+															"sid": 310170017004296,
+															"isInverted": true
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "playSFX",
+															"sid": 331782081896532,
+															"parameters": [
+																"\"select\"",
+																"\"SFX\"",
+																"0",
+																"1"
+															]
+														},
+														{
+															"id": "tween-two-properties",
+															"objectClass": "Main_Software",
+															"sid": 711545608074556,
+															"behaviorType": "Tween",
+															"parameters": {
+																"tags": "\"MoveToLoadout\"",
+																"property": "position",
+																"end-x": "Main_Slot.X",
+																"end-y": "Main_Slot.Y",
+																"time": "0.2",
+																"ease": "easeoutsine",
+																"destroy-on-complete": "no",
+																"loop": "no",
+																"ping-pong": "no",
+																"repeat-count": "1"
+															}
+														},
+														{
+															"callFunction": "removeSoftwareFromSlot",
+															"sid": 172124265826510,
+															"parameters": [
+																"Main_Software.UID"
+															]
+														},
+														{
+															"id": "add-child",
+															"objectClass": "Main_Slot",
+															"sid": 732188377184636,
+															"parameters": {
+																"child": "Main_Software",
+																"transform-x": false,
+																"transform-y": false,
+																"transform-z-elevation": false,
+																"transform-w": false,
+																"transform-h": false,
+																"transform-a": false,
+																"transform-o": false,
+																"transform-visibility": false,
+																"destroy-with-parent": false
+															}
+														},
+														{
+															"id": "set-instvar-value",
+															"objectClass": "Main_Slot",
+															"sid": 104667544669506,
+															"parameters": {
+																"instance-variable": "software",
+																"value": "Main_Software.software"
+															}
+														},
+														{
+															"id": "set-instvar-value",
+															"objectClass": "Main_Slot",
+															"sid": 295243893482936,
+															"parameters": {
+																"instance-variable": "exploit",
+																"value": "Main_Software.exploit"
+															}
+														},
+														{
+															"id": "wait-for-previous-actions",
+															"objectClass": "System",
+															"sid": 159367356892276
+														},
+														{
+															"id": "set-enabled",
+															"objectClass": "Main_Software",
+															"sid": 639687798028520,
+															"behaviorType": "DragDrop",
+															"parameters": {
+																"state": "enabled"
+															}
+														}
+													],
+													"sid": 562172433834520,
+													"isOrBlock": true
+												},
+												{
+													"eventType": "comment",
+													"text": "Otherwise, move it back to the inventory."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 979359335073572
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "playSFX",
+															"sid": 184464599572277,
+															"parameters": [
+																"\"cancel\"",
+																"\"SFX\"",
+																"0",
+																"1"
+															]
+														},
+														{
+															"id": "tween-two-properties",
+															"objectClass": "Main_Software",
+															"sid": 824479888821576,
+															"behaviorType": "Tween",
+															"parameters": {
+																"tags": "\"MoveToInventory\"",
+																"property": "position",
+																"end-x": "Self.startingX",
+																"end-y": "Self.startingY",
+																"time": "0.2",
+																"ease": "easeoutsine",
+																"destroy-on-complete": "no",
+																"loop": "no",
+																"ping-pong": "no",
+																"repeat-count": "1"
+															}
+														},
+														{
+															"callFunction": "removeSoftwareFromSlot",
+															"sid": 138487180434403,
+															"parameters": [
+																"Main_Software.UID"
+															]
+														},
+														{
+															"id": "wait-for-previous-actions",
+															"objectClass": "System",
+															"sid": 831845296954624
+														},
+														{
+															"id": "set-enabled",
+															"objectClass": "Main_Software",
+															"sid": 904982718208051,
+															"behaviorType": "DragDrop",
+															"parameters": {
+																"state": "enabled"
+															}
+														}
+													],
+													"sid": 140186567172257
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Otherwise, move it back to the inventory."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 975811196987287
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-two-properties",
+													"objectClass": "Main_Software",
+													"sid": 891979151991543,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"MoveToInventory\"",
+														"property": "position",
+														"end-x": "Self.startingX",
+														"end-y": "Self.startingY",
+														"time": "0.2",
+														"ease": "easeoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"callFunction": "removeSoftwareFromSlot",
+													"sid": 957567251761927,
+													"parameters": [
+														"Main_Software.UID"
+													]
+												},
+												{
+													"id": "wait-for-previous-actions",
+													"objectClass": "System",
+													"sid": 591932572856258
+												},
+												{
+													"id": "set-enabled",
+													"objectClass": "Main_Software",
+													"sid": 478417386995552,
+													"behaviorType": "DragDrop",
+													"parameters": {
+														"state": "enabled"
+													}
+												}
+											],
+											"sid": 456772913259958
+										}
+									]
+								}
+							],
+							"sid": 750031295751274
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Level Selection",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Switch levels in the main menu."
+								},
+								{
+									"functionName": "switchLevel",
+									"functionDescription": "Switch levels in the main menu.",
+									"functionCategory": "Menu",
+									"functionReturnType": "none",
+									"functionCopyPicked": false,
+									"functionIsAsync": false,
+									"functionParameters": [
+										{
+											"name": "direction",
+											"type": "string",
+											"initialValue": "left",
+											"comment": "Previous or next level?",
+											"sid": 454401394171562
+										}
+									],
+									"eventType": "function-block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 423624312388987,
+											"parameters": {
+												"object": "Main_Arrows",
+												"expression": "Main_Arrows.TagAt(0)",
+												"comparison": 0,
+												"value": "direction"
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Main_Arrows",
+											"sid": 364003574500795,
+											"parameters": {
+												"instance-variable": "enabled"
+											}
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Main_Arrows",
+											"sid": 938915593204094,
+											"behaviorType": "Tween",
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playSFX",
+											"sid": 926874173189875,
+											"parameters": [
+												"\"selectLow\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Main_Arrows",
+											"sid": 130486334458044,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ButtonPress\"",
+												"property": "scale",
+												"end-x": "0.75",
+												"end-y": "0.75",
+												"time": "0.05",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "yes",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 395289106895979,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Subtract level by 1."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-eventvar",
+													"objectClass": "System",
+													"sid": 144645409983581,
+													"parameters": {
+														"variable": "direction",
+														"comparison": 0,
+														"value": "\"left\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 925717111055358,
+													"parameters": {
+														"variable": "selectedLevel",
+														"value": "max(1, selectedLevel - 1)"
+													}
+												}
+											],
+											"sid": 636136435537372
+										},
+										{
+											"eventType": "comment",
+											"text": "Increase level by 1."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 694438964145270
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 510968175559723,
+													"parameters": {
+														"variable": "selectedLevel",
+														"value": "min(Functions.pGetLevel, selectedLevel + 1)"
+													}
+												}
+											],
+											"sid": 374218269446523
+										},
+										{
+											"eventType": "comment",
+											"text": "Update UI."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-text",
+													"objectClass": "Main_LevelNo",
+													"sid": 547295973651466,
+													"parameters": {
+														"text": "\"Level \" & selectedLevel"
+													}
+												},
+												{
+													"id": "set-animation",
+													"objectClass": "Main_Thumbnail",
+													"sid": 436900225068747,
+													"parameters": {
+														"animation": "\"Level\" & selectedLevel",
+														"from": "beginning"
+													}
+												},
+												{
+													"callFunction": "updateSelectionArrows",
+													"sid": 136796724195078
+												}
+											],
+											"sid": 624028990965281
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Update level selection arrows."
+								},
+								{
+									"functionName": "updateSelectionArrows",
+									"functionDescription": "Update level selection arrows.",
+									"functionCategory": "Menu",
+									"functionReturnType": "none",
+									"functionCopyPicked": false,
+									"functionIsAsync": false,
+									"functionParameters": [],
+									"eventType": "function-block",
+									"conditions": [],
+									"actions": [],
+									"sid": 186435071099585,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Left arrow."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 555493766399884,
+													"parameters": {
+														"object": "Main_Arrows",
+														"expression": "Main_Arrows.TagAt(0)",
+														"comparison": 0,
+														"value": "\"left\""
+													}
+												}
+											],
+											"actions": [],
+											"sid": 554649755832957,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-eventvar",
+															"objectClass": "System",
+															"sid": 958138559002409,
+															"parameters": {
+																"variable": "selectedLevel",
+																"comparison": 4,
+																"value": "1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-boolean-instvar",
+															"objectClass": "Main_Arrows",
+															"sid": 452239407925362,
+															"parameters": {
+																"instance-variable": "enabled",
+																"value": "true"
+															}
+														},
+														{
+															"id": "set-opacity",
+															"objectClass": "Main_Arrows",
+															"sid": 861085263187596,
+															"parameters": {
+																"opacity": "100"
+															}
+														}
+													],
+													"sid": 476303187558811
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 842878673329013
+														}
+													],
+													"actions": [
+														{
+															"id": "set-boolean-instvar",
+															"objectClass": "Main_Arrows",
+															"sid": 823540085805951,
+															"parameters": {
+																"instance-variable": "enabled",
+																"value": "false"
+															}
+														},
+														{
+															"id": "set-opacity",
+															"objectClass": "Main_Arrows",
+															"sid": 582904191931784,
+															"parameters": {
+																"opacity": "25"
+															}
+														}
+													],
+													"sid": 815119605030138
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Right arrow."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 225092920564307,
+													"parameters": {
+														"object": "Main_Arrows",
+														"expression": "Main_Arrows.TagAt(0)",
+														"comparison": 0,
+														"value": "\"right\""
+													}
+												}
+											],
+											"actions": [],
+											"sid": 643791359591181,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-eventvar",
+															"objectClass": "System",
+															"sid": 923855674167313,
+															"parameters": {
+																"variable": "selectedLevel",
+																"comparison": 2,
+																"value": "Functions.pGetLevel"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-boolean-instvar",
+															"objectClass": "Main_Arrows",
+															"sid": 697044749404990,
+															"parameters": {
+																"instance-variable": "enabled",
+																"value": "true"
+															}
+														},
+														{
+															"id": "set-opacity",
+															"objectClass": "Main_Arrows",
+															"sid": 404919303135935,
+															"parameters": {
+																"opacity": "100"
+															}
+														}
+													],
+													"sid": 262843931241030
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 603208184509132
+														}
+													],
+													"actions": [
+														{
+															"id": "set-boolean-instvar",
+															"objectClass": "Main_Arrows",
+															"sid": 421309775555030,
+															"parameters": {
+																"instance-variable": "enabled",
+																"value": "false"
+															}
+														},
+														{
+															"id": "set-opacity",
+															"objectClass": "Main_Arrows",
+															"sid": 884519595447144,
+															"parameters": {
+																"opacity": "25"
+															}
+														}
+													],
+													"sid": 412734323404018
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Check if functionality below is available."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 839635111573204,
+											"parameters": {
+												"variable": "shopScreen"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Main_WhiteFader",
+											"sid": 356297065777799,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Main_BlackFader",
+											"sid": 449067794920717,
+											"behaviorType": "Tween",
+											"isInverted": true
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 920814278927538,
+											"parameters": {
+												"value": "Functions.draggingSoftware"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [],
+									"sid": 855389484951483,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Switch levels with the keyboard."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-key-pressed",
+													"objectClass": "Keyboard",
+													"sid": 548022699780193,
+													"parameters": {
+														"key": 37
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "switchLevel",
+													"sid": 786608211117458,
+													"parameters": [
+														"\"left\""
+													]
+												}
+											],
+											"sid": 590030635969632
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-key-pressed",
+													"objectClass": "Keyboard",
+													"sid": 958051445783005,
+													"parameters": {
+														"key": 39
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "switchLevel",
+													"sid": 560879231492015,
+													"parameters": [
+														"\"right\""
+													]
+												}
+											],
+											"sid": 513508137315037
+										},
+										{
+											"eventType": "comment",
+											"text": "Switch levels."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-touched-object",
+													"objectClass": "Touch",
+													"sid": 599929033754604,
+													"parameters": {
+														"object": "Main_Arrows",
+														"type": "start"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 492948177231323,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Subtract level by 1."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "has-tags",
+															"objectClass": "Main_Arrows",
+															"sid": 532591576452849,
+															"parameters": {
+																"tags": "\"left\""
+															}
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "switchLevel",
+															"sid": 169149016981825,
+															"parameters": [
+																"\"left\""
+															]
+														}
+													],
+													"sid": 480115475020747
+												},
+												{
+													"eventType": "comment",
+													"text": "Increase level by 1."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 955599275914594
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "switchLevel",
+															"sid": 124593346683207,
+															"parameters": [
+																"\"right\""
+															]
+														}
+													],
+													"sid": 783280080967211
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Play the selected level."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-touched-object",
+													"objectClass": "Touch",
+													"sid": 530403695806175,
+													"parameters": {
+														"object": "Main_Play",
+														"type": "start"
+													}
+												},
+												{
+													"id": "on-key-pressed",
+													"objectClass": "Keyboard",
+													"sid": 298934651560655,
+													"parameters": {
+														"key": 32
+													}
+												},
+												{
+													"id": "on-key-pressed",
+													"objectClass": "Keyboard",
+													"sid": 209240093327748,
+													"parameters": {
+														"key": 13
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "playSFX",
+													"sid": 792981657466351,
+													"parameters": [
+														"\"confirm\"",
+														"\"SFX\"",
+														"0",
+														"1"
+													]
+												},
+												{
+													"type": "comment",
+													"text": "Play button animation."
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "Main_Play",
+													"sid": 527043712260040,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"ButtonPress\"",
+														"property": "scale",
+														"end-x": "0.75",
+														"end-y": "0.75",
+														"time": "0.075",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "yes",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Disable drag and drop."
+												},
+												{
+													"id": "set-enabled",
+													"objectClass": "Main_Software",
+													"sid": 452993783604262,
+													"behaviorType": "DragDrop",
+													"parameters": {
+														"state": "disabled"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Show fader."
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "Main_BlackFader",
+													"sid": 877433313816746,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"ShowFader\"",
+														"property": "offsetOpacity",
+														"end-value": "100",
+														"time": "0.5",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												}
+											],
+											"sid": 456577957091054,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Store current loadout."
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "set-at-x",
+															"objectClass": "ArrLoadout",
+															"sid": 535558344293705,
+															"parameters": {
+																"x": "0",
+																"value": "\"Bruteforce\""
+															}
+														},
+														{
+															"id": "set-at-x",
+															"objectClass": "ArrLoadout",
+															"sid": 237578474454920,
+															"parameters": {
+																"x": "1",
+																"value": "\"\""
+															}
+														},
+														{
+															"id": "set-at-x",
+															"objectClass": "ArrLoadout",
+															"sid": 111052255757867,
+															"parameters": {
+																"x": "2",
+																"value": "\"\""
+															}
+														},
+														{
+															"id": "set-at-x",
+															"objectClass": "ArrLoadout",
+															"sid": 434244944924388,
+															"parameters": {
+																"x": "3",
+																"value": "\"\""
+															}
+														},
+														{
+															"id": "set-at-x",
+															"objectClass": "ArrLoadout",
+															"sid": 735553470154779,
+															"parameters": {
+																"x": "4",
+																"value": "\"\""
+															}
+														}
+													],
+													"sid": 218146621880389
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "for-each",
+															"objectClass": "System",
+															"sid": 968306740635383,
+															"parameters": {
+																"object": "Main_Slot"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 257482947465378,
+													"children": [
+														{
+															"eventType": "comment",
+															"text": "Software is an exploit."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "compare-instance-variable",
+																	"objectClass": "Main_Slot",
+																	"sid": 959661985080675,
+																	"parameters": {
+																		"instance-variable": "exploit",
+																		"comparison": 1,
+																		"value": "\"\""
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-at-x",
+																	"objectClass": "ArrLoadout",
+																	"sid": 503072168088160,
+																	"parameters": {
+																		"x": "loopindex + 1",
+																		"value": "\"Exploit_\" & Main_Slot.exploit"
+																	}
+																}
+															],
+															"sid": 192454399721109
+														},
+														{
+															"eventType": "comment",
+															"text": "Software is not an exploit."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "else",
+																	"objectClass": "System",
+																	"sid": 476336750852663
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-at-x",
+																	"objectClass": "ArrLoadout",
+																	"sid": 276505827341334,
+																	"parameters": {
+																		"x": "loopindex + 1",
+																		"value": "Main_Slot.software"
+																	}
+																}
+															],
+															"sid": 855998865518373
+														}
+													]
+												},
+												{
+													"eventType": "comment",
+													"text": "Start the level."
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "wait-for-previous-actions",
+															"objectClass": "System",
+															"sid": 426574631417586
+														},
+														{
+															"id": "go-to-layout",
+															"objectClass": "System",
+															"sid": 896583401656542,
+															"parameters": {
+																"layout": "Game"
+															}
+														}
+													],
+													"sid": 328653515783236
+												}
+											],
+											"isOrBlock": true
+										}
+									]
+								}
+							],
+							"sid": 455812258129413
+						}
+					],
+					"sid": 122032032621722
+				}
+			],
+			"sid": 239934210319090
+		}
+	],
+	"sid": 469357360060530
+}

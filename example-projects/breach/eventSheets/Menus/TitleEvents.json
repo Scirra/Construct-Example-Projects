@@ -1,0 +1,1093 @@
+{
+	"name": "TitleEvents",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "mainMenuEnabled",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Can the player go to the main menu?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 896701851958831
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "BGM Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Pick a random order to play the BGM."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 247163331271124
+						}
+					],
+					"actions": [
+						{
+							"id": "createPermutationTable",
+							"objectClass": "AdvancedRandom",
+							"sid": 272749644862413,
+							"parameters": {
+								"length": "3",
+								"offset": "0"
+							}
+						},
+						{
+							"id": "shufflePermutationTable",
+							"objectClass": "AdvancedRandom",
+							"sid": 265644498648980
+						}
+					],
+					"sid": 156214420353516
+				}
+			],
+			"sid": 366072824190812
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player Profile",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Request default profile file."
+				},
+				{
+					"functionName": "createNewProfile",
+					"functionDescription": "Create a new player profile.",
+					"functionCategory": "Profile",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "request-project-file",
+							"objectClass": "AJAX",
+							"sid": 933513586518407,
+							"parameters": {
+								"tag": "\"DefaultProfile\"",
+								"file": {
+									"path": "Dictionaries/DictProfile.json.json"
+								}
+							}
+						}
+					],
+					"sid": 603714602578619
+				},
+				{
+					"eventType": "comment",
+					"text": "Create new player profile, based on the default profile."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 311541774600575,
+							"parameters": {
+								"tag": "\"DefaultProfile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "DictProfile",
+							"sid": 300279923360220,
+							"parameters": {
+								"json": "AJAX.LastData"
+							}
+						},
+						{
+							"callFunction": "saveProfile",
+							"sid": 798736725215747
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 717924122525774
+						}
+					],
+					"sid": 268526285494248
+				},
+				{
+					"eventType": "comment",
+					"text": "Save player profile."
+				},
+				{
+					"functionName": "saveProfile",
+					"functionDescription": "Save player profile.",
+					"functionCategory": "Profile",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": true,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "set-item",
+							"objectClass": "LocalStorage",
+							"sid": 637810464679393,
+							"parameters": {
+								"key": "\"Profile\"",
+								"value": "DictProfile.AsJSON"
+							}
+						}
+					],
+					"sid": 470357177126820
+				},
+				{
+					"eventType": "comment",
+					"text": "Start player profile setup process."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 231285184287277
+						}
+					],
+					"actions": [
+						{
+							"id": "check-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 709502819241368,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"sid": 940548595521224
+				},
+				{
+					"eventType": "comment",
+					"text": "If the player already has a profile, load it."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-exists",
+							"objectClass": "LocalStorage",
+							"sid": 509478610808267,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "get-item",
+							"objectClass": "LocalStorage",
+							"sid": 537496062558537,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"sid": 877530072688183
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-get",
+							"objectClass": "LocalStorage",
+							"sid": 935669455865029,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "load",
+							"objectClass": "DictProfile",
+							"sid": 789026649676436,
+							"parameters": {
+								"json": "LocalStorage.ItemValue"
+							}
+						}
+					],
+					"sid": 468608226858593
+				},
+				{
+					"eventType": "comment",
+					"text": "Otherwise, create a new profile."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-item-missing",
+							"objectClass": "LocalStorage",
+							"sid": 377853149628312,
+							"parameters": {
+								"key": "\"Profile\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "createNewProfile",
+							"sid": 671054428223200
+						}
+					],
+					"sid": 592564462316129
+				}
+			],
+			"sid": 599651871563400
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Title Screen",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Title Screen Setup",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Setup title screen."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-start-of-layout",
+									"objectClass": "System",
+									"sid": 632639037069723
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Enable important groups."
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 161963825941048,
+									"parameters": {
+										"group-name": "\"Main Menu\"",
+										"state": "activated"
+									}
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 393274393740252,
+									"parameters": {
+										"group-name": "\"Main Screen\"",
+										"state": "activated"
+									}
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 550339104648215,
+									"parameters": {
+										"group-name": "\"Shop Menu\"",
+										"state": "activated"
+									}
+								},
+								{
+									"id": "set-group-active",
+									"objectClass": "System",
+									"sid": 244061604064169,
+									"parameters": {
+										"group-name": "\"Settings Screen\"",
+										"state": "activated"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Hide top fader."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Title_TopFader",
+									"sid": 161656726685563,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideTopfader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "2",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 123624970490471,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Setup \"do anything\" text."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-on-mobile",
+											"objectClass": "PlatformInfo",
+											"sid": 828720931660429
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "Title_DoAnythingText",
+											"sid": 911962026901490,
+											"parameters": {
+												"text": "\"[outlineBack=#000000][lineThickness=4]Tap anywhere to start.\""
+											}
+										}
+									],
+									"sid": 500012702665102
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 770499687348477
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "Title_DoAnythingText",
+											"sid": 957938946621301,
+											"parameters": {
+												"text": "\"[outlineBack=#000000][lineThickness=4]Click anywhere to start.\""
+											}
+										}
+									],
+									"sid": 741954993815667
+								},
+								{
+									"eventType": "comment",
+									"text": "Start screen animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Turn the screen LED on."
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 521422043600715,
+											"parameters": {
+												"seconds": "1",
+												"use-timescale": true
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Title_LED",
+											"sid": 472212771784336,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShowLED\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "0.5",
+												"ease": "easeoutcubic",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Animate screen."
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 224806667762484
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "Title_ScreenAnim",
+											"sid": 745483894973064,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ScreenAnimWhite\"",
+												"start-value": "0",
+												"end-value": "100",
+												"time": "1",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Title_BackgroundFader",
+											"sid": 500872788389568,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"HideBackgroundFader\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "5",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Show \"do anything\" text."
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 872878132731976,
+											"parameters": {
+												"seconds": "1.5",
+												"use-timescale": true
+											}
+										},
+										{
+											"id": "flash",
+											"objectClass": "Title_DoAnythingText",
+											"sid": 178929323930217,
+											"behaviorType": "Flash",
+											"parameters": {
+												"on-time": "0.3",
+												"off-time": "0.2",
+												"duration": "Infinity"
+											}
+										},
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 789851843596507,
+											"parameters": {
+												"variable": "mainMenuEnabled",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 686024616557904
+								},
+								{
+									"eventType": "comment",
+									"text": "Load data."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Load arrays."
+										},
+										{
+											"id": "request-project-file",
+											"objectClass": "AJAX",
+											"sid": 484831417031609,
+											"parameters": {
+												"tag": "\"ArrSoftware\"",
+												"file": {
+													"path": "Arrays/ArrSoftware.json"
+												}
+											}
+										},
+										{
+											"id": "request-project-file",
+											"objectClass": "AJAX",
+											"sid": 514341232772321,
+											"parameters": {
+												"tag": "\"ArrLevels\"",
+												"file": {
+													"path": "Arrays/ArrLevels.json"
+												}
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Load dictionaries."
+										},
+										{
+											"id": "request-project-file",
+											"objectClass": "AJAX",
+											"sid": 224381278797481,
+											"parameters": {
+												"tag": "\"DictNodeDesc\"",
+												"file": {
+													"path": "Dictionaries/DictNodeDesc.json"
+												}
+											}
+										},
+										{
+											"id": "request-project-file",
+											"objectClass": "AJAX",
+											"sid": 123144272169976,
+											"parameters": {
+												"tag": "\"DictRewards\"",
+												"file": {
+													"path": "Dictionaries/DictRewards.json"
+												}
+											}
+										}
+									],
+									"sid": 649480432593222
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Load all information into their corresponding containers."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-completed",
+									"objectClass": "AJAX",
+									"sid": 361928636935447,
+									"parameters": {
+										"tag": "\"ArrSoftware\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "load",
+									"objectClass": "ArrSoftware",
+									"sid": 435501770007306,
+									"parameters": {
+										"json": "AJAX.LastData"
+									}
+								}
+							],
+							"sid": 276149360293246
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-completed",
+									"objectClass": "AJAX",
+									"sid": 386864255683819,
+									"parameters": {
+										"tag": "\"ArrLevels\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "load",
+									"objectClass": "ArrLevel",
+									"sid": 624301197667285,
+									"parameters": {
+										"json": "AJAX.LastData"
+									}
+								}
+							],
+							"sid": 799979857471831
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-completed",
+									"objectClass": "AJAX",
+									"sid": 477458252533878,
+									"parameters": {
+										"tag": "\"DictNodeDesc\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "load",
+									"objectClass": "DictNodeDesc",
+									"sid": 185290562663220,
+									"parameters": {
+										"json": "AJAX.LastData"
+									}
+								}
+							],
+							"sid": 865911999582122
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-completed",
+									"objectClass": "AJAX",
+									"sid": 827157205119560,
+									"parameters": {
+										"tag": "\"DictRewards\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "load",
+									"objectClass": "DictRewards",
+									"sid": 178320316062753,
+									"parameters": {
+										"json": "AJAX.LastData"
+									}
+								}
+							],
+							"sid": 155793625313651
+						}
+					],
+					"sid": 446554030560104
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Title Screen Continuous",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Scroll the background and scanlines."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-image-offset-y",
+									"objectClass": "Title_Background",
+									"sid": 892742229923926,
+									"parameters": {
+										"offset-y": "Self.ImageOffsetY + 750 * dt"
+									}
+								},
+								{
+									"id": "set-image-offset-y",
+									"objectClass": "Title_Scanlines",
+									"sid": 239201451268935,
+									"parameters": {
+										"offset-y": "Self.ImageOffsetY - 100 * dt"
+									}
+								}
+							],
+							"sid": 289585782697750
+						}
+					],
+					"sid": 282196900024878
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Title Screen Animations",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "Title_ScreenAnim",
+									"sid": 823988341392734,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ScreenAnimWhite\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-effect-parameter",
+									"objectClass": "Title_ScreenAnim",
+									"sid": 887610545310268,
+									"parameters": {
+										"effect": "\"AdjustHSL\"",
+										"parameter-index": "2",
+										"value": "Self.Tween.Value(\"ScreenAnimWhite\")"
+									}
+								}
+							],
+							"sid": 136132188951856
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-tweens-finished",
+									"objectClass": "Title_ScreenAnim",
+									"sid": 457378582954283,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ScreenAnimWhite\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "Title_ScreenAnim",
+									"sid": 144222711601493,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowContent\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "1.5",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 309901950296307
+						}
+					],
+					"sid": 662704886092840
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Title Screen Skip",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Go to the main menu / tutorial."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-tap",
+									"objectClass": "Touch",
+									"sid": 286991591674681
+								},
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 474272823764510,
+									"parameters": {
+										"key": 32
+									}
+								},
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 568702004973542,
+									"parameters": {
+										"key": 13
+									}
+								}
+							],
+							"actions": [],
+							"sid": 563944178341524,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 267253596852406,
+											"parameters": {
+												"variable": "mainMenuEnabled"
+											}
+										},
+										{
+											"id": "is-any-playing",
+											"objectClass": "Title_ScreenAnim",
+											"sid": 535132160411213,
+											"behaviorType": "Tween",
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "playSFX",
+											"sid": 430826991405868,
+											"parameters": [
+												"\"confirm\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										},
+										{
+											"type": "comment",
+											"text": "Make the display cover the whole screen."
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Title_ScreenAnim",
+											"sid": 473298188870012,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"HideContent\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Title_Vignette",
+											"sid": 694116361154890,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"HideVignette\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Title_Display",
+											"sid": 924731883064456,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"IncreaseDisplaySize\"",
+												"property": "scale",
+												"end-x": "4",
+												"end-y": "4",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Stop flashing the \"do anything\" message."
+										},
+										{
+											"id": "stop-flashing",
+											"objectClass": "Title_DoAnythingText",
+											"sid": 876938809564294,
+											"behaviorType": "Flash"
+										},
+										{
+											"id": "set-visible",
+											"objectClass": "Title_DoAnythingText",
+											"sid": 746731785904251,
+											"parameters": {
+												"visibility": "invisible"
+											}
+										},
+										{
+											"id": "wait-for-previous-actions",
+											"objectClass": "System",
+											"sid": 883345020108778
+										}
+									],
+									"sid": 579551018985594,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the player has already completed the tutorial, go to the main menu."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-value",
+													"objectClass": "DictProfile",
+													"sid": 479750889317885,
+													"parameters": {
+														"key": "\"Level\"",
+														"comparison": 4,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "go-to-layout",
+													"objectClass": "System",
+													"sid": 709436307219080,
+													"parameters": {
+														"layout": "MainMenu"
+													}
+												}
+											],
+											"sid": 901786427492614
+										},
+										{
+											"eventType": "comment",
+											"text": "Otherwise go to the tutorial session."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 516920680640173
+												}
+											],
+											"actions": [
+												{
+													"type": "comment",
+													"text": "Set global variables."
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 642048250119770,
+													"parameters": {
+														"variable": "level",
+														"value": "0"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 847367007170380,
+													"parameters": {
+														"variable": "selectedLevel",
+														"value": "0"
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Set starting loadout."
+												},
+												{
+													"id": "set-at-x",
+													"objectClass": "ArrLoadout",
+													"sid": 239376561616096,
+													"parameters": {
+														"x": "0",
+														"value": "\"Bruteforce\""
+													}
+												},
+												{
+													"id": "set-at-x",
+													"objectClass": "ArrLoadout",
+													"sid": 917376194645536,
+													"parameters": {
+														"x": "1",
+														"value": "\"\""
+													}
+												},
+												{
+													"id": "set-at-x",
+													"objectClass": "ArrLoadout",
+													"sid": 355634541660297,
+													"parameters": {
+														"x": "2",
+														"value": "\"\""
+													}
+												},
+												{
+													"id": "set-at-x",
+													"objectClass": "ArrLoadout",
+													"sid": 681704446590944,
+													"parameters": {
+														"x": "3",
+														"value": "\"\""
+													}
+												},
+												{
+													"id": "set-at-x",
+													"objectClass": "ArrLoadout",
+													"sid": 937109162036328,
+													"parameters": {
+														"x": "4",
+														"value": "\"\""
+													}
+												},
+												{
+													"type": "comment",
+													"text": "Go to the game."
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 604925897907921,
+													"parameters": {
+														"seconds": "0",
+														"use-timescale": true
+													}
+												},
+												{
+													"id": "go-to-layout",
+													"objectClass": "System",
+													"sid": 809184148952271,
+													"parameters": {
+														"layout": "Game"
+													}
+												}
+											],
+											"sid": 316545500618478
+										}
+									]
+								}
+							],
+							"isOrBlock": true
+						}
+					],
+					"sid": 669484108180006
+				}
+			],
+			"sid": 538272519361630
+		}
+	],
+	"sid": 825132644289476
+}

@@ -29,7 +29,7 @@
 			"eventType": "variable",
 			"name": "JUMP_STRENGTH",
 			"type": "number",
-			"initialValue": "90",
+			"initialValue": "500",
 			"comment": "",
 			"isStatic": false,
 			"isConstant": true,
@@ -39,7 +39,7 @@
 			"eventType": "variable",
 			"name": "GRAVITY",
 			"type": "number",
-			"initialValue": "210",
+			"initialValue": "1200",
 			"comment": "",
 			"isStatic": false,
 			"isConstant": true,
@@ -127,10 +127,10 @@
 						{
 							"id": "set-eventvar-value",
 							"objectClass": "System",
-							"sid": 454407088508517,
+							"sid": 989465781804142,
 							"parameters": {
 								"variable": "StartZ",
-								"value": "Player.ZElevation"
+								"value": "Player.Z"
 							}
 						}
 					],
@@ -146,29 +146,22 @@
 						{
 							"id": "compare-z-elevation",
 							"objectClass": "Player",
-							"sid": 376122651163391,
+							"sid": 429649857356561,
 							"parameters": {
 								"which": "z-elevation",
 								"comparison": 3,
-								"z-elevation": "-100"
+								"z-elevation": "-1000"
 							}
 						}
 					],
 					"actions": [
 						{
-							"id": "set-position",
+							"id": "set-position-3d",
 							"objectClass": "Player",
-							"sid": 496278560120577,
+							"sid": 700536971213069,
 							"parameters": {
 								"x": "StartX",
-								"y": "StartY"
-							}
-						},
-						{
-							"id": "set-z-elevation",
-							"objectClass": "Player",
-							"sid": 107203200081470,
-							"parameters": {
+								"y": "StartY",
 								"z": "StartZ"
 							}
 						},
@@ -194,7 +187,7 @@
 				},
 				{
 					"eventType": "comment",
-					"text": "The PlayerCamera object is attached to the player following its position and angle, but handles Z elevation separately. This is to allow it to smooth out the Z elevation when moving up stairs."
+					"text": "The PlayerCamera object is attached to the player following its position and angle, but handles Z separately. This is to allow it to smooth out the Z changes when moving up stairs."
 				},
 				{
 					"eventType": "block",
@@ -223,11 +216,11 @@
 								"child": "PlayerCam",
 								"transform-x": true,
 								"transform-y": true,
+								"transform-z-elevation": false,
 								"transform-w": false,
 								"transform-h": false,
 								"transform-a": true,
 								"transform-o": false,
-								"transform-z-elevation": false,
 								"transform-visibility": false,
 								"destroy-with-parent": false
 							}
@@ -261,9 +254,9 @@
 						{
 							"id": "set-z-elevation",
 							"objectClass": "Player",
-							"sid": 278708760773536,
+							"sid": 116251375463299,
 							"parameters": {
-								"z": "Self.ZElevation + VectorZ * dt"
+								"z": "Self.Z + VectorZ * dt"
 							}
 						}
 					],
@@ -271,7 +264,7 @@
 				},
 				{
 					"eventType": "comment",
-					"text": "Pressing space or right-clicking causes the player to jump, by setting the [i]dz[/i] variable to a positive number (meaning moving up on the Z axis). This can only be done if the player is on the ground."
+					"text": "Pressing space or right-clicking causes the player to jump, by setting the [i]VectorZ[/i] variable to a positive number (meaning moving up on the Z axis). This can only be done if the player is on the ground."
 				},
 				{
 					"eventType": "block",
@@ -352,11 +345,11 @@
 						{
 							"id": "look-parallel-to-layout",
 							"objectClass": "3DCamera",
-							"sid": 157706256159748,
+							"sid": 817202283982828,
 							"parameters": {
 								"cam-x": "PlayerCam.X",
 								"cam-y": "PlayerCam.Y",
-								"cam-z": "PlayerCam.ZElevation + 6",
+								"cam-z": "PlayerCam.Z + 35",
 								"look-angle": "PlayerCam.Angle"
 							}
 						}
@@ -380,11 +373,11 @@
 						{
 							"id": "set-position",
 							"objectClass": "3DCamera",
-							"sid": 658688872491561,
+							"sid": 258475826221370,
 							"parameters": {
 								"x": "PlayerCam.X",
 								"y": "PlayerCam.Y",
-								"z": "PlayerCam.ZElevation + 6",
+								"z": "PlayerCam.Z + 35",
 								"which": "camera"
 							}
 						},
@@ -401,7 +394,7 @@
 				},
 				{
 					"eventType": "comment",
-					"text": "When the player left clicks, request pointer lock so they can easily look in any direction. Note this can only be done in a user-input event, and can't be done automatically on startup."
+					"text": "When the player left clicks, request pointer lock so they can easily look in any direction. Note in browsers this can only be done in a user-input event, and can't be done automatically on startup."
 				},
 				{
 					"eventType": "block",
@@ -644,7 +637,7 @@
 			"children": [
 				{
 					"eventType": "comment",
-					"text": "Handle the player landing on the ground. If the player is falling, they are overlapping a 3D shape in 2D, and the player's Z elevation is also within the Z height of the 3D shape, then the player should land on it. Note the detection counts anywhere in the top 5 units on the Z axis as landing on the 3D shape. This is because falling can step several units per frame, so the player could fall in a range of locations within the 3D shape. By handling a fairly large range and snapping the player back to the top of the shape, the result is the player reliably lands exactly on top of the shape."
+					"text": "Handle the player landing on the ground. If the player is falling, they are overlapping a 3D shape in 2D, and the player's Z is also within the Z size of the 3D shape, then the player should land on it. Note the detection counts anywhere in the top 30 units on the Z axis as landing on the 3D shape. This is because falling can step several units per frame, so the player could fall in a range of locations within the 3D shape. By handling a fairly large range and snapping the player back to the top of the shape, the result is the player reliably lands exactly on top of the shape."
 				},
 				{
 					"eventType": "variable",
@@ -680,21 +673,21 @@
 						{
 							"id": "compare-z-elevation",
 							"objectClass": "3DGround",
-							"sid": 592152276628219,
+							"sid": 171448894502456,
 							"parameters": {
 								"which": "z-elevation",
 								"comparison": 5,
-								"z-elevation": "Player.ZElevation - Self.ZHeight"
+								"z-elevation": "Player.Z - Self.Depth"
 							}
 						},
 						{
 							"id": "compare-z-elevation",
 							"objectClass": "3DGround",
-							"sid": 495023477984737,
+							"sid": 370743133990045,
 							"parameters": {
 								"which": "z-elevation",
 								"comparison": 3,
-								"z-elevation": "Player.ZElevation - Self.ZHeight + 5"
+								"z-elevation": "Player.Z - Self.Depth + 30"
 							}
 						}
 					],
@@ -711,18 +704,18 @@
 						{
 							"id": "set-eventvar-value",
 							"objectClass": "System",
-							"sid": 331465371881989,
+							"sid": 229287975099501,
 							"parameters": {
 								"variable": "PlayerOldZ",
-								"value": "Player.ZElevation"
+								"value": "Player.Z"
 							}
 						},
 						{
 							"id": "set-z-elevation",
 							"objectClass": "Player",
-							"sid": 744418605994273,
+							"sid": 871233973203176,
 							"parameters": {
-								"z": "3DGround.ZElevation + 3DGround.ZHeight"
+								"z": "3DGround.Z + 3DGround.Depth"
 							}
 						}
 					],
@@ -730,7 +723,7 @@
 					"children": [
 						{
 							"eventType": "comment",
-							"text": "Note the [i]PlayerOnGround[/i] flag has not been updated yet - it's still left as the value from the previous tick. So if the player was on the ground last tick, and they are snapping up to a new Z elevation at least 0.5 units higher than before, then the player is moving up a step. Normally this would snap the camera up which would look unnatural. To improve how this looks, instead smoothly tween the PlayerCam object's Z elevation up to where the player has moved."
+							"text": "Note the [i]PlayerOnGround[/i] flag has not been updated yet - it's still left as the value from the previous tick. So if the player was on the ground last tick, and they are snapping up to a new Z elevation at least 3 units higher than before, then the player is moving up a step. Normally this would snap the camera up which would look unnatural. To improve how this looks, instead smoothly tween the PlayerCam object's Z elevation up to where the player has moved."
 						},
 						{
 							"eventType": "block",
@@ -746,11 +739,11 @@
 								{
 									"id": "compare-eventvar",
 									"objectClass": "System",
-									"sid": 125889120617672,
+									"sid": 759748354909105,
 									"parameters": {
 										"variable": "PlayerOldZ",
 										"comparison": 3,
-										"value": "Player.ZElevation - 0.5"
+										"value": "Player.Z - 3"
 									}
 								}
 							],
@@ -764,12 +757,12 @@
 								{
 									"id": "tween-one-property",
 									"objectClass": "PlayerCam",
-									"sid": 301923103904249,
+									"sid": 328525841959835,
 									"behaviorType": "Tween",
 									"parameters": {
 										"tags": "\"\"",
 										"property": "offsetZElevation",
-										"end-value": "Player.ZElevation",
+										"end-value": "Player.Z",
 										"time": "0.1",
 										"ease": "easeoutsine",
 										"destroy-on-complete": "no",
@@ -848,9 +841,9 @@
 						{
 							"id": "set-z-elevation",
 							"objectClass": "PlayerCam",
-							"sid": 234192163618794,
+							"sid": 442389617047314,
 							"parameters": {
-								"z": "Player.ZElevation"
+								"z": "Player.Z"
 							}
 						}
 					],
@@ -858,7 +851,7 @@
 				},
 				{
 					"eventType": "comment",
-					"text": "The 3D shapes for the ground have the Solid behavior. This should only be enabled if the player Z elevation is within its Z height, otherwise it should be disabled so they are able to pass it overhead or underneath. Note that the 3D shape the player is landing on or standing on must remain disabled otherwise the solid behavior will interfere with the player movement. So a small offset is applied so the solid behavior remains disabled if the player is within 1 unit of the 3D shape's top."
+					"text": "The 3D shapes for the ground have the Solid behavior. This should only be enabled if the player Z elevation is within its Z height, otherwise it should be disabled so they are able to pass it overhead or underneath. Note that the 3D shape the player is landing on or standing on must remain disabled otherwise the solid behavior will interfere with the player movement. So a small offset is applied so the solid behavior remains disabled if the player is within 6 units of the 3D shape's top."
 				},
 				{
 					"eventType": "block",
@@ -888,21 +881,21 @@
 						{
 							"id": "compare-z-elevation",
 							"objectClass": "3DGround",
-							"sid": 824639577694726,
+							"sid": 712531736126064,
 							"parameters": {
 								"which": "z-elevation",
 								"comparison": 4,
-								"z-elevation": "Player.ZElevation - Self.ZHeight + 1"
+								"z-elevation": "Player.Z - Self.Depth + 6"
 							}
 						},
 						{
 							"id": "compare-z-elevation",
 							"objectClass": "3DGround",
-							"sid": 321402554345667,
+							"sid": 666448617135779,
 							"parameters": {
 								"which": "z-elevation",
 								"comparison": 2,
-								"z-elevation": "Player.ZElevation"
+								"z-elevation": "Player.Z"
 							}
 						}
 					],
