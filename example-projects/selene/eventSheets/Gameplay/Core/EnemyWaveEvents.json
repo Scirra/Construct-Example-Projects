@@ -1,0 +1,3864 @@
+{
+	"name": "EnemyWaveEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Enemy settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "SELF_DESTRUCT_DISTANCE",
+			"type": "number",
+			"initialValue": "2048",
+			"comment": "Enemy self-destructs if still beyond this distance from the moon when the timer ends.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 850453128555621
+		},
+		{
+			"eventType": "variable",
+			"name": "SPAWN_DISTANCE",
+			"type": "number",
+			"initialValue": "6000",
+			"comment": "Distance between enemy spawn and the moon.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 950473844588330
+		},
+		{
+			"eventType": "comment",
+			"text": "Wave settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "BASE_BUDGET",
+			"type": "number",
+			"initialValue": "10",
+			"comment": "Difficulty budget is added on top of this budget.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 423323285226963
+		},
+		{
+			"eventType": "variable",
+			"name": "BASE_ENEMY_CD",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "Time taken for an enemy to spawn.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 275389795721357
+		},
+		{
+			"eventType": "variable",
+			"name": "MIN_ENEMY_CD",
+			"type": "number",
+			"initialValue": "1.5",
+			"comment": "Minimum time taken for an enemy to spawn.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 270592065067090
+		},
+		{
+			"eventType": "variable",
+			"name": "ENEMY_CD_REDUCTION",
+			"type": "number",
+			"initialValue": "0.25",
+			"comment": "How much enemy spawn cooldown is reduced each wave.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 703960806046112
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Enemies",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Enemies - Actions",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Change target."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Change target",
+							"objectClass": "Enemy",
+							"functionDescription": "Change target.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "targetUID",
+									"type": "number",
+									"initialValue": "-1",
+									"comment": "UID of the next target (building). Use -1 for random.",
+									"sid": 387588369602420
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "stop-timer",
+									"objectClass": "Enemy",
+									"sid": 877324971877150,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"Patience\""
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Enemy",
+									"sid": 774161144154249,
+									"parameters": {
+										"instance-variable": "foundTarget",
+										"value": "false"
+									}
+								},
+								{
+									"id": "stop-tweens",
+									"objectClass": "Enemy",
+									"sid": 453511378480426,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ChangeSpeed\""
+									}
+								},
+								{
+									"id": "tween-value",
+									"objectClass": "Enemy",
+									"sid": 437024060102864,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ChangeSpeed\"",
+										"start-value": "Self.speed",
+										"end-value": "Self.baseSpeed",
+										"time": "1",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 865606595971608,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Random building."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 292448198648002,
+											"parameters": {
+												"variable": "targetUID",
+												"comparison": 0,
+												"value": "-1"
+											}
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 516066497944238,
+											"parameters": {
+												"object": "Buildings",
+												"expression": "Buildings.destroyed = 0"
+											}
+										},
+										{
+											"id": "pick-random-instance",
+											"objectClass": "System",
+											"sid": 772051136158945,
+											"parameters": {
+												"object": "Buildings"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Enemy",
+											"sid": 417283357305236,
+											"parameters": {
+												"instance-variable": "target",
+												"value": "Buildings.UID"
+											}
+										},
+										{
+											"customAction": "Move to angle A",
+											"objectClass": "Enemy",
+											"sid": 956154999129708,
+											"parameters": [
+												"angle(Moon.X, Moon.Y, Buildings.X, Buildings.Y)"
+											]
+										}
+									],
+									"sid": 445838649384947
+								},
+								{
+									"eventType": "comment",
+									"text": "Specific building."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 478758183097289
+										},
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Buildings",
+											"sid": 537803030129692,
+											"parameters": {
+												"unique-id": "targetUID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Enemy",
+											"sid": 689904344655489,
+											"parameters": {
+												"instance-variable": "target",
+												"value": "targetUID"
+											}
+										},
+										{
+											"customAction": "Move to angle A",
+											"objectClass": "Enemy",
+											"sid": 486119787768996,
+											"parameters": [
+												"angle(Moon.X, Moon.Y, Buildings.X, Buildings.Y)"
+											]
+										}
+									],
+									"sid": 193896951621185
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Move to (X, Y) position."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Move to XY",
+							"objectClass": "Enemy",
+							"functionDescription": "Move to (X, Y) position.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "x",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "X coordinate.",
+									"sid": 811120860001152
+								},
+								{
+									"name": "y",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Y coordinate.",
+									"sid": 635164261952974
+								},
+								{
+									"name": "patience",
+									"type": "number",
+									"initialValue": "5",
+									"comment": "Enemy patience time (s) before attempting another action.",
+									"sid": 518890026726735
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 234802455872293,
+									"parameters": {
+										"instance-variable": "moveToX",
+										"value": "x"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 201405194065932,
+									"parameters": {
+										"instance-variable": "moveToY",
+										"value": "y"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 930367962477350,
+									"parameters": {
+										"instance-variable": "action",
+										"value": "\"movingToXY\""
+									}
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "Enemy",
+									"sid": 771751144247376,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "patience",
+										"type": "once",
+										"tag": "\"Patience\""
+									}
+								}
+							],
+							"sid": 105943682711193
+						},
+						{
+							"eventType": "comment",
+							"text": "Move around the moon to angle A relative to its center."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Move to angle A",
+							"objectClass": "Enemy",
+							"functionDescription": "Move around the moon to angle A relative to its center.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "a",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Angle A.",
+									"sid": 982868896278765
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 824850536791644,
+									"parameters": {
+										"instance-variable": "action",
+										"value": "\"movingToAngleA\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 724166266159325,
+									"parameters": {
+										"instance-variable": "moveToAngleA",
+										"value": "a"
+									}
+								}
+							],
+							"sid": 109358837144189
+						},
+						{
+							"eventType": "comment",
+							"text": "Rotate toward angle A."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Rotate toward angle A",
+							"objectClass": "Enemy",
+							"functionDescription": "Rotate toward angle A.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "a",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Angle A.",
+									"sid": 512913222582734
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 330893378096284,
+									"parameters": {
+										"instance-variable": "angleA",
+										"value": "a"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 913160941209577,
+									"parameters": {
+										"instance-variable": "action",
+										"value": "\"rotatingTowardA\""
+									}
+								}
+							],
+							"sid": 293007196601781
+						},
+						{
+							"eventType": "comment",
+							"text": "Enemy got hit."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Hit",
+							"objectClass": "Enemy",
+							"functionDescription": "Enemy got hit.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "damage",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Damage taken.",
+									"sid": 798380774631219
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Enemy",
+									"sid": 663015752571884,
+									"parameters": {
+										"instance-variable": "destroyed"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Reduce enemy health."
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Enemy",
+									"sid": 181956511967354,
+									"parameters": {
+										"instance-variable": "hp",
+										"value": "damage"
+									}
+								}
+							],
+							"sid": 679776507325299,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Enemy survived the hit."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Enemy",
+											"sid": 804956809305684,
+											"parameters": {
+												"instance-variable": "hp",
+												"comparison": 4,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 897168754602729,
+											"parameters": [
+												"\"Hit\"",
+												"\"SFX\"",
+												"-4",
+												"random(0.95, 1.15)"
+											]
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "Enemy",
+											"sid": 137826885551930,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"FlashEnemy\"",
+												"start-value": "100",
+												"end-value": "150",
+												"time": "0.075",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "yes",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 293512720825480
+								},
+								{
+									"eventType": "comment",
+									"text": "Enemy was destroyed by the hit."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 373864835934494
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 607688162380328,
+											"parameters": [
+												"\"Explosion\" & choose(1, 2)",
+												"\"SFX\"",
+												"-8",
+												"random(0.95, 1.15)"
+											]
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Enemy",
+											"sid": 393001016087147,
+											"parameters": {
+												"instance-variable": "destroyed",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 155923620934324,
+											"parameters": {
+												"variable": "numOfEnemies",
+												"value": "max(numOfEnemies - 1, 0)"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "UI_TextEnemies",
+											"sid": 613562488999745,
+											"parameters": {
+												"text": "numOfEnemies"
+											}
+										},
+										{
+											"id": "destroy",
+											"objectClass": "Enemy",
+											"sid": 452038567419765
+										},
+										{
+											"callFunction": "fxExplosion",
+											"sid": 255076599862429,
+											"parameters": [
+												"Enemy.X",
+												"Enemy.Y",
+												"\"Enemy\"",
+												"HexColor(\"#ffffff\")",
+												"0.25"
+											]
+										}
+									],
+									"sid": 975923223658614,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the number of enemies is 0, the wave is over."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-eventvar",
+													"objectClass": "System",
+													"sid": 708690421578726,
+													"parameters": {
+														"variable": "numOfEnemies",
+														"comparison": 3,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "add-to-eventvar",
+													"objectClass": "System",
+													"sid": 481166334076560,
+													"parameters": {
+														"variable": "wave",
+														"value": "1"
+													}
+												},
+												{
+													"id": "set-text",
+													"objectClass": "UI_TextWave",
+													"sid": 897056281306356,
+													"parameters": {
+														"text": "min(wave, numOfWaves) & \"/\" & numOfWaves"
+													}
+												}
+											],
+											"sid": 180919206916363,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "If there are no more waves left, it's game over."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-eventvar",
+															"objectClass": "System",
+															"sid": 160218952622234,
+															"parameters": {
+																"variable": "wave",
+																"comparison": 0,
+																"value": "numOfWaves + 1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "displayEndScreen",
+															"sid": 531378155021630,
+															"parameters": [
+																true
+															]
+														}
+													],
+													"sid": 247967334420196
+												},
+												{
+													"eventType": "comment",
+													"text": "Otherwise, go back to building mode."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 152218543816013
+														}
+													],
+													"actions": [
+														{
+															"callFunction": "animWaveClear",
+															"sid": 102191515843535
+														},
+														{
+															"callFunction": "switchToBuildGM",
+															"sid": 205200241954177
+														}
+													],
+													"sid": 942274080583234
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Flash the enemy."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "Enemy",
+									"sid": 352099395633627,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FlashEnemy\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-effect-parameter",
+									"objectClass": "Enemy",
+									"sid": 227870640461654,
+									"parameters": {
+										"effect": "\"AdjustHSL\"",
+										"parameter-index": "2",
+										"value": "Self.Tween.Value(\"FlashEnemy\")"
+									}
+								}
+							],
+							"sid": 122552711810252
+						},
+						{
+							"eventType": "comment",
+							"text": "Shoot a projectile at the target."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Shoot",
+							"objectClass": "Enemy",
+							"functionDescription": "Shoot a projectile at the target.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Buildings",
+									"sid": 961410491455280,
+									"parameters": {
+										"unique-id": "Enemy.target"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 186227598192324,
+									"parameters": [
+										"\"Shoot\"",
+										"\"SFX\"",
+										"-5",
+										"random(0.95, 1.15)"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Set current action."
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 701741346028698,
+									"parameters": {
+										"instance-variable": "action",
+										"value": "\"shooting\""
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create projectile."
+								},
+								{
+									"id": "spawn-another-object",
+									"objectClass": "Enemy",
+									"sid": 477122351642183,
+									"parameters": {
+										"object": "EnemyProjectile",
+										"layer": "\"Projectiles\"",
+										"image-point": "\"FireSpot\"",
+										"create-hierarchy": false,
+										"template-name": "Self.projectile"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create muzzle flash."
+								},
+								{
+									"callFunction": "fxMuzzleFlash",
+									"sid": 406775723441983,
+									"parameters": [
+										"Enemy.ImagePointX(\"FireSpot\")",
+										"Enemy.ImagePointY(\"FireSpot\")",
+										"\"Turret\"",
+										"Enemy.Angle",
+										"HexColor(\"#ffffff\")"
+									]
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 863926350762959,
+									"parameters": {
+										"seconds": "Enemy.rateOfFire",
+										"use-timescale": true
+									}
+								}
+							],
+							"sid": 204907021874478,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Make sure the enemy has not changed state while reloading. If it has, do not override its current action."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Enemy",
+											"sid": 171214552592639,
+											"parameters": {
+												"instance-variable": "action",
+												"comparison": 0,
+												"value": "\"shooting\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Act (ranged)",
+											"objectClass": "Enemy",
+											"sid": 391304674617268
+										}
+									],
+									"sid": 446640914405444
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Pick an action (melee)."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Act (melee)",
+							"objectClass": "Enemy",
+							"functionDescription": "Pick an action (melee)",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "stop-timer",
+									"objectClass": "Enemy",
+									"sid": 835116883926921,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"Patience\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 501898907119296,
+									"parameters": {
+										"instance-variable": "action",
+										"value": "\"thinking\""
+									}
+								}
+							],
+							"sid": 477466900736758,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the melee enemy already found its target, attack it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Enemy",
+											"sid": 456497323227826,
+											"parameters": {
+												"instance-variable": "foundTarget"
+											}
+										},
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Buildings",
+											"sid": 751215884111101,
+											"parameters": {
+												"unique-id": "Enemy.target"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Increase movement speed."
+										},
+										{
+											"id": "stop-tweens",
+											"objectClass": "Enemy",
+											"sid": 438953410542831,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ChangeSpeed\""
+											}
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "Enemy",
+											"sid": 216636108997557,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ChangeSpeed\"",
+												"start-value": "Self.speed",
+												"end-value": "Self.baseSpeed * 3",
+												"time": "2",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move."
+										},
+										{
+											"customAction": "Move to XY",
+											"objectClass": "Enemy",
+											"sid": 269303275604827,
+											"parameters": [
+												"Buildings.X",
+												"Buildings.Y",
+												"60"
+											]
+										}
+									],
+									"sid": 524879397945685
+								},
+								{
+									"eventType": "comment",
+									"text": "Acquire a target and navigate to it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 877057137918831
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 510125942464685,
+											"parameters": {
+												"object": "Buildings",
+												"expression": "Buildings.destroyed = 0"
+											}
+										},
+										{
+											"id": "pick-random-instance",
+											"objectClass": "System",
+											"sid": 779544637939544,
+											"parameters": {
+												"object": "Buildings"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Set target."
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Enemy",
+											"sid": 828006081749477,
+											"parameters": {
+												"instance-variable": "target",
+												"value": "Buildings.UID"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Enemy",
+											"sid": 834315324037375,
+											"parameters": {
+												"instance-variable": "foundTarget",
+												"value": "true"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Decrease movement speed."
+										},
+										{
+											"id": "stop-tweens",
+											"objectClass": "Enemy",
+											"sid": 586188231678996,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ChangeSpeed\""
+											}
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "Enemy",
+											"sid": 425898784873943,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ChangeSpeed\"",
+												"start-value": "Self.speed",
+												"end-value": "Self.baseSpeed",
+												"time": "1",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Move."
+										},
+										{
+											"customAction": "Move to angle A",
+											"objectClass": "Enemy",
+											"sid": 840537903799016,
+											"parameters": [
+												"angle(Moon.X, Moon.Y, Buildings.X, Buildings.Y)"
+											]
+										}
+									],
+									"sid": 653354007216300
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Pick an action (ranged)."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Act (ranged)",
+							"objectClass": "Enemy",
+							"functionDescription": "Pick an action (ranged).",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Buildings",
+									"sid": 515248243823201,
+									"parameters": {
+										"unique-id": "Enemy.target"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "stop-timer",
+									"objectClass": "Enemy",
+									"sid": 569313104614426,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"Patience\""
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 277742151385682,
+									"parameters": {
+										"instance-variable": "action",
+										"value": "\"thinking\""
+									}
+								}
+							],
+							"sid": 974787733925071,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Shoot."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 258552789521133,
+											"parameters": {
+												"value": "random(1) < Enemy.aggressiveness"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Enemy",
+											"sid": 809315434023383,
+											"parameters": {
+												"instance-variable": "action",
+												"value": "\"aiming\""
+											}
+										}
+									],
+									"sid": 513268401180657
+								},
+								{
+									"eventType": "comment",
+									"text": "Move the enemy to a nearby position at the same distance from the moon, but with a slightly different angle."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 422896957711455
+										}
+									],
+									"actions": [],
+									"sid": 302379559895877,
+									"children": [
+										{
+											"eventType": "variable",
+											"name": "newAngleOffset",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Offset the enemy position by this angle.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 462327294180033
+										},
+										{
+											"eventType": "variable",
+											"name": "currAngle",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Current angle to the moon.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 169560008260533
+										},
+										{
+											"eventType": "variable",
+											"name": "currAngleOffset",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Current angle offset.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 355848483543358
+										},
+										{
+											"eventType": "variable",
+											"name": "newPosX",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "New X position.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 712840334221565
+										},
+										{
+											"eventType": "variable",
+											"name": "newPosY",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "New Y position.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 769815520579619
+										},
+										{
+											"eventType": "comment",
+											"text": "Set newPosX and newPosY to the position of the enemy."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 960622140196137,
+													"parameters": {
+														"variable": "newPosX",
+														"value": "Enemy.X"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 762418741426424,
+													"parameters": {
+														"variable": "newPosY",
+														"value": "Enemy.Y"
+													}
+												}
+											],
+											"sid": 483444830281426
+										},
+										{
+											"eventType": "comment",
+											"text": "Get a distant enough position to move to."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "while",
+													"objectClass": "System",
+													"sid": 391086248997284
+												},
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 832551947764883,
+													"parameters": {
+														"value": "distance(Enemy.X, Enemy.Y, newPosX, newPosY) < 128"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 202476278948706,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"type": "comment",
+															"text": "Compute current angle to the moon and its offset to the base attack angle."
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 224036154267121,
+															"parameters": {
+																"variable": "currAngle",
+																"value": "angle(Moon.X, Moon.Y, Enemy.X, Enemy.Y)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 807411971091180,
+															"parameters": {
+																"variable": "currAngleOffset",
+																"value": "anglediff(Enemy.baseAttackAngle, currAngle)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 571471329710362,
+															"parameters": {
+																"variable": "newAngleOffset",
+																"value": "random(-20, 20)"
+															}
+														},
+														{
+															"type": "comment",
+															"text": "Set new (X, Y) position."
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 924715231263802,
+															"parameters": {
+																"variable": "newPosX",
+																"value": "Buildings.X + Enemy.range * cos(Enemy.baseAttackAngle + newAngleOffset)"
+															}
+														},
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 202699402567824,
+															"parameters": {
+																"variable": "newPosY",
+																"value": "Buildings.Y + Enemy.range * sin(Enemy.baseAttackAngle + newAngleOffset)"
+															}
+														}
+													],
+													"sid": 648274709435777
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Move there."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"customAction": "Move to XY",
+													"objectClass": "Enemy",
+													"sid": 659070593021544,
+													"parameters": [
+														"newPosX",
+														"newPosY",
+														"5"
+													]
+												}
+											],
+											"sid": 549362578910117
+										}
+									]
+								}
+							]
+						}
+					],
+					"sid": 338518774386313
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Enemies - Movement",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Process enemy movement based on the current action."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 745641964541269,
+									"parameters": {
+										"object": "Enemy"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 602223421943326,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Move enemy toward (X, Y)."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Enemy",
+											"sid": 792384293978850,
+											"parameters": {
+												"instance-variable": "action",
+												"comparison": 0,
+												"value": "\"movingToXY\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 337321367392196,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Enemy arrived. Look for the next action."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 630535666415384,
+													"parameters": {
+														"value": "distance(Enemy.X, Enemy.Y, Enemy.moveToX, Enemy.moveToY) < 32"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 251289495792046,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "Enemy",
+															"sid": 950329886162218,
+															"parameters": {
+																"instance-variable": "range",
+																"comparison": 4,
+																"value": "0"
+															}
+														}
+													],
+													"actions": [
+														{
+															"customAction": "Act (ranged)",
+															"objectClass": "Enemy",
+															"sid": 810735416312521
+														}
+													],
+													"sid": 665964310445502
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 406548351863423
+														}
+													],
+													"actions": [
+														{
+															"customAction": "Act (melee)",
+															"objectClass": "Enemy",
+															"sid": 280921272576277
+														}
+													],
+													"sid": 899762214573660
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Enemy hasn't arrived yet. Keep moving."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 231718443051942
+												}
+											],
+											"actions": [
+												{
+													"id": "rotate-toward-position",
+													"objectClass": "Enemy",
+													"sid": 141440655865547,
+													"parameters": {
+														"degrees": "Self.rotSpeed * dt",
+														"x": "Self.moveToX",
+														"y": "Self.moveToY"
+													}
+												},
+												{
+													"id": "move-forward",
+													"objectClass": "Enemy",
+													"sid": 573585806908675,
+													"parameters": {
+														"distance": "Self.speed * dt"
+													}
+												}
+											],
+											"sid": 461377015894907
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Rotate enemy toward angle A (ranged only)."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 300746632279319
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Enemy",
+											"sid": 346299275776134,
+											"parameters": {
+												"instance-variable": "action",
+												"comparison": 0,
+												"value": "\"rotatingTowardA\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 112578160104490,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Enemy is facing the correct direction."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 701624326290050,
+													"parameters": {
+														"value": "abs(anglediff(Enemy.Angle, Enemy.angleA)) < 0.1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Act (ranged)",
+													"objectClass": "Enemy",
+													"sid": 273886241440345
+												}
+											],
+											"sid": 252083031637274
+										},
+										{
+											"eventType": "comment",
+											"text": "Enemy is still rotating."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 831932262236632
+												}
+											],
+											"actions": [
+												{
+													"id": "rotate-toward-angle",
+													"objectClass": "Enemy",
+													"sid": 507235528552315,
+													"parameters": {
+														"degrees": "Self.rotSpeed * dt",
+														"angle": "Self.angleA"
+													}
+												}
+											],
+											"sid": 666731791302259
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Make enemy aim at its target (ranged only)."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 820636983144642
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Enemy",
+											"sid": 507880075630603,
+											"parameters": {
+												"instance-variable": "action",
+												"comparison": 0,
+												"value": "\"aiming\""
+											}
+										},
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Buildings",
+											"sid": 797071136765951,
+											"parameters": {
+												"unique-id": "Enemy.target"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 411668641533437,
+									"children": [
+										{
+											"eventType": "variable",
+											"name": "angleToTarget",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Angle between the enemy and the target.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 282339165690328
+										},
+										{
+											"eventType": "comment",
+											"text": "Compute angle between the enemy and the target."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 416960629786318,
+													"parameters": {
+														"variable": "angleToTarget",
+														"value": "angle(Enemy.X, Enemy.Y, Buildings.X, Buildings.Y)"
+													}
+												}
+											],
+											"sid": 933241916070882
+										},
+										{
+											"eventType": "comment",
+											"text": "Enemy is facing the correct direction. Shoot!"
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 623465494970389,
+													"parameters": {
+														"value": "abs(anglediff(Enemy.Angle, angleToTarget)) < 0.01"
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Shoot",
+													"objectClass": "Enemy",
+													"sid": 364005459339051
+												}
+											],
+											"sid": 463162039543366
+										},
+										{
+											"eventType": "comment",
+											"text": "Keep rotating toward the target."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 771971301398564
+												}
+											],
+											"actions": [
+												{
+													"id": "rotate-toward-angle",
+													"objectClass": "Enemy",
+													"sid": 934003247967899,
+													"parameters": {
+														"degrees": "Self.rotSpeed * dt",
+														"angle": "angleToTarget"
+													}
+												}
+											],
+											"sid": 807264167521783
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Move enemy to a new angle relative to the moon."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 184305086978203
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Enemy",
+											"sid": 160825286876518,
+											"parameters": {
+												"instance-variable": "action",
+												"comparison": 0,
+												"value": "\"movingToAngleA\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 644780946696913,
+									"children": [
+										{
+											"eventType": "variable",
+											"name": "angleStep",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "How much the enemy will move.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 762034383706035
+										},
+										{
+											"eventType": "variable",
+											"name": "orbitSpeed",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "How fast the enemy orbits, given its standard movement speed.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 473311766836951
+										},
+										{
+											"eventType": "variable",
+											"name": "newAngle",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "New angle from the moon.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 751047479733271
+										},
+										{
+											"eventType": "variable",
+											"name": "currAngle",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Current angle to the moon.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 866644141304846
+										},
+										{
+											"eventType": "variable",
+											"name": "newPosX",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "New X position.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 615284202293673
+										},
+										{
+											"eventType": "variable",
+											"name": "newPosY",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "New Y position.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 553462263702334
+										},
+										{
+											"eventType": "variable",
+											"name": "distanceFromMoon",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Distance from the moon.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 568523051235551
+										},
+										{
+											"eventType": "comment",
+											"text": "Computer the current angle to the moon."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 810071574058057,
+													"parameters": {
+														"variable": "currAngle",
+														"value": "angle(Moon.X, Moon.Y, Enemy.X, Enemy.Y)"
+													}
+												}
+											],
+											"sid": 962881218194659
+										},
+										{
+											"eventType": "comment",
+											"text": "Enemy reached the destination."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 213655918023981,
+													"parameters": {
+														"value": "abs(anglediff(currAngle, Enemy.moveToAngleA)) < 0.1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Enemy",
+													"sid": 107389968350989,
+													"parameters": {
+														"instance-variable": "baseAttackAngle",
+														"value": "Enemy.moveToAngleA"
+													}
+												}
+											],
+											"sid": 914020509621408,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "Enemy",
+															"sid": 980706955059243,
+															"parameters": {
+																"instance-variable": "range",
+																"comparison": 4,
+																"value": "0"
+															}
+														}
+													],
+													"actions": [
+														{
+															"customAction": "Act (ranged)",
+															"objectClass": "Enemy",
+															"sid": 102012223602438
+														}
+													],
+													"sid": 314245593633072
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 695182134815946
+														}
+													],
+													"actions": [
+														{
+															"customAction": "Act (melee)",
+															"objectClass": "Enemy",
+															"sid": 752638923537841
+														}
+													],
+													"sid": 216424121363589
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Enemy is still moving to the new position."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 288528957749675
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 309025862426425,
+													"parameters": {
+														"variable": "distanceFromMoon",
+														"value": "distance(Moon.X, Moon.Y, Enemy.X, Enemy.Y)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 739497259317468,
+													"parameters": {
+														"variable": "orbitSpeed",
+														"value": "Enemy.speed / distanceFromMoon * (180 / pi)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 606358063211361,
+													"parameters": {
+														"variable": "angleStep",
+														"value": "orbitSpeed * dt"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 831515835013205,
+													"parameters": {
+														"variable": "newAngle",
+														"value": "anglelerp(currAngle, Enemy.moveToAngleA, min(1, angleStep / abs(anglediff(currAngle, Enemy.moveToAngleA))))"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 561691734658258,
+													"parameters": {
+														"variable": "newPosX",
+														"value": "Moon.X + distanceFromMoon * cos(newAngle)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 333337367840400,
+													"parameters": {
+														"variable": "newPosY",
+														"value": "Moon.Y + distanceFromMoon * sin(newAngle)"
+													}
+												},
+												{
+													"id": "rotate-toward-position",
+													"objectClass": "Enemy",
+													"sid": 178576563970909,
+													"parameters": {
+														"degrees": "Self.rotSpeed * dt",
+														"x": "newPosX",
+														"y": "newPosY"
+													}
+												},
+												{
+													"id": "set-position",
+													"objectClass": "Enemy",
+													"sid": 514886895602741,
+													"parameters": {
+														"x": "newPosX",
+														"y": "newPosY"
+													}
+												}
+											],
+											"sid": 899864213489555
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Enemy ran out of patience trying to perform an action. Let it do something else."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-timer",
+									"objectClass": "Enemy",
+									"sid": 584904030204551,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"Patience\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 817712524774743,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Enemy",
+											"sid": 740877536511397,
+											"parameters": {
+												"instance-variable": "range",
+												"comparison": 4,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Act (ranged)",
+											"objectClass": "Enemy",
+											"sid": 748013406127149
+										}
+									],
+									"sid": 606022196406254
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 991994557907483
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Act (melee)",
+											"objectClass": "Enemy",
+											"sid": 342704471542914
+										}
+									],
+									"sid": 447288648180845
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Change enemy speed according to tween value (melee only)."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "Enemy",
+									"sid": 347453361139637,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ChangeSpeed\""
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Enemy",
+									"sid": 167058914243313,
+									"parameters": {
+										"instance-variable": "range",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Enemy",
+									"sid": 492991659917952,
+									"parameters": {
+										"instance-variable": "speed",
+										"value": "Self.Tween.Value(\"ChangeSpeed\")"
+									}
+								}
+							],
+							"sid": 589278580546174
+						}
+					],
+					"sid": 234113143740030
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Enemies - Projectiles",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Destroy projectiles that exit the layout."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 461839436307576,
+									"parameters": {
+										"object": "EnemyProjectile"
+									}
+								},
+								{
+									"id": "is-outside-layout",
+									"objectClass": "EnemyProjectile",
+									"sid": 706215585575912
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "EnemyProjectile",
+									"sid": 320323785843037
+								}
+							],
+							"sid": 435893162493379
+						},
+						{
+							"eventType": "comment",
+							"text": "Projectile hit a building."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "EnemyProjectile",
+									"sid": 891986353734138,
+									"parameters": {
+										"object": "Buildings"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Damage",
+									"objectClass": "Buildings",
+									"sid": 124695053012284,
+									"parameters": [
+										"EnemyProjectile.power"
+									]
+								},
+								{
+									"callFunction": "fxProjectileHit",
+									"sid": 618206701427020,
+									"parameters": [
+										"EnemyProjectile.X",
+										"EnemyProjectile.Y",
+										"\"Generic\"",
+										"HexColor(\"#ffffff\")"
+									]
+								},
+								{
+									"id": "destroy",
+									"objectClass": "EnemyProjectile",
+									"sid": 210158202773777
+								}
+							],
+							"sid": 975751197803634
+						}
+					],
+					"sid": 510026013903720
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Enemies - General",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Enemy got hit."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "TurretProjectile",
+									"sid": 302278056271197,
+									"parameters": {
+										"object": "Enemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Destroy the bullet."
+								},
+								{
+									"id": "destroy",
+									"objectClass": "TurretProjectile",
+									"sid": 817161608787113
+								},
+								{
+									"callFunction": "fxProjectileHit",
+									"sid": 825417574441505,
+									"parameters": [
+										"TurretProjectile.X",
+										"TurretProjectile.Y",
+										"\"Generic\"",
+										"TurretProjectile.ColorValue"
+									]
+								},
+								{
+									"customAction": "Hit",
+									"objectClass": "Enemy",
+									"sid": 835661419367147,
+									"parameters": [
+										"TurretProjectile.power"
+									]
+								}
+							],
+							"sid": 433675270436774
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "GlobeProjectile",
+									"sid": 533443691839324,
+									"parameters": {
+										"object": "Enemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Destroy the bullet."
+								},
+								{
+									"id": "destroy",
+									"objectClass": "GlobeProjectile",
+									"sid": 112281764630526
+								},
+								{
+									"callFunction": "fxProjectileHit",
+									"sid": 292304824614991,
+									"parameters": [
+										"GlobeProjectile.X",
+										"GlobeProjectile.Y",
+										"\"Generic\"",
+										"GlobeProjectile.ColorValue"
+									]
+								},
+								{
+									"customAction": "Hit",
+									"objectClass": "Enemy",
+									"sid": 925075226751689,
+									"parameters": [
+										"GlobeProjectile.power"
+									]
+								}
+							],
+							"sid": 412701371018456
+						},
+						{
+							"eventType": "comment",
+							"text": "Enemy collided with a building."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "Enemy",
+									"sid": 873150831474066,
+									"parameters": {
+										"object": "Buildings"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Damage",
+									"objectClass": "Buildings",
+									"sid": 892744267760068,
+									"parameters": [
+										"Enemy.collisionDamage"
+									]
+								},
+								{
+									"customAction": "Hit",
+									"objectClass": "Enemy",
+									"sid": 155790165909181,
+									"parameters": [
+										"Infinity"
+									]
+								}
+							],
+							"sid": 746263499483601
+						},
+						{
+							"eventType": "comment",
+							"text": "If the enemy fails to approach the moon within a given interval, self-destruct to prevent potential soft-locks."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-timer",
+									"objectClass": "Enemy",
+									"sid": 746873150891781,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"SelfDestruct\""
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 269308162896413,
+									"parameters": {
+										"value": "distance(Moon.X, Moon.Y, Enemy.X, Enemy.Y) > (moonRadius + SELF_DESTRUCT_DISTANCE)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Hit",
+									"objectClass": "Enemy",
+									"sid": 611483596541379,
+									"parameters": [
+										"Infinity"
+									]
+								}
+							],
+							"sid": 953238334950112
+						},
+						{
+							"eventType": "comment",
+							"text": "Spawn an enemy."
+						},
+						{
+							"functionName": "spawnEnemy",
+							"functionDescription": "Spawn an enemy.",
+							"functionCategory": "Enemies",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "modifier",
+									"type": "string",
+									"initialValue": "enforcer",
+									"comment": "Enemy modifier.",
+									"sid": 512765389212195
+								},
+								{
+									"name": "enemyType",
+									"type": "string",
+									"initialValue": "Enemy0",
+									"comment": "Enemy type.",
+									"sid": 436059344809312
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [],
+							"sid": 729989341549739,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "spawnAngle",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Spawn the enemy at this angle from the moon.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 120664174478580
+								},
+								{
+									"eventType": "comment",
+									"text": "Spawn the enemy at a position far away from the moon."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 599515530943594,
+											"parameters": {
+												"variable": "spawnAngle",
+												"value": "random(360)\n"
+											}
+										},
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 863334914091401,
+											"parameters": {
+												"object-to-create": "Enemy",
+												"layer": "\"Enemies\"",
+												"x": "Moon.X + SPAWN_DISTANCE * cos(spawnAngle)",
+												"y": "Moon.Y + SPAWN_DISTANCE * sin(spawnAngle)",
+												"create-hierarchy": false,
+												"template-name": "enemyType"
+											}
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Enemy",
+											"sid": 361576631719098,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "30",
+												"type": "once",
+												"tag": "\"SelfDestruct\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Enemy",
+											"sid": 777744695453138,
+											"parameters": {
+												"instance-variable": "speed",
+												"value": "Self.baseSpeed * 2"
+											}
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "Enemy",
+											"sid": 767356618498972,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ChangeSpeed\"",
+												"start-value": "Self.speed",
+												"end-value": "Self.baseSpeed",
+												"time": "5",
+												"ease": "easeoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Enemy",
+											"sid": 424790517650187,
+											"parameters": {
+												"frame-number": "int(JsonEnemies.Get(\"modifiers.\" & modifier & \".animationFrame\"))"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Enemy",
+											"sid": 108588774902388,
+											"parameters": {
+												"instance-variable": "hp",
+												"value": "Self.hp * JsonEnemies.Get(\"modifiers.\" & modifier & \".healthMultiplier\")"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Enemy",
+											"sid": 356381449983370,
+											"parameters": {
+												"instance-variable": "baseSpeed",
+												"value": "Self.baseSpeed * JsonEnemies.Get(\"modifiers.\" & modifier & \".speedMultiplier\")"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Enemy",
+											"sid": 565624225270919,
+											"parameters": {
+												"instance-variable": "speed",
+												"value": "Self.speed * JsonEnemies.Get(\"modifiers.\" & modifier & \".speedMultiplier\")"
+											}
+										}
+									],
+									"sid": 619508501410807,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Pick the closest building as the target."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-highest-lowest-value",
+													"objectClass": "System",
+													"sid": 839255228633242,
+													"parameters": {
+														"object": "Buildings",
+														"which": "lowest",
+														"expression": "distance(Enemy.X, Enemy.Y, Buildings.X, Buildings.Y)",
+														"pick-all-tied": false
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Enemy",
+													"sid": 463829402382214,
+													"parameters": {
+														"instance-variable": "target",
+														"value": "Buildings.UID"
+													}
+												},
+												{
+													"id": "set-angle-toward-position",
+													"objectClass": "Enemy",
+													"sid": 863898431973592,
+													"parameters": {
+														"x": "Buildings.X",
+														"y": "Buildings.Y"
+													}
+												}
+											],
+											"sid": 597501175618396,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "If the enemy has a ranged weapon, move close enough to the building to start shooting."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "Enemy",
+															"sid": 888625779062441,
+															"parameters": {
+																"instance-variable": "range",
+																"comparison": 4,
+																"value": "0"
+															}
+														}
+													],
+													"actions": [
+														{
+															"customAction": "Move to XY",
+															"objectClass": "Enemy",
+															"sid": 855190782354795,
+															"parameters": [
+																"Buildings.X + cos(Buildings.Angle) * Enemy.range",
+																"Buildings.Y + sin(Buildings.Angle) * Enemy.range",
+																"60"
+															]
+														},
+														{
+															"id": "set-instvar-value",
+															"objectClass": "Enemy",
+															"sid": 289805548332833,
+															"parameters": {
+																"instance-variable": "baseAttackAngle",
+																"value": "angle(Moon.X, Moon.Y, Buildings.X, Buildings.Y)"
+															}
+														}
+													],
+													"sid": 995164530115855
+												},
+												{
+													"eventType": "comment",
+													"text": "Otherwise, go to the search range."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 762943582569529
+														}
+													],
+													"actions": [
+														{
+															"customAction": "Move to XY",
+															"objectClass": "Enemy",
+															"sid": 859810048247866,
+															"parameters": [
+																"Moon.X + cos(angle(Moon.X, Moon.Y, Enemy.X, Enemy.Y)) * (moonRadius + Enemy.searchRange)",
+																"Moon.Y + sin(angle(Moon.X, Moon.Y, Enemy.X, Enemy.Y)) * (moonRadius + Enemy.searchRange)",
+																"60"
+															]
+														}
+													],
+													"sid": 963402972398279
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					],
+					"sid": 623817301627862
+				}
+			],
+			"sid": 598986274943601
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Waves",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "WAVE_CLEAR_INTERVAL",
+					"type": "number",
+					"initialValue": "0.5",
+					"comment": "Wave clear animation interval.",
+					"isStatic": false,
+					"isConstant": false,
+					"sid": 247132769971337
+				},
+				{
+					"eventType": "comment",
+					"text": "Display wave clear animation."
+				},
+				{
+					"functionName": "animWaveClear",
+					"functionDescription": "Display wave clear animation.",
+					"functionCategory": "Waves",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 927321069869897,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Destroy enemies that are still alive."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 999731562586579,
+									"parameters": {
+										"object": "Enemy"
+									}
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Hit",
+									"objectClass": "Enemy",
+									"sid": 957992374207884,
+									"parameters": [
+										"Infinity"
+									]
+								}
+							],
+							"sid": 190719759677767
+						},
+						{
+							"eventType": "comment",
+							"text": "Run animation."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Bring Wave Clear into the screen."
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "UI_WaveClear",
+									"sid": 379424064484017,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UI_WaveClear",
+									"sid": 586770303818265,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"WaveClearPart1\"",
+										"property": "offsetX",
+										"end-value": "ViewportWidth(\"UI\")/2",
+										"time": "WAVE_CLEAR_INTERVAL",
+										"ease": "easeoutexpo",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UI_WaveClear",
+									"sid": 158809730773922,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowWaveClear\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "WAVE_CLEAR_INTERVAL",
+										"ease": "easeoutcubic",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Wait a little."
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 836624138483769
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 661769273539450,
+									"parameters": {
+										"seconds": "0.2",
+										"use-timescale": true
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move it outside the screen."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UI_WaveClear",
+									"sid": 498706752302209,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"WaveClearPart2\"",
+										"property": "offsetX",
+										"end-value": "-Self.Width",
+										"time": "WAVE_CLEAR_INTERVAL",
+										"ease": "easeinexpo",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UI_WaveClear",
+									"sid": 633571991151505,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideWaveClear\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "WAVE_CLEAR_INTERVAL",
+										"ease": "easeincubic",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 249726035833185
+								},
+								{
+									"id": "set-x",
+									"objectClass": "UI_WaveClear",
+									"sid": 749907467752980,
+									"parameters": {
+										"x": "ViewportWidth(\"UI\") + Self.Width"
+									}
+								}
+							],
+							"sid": 602846842230045
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Find an enemy with certain features."
+				},
+				{
+					"functionName": "findEnemy",
+					"functionDescription": "Find an enemy with certain features.",
+					"functionCategory": "Waves",
+					"functionReturnType": "string",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "role",
+							"type": "string",
+							"initialValue": "swarm",
+							"comment": "Enemy role.",
+							"sid": 236822426018362
+						},
+						{
+							"name": "strength",
+							"type": "string",
+							"initialValue": "enforcer",
+							"comment": "Enemy strength",
+							"sid": 941482112278097
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 353972203072765,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "enemy",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Enemy found.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 810704742177629
+						},
+						{
+							"eventType": "comment",
+							"text": "Find enemy."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "JsonEnemies",
+									"sid": 224365678327932,
+									"parameters": {
+										"path": "\"enemyTypes\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 609593780153217,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 741100972052459,
+											"parameters": {
+												"variable": "enemy",
+												"comparison": 0,
+												"value": "\"\""
+											}
+										},
+										{
+											"id": "compare-value",
+											"objectClass": "JsonEnemies",
+											"sid": 110400275196329,
+											"parameters": {
+												"path": "\"enemyTypes.\" & JsonEnemies.CurrentKey & \".role\" ",
+												"cmp": 0,
+												"value": "role"
+											}
+										},
+										{
+											"id": "compare-value",
+											"objectClass": "JsonEnemies",
+											"sid": 373793293393758,
+											"parameters": {
+												"path": "\"enemyTypes.\" & JsonEnemies.CurrentKey & \".strength\" ",
+												"cmp": 0,
+												"value": "strength"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 688050738639750,
+											"parameters": {
+												"variable": "enemy",
+												"value": "JsonEnemies.CurrentKey"
+											}
+										}
+									],
+									"sid": 155286275137803
+								},
+								{
+									"eventType": "comment",
+									"text": "Return enemy."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-function-return-value",
+											"objectClass": "Functions",
+											"sid": 808031828819411,
+											"parameters": {
+												"value": "enemy"
+											}
+										}
+									],
+									"sid": 812109187971201
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Pick a strength level for an enemy."
+				},
+				{
+					"functionName": "pickStrength",
+					"functionDescription": "Pick a strength level for an enemy.",
+					"functionCategory": "Waves",
+					"functionReturnType": "string",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "difficulty",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Difficulty of the wave.",
+							"sid": 243786261537765
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 431211221034715,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "weakProb",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Probability of a weak enemy being chosen.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 956710230096925
+						},
+						{
+							"eventType": "variable",
+							"name": "averageProb",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Probability of an average enemy being chosen.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 669697459553240
+						},
+						{
+							"eventType": "variable",
+							"name": "strongProb",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Probability of a strong enemy being chosen.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 122952998558746
+						},
+						{
+							"eventType": "comment",
+							"text": "Get strongest possible weights, given the difficulty."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "JsonDifficulty",
+									"sid": 565977141130282,
+									"parameters": {
+										"path": "\"strengthWeights\""
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 378403033212323,
+									"parameters": {
+										"value": "int(JsonDifficulty.CurrentKey) < difficulty"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 887076214972076,
+									"parameters": {
+										"variable": "weakProb",
+										"value": "int(JsonDifficulty.Get(\"strengthWeights.\" & JsonDifficulty.CurrentKey & \".weak\"))"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 198554331006326,
+									"parameters": {
+										"variable": "averageProb",
+										"value": "int(JsonDifficulty.Get(\"strengthWeights.\" & JsonDifficulty.CurrentKey & \".average\"))"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 960397317139050,
+									"parameters": {
+										"variable": "strongProb",
+										"value": "int(JsonDifficulty.Get(\"strengthWeights.\" & JsonDifficulty.CurrentKey & \".strong\"))"
+									}
+								}
+							],
+							"sid": 323485386080452
+						},
+						{
+							"eventType": "comment",
+							"text": "Build probability table and return a random strength from it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "createProbabilityTable",
+									"objectClass": "AdvancedRandom",
+									"sid": 645187591182031,
+									"parameters": {
+										"name": "\"Strengths\""
+									}
+								},
+								{
+									"id": "setProbabilityTable",
+									"objectClass": "AdvancedRandom",
+									"sid": 655684369106887,
+									"parameters": {
+										"name": "\"Strengths\""
+									}
+								},
+								{
+									"id": "addProbabilityEntry",
+									"objectClass": "AdvancedRandom",
+									"sid": 978468557114202,
+									"parameters": {
+										"value": "\"weak\"",
+										"weight": "weakProb"
+									}
+								},
+								{
+									"id": "addProbabilityEntry",
+									"objectClass": "AdvancedRandom",
+									"sid": 148395760528682,
+									"parameters": {
+										"value": "\"average\"",
+										"weight": "averageProb"
+									}
+								},
+								{
+									"id": "addProbabilityEntry",
+									"objectClass": "AdvancedRandom",
+									"sid": 998754871079144,
+									"parameters": {
+										"value": "\"strong\"",
+										"weight": "strongProb"
+									}
+								},
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 340809771757153,
+									"parameters": {
+										"value": "AdvancedRandom.WeightedByName(\"Strengths\")"
+									}
+								}
+							],
+							"sid": 877492644603308
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Pick a modifier for an enemy."
+				},
+				{
+					"functionName": "pickModifier",
+					"functionDescription": "Pick a modifier for an enemy.",
+					"functionCategory": "Waves",
+					"functionReturnType": "string",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "difficulty",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Difficulty of the wave.",
+							"sid": 142020955274827
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 762012179566316,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "enforcerProb",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Probability of the enemy being an enforcer.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 300223489925330
+						},
+						{
+							"eventType": "variable",
+							"name": "zenithProb",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Probability of the enemy being a zenith.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 568469314201868
+						},
+						{
+							"eventType": "variable",
+							"name": "quasarProb",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Probability of the enemy being a quasar.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 496514543050846
+						},
+						{
+							"eventType": "comment",
+							"text": "Get strongest possible weights, given the difficulty."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "JsonDifficulty",
+									"sid": 278389244676524,
+									"parameters": {
+										"path": "\"modifierWeights\""
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 800900950942241,
+									"parameters": {
+										"value": "int(JsonDifficulty.CurrentKey) < difficulty"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 243947278461927,
+									"parameters": {
+										"variable": "enforcerProb",
+										"value": "int(JsonDifficulty.Get(\"modifierWeights.\" & JsonDifficulty.CurrentKey & \".enforcer\"))"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 668638239679391,
+									"parameters": {
+										"variable": "zenithProb",
+										"value": "int(JsonDifficulty.Get(\"modifierWeights.\" & JsonDifficulty.CurrentKey & \".zenith\"))"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 869400814264874,
+									"parameters": {
+										"variable": "quasarProb",
+										"value": "int(JsonDifficulty.Get(\"modifierWeights.\" & JsonDifficulty.CurrentKey & \".quasar\"))"
+									}
+								}
+							],
+							"sid": 991237043098763
+						},
+						{
+							"eventType": "comment",
+							"text": "Build probability table and return a random modifier from it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "createProbabilityTable",
+									"objectClass": "AdvancedRandom",
+									"sid": 180728490184729,
+									"parameters": {
+										"name": "\"Modifiers\""
+									}
+								},
+								{
+									"id": "setProbabilityTable",
+									"objectClass": "AdvancedRandom",
+									"sid": 738137060774720,
+									"parameters": {
+										"name": "\"Modifiers\""
+									}
+								},
+								{
+									"id": "addProbabilityEntry",
+									"objectClass": "AdvancedRandom",
+									"sid": 821596674635006,
+									"parameters": {
+										"value": "\"enforcer\"",
+										"weight": "enforcerProb"
+									}
+								},
+								{
+									"id": "addProbabilityEntry",
+									"objectClass": "AdvancedRandom",
+									"sid": 591950803189244,
+									"parameters": {
+										"value": "\"zenith\"",
+										"weight": "zenithProb"
+									}
+								},
+								{
+									"id": "addProbabilityEntry",
+									"objectClass": "AdvancedRandom",
+									"sid": 556484136301796,
+									"parameters": {
+										"value": "\"quasar\"",
+										"weight": "quasarProb"
+									}
+								},
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 460418934953113,
+									"parameters": {
+										"value": "AdvancedRandom.WeightedByName(\"Modifiers\")"
+									}
+								}
+							],
+							"sid": 322563110378204
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Generate a wave of enemies."
+				},
+				{
+					"functionName": "genWave",
+					"functionDescription": "Generate a wave of enemies.",
+					"functionCategory": "Waves",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "archetype",
+							"type": "string",
+							"initialValue": "standard",
+							"comment": "Archetype of the wave.",
+							"sid": 816007582094174
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Clear budget dictionary and wave array."
+						},
+						{
+							"id": "clear",
+							"objectClass": "DictEnemyBudget",
+							"sid": 427475160821682
+						},
+						{
+							"id": "set-size",
+							"objectClass": "ArrWave",
+							"sid": 112680909556460,
+							"parameters": {
+								"width": "0",
+								"height": "1",
+								"depth": "1"
+							}
+						}
+					],
+					"sid": 511685405195434,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "difficulty",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Wave difficulty.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 238070156725713
+						},
+						{
+							"eventType": "variable",
+							"name": "budget",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Total budget for this wave.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 268944884528077
+						},
+						{
+							"eventType": "comment",
+							"text": "Compute wave difficulty."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 927263535677392,
+									"parameters": {
+										"variable": "difficulty",
+										"value": "baseDifficulty + wave * difficultyRamp"
+									}
+								}
+							],
+							"sid": 690160204166654
+						},
+						{
+							"eventType": "comment",
+							"text": "Set starting budget values."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Set starting budget values."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 962673140969461,
+									"parameters": {
+										"variable": "budget",
+										"value": "BASE_BUDGET + difficulty * 4"
+									}
+								},
+								{
+									"id": "add-key",
+									"objectClass": "DictEnemyBudget",
+									"sid": 897419551607996,
+									"parameters": {
+										"key": "\"swarm\"",
+										"value": "budget * JsonWaves.Get(archetype & \".swarm\")"
+									}
+								},
+								{
+									"id": "add-key",
+									"objectClass": "DictEnemyBudget",
+									"sid": 361677661546878,
+									"parameters": {
+										"key": "\"lethal\"",
+										"value": "budget * JsonWaves.Get(archetype & \".lethal\")"
+									}
+								},
+								{
+									"id": "add-key",
+									"objectClass": "DictEnemyBudget",
+									"sid": 883616590992123,
+									"parameters": {
+										"key": "\"tank\"",
+										"value": "budget * JsonWaves.Get(archetype & \".tank\")"
+									}
+								}
+							],
+							"sid": 978052311356222
+						},
+						{
+							"eventType": "comment",
+							"text": "Run the process for each enemy role."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-key",
+									"objectClass": "DictEnemyBudget",
+									"sid": 581363327275395
+								}
+							],
+							"actions": [],
+							"sid": 531771227651854,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "while",
+											"objectClass": "System",
+											"sid": 764724134493842
+										}
+									],
+									"actions": [],
+									"sid": 830915429264928,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Select strength, modifier, and enemy type."
+										},
+										{
+											"eventType": "variable",
+											"name": "strength",
+											"type": "string",
+											"initialValue": "",
+											"comment": "Enemy strength level.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 399289783634513
+										},
+										{
+											"eventType": "variable",
+											"name": "modifier",
+											"type": "string",
+											"initialValue": "",
+											"comment": "Enemy modifier.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 443127245697617
+										},
+										{
+											"eventType": "variable",
+											"name": "enemyType",
+											"type": "string",
+											"initialValue": "",
+											"comment": "Enemy type.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 233329124268041
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 867871104722645,
+													"parameters": {
+														"variable": "strength",
+														"value": "Functions.pickStrength(difficulty)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 277089115522819,
+													"parameters": {
+														"variable": "modifier",
+														"value": "Functions.pickModifier(difficulty)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 769933401013043,
+													"parameters": {
+														"variable": "enemyType",
+														"value": "Functions.findEnemy(DictEnemyBudget.CurrentKey, strength)"
+													}
+												}
+											],
+											"sid": 560652961724229
+										},
+										{
+											"eventType": "comment",
+											"text": "Compute the cost."
+										},
+										{
+											"eventType": "variable",
+											"name": "cost",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "enemy cost.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 980740484884770
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 281154788184973,
+													"parameters": {
+														"variable": "cost",
+														"value": "float(JsonEnemies.Get(\"enemyTypes.\" & enemyType & \".baseCost\")) * float(JsonEnemies.Get(\"modifiers.\" & modifier & \".costMultiplier\"))"
+													}
+												}
+											],
+											"sid": 720828509231454
+										},
+										{
+											"eventType": "comment",
+											"text": "If the wave can afford this enemy, place it in the wave array and subtract from the budget."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-current-value",
+													"objectClass": "DictEnemyBudget",
+													"sid": 673701612410426,
+													"parameters": {
+														"comparison": 5,
+														"value": "cost"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "push",
+													"objectClass": "ArrWave",
+													"sid": 206498671118005,
+													"parameters": {
+														"where": "back",
+														"value": "modifier & \" \" & enemyType",
+														"axis": "x"
+													}
+												},
+												{
+													"id": "set-key",
+													"objectClass": "DictEnemyBudget",
+													"sid": 869216477470485,
+													"parameters": {
+														"key": "Self.CurrentKey",
+														"value": "Self.CurrentValue - cost"
+													}
+												}
+											],
+											"sid": 634710643631031
+										},
+										{
+											"eventType": "comment",
+											"text": "Otherwise, fallback to the cheapest possible enemy of the current role."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 100856369229639
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 579996504665452,
+													"parameters": {
+														"variable": "strength",
+														"value": "\"weak\""
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 141226291663331,
+													"parameters": {
+														"variable": "modifier",
+														"value": "\"enforcer\""
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 424611856253082,
+													"parameters": {
+														"variable": "enemyType",
+														"value": "Functions.findEnemy(DictEnemyBudget.CurrentKey, strength)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 674594171321019,
+													"parameters": {
+														"variable": "cost",
+														"value": "float(JsonEnemies.Get(\"enemyTypes.\" & enemyType & \".baseCost\")) * float(JsonEnemies.Get(\"modifiers.\" & modifier & \".costMultiplier\"))"
+													}
+												}
+											],
+											"sid": 729288701376712,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-current-value",
+															"objectClass": "DictEnemyBudget",
+															"sid": 764705373767539,
+															"parameters": {
+																"comparison": 5,
+																"value": "cost"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "push",
+															"objectClass": "ArrWave",
+															"sid": 147326956819272,
+															"parameters": {
+																"where": "back",
+																"value": "modifier & \" \" & enemyType",
+																"axis": "x"
+															}
+														},
+														{
+															"id": "set-key",
+															"objectClass": "DictEnemyBudget",
+															"sid": 671350868666671,
+															"parameters": {
+																"key": "Self.CurrentKey",
+																"value": "Self.CurrentValue - cost"
+															}
+														}
+													],
+													"sid": 505707168811940
+												},
+												{
+													"eventType": "comment",
+													"text": "If nothing works, break."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 664739733933125
+														}
+													],
+													"actions": [
+														{
+															"id": "stop-loop",
+															"objectClass": "System",
+															"sid": 456159956882924
+														}
+													],
+													"sid": 525741228106567
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Shuffle array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "shuffle",
+									"objectClass": "ArrWave",
+									"sid": 138605048882892,
+									"parameters": {
+										"axis": "x"
+									}
+								}
+							],
+							"sid": 794532237305041
+						},
+						{
+							"eventType": "comment",
+							"text": "Print wave array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each-element",
+									"objectClass": "ArrWave",
+									"sid": 208956761690159,
+									"parameters": {
+										"axes": "x"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 916560436369293
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Start a new wave."
+				},
+				{
+					"functionName": "newWave",
+					"functionDescription": "Start a new wave.",
+					"functionCategory": "Waves",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"callFunction": "genWave",
+							"sid": 511539346123566,
+							"parameters": [
+								"choose(\"standard\", \"dangerous\", \"resilient\", \"powerful\")"
+							]
+						},
+						{
+							"id": "start-timer",
+							"objectClass": "WaveManager",
+							"sid": 467329072434304,
+							"behaviorType": "Timer",
+							"parameters": {
+								"duration": "max(BASE_ENEMY_CD - ENEMY_CD_REDUCTION * (wave - 1), MIN_ENEMY_CD)",
+								"type": "regular",
+								"tag": "\"SpawnEnemy\""
+							}
+						}
+					],
+					"sid": 863846639956531
+				},
+				{
+					"eventType": "comment",
+					"text": "Attempt to spawn an enemy."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-timer",
+							"objectClass": "WaveManager",
+							"sid": 808947862950617,
+							"behaviorType": "Timer",
+							"parameters": {
+								"tag": "\"SpawnEnemy\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 305761066524287,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If there are still enemies in ArrWave, pop one and spawn."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-size",
+									"objectClass": "ArrWave",
+									"sid": 837093415472827,
+									"parameters": {
+										"axis": "x",
+										"comparison": 4,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "spawnEnemy",
+									"sid": 823637132363370,
+									"parameters": [
+										"tokenat(ArrWave.At(0), 0, \" \")",
+										"tokenat(ArrWave.At(0), 1, \" \")"
+									]
+								},
+								{
+									"id": "pop",
+									"objectClass": "ArrWave",
+									"sid": 976789221698983,
+									"parameters": {
+										"where": "front",
+										"axis": "x"
+									}
+								}
+							],
+							"sid": 836456727719960
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, stop timer."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 268342490104646
+								}
+							],
+							"actions": [
+								{
+									"id": "stop-timer",
+									"objectClass": "WaveManager",
+									"sid": 814465703888098,
+									"behaviorType": "Timer",
+									"parameters": {
+										"tag": "\"SpawnEnemy\""
+									}
+								}
+							],
+							"sid": 937019756955521
+						}
+					]
+				}
+			],
+			"sid": 374074838885219
+		}
+	],
+	"sid": 903766301163479
+}

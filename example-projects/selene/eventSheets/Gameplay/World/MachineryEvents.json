@@ -1,0 +1,2397 @@
+{
+	"name": "MachineryEvents",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Machinery",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Machinery - Generic",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Sell machinery."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Sell",
+							"objectClass": "Machinery",
+							"functionDescription": "Sell machinery.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 280099511613185,
+									"parameters": [
+										"\"Sell\"",
+										"\"SFX\"",
+										"-4",
+										"1"
+									]
+								},
+								{
+									"callFunction": "updateBank",
+									"sid": 938926485566964,
+									"parameters": [
+										"\"Copper\"",
+										"round(int(tokenat(Machinery.cost, 0, \" \")) / 2)"
+									]
+								},
+								{
+									"callFunction": "updateBank",
+									"sid": 976060257314255,
+									"parameters": [
+										"\"Iron\"",
+										"round(int(tokenat(Machinery.cost, 1, \" \")) / 2)"
+									]
+								},
+								{
+									"callFunction": "updateBank",
+									"sid": 310745384729560,
+									"parameters": [
+										"\"Tungsten\"",
+										"round(int(tokenat(Machinery.cost, 2, \" \")) / 2)"
+									]
+								},
+								{
+									"customAction": "Destroy Machinery",
+									"objectClass": "Machinery",
+									"sid": 582373848870161,
+									"parameters": [
+										true
+									]
+								}
+							],
+							"sid": 325500357927886
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy machinery."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Destroy Machinery",
+							"objectClass": "Machinery",
+							"functionDescription": "Destroy machinery.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "sold",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "Was this machinery sold?",
+									"sid": 375018202067491
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Machinery",
+									"sid": 913002624429545,
+									"parameters": {
+										"instance-variable": "destroyed"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Machinery",
+									"sid": 651925254475005,
+									"parameters": {
+										"instance-variable": "destroyed",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 853725551818959,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "mX",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Machine X coordinate.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 262373707413429
+								},
+								{
+									"eventType": "variable",
+									"name": "mY",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Machine Y coordinate.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 851546728448205
+								},
+								{
+									"eventType": "variable",
+									"name": "EXPLOSION_OFFSET",
+									"type": "number",
+									"initialValue": "32",
+									"comment": "Explosion position offset.",
+									"isStatic": false,
+									"isConstant": true,
+									"sid": 473666773262369
+								},
+								{
+									"eventType": "comment",
+									"text": "Mark children start terminals as destroyed."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Machinery",
+											"sid": 640207101124660,
+											"parameters": {
+												"child": "StartTerminals",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "StartTerminals",
+											"sid": 339949027057388,
+											"parameters": {
+												"instance-variable": "destroyed",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 380818440359598
+								},
+								{
+									"eventType": "comment",
+									"text": "Start machinery destruction animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 157605930979093,
+											"parameters": {
+												"variable": "mX",
+												"value": "Machinery.X"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 944048329780880,
+											"parameters": {
+												"variable": "mY",
+												"value": "Machinery.Y"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Machinery",
+											"sid": 815397363795713,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"DestroyMachinery\"",
+												"property": "scale",
+												"end-x": "0",
+												"end-y": "0",
+												"time": "0.25",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"callFunction": "fxExplosion",
+											"sid": 496887459697342,
+											"parameters": [
+												"mX",
+												"mY",
+												"sold ? \"None\" : \"Machinery\"",
+												"HexColor(\"#ffffff\")",
+												"1"
+											]
+										},
+										{
+											"callFunction": "fxExplosion",
+											"sid": 385033020877713,
+											"parameters": [
+												"mX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+												"mY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+												"sold ? \"None\" : \"Machinery\"",
+												"HexColor(\"#ffffff\")",
+												"1"
+											]
+										}
+									],
+									"sid": 449804507158286,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the machine has end terminals, destroy the pipes immediately connected to them."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-children",
+													"objectClass": "Machinery",
+													"sid": 978349158726831,
+													"parameters": {
+														"child": "EndTerminals",
+														"which": "own"
+													}
+												},
+												{
+													"id": "for-each",
+													"objectClass": "System",
+													"sid": 609339911310628,
+													"parameters": {
+														"object": "EndTerminals"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 637849482606290,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 229607211550417,
+															"parameters": {
+																"object": "Pipe",
+																"expression": "Pipe.to",
+																"comparison": 0,
+																"value": "EndTerminals.UID"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 714695061881059,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-by-unique-id",
+																	"objectClass": "StartTerminals",
+																	"sid": 499503140354061,
+																	"parameters": {
+																		"unique-id": "Pipe.from"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-boolean-instvar",
+																	"objectClass": "StartTerminals",
+																	"sid": 737866615868976,
+																	"parameters": {
+																		"instance-variable": "connected",
+																		"value": "false"
+																	}
+																}
+															],
+															"sid": 106205488378086
+														},
+														{
+															"eventType": "block",
+															"conditions": [],
+															"actions": [
+																{
+																	"id": "destroy",
+																	"objectClass": "Pipe",
+																	"sid": 872255913984277
+																}
+															],
+															"sid": 718918902708867
+														}
+													]
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "If the machine has start terminals, recursively destroy the connected pipeline."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-children",
+													"objectClass": "Machinery",
+													"sid": 340618993013938,
+													"parameters": {
+														"child": "StartTerminals",
+														"which": "own"
+													}
+												},
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 341359183660910,
+													"parameters": {
+														"object": "Pipe",
+														"expression": "Pipe.from",
+														"comparison": 0,
+														"value": "StartTerminals.UID"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "pipeRecursiveUpdate",
+													"sid": 128488849071394,
+													"parameters": [
+														"pipe.UID",
+														"\"None\""
+													]
+												},
+												{
+													"callFunction": "pipeRecursiveDelete",
+													"sid": 319601332950571,
+													"parameters": [
+														"Pipe.UID"
+													]
+												}
+											],
+											"sid": 640188182395327
+										},
+										{
+											"eventType": "comment",
+											"text": "Destroy the machinery."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 888707969094113,
+													"parameters": {
+														"seconds": "0.05",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "fxExplosion",
+													"sid": 458978337204371,
+													"parameters": [
+														"mX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"mY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"sold ? \"None\" : \"Machinery\"",
+														"HexColor(\"#ffffff\")",
+														"1"
+													]
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 425165780752623,
+													"parameters": {
+														"seconds": "0.05",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "fxExplosion",
+													"sid": 855727349434911,
+													"parameters": [
+														"mX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"mY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"sold ? \"None\" : \"Machinery\"",
+														"HexColor(\"#ffffff\")",
+														"1"
+													]
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 622352477605064,
+													"parameters": {
+														"seconds": "0.05",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "fxExplosion",
+													"sid": 536270755349611,
+													"parameters": [
+														"mX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"mY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"sold ? \"None\" : \"Machinery\"",
+														"HexColor(\"#ffffff\")",
+														"1"
+													]
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 680856628596313,
+													"parameters": {
+														"seconds": "0.05",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "fxExplosion",
+													"sid": 352593087436638,
+													"parameters": [
+														"mX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"mY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"sold ? \"None\" : \"Machinery\"",
+														"HexColor(\"#ffffff\")",
+														"1"
+													]
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 308781135828171,
+													"parameters": {
+														"seconds": "0.05",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "fxExplosion",
+													"sid": 271172757576778,
+													"parameters": [
+														"mX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"mY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"sold ? \"None\" : \"Machinery\"",
+														"HexColor(\"#ffffff\")",
+														"1"
+													]
+												},
+												{
+													"id": "destroy",
+													"objectClass": "Machinery",
+													"sid": 671593024125900
+												}
+											],
+											"sid": 560590451526248
+										}
+									]
+								}
+							]
+						}
+					],
+					"sid": 281886059680945
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Extractor",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "COAL_CONSUMPTION",
+							"type": "number",
+							"initialValue": "0.0075",
+							"comment": "Coal consumption speed.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 515330402379357
+						},
+						{
+							"eventType": "variable",
+							"name": "URANIUM_CONSUMPTION",
+							"type": "number",
+							"initialValue": "0.005",
+							"comment": "Uranium consumption speed.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 329894713325915
+						},
+						{
+							"eventType": "comment",
+							"text": "Consume extractor resources during waves."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 535978082220894,
+									"parameters": {
+										"variable": "gameMode",
+										"comparison": 0,
+										"value": "\"Wave\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 203096637960435,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 413078386402497,
+											"parameters": {
+												"object": "Extractor"
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Extractor",
+											"sid": 994237674498422,
+											"parameters": {
+												"instance-variable": "resourceLeft",
+												"comparison": 4,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 912825183240069,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Update resource left."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-animation-playing",
+													"objectClass": "Extractor",
+													"sid": 392622196797704,
+													"parameters": {
+														"animation": "\"Coal\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Extractor",
+													"sid": 548043617426851,
+													"parameters": {
+														"instance-variable": "resourceLeft",
+														"value": "max(Self.resourceLeft - COAL_CONSUMPTION * dt, 0)"
+													}
+												}
+											],
+											"sid": 259672107473361
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 555526168245533
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Extractor",
+													"sid": 581672287737408,
+													"parameters": {
+														"instance-variable": "resourceLeft",
+														"value": "max(Self.resourceLeft - URANIUM_CONSUMPTION * dt, 0)"
+													}
+												}
+											],
+											"sid": 804590393937719
+										},
+										{
+											"eventType": "comment",
+											"text": "Update progress bar."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-children",
+													"objectClass": "Extractor",
+													"sid": 420666792191796,
+													"parameters": {
+														"child": "UI_ExtractorBar",
+														"which": "own"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-width",
+													"objectClass": "UI_ExtractorBar",
+													"sid": 951333317129400,
+													"parameters": {
+														"width": "Self.maxLen * Extractor.resourceLeft"
+													}
+												}
+											],
+											"sid": 177828853739111
+										},
+										{
+											"eventType": "comment",
+											"text": "If the extractor's resource is fully depleted, stop supplying the pipes with resources."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Extractor",
+													"sid": 991342819834094,
+													"parameters": {
+														"instance-variable": "resourceLeft",
+														"comparison": 3,
+														"value": "0"
+													}
+												},
+												{
+													"id": "pick-children",
+													"objectClass": "Extractor",
+													"sid": 758132890781164,
+													"parameters": {
+														"child": "SourceTerminal",
+														"which": "own"
+													}
+												},
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 584100389483951,
+													"parameters": {
+														"object": "Pipe",
+														"expression": "Pipe.from",
+														"comparison": 0,
+														"value": "SourceTerminal.UID"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Extractor",
+													"sid": 853096931246849,
+													"parameters": {
+														"instance-variable": "resource",
+														"value": "\"None\""
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "SourceTerminal",
+													"sid": 271578256839712,
+													"parameters": {
+														"instance-variable": "resource",
+														"value": "\"None\""
+													}
+												},
+												{
+													"callFunction": "pipeRecursiveUpdate",
+													"sid": 623183525850755,
+													"parameters": [
+														"Pipe.UID",
+														"\"None\""
+													]
+												}
+											],
+											"sid": 198161830787869
+										}
+									]
+								}
+							]
+						}
+					],
+					"sid": 258139964457031
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Transmuter",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update transmuter state."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Update transmuter",
+							"objectClass": "Transmuter",
+							"functionDescription": "Update transmuter state.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Transmuter",
+									"sid": 503354266995941,
+									"parameters": {
+										"child": "UraniumTerminal",
+										"which": "own"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "Transmuter",
+									"sid": 642307659370950,
+									"parameters": {
+										"child": "EnergyTerminal",
+										"which": "own"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "Transmuter",
+									"sid": 797609998991359,
+									"parameters": {
+										"child": "SourceTerminal",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 244830880327169,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "hasEnergy",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "Does the transmuter have energy to produce Plutonium?",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 485190926484493
+								},
+								{
+									"eventType": "variable",
+									"name": "hasUranium",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "Does the transmuter have uranium to produce Plutonium?",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 517938766439557
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "EnergyTerminal",
+											"sid": 664214233948938,
+											"parameters": {
+												"instance-variable": "resource",
+												"comparison": 0,
+												"value": "\"Coal\""
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "EnergyTerminal",
+											"sid": 746893893096997,
+											"parameters": {
+												"instance-variable": "resource",
+												"comparison": 0,
+												"value": "\"Solar\""
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "EnergyTerminal",
+											"sid": 404255050947569,
+											"parameters": {
+												"instance-variable": "resource",
+												"comparison": 0,
+												"value": "\"Uranium\""
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "EnergyTerminal",
+											"sid": 713126206711742,
+											"parameters": {
+												"instance-variable": "resource",
+												"comparison": 0,
+												"value": "\"Plutonium\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 411699928859819,
+											"parameters": {
+												"variable": "hasEnergy",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 460675902980724,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 497423954272861
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 213946763015843,
+											"parameters": {
+												"variable": "hasEnergy",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 719859974051061
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "UraniumTerminal",
+											"sid": 396821280667152,
+											"parameters": {
+												"instance-variable": "resource",
+												"comparison": 0,
+												"value": "\"Uranium\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 355612119023269,
+											"parameters": {
+												"variable": "hasUranium",
+												"value": "true"
+											}
+										}
+									],
+									"sid": 613037186250061
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 220644603027498
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 991006820589989,
+											"parameters": {
+												"variable": "hasUranium",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 234381890240717
+								},
+								{
+									"eventType": "comment",
+									"text": "If the transmuter has energy and uranium flow, produce plutonium."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 801110668343078,
+											"parameters": {
+												"variable": "hasEnergy"
+											}
+										},
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 367927064132123,
+											"parameters": {
+												"variable": "hasUranium"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "SourceTerminal",
+											"sid": 515941393144658,
+											"parameters": {
+												"instance-variable": "resource",
+												"value": "\"Plutonium\""
+											}
+										}
+									],
+									"sid": 454183679359064
+								},
+								{
+									"eventType": "comment",
+									"text": "Otherwise, produce nothing."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 338897666003547
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "SourceTerminal",
+											"sid": 614783371684344,
+											"parameters": {
+												"instance-variable": "resource",
+												"value": "\"None\""
+											}
+										}
+									],
+									"sid": 269606429673770
+								},
+								{
+									"eventType": "comment",
+									"text": "Recursively update pipeline."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 574370852305135,
+											"parameters": {
+												"object": "Pipe",
+												"expression": "Pipe.from",
+												"comparison": 0,
+												"value": "SourceTerminal.UID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "pipeRecursiveUpdate",
+											"sid": 330387980785968,
+											"parameters": [
+												"Pipe.UID",
+												"SourceTerminal.resource"
+											]
+										}
+									],
+									"sid": 126912412627105
+								}
+							]
+						}
+					],
+					"sid": 669492263267424
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Machine Prototype",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Show machine prototype cursor."
+						},
+						{
+							"functionName": "protoMachineCursor",
+							"functionDescription": "Show machine prototype cursor.",
+							"functionCategory": "Machinery",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "machine",
+									"type": "string",
+									"initialValue": "Extractor",
+									"comment": "Machine type.",
+									"sid": 485955950838152
+								}
+							],
+							"eventType": "function-block",
+							"conditions": [],
+							"actions": [],
+							"sid": 136398881284752,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the player can afford the machine, show the prototype."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 414594466689748,
+											"parameters": {
+												"value": "Functions.checkEnoughResources(Functions.getActionCost(machine))"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 380035901594545,
+											"parameters": [
+												"\"PickBuilding\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										}
+									],
+									"sid": 388868414159529,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the player was not in \"Machine\" mode, create the protoype."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-eventvar",
+													"objectClass": "System",
+													"sid": 464302425734936,
+													"parameters": {
+														"variable": "actionMode",
+														"comparison": 1,
+														"value": "\"Machine\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 395313241715599,
+													"parameters": {
+														"object-to-create": "ProtoMachine",
+														"layer": "\"ProtoCursor\"",
+														"x": "-100000",
+														"y": "-100000",
+														"create-hierarchy": true,
+														"template-name": "\"\""
+													}
+												},
+												{
+													"id": "set-opacity",
+													"objectClass": "ProtoMachine",
+													"sid": 450813801871194,
+													"parameters": {
+														"opacity": "0"
+													}
+												},
+												{
+													"id": "tween-one-property",
+													"objectClass": "ProtoMachine",
+													"sid": 182295544754628,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"ShowProto\"",
+														"property": "offsetOpacity",
+														"end-value": "100",
+														"time": "0.1",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												}
+											],
+											"sid": 766119813531134
+										},
+										{
+											"eventType": "comment",
+											"text": "Set correct animation and switch action mode."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-last-created",
+													"objectClass": "System",
+													"sid": 398017365217656,
+													"parameters": {
+														"object": "ProtoMachine"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation",
+													"objectClass": "ProtoMachine",
+													"sid": 642825025189745,
+													"parameters": {
+														"animation": "machine",
+														"from": "beginning"
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "ProtoMachine",
+													"sid": 400679998435649,
+													"parameters": {
+														"angle": "0"
+													}
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 864990130845986,
+													"parameters": {
+														"seconds": "0",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "switchActionMode",
+													"sid": 997044751088326,
+													"parameters": [
+														"\"Machine\"",
+														"CurrentEventSheetName",
+														"CurrentEventNumber"
+													]
+												}
+											],
+											"sid": 568108769574747
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Transmuter can be rotated for convenience."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Rotate Proto",
+							"objectClass": "ProtoMachine",
+							"functionDescription": "Rotate machine prototype.",
+							"functionCategory": "Machinery",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "newAngle",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "New angle.",
+									"sid": 210127658427059
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "is-animation-playing",
+									"objectClass": "ProtoMachine",
+									"sid": 243601935316945,
+									"parameters": {
+										"animation": "\"Transmuter\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-angle",
+									"objectClass": "ProtoMachine",
+									"sid": 282672773725956,
+									"parameters": {
+										"angle": "newAngle"
+									}
+								}
+							],
+							"sid": 508957781014139
+						},
+						{
+							"eventType": "comment",
+							"text": "Transform the prototype into a proper machine."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Build",
+							"objectClass": "ProtoMachine",
+							"functionDescription": "Transform the prototype into a proper machine.",
+							"functionCategory": "Machinery",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "ProtoMachine",
+									"sid": 242082657881798,
+									"parameters": {
+										"object": "Machinery"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-on-screen",
+									"objectClass": "ProtoMachine",
+									"sid": 376531326772295
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "ProtoMachine",
+									"sid": 340219826437187,
+									"parameters": {
+										"instance-variable": "valid"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 156289429487776,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "cost",
+									"type": "string",
+									"initialValue": "",
+									"comment": "Building cost.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 399800417123793
+								},
+								{
+									"eventType": "comment",
+									"text": "Get machine cost."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 652614057685091,
+											"parameters": {
+												"variable": "cost",
+												"value": "Functions.getActionCost(ProtoMachine.AnimationName)"
+											}
+										}
+									],
+									"sid": 993557886854822
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player has enough resources, build it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 172215191210314,
+											"parameters": {
+												"value": "Functions.checkEnoughResources(cost)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 318057966465368,
+											"parameters": [
+												"\"CreateBuilding\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										},
+										{
+											"callFunction": "subtractResources",
+											"sid": 215685513204446,
+											"parameters": [
+												"cost"
+											]
+										}
+									],
+									"sid": 929624979669750,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Place an Extractor."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-animation-playing",
+													"objectClass": "ProtoMachine",
+													"sid": 916862429671798,
+													"parameters": {
+														"animation": "\"Extractor\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 995546735859351,
+													"parameters": {
+														"object-to-create": "Extractor",
+														"layer": "\"Machinery\"",
+														"x": "ProtoMachine.X",
+														"y": "ProtoMachine.Y",
+														"create-hierarchy": true,
+														"template-name": "\"\""
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Extractor",
+													"sid": 352451436204373,
+													"parameters": {
+														"instance-variable": "cost",
+														"value": "cost"
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "Extractor",
+													"sid": 942734743736559,
+													"parameters": {
+														"angle": "ProtoMachine.Angle"
+													}
+												},
+												{
+													"id": "set-width",
+													"objectClass": "Extractor",
+													"sid": 396544991968469,
+													"parameters": {
+														"width": "0"
+													}
+												},
+												{
+													"id": "set-size",
+													"objectClass": "Extractor",
+													"sid": 564237571703844,
+													"parameters": {
+														"width": "0",
+														"height": "0"
+													}
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "Extractor",
+													"sid": 667266151089710,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"PlacementAnimation\"",
+														"property": "size",
+														"end-x": "Self.ImageWidth",
+														"end-y": "Self.ImageHeight",
+														"time": "0.5",
+														"ease": "easeoutback",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												}
+											],
+											"sid": 966998550479704,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Destroy overlapping tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-evaluate",
+															"objectClass": "System",
+															"sid": 702954147150471,
+															"parameters": {
+																"object": "Tile",
+																"expression": "distance(Tile.X, Tile.Y, Extractor.X, Extractor.Y) <= 1"
+															}
+														},
+														{
+															"id": "pick-children",
+															"objectClass": "Extractor",
+															"sid": 176244450768245,
+															"parameters": {
+																"child": "SourceTerminal",
+																"which": "own"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "destroy",
+															"objectClass": "Tile",
+															"sid": 871050792855646
+														}
+													],
+													"sid": 510477315163685,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "evaluate-expression",
+																	"objectClass": "System",
+																	"sid": 183451666139058,
+																	"parameters": {
+																		"value": "Tile.type = \"Uranium\""
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-animation",
+																	"objectClass": "Extractor",
+																	"sid": 394679348464725,
+																	"parameters": {
+																		"animation": "\"Uranium\"",
+																		"from": "beginning"
+																	}
+																},
+																{
+																	"id": "set-instvar-value",
+																	"objectClass": "Extractor",
+																	"sid": 952022762610876,
+																	"parameters": {
+																		"instance-variable": "resource",
+																		"value": "\"Uranium\""
+																	}
+																},
+																{
+																	"id": "set-instvar-value",
+																	"objectClass": "SourceTerminal",
+																	"sid": 479815719143794,
+																	"parameters": {
+																		"instance-variable": "resource",
+																		"value": "\"Uranium\""
+																	}
+																}
+															],
+															"sid": 254419838245369,
+															"isOrBlock": true
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "evaluate-expression",
+																	"objectClass": "System",
+																	"sid": 577316967134570,
+																	"parameters": {
+																		"value": "Tile.type = \"Coal\""
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-animation",
+																	"objectClass": "Extractor",
+																	"sid": 671368046266014,
+																	"parameters": {
+																		"animation": "\"Coal\"",
+																		"from": "beginning"
+																	}
+																},
+																{
+																	"id": "set-instvar-value",
+																	"objectClass": "Extractor",
+																	"sid": 108786786802883,
+																	"parameters": {
+																		"instance-variable": "resource",
+																		"value": "\"Coal\""
+																	}
+																},
+																{
+																	"id": "set-instvar-value",
+																	"objectClass": "SourceTerminal",
+																	"sid": 469475011543549,
+																	"parameters": {
+																		"instance-variable": "resource",
+																		"value": "\"Coal\""
+																	}
+																}
+															],
+															"sid": 953255302893633,
+															"isOrBlock": true
+														}
+													]
+												},
+												{
+													"eventType": "comment",
+													"text": "Setup extractor bar."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-children",
+															"objectClass": "Extractor",
+															"sid": 671685183257696,
+															"parameters": {
+																"child": "UI_ExtractorBar",
+																"which": "own"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "wait",
+															"objectClass": "System",
+															"sid": 500818563191121,
+															"parameters": {
+																"seconds": "0.5",
+																"use-timescale": true
+															}
+														},
+														{
+															"id": "tween-one-property",
+															"objectClass": "UI_ExtractorBar",
+															"sid": 257921954600674,
+															"behaviorType": "Tween",
+															"parameters": {
+																"tags": "\"AnimateExtractorBar\"",
+																"property": "offsetWidth",
+																"end-value": "Self.maxLen",
+																"time": "1",
+																"ease": "easeinoutsine",
+																"destroy-on-complete": "no",
+																"loop": "no",
+																"ping-pong": "no",
+																"repeat-count": "1"
+															}
+														}
+													],
+													"sid": 794076841734158
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Place a Transmuter."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-animation-playing",
+													"objectClass": "ProtoMachine",
+													"sid": 325752061646886,
+													"parameters": {
+														"animation": "\"Transmuter\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "create-object",
+													"objectClass": "System",
+													"sid": 586939784919129,
+													"parameters": {
+														"object-to-create": "Transmuter",
+														"layer": "\"Machinery\"",
+														"x": "ProtoMachine.X",
+														"y": "ProtoMachine.Y",
+														"create-hierarchy": true,
+														"template-name": "\"\""
+													}
+												},
+												{
+													"id": "set-instvar-value",
+													"objectClass": "Transmuter",
+													"sid": 142070848371445,
+													"parameters": {
+														"instance-variable": "cost",
+														"value": "cost"
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "Transmuter",
+													"sid": 823714175319541,
+													"parameters": {
+														"angle": "ProtoMachine.Angle"
+													}
+												},
+												{
+													"id": "set-width",
+													"objectClass": "Transmuter",
+													"sid": 852855935564713,
+													"parameters": {
+														"width": "0"
+													}
+												},
+												{
+													"id": "set-size",
+													"objectClass": "Transmuter",
+													"sid": 530674791884807,
+													"parameters": {
+														"width": "0",
+														"height": "0"
+													}
+												},
+												{
+													"id": "tween-two-properties",
+													"objectClass": "Transmuter",
+													"sid": 260986078217116,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"PlacementAnimation\"",
+														"property": "size",
+														"end-x": "Self.ImageWidth",
+														"end-y": "Self.ImageHeight",
+														"time": "0.5",
+														"ease": "easeoutback",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												}
+											],
+											"sid": 571889046858546
+										},
+										{
+											"eventType": "comment",
+											"text": "Destroy prototype."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "tween-one-property",
+													"objectClass": "ProtoMachine",
+													"sid": 169338234521409,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"DestroyProto\"",
+														"property": "offsetOpacity",
+														"end-value": "0",
+														"time": "0.1",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "yes",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"callFunction": "switchActionMode",
+													"sid": 599051289728056,
+													"parameters": [
+														"\"Drill\"",
+														"CurrentEventSheetName",
+														"CurrentEventNumber"
+													]
+												}
+											],
+											"sid": 370109196791664
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Update machine prototype."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "cursor-is-over-object",
+									"objectClass": "Mouse",
+									"sid": 750370701437759,
+									"parameters": {
+										"object": "UI_Panels"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [],
+							"sid": 326097864971644,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 273257641066852,
+											"parameters": {
+												"variable": "actionMode",
+												"comparison": 0,
+												"value": "\"Machine\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 140671081715911,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Extractor machine."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-animation-playing",
+													"objectClass": "ProtoMachine",
+													"sid": 182788639303898,
+													"parameters": {
+														"animation": "\"Extractor\""
+													}
+												}
+											],
+											"actions": [],
+											"sid": 240410648487426,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Player is hovering a tile."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "cursor-is-over-object",
+															"objectClass": "Mouse",
+															"sid": 864548229418848,
+															"parameters": {
+																"object": "Tile"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 510358257497464,
+													"children": [
+														{
+															"eventType": "comment",
+															"text": "Check if the player is hovering a valid energy source."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "evaluate-expression",
+																	"objectClass": "System",
+																	"sid": 775509870154805,
+																	"parameters": {
+																		"value": "Tile.type = \"Uranium\""
+																	}
+																},
+																{
+																	"id": "evaluate-expression",
+																	"objectClass": "System",
+																	"sid": 199411897196182,
+																	"parameters": {
+																		"value": "Tile.type = \"Coal\""
+																	}
+																}
+															],
+															"actions": [],
+															"sid": 594646902048571,
+															"children": [
+																{
+																	"eventType": "comment",
+																	"text": "If the tile is overlapping a machine, set the prototype to an invalid state."
+																},
+																{
+																	"eventType": "block",
+																	"conditions": [
+																		{
+																			"id": "is-overlapping-another-object",
+																			"objectClass": "Tile",
+																			"sid": 335817969795571,
+																			"parameters": {
+																				"object": "Machinery"
+																			}
+																		}
+																	],
+																	"actions": [
+																		{
+																			"id": "set-boolean-instvar",
+																			"objectClass": "ProtoMachine",
+																			"sid": 611620094470988,
+																			"parameters": {
+																				"instance-variable": "valid",
+																				"value": "false"
+																			}
+																		}
+																	],
+																	"sid": 243740826690880
+																},
+																{
+																	"eventType": "comment",
+																	"text": "If everything is correct, set it to a valid state."
+																},
+																{
+																	"eventType": "block",
+																	"conditions": [
+																		{
+																			"id": "else",
+																			"objectClass": "System",
+																			"sid": 368073060492343
+																		}
+																	],
+																	"actions": [
+																		{
+																			"id": "set-boolean-instvar",
+																			"objectClass": "ProtoMachine",
+																			"sid": 267141116959373,
+																			"parameters": {
+																				"instance-variable": "valid",
+																				"value": "true"
+																			}
+																		},
+																		{
+																			"id": "set-position",
+																			"objectClass": "ProtoMachine",
+																			"sid": 724249598557681,
+																			"parameters": {
+																				"x": "Tile.X",
+																				"y": "Tile.Y"
+																			}
+																		}
+																	],
+																	"sid": 510828923125828
+																}
+															],
+															"isOrBlock": true
+														},
+														{
+															"eventType": "comment",
+															"text": "Otherwise the prototype is in an invalid state."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "else",
+																	"objectClass": "System",
+																	"sid": 323135193191727
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-boolean-instvar",
+																	"objectClass": "ProtoMachine",
+																	"sid": 224757376375184,
+																	"parameters": {
+																		"instance-variable": "valid",
+																		"value": "false"
+																	}
+																}
+															],
+															"sid": 371171108446832
+														}
+													]
+												},
+												{
+													"eventType": "comment",
+													"text": "If the player is not hovering a tile, the protoype is in an invalid state."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 309327185729205
+														}
+													],
+													"actions": [
+														{
+															"id": "set-boolean-instvar",
+															"objectClass": "ProtoMachine",
+															"sid": 690954464293203,
+															"parameters": {
+																"instance-variable": "valid",
+																"value": "false"
+															}
+														}
+													],
+													"sid": 134220692699813
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Transmuter machine."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 755819238655153
+												},
+												{
+													"id": "is-animation-playing",
+													"objectClass": "ProtoMachine",
+													"sid": 854004486127339,
+													"parameters": {
+														"animation": "\"Transmuter\""
+													}
+												}
+											],
+											"actions": [],
+											"sid": 158995971769695,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "If the prototype is overlapping certain objects, set it to an invalid state."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "is-overlapping-another-object",
+															"objectClass": "ProtoMachine",
+															"sid": 227539363080035,
+															"parameters": {
+																"object": "Tile"
+															}
+														},
+														{
+															"id": "is-overlapping-another-object",
+															"objectClass": "ProtoMachine",
+															"sid": 417240279704809,
+															"parameters": {
+																"object": "Machinery"
+															}
+														},
+														{
+															"id": "is-overlapping-another-object",
+															"objectClass": "ProtoMachine",
+															"sid": 439243275609716,
+															"parameters": {
+																"object": "Buildings"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-boolean-instvar",
+															"objectClass": "ProtoMachine",
+															"sid": 888781220296463,
+															"parameters": {
+																"instance-variable": "valid",
+																"value": "false"
+															}
+														}
+													],
+													"sid": 467282722739521,
+													"isOrBlock": true
+												},
+												{
+													"eventType": "comment",
+													"text": "Otherwise, check if the machine is inside the moon."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 778647867501914
+														}
+													],
+													"actions": [],
+													"sid": 775218378094579,
+													"children": [
+														{
+															"eventType": "comment",
+															"text": "If it is, set it to a valid state."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "evaluate-expression",
+																	"objectClass": "System",
+																	"sid": 101264115577659,
+																	"parameters": {
+																		"value": "(ProtoMachine.X - Moon.X)^2 + (ProtoMachine.Y - Moon.Y)^2 < (tileRegionRadius^2)"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-boolean-instvar",
+																	"objectClass": "ProtoMachine",
+																	"sid": 766550830850933,
+																	"parameters": {
+																		"instance-variable": "valid",
+																		"value": "true"
+																	}
+																},
+																{
+																	"id": "set-position",
+																	"objectClass": "ProtoMachine",
+																	"sid": 459218537833780,
+																	"parameters": {
+																		"x": "Mouse.X",
+																		"y": "Mouse.Y"
+																	}
+																}
+															],
+															"sid": 408450385693980
+														},
+														{
+															"eventType": "comment",
+															"text": "Otherwise, set it to an invalid state."
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "else",
+																	"objectClass": "System",
+																	"sid": 229589974126459
+																}
+															],
+															"actions": [
+																{
+																	"id": "set-boolean-instvar",
+																	"objectClass": "ProtoMachine",
+																	"sid": 745317583421546,
+																	"parameters": {
+																		"instance-variable": "valid",
+																		"value": "false"
+																	}
+																}
+															],
+															"sid": 451498185701986
+														}
+													]
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Set how the prototype should be displayed according to its state and player resources."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "ProtoMachine",
+											"sid": 730013254055198,
+											"parameters": {
+												"instance-variable": "valid"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 177246441116501,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 168319121508265,
+													"parameters": {
+														"value": "Functions.checkEnoughResources(Functions.getActionCost(ProtoMachine.AnimationName)) = 1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-default-color",
+													"objectClass": "ProtoMachine",
+													"sid": 551013272549923,
+													"parameters": {
+														"color": "rgbEx255(255, 255, 255)"
+													}
+												}
+											],
+											"sid": 565887608437074
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 257585840052781
+												}
+											],
+											"actions": [
+												{
+													"id": "set-position",
+													"objectClass": "ProtoMachine",
+													"sid": 428387890041623,
+													"parameters": {
+														"x": "Mouse.X",
+														"y": "Mouse.Y"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "ProtoMachine",
+													"sid": 639242770067060,
+													"parameters": {
+														"color": "rgbEx255(255, 0, 0)"
+													}
+												}
+											],
+											"sid": 549768712796966
+										}
+									]
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 768857220817435
+										}
+									],
+									"actions": [
+										{
+											"id": "set-position",
+											"objectClass": "ProtoMachine",
+											"sid": 626175451854449,
+											"parameters": {
+												"x": "Mouse.X",
+												"y": "Mouse.Y"
+											}
+										},
+										{
+											"id": "set-default-color",
+											"objectClass": "ProtoMachine",
+											"sid": 605105365250512,
+											"parameters": {
+												"color": "rgbEx255(255, 0, 0)"
+											}
+										}
+									],
+									"sid": 227371634842423
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Abort machinery."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Abort",
+							"objectClass": "ProtoMachine",
+							"functionDescription": "Abort machinery.",
+							"functionCategory": "Machinery",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "ProtoMachine",
+									"sid": 441212659497223,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"DestroyProto\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"callFunction": "switchActionMode",
+									"sid": 671621444490685,
+									"parameters": [
+										"\"Drill\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Play sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 264477798210968,
+									"parameters": [
+										"\"MenuError\"",
+										"\"SFX\"",
+										"0",
+										"1"
+									]
+								}
+							],
+							"sid": 330521565513749
+						},
+						{
+							"eventType": "comment",
+							"text": "Show \"Shift + Wheel to rotate\" text."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 229755996086622,
+									"parameters": {
+										"object": "ProtoMachine"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 733271357455245,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-animation-playing",
+											"objectClass": "ProtoMachine",
+											"sid": 728275902300599,
+											"parameters": {
+												"animation": "\"Transmuter\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-visible",
+											"objectClass": "UI_RotateText",
+											"sid": 195054235913949,
+											"parameters": {
+												"visibility": "visible"
+											}
+										}
+									],
+									"sid": 528815811555905
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 881607933842873
+										}
+									],
+									"actions": [
+										{
+											"id": "set-visible",
+											"objectClass": "UI_RotateText",
+											"sid": 588432835705338,
+											"parameters": {
+												"visibility": "invisible"
+											}
+										}
+									],
+									"sid": 344429549786474
+								}
+							]
+						}
+					],
+					"sid": 455691912743996
+				}
+			],
+			"sid": 481254527017406
+		}
+	],
+	"sid": 967184581303454
+}

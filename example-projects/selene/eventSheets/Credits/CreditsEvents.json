@@ -1,0 +1,275 @@
+{
+	"name": "CreditsEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Credits settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "CREDITS_SPEED",
+			"type": "number",
+			"initialValue": "8",
+			"comment": "Speed at which credits move.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 413000372740383
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Credits",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "totalRot",
+					"type": "number",
+					"initialValue": "0",
+					"comment": "Total rotation applied to the moon.",
+					"isStatic": true,
+					"isConstant": false,
+					"sid": 389026729534815
+				},
+				{
+					"eventType": "comment",
+					"text": "Setup credits screen."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 370600506647839
+						}
+					],
+					"actions": [
+						{
+							"customAction": "Set cursor icon",
+							"objectClass": "Mouse",
+							"sid": 697010868455348,
+							"parameters": [
+								"\"Generic\""
+							]
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 473659074460905,
+							"parameters": {
+								"variable": "totalRot",
+								"value": "0"
+							}
+						},
+						{
+							"id": "set-angle",
+							"objectClass": "Moon",
+							"sid": 188991103266418,
+							"parameters": {
+								"angle": "45"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Menu_Fader",
+							"sid": 329416875845022,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						}
+					],
+					"sid": 395159241880699,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Play BGM."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-value",
+									"objectClass": "DictProfile",
+									"sid": 521312774423042,
+									"parameters": {
+										"key": "\"Sound\"",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "playBGM",
+									"sid": 465801778821957,
+									"parameters": [
+										"\"Aurora\"",
+										false,
+										"0",
+										"\"MainMenu\""
+									]
+								}
+							],
+							"sid": 730981243049487
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 653297327813528
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "playBGM",
+									"sid": 364230561046383,
+									"parameters": [
+										"\"Aurora\"",
+										true,
+										"0",
+										"\"MainMenu\""
+									]
+								}
+							],
+							"sid": 734603257492842
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Rotate the moon with the credits text attached."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 118843642336007
+						}
+					],
+					"actions": [
+						{
+							"id": "set-angle",
+							"objectClass": "Moon",
+							"sid": 565113792344485,
+							"parameters": {
+								"angle": "Self.Angle - CREDITS_SPEED * dt"
+							}
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 180496628260683,
+							"parameters": {
+								"variable": "totalRot",
+								"value": "CREDITS_SPEED * dt"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "Credits_Text",
+							"sid": 533349831128875,
+							"parameters": {
+								"opacity": "((Self.X - Self.Width/3)/(LayoutWidth/3)) * 100"
+							}
+						}
+					],
+					"sid": 908306230261404
+				},
+				{
+					"eventType": "comment",
+					"text": "End credits."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 195164904479612,
+							"parameters": {
+								"variable": "totalRot",
+								"comparison": 4,
+								"value": "333"
+							}
+						},
+						{
+							"id": "trigger-once-while-true",
+							"objectClass": "System",
+							"sid": 344351551148765
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "fadeBGM",
+							"sid": 227806471500886,
+							"parameters": [
+								false,
+								"1.5"
+							]
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Menu_Fader",
+							"sid": 714250453321031,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"ShowFader\"",
+								"property": "offsetOpacity",
+								"end-value": "100",
+								"time": "1.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 714280452792976
+						},
+						{
+							"callFunction": "stopBGM",
+							"sid": 186378391643608
+						},
+						{
+							"id": "go-to-layout",
+							"objectClass": "System",
+							"sid": 918099263240876,
+							"parameters": {
+								"layout": "MainMenu"
+							}
+						},
+						{
+							"id": "reset-global-variables",
+							"objectClass": "System",
+							"sid": 778943632773837,
+							"parameters": {
+								"reset-static": true
+							}
+						}
+					],
+					"sid": 454333357499258
+				}
+			],
+			"sid": 306481308054874
+		}
+	],
+	"sid": 152421699447808
+}

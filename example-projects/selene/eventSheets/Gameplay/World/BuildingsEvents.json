@@ -1,0 +1,5127 @@
+{
+	"name": "BuildingsEvents",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "BMGN_FADE_TIME",
+			"type": "number",
+			"initialValue": "0.1",
+			"comment": "Time taken for a building manager to fade.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 899751368975262
+		},
+		{
+			"eventType": "variable",
+			"name": "TURRET_ROT",
+			"type": "number",
+			"initialValue": "180",
+			"comment": "Turret rotation speed.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 563375344268458
+		},
+		{
+			"eventType": "variable",
+			"name": "MAX_IRRADIANCE_ANGLE",
+			"type": "number",
+			"initialValue": "120",
+			"comment": "Maximum irradiance angle.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 553312673331827
+		},
+		{
+			"eventType": "variable",
+			"name": "PB_UPDATE",
+			"type": "number",
+			"initialValue": "10",
+			"comment": "Progress bar update speed.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 383936808738411
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Turrets",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create and setup turret projectile when the turret shoots."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-shoot",
+							"objectClass": "TurretCannon",
+							"sid": 756361865035053,
+							"behaviorType": "Turret"
+						},
+						{
+							"id": "compare-instance-variable",
+							"objectClass": "TurretCannon",
+							"sid": 539031845971744,
+							"parameters": {
+								"instance-variable": "power",
+								"comparison": 4,
+								"value": "0"
+							}
+						},
+						{
+							"id": "pick-parent",
+							"objectClass": "TurretCannon",
+							"sid": 449974538570846,
+							"parameters": {
+								"parent": "Turret",
+								"which": "own"
+							}
+						},
+						{
+							"id": "pick-children",
+							"objectClass": "Turret",
+							"sid": 513015755042823,
+							"parameters": {
+								"child": "AmmoTerminal",
+								"which": "own"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Play sound effect."
+						},
+						{
+							"callFunction": "playSFX",
+							"sid": 370843805512451,
+							"parameters": [
+								"\"ShootTurret\"",
+								"\"SFX\"",
+								"-5",
+								"random(0.95, 1.15)"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Play recoil animation."
+						},
+						{
+							"id": "tween-two-properties",
+							"objectClass": "TurretCannon",
+							"sid": 936882119013134,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"TurretRecoil\"",
+								"property": "position",
+								"end-x": "Self.X - cos(Self.Angle) * 4",
+								"end-y": "Self.Y - sin(Self.Angle) * 4",
+								"time": "0.1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "yes",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create and setup bullet."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 357299451338415,
+							"parameters": {
+								"object-to-create": "TurretProjectile",
+								"layer": "\"Projectiles\"",
+								"x": "TurretCannon.ImagePointX(\"FireSpot\")",
+								"y": "TurretCannon.ImagePointY(\"FireSpot\")",
+								"create-hierarchy": true,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-angle-of-motion",
+							"objectClass": "TurretProjectile",
+							"sid": 574158425360786,
+							"behaviorType": "Bullet",
+							"parameters": {
+								"angle": "TurretCannon.Angle"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "TurretProjectile",
+							"sid": 616340779805193,
+							"parameters": {
+								"instance-variable": "power",
+								"value": "TurretCannon.power"
+							}
+						},
+						{
+							"id": "set-default-color",
+							"objectClass": "TurretProjectile",
+							"sid": 290803938951140,
+							"parameters": {
+								"color": "HexColor(DictResColors.Get(AmmoTerminal.resource))"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create muzzle flash."
+						},
+						{
+							"callFunction": "fxMuzzleFlash",
+							"sid": 753512709675713,
+							"parameters": [
+								"TurretCannon.ImagePointX(\"FireSpot\")",
+								"TurretCannon.ImagePointY(\"FireSpot\")",
+								"\"Turret\"",
+								"TurretCannon.Angle",
+								"HexColor(DictResColors.Get(AmmoTerminal.resource))"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Consume resource in use."
+						},
+						{
+							"callFunction": "updateBank",
+							"sid": 935929097379624,
+							"parameters": [
+								"AmmoTerminal.resource",
+								"-5"
+							]
+						}
+					],
+					"sid": 511985011320039
+				},
+				{
+					"eventType": "comment",
+					"text": "Destroy projectiles that exit the layout."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 495143558853981,
+							"parameters": {
+								"object": "TurretProjectile"
+							}
+						},
+						{
+							"id": "is-outside-layout",
+							"objectClass": "TurretProjectile",
+							"sid": 640858823154072
+						}
+					],
+					"actions": [
+						{
+							"id": "destroy",
+							"objectClass": "TurretProjectile",
+							"sid": 430952844769652
+						}
+					],
+					"sid": 492887696021929
+				},
+				{
+					"eventType": "comment",
+					"text": "The code below guarantees that turrets will only attack targets within its line of sight."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 844091516568162,
+							"parameters": {
+								"object": "TurretCannon"
+							}
+						},
+						{
+							"id": "pick-parent",
+							"objectClass": "TurretCannon",
+							"sid": 108591608851192,
+							"parameters": {
+								"parent": "Turret",
+								"which": "own"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 332244936530111,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Turret has a target."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "has-target",
+									"objectClass": "TurretCannon",
+									"sid": 535246191193140,
+									"behaviorType": "Turret"
+								}
+							],
+							"actions": [],
+							"sid": 695993054672320,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If this target is no longer inside the line of sight, drop it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "TurretTargets",
+											"sid": 874533692528755,
+											"parameters": {
+												"unique-id": "TurretCannon.Turret.TargetUID"
+											}
+										},
+										{
+											"id": "has-los-to-object",
+											"objectClass": "Turret",
+											"sid": 707070619571075,
+											"behaviorType": "LineOfSight",
+											"parameters": {
+												"object": "TurretTargets",
+												"image-point": "0"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "unacquire-target",
+											"objectClass": "TurretCannon",
+											"sid": 637936997409909,
+											"behaviorType": "Turret"
+										}
+									],
+									"sid": 825151271938634
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Turret does not have a target yet."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 173762958532297
+								}
+							],
+							"actions": [],
+							"sid": 323222322004304,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If there is a valid target inside the line of site, acquire it."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 545586914320525,
+											"parameters": {
+												"object": "TurretTargets"
+											}
+										},
+										{
+											"id": "has-los-to-object",
+											"objectClass": "Turret",
+											"sid": 614667392133316,
+											"behaviorType": "LineOfSight",
+											"parameters": {
+												"object": "TurretTargets",
+												"image-point": "0"
+											}
+										},
+										{
+											"id": "pick-nearestfurthest",
+											"objectClass": "TurretTargets",
+											"sid": 990565367574013,
+											"parameters": {
+												"which": "nearest",
+												"x": "TurretCannon.X",
+												"y": "TurretCannon.Y",
+												"pick-all-tied": false
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "acquire-target",
+											"objectClass": "TurretCannon",
+											"sid": 923408479561455,
+											"behaviorType": "Turret",
+											"parameters": {
+												"target": "TurretTargets"
+											}
+										}
+									],
+									"sid": 499586858645276
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 147926076512717
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Prototypes",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Show building prototype cursor."
+				},
+				{
+					"functionName": "protoBuildingCursor",
+					"functionDescription": "Show building prototype cursor.",
+					"functionCategory": "Buildings",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "building",
+							"type": "string",
+							"initialValue": "Turret",
+							"comment": "Building type.",
+							"sid": 766442905893803
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 605303110570640,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "If the player can afford the building, show the prototype."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 783390814671338,
+									"parameters": {
+										"value": "Functions.checkEnoughResources(Functions.getActionCost(building))"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 620882932642550,
+									"parameters": [
+										"\"PickBuilding\"",
+										"\"SFX\"",
+										"0",
+										"1"
+									]
+								}
+							],
+							"sid": 727117375610642,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "If the player was not in \"Build\" mode, create the protoype."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 384291370205788,
+											"parameters": {
+												"variable": "actionMode",
+												"comparison": 1,
+												"value": "\"Build\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 452349806615345,
+											"parameters": {
+												"object-to-create": "ProtoBuilding",
+												"layer": "\"ProtoCursor\"",
+												"x": "-100000",
+												"y": "-100000",
+												"create-hierarchy": true,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-opacity",
+											"objectClass": "ProtoBuilding",
+											"sid": 268443371713038,
+											"parameters": {
+												"opacity": "0"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "ProtoBuilding",
+											"sid": 602191453622515,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ShowProto\"",
+												"property": "offsetOpacity",
+												"end-value": "100",
+												"time": "0.1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 605714059782238
+								},
+								{
+									"eventType": "comment",
+									"text": "Set correct animation and switch action mode."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-last-created",
+											"objectClass": "System",
+											"sid": 519851598752247,
+											"parameters": {
+												"object": "ProtoBuilding"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "ProtoBuilding",
+											"sid": 468985029971633,
+											"parameters": {
+												"animation": "building",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "wait",
+											"objectClass": "System",
+											"sid": 365691509366284,
+											"parameters": {
+												"seconds": "0",
+												"use-timescale": true
+											}
+										},
+										{
+											"callFunction": "switchActionMode",
+											"sid": 216844635115815,
+											"parameters": [
+												"\"Build\"",
+												"CurrentEventSheetName",
+												"CurrentEventNumber"
+											]
+										}
+									],
+									"sid": 934995191285028
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Move building prototype along the surface of the moon to be as closest as possible to the mouse position."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "cursor-is-over-object",
+							"objectClass": "Mouse",
+							"sid": 805963106138727,
+							"parameters": {
+								"object": "UI_Panels"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 340937201537257,
+							"parameters": {
+								"variable": "actionMode",
+								"comparison": 0,
+								"value": "\"Build\""
+							}
+						}
+					],
+					"actions": [],
+					"sid": 328375357379536,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "cursorAngle",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Angle between the cursor and the center of the moon.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 314201118439452
+						},
+						{
+							"eventType": "comment",
+							"text": "Set position and angle accordingly."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 753522124037607,
+									"parameters": {
+										"variable": "cursorAngle",
+										"value": "angle(Moon.X, Moon.Y, Mouse.X, Mouse.Y)"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "ProtoBuilding",
+									"sid": 488302984259750,
+									"parameters": {
+										"x": "Moon.X + moonRadius * cos(cursorAngle)",
+										"y": "Moon.Y + moonRadius * sin(cursorAngle)"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "ProtoBuilding",
+									"sid": 159110165989971,
+									"parameters": {
+										"angle": "cursorAngle"
+									}
+								}
+							],
+							"sid": 716490729300898
+						},
+						{
+							"eventType": "comment",
+							"text": "If the prototype is overlapping an already existing building, tint it red."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "ProtoBuilding",
+									"sid": 261744428583651,
+									"parameters": {
+										"object": "Buildings"
+									}
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "ProtoBuilding",
+									"sid": 964358368945500,
+									"parameters": {
+										"object": "Pipe"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-default-color",
+									"objectClass": "ProtoBuilding",
+									"sid": 677181576647980,
+									"parameters": {
+										"color": "rgbEx255(255, 0, 0)"
+									}
+								}
+							],
+							"sid": 150331150979572,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Otherwise, if the player has enough resources to build it, remove the red tint."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 433400539500871
+								}
+							],
+							"actions": [],
+							"sid": 937711721440752,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 635245818307624,
+											"parameters": {
+												"value": "Functions.checkEnoughResources(Functions.getActionCost(ProtoBuilding.AnimationName)) = 1"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-default-color",
+											"objectClass": "ProtoBuilding",
+											"sid": 744946943046275,
+											"parameters": {
+												"color": "rgbEx255(255, 255, 255)"
+											}
+										}
+									],
+									"sid": 757418082208126
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 653186529597994
+										}
+									],
+									"actions": [
+										{
+											"id": "set-default-color",
+											"objectClass": "ProtoBuilding",
+											"sid": 810443287187057,
+											"parameters": {
+												"color": "rgbEx255(255, 0, 0)"
+											}
+										}
+									],
+									"sid": 135557472454916
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Transform the prototype into a proper building, if it's in a valid position."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Build",
+					"objectClass": "ProtoBuilding",
+					"functionDescription": "Transform the prototype into a proper building.",
+					"functionCategory": "Buildings",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "ProtoBuilding",
+							"sid": 719357311326380,
+							"parameters": {
+								"object": "Buildings"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-overlapping-another-object",
+							"objectClass": "ProtoBuilding",
+							"sid": 794049419511025,
+							"parameters": {
+								"object": "Pipe"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "is-on-screen",
+							"objectClass": "ProtoBuilding",
+							"sid": 268632570448422
+						}
+					],
+					"actions": [],
+					"sid": 768809646440822,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "cost",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Building cost.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 118590161633970
+						},
+						{
+							"eventType": "comment",
+							"text": "Get building cost."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 900761220883665,
+									"parameters": {
+										"variable": "cost",
+										"value": "Functions.getActionCost(ProtoBuilding.AnimationName)"
+									}
+								}
+							],
+							"sid": 827215826123976
+						},
+						{
+							"eventType": "comment",
+							"text": "If the player has enough resources, build it."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 655718877509563,
+									"parameters": {
+										"value": "Functions.checkEnoughResources(cost)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 718983993605176,
+									"parameters": [
+										"\"CreateBuilding\"",
+										"\"SFX\"",
+										"0",
+										"1"
+									]
+								},
+								{
+									"callFunction": "subtractResources",
+									"sid": 948365893777413,
+									"parameters": [
+										"cost"
+									]
+								}
+							],
+							"sid": 959722284375324,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Place the correct type of building."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-animation-playing",
+											"objectClass": "ProtoBuilding",
+											"sid": 773255202117722,
+											"parameters": {
+												"animation": "\"Turret\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 131702076728526,
+											"parameters": {
+												"object-to-create": "Turret",
+												"layer": "\"Buildings\"",
+												"x": "ProtoBuilding.X",
+												"y": "ProtoBuilding.Y",
+												"create-hierarchy": true,
+												"template-name": "ProtoBuilding.AnimationFrame = 0 ? \"Regular\" : \"Mirrored\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Turret",
+											"sid": 318898011385880,
+											"parameters": {
+												"instance-variable": "cost",
+												"value": "cost"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Turret",
+											"sid": 806358163834234,
+											"parameters": {
+												"angle": "ProtoBuilding.Angle"
+											}
+										},
+										{
+											"id": "set-width",
+											"objectClass": "Turret",
+											"sid": 123734025303160,
+											"parameters": {
+												"width": "0"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Turret",
+											"sid": 866905104150021,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"PlacementAnimation\"",
+												"property": "offsetWidth",
+												"end-value": "Self.ImageWidth",
+												"time": "0.5",
+												"ease": "easeoutback",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"customAction": "Update",
+											"objectClass": "Turret",
+											"sid": 115461964318461
+										}
+									],
+									"sid": 157577443509880
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-animation-playing",
+											"objectClass": "ProtoBuilding",
+											"sid": 906692128216663,
+											"parameters": {
+												"animation": "\"Silo\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 909949816107871,
+											"parameters": {
+												"object-to-create": "Silo",
+												"layer": "\"Buildings\"",
+												"x": "ProtoBuilding.X",
+												"y": "ProtoBuilding.Y",
+												"create-hierarchy": true,
+												"template-name": "ProtoBuilding.AnimationFrame = 0 ? \"Regular\" : \"Mirrored\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Silo",
+											"sid": 894859403903700,
+											"parameters": {
+												"instance-variable": "cost",
+												"value": "cost"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Silo",
+											"sid": 930523278809284,
+											"parameters": {
+												"angle": "ProtoBuilding.Angle"
+											}
+										},
+										{
+											"id": "set-width",
+											"objectClass": "Silo",
+											"sid": 769419894574926,
+											"parameters": {
+												"width": "0"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Silo",
+											"sid": 469349745413309,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"PlacementAnimation\"",
+												"property": "offsetWidth",
+												"end-value": "Self.ImageWidth",
+												"time": "0.5",
+												"ease": "easeoutback",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"customAction": "Update",
+											"objectClass": "Silo",
+											"sid": 822926072250861
+										}
+									],
+									"sid": 161084559836381
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-animation-playing",
+											"objectClass": "ProtoBuilding",
+											"sid": 116081121123905,
+											"parameters": {
+												"animation": "\"Solar\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 704039171749597,
+											"parameters": {
+												"object-to-create": "Solar",
+												"layer": "\"Buildings\"",
+												"x": "ProtoBuilding.X",
+												"y": "ProtoBuilding.Y",
+												"create-hierarchy": true,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Solar",
+											"sid": 284920691968653,
+											"parameters": {
+												"instance-variable": "cost",
+												"value": "cost"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Solar",
+											"sid": 904243121028094,
+											"parameters": {
+												"angle": "ProtoBuilding.Angle"
+											}
+										},
+										{
+											"id": "set-width",
+											"objectClass": "Solar",
+											"sid": 723904552950501,
+											"parameters": {
+												"width": "0"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "Solar",
+											"sid": 501588660613064,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"PlacementAnimation\"",
+												"property": "offsetWidth",
+												"end-value": "Self.ImageWidth",
+												"time": "0.5",
+												"ease": "easeoutback",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 314497013283708
+								},
+								{
+									"eventType": "comment",
+									"text": "Destroy prototype."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "tween-one-property",
+											"objectClass": "ProtoBuilding",
+											"sid": 515342117021604,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"DestroyProto\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "yes",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"callFunction": "switchActionMode",
+											"sid": 654544371465143,
+											"parameters": [
+												"\"Drill\"",
+												"CurrentEventSheetName",
+												"CurrentEventNumber"
+											]
+										}
+									],
+									"sid": 196164528758120
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Abort building."
+				},
+				{
+					"aceType": "action",
+					"aceName": "Abort",
+					"objectClass": "ProtoBuilding",
+					"functionDescription": "Abort building.",
+					"functionCategory": "Buildings",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "custom-ace-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "tween-one-property",
+							"objectClass": "ProtoBuilding",
+							"sid": 736615531363456,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"DestroyProto\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.1",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"callFunction": "switchActionMode",
+							"sid": 660030120111948,
+							"parameters": [
+								"\"Drill\"",
+								"CurrentEventSheetName",
+								"CurrentEventNumber"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Play sound effect."
+						},
+						{
+							"callFunction": "playSFX",
+							"sid": 387285963348092,
+							"parameters": [
+								"\"MenuError\"",
+								"\"SFX\"",
+								"0",
+								"1"
+							]
+						}
+					],
+					"sid": 715337737843081
+				},
+				{
+					"eventType": "comment",
+					"text": "The player can mirror some buildings by holding shift."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "pick-last-created",
+							"objectClass": "System",
+							"sid": 931817943332554,
+							"parameters": {
+								"object": "ProtoBuilding"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 128320092911090,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "key-is-down",
+									"objectClass": "Keyboard",
+									"sid": 935736694588004,
+									"parameters": {
+										"key": 16
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "ProtoBuilding",
+									"sid": 412394968944801,
+									"parameters": {
+										"frame-number": "1"
+									}
+								}
+							],
+							"sid": 706058000404725
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 848633318970455
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "ProtoBuilding",
+									"sid": 101588919436393,
+									"parameters": {
+										"frame-number": "0"
+									}
+								}
+							],
+							"sid": 803665013334524
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Show \"Hold Shift to mirror\" text."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 797714741605306,
+							"parameters": {
+								"object": "ProtoBuilding"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 152264514088555,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-animation-playing",
+									"objectClass": "ProtoBuilding",
+									"sid": 305332592536310,
+									"parameters": {
+										"animation": "\"Turret\""
+									}
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "ProtoBuilding",
+									"sid": 208298434311756,
+									"parameters": {
+										"animation": "\"Silo\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "UI_MirrorText",
+									"sid": 754177872491547,
+									"parameters": {
+										"visibility": "visible"
+									}
+								}
+							],
+							"sid": 287114512908271,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 982177865310954
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "UI_MirrorText",
+									"sid": 461055675385951,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								}
+							],
+							"sid": 254871761044354
+						}
+					]
+				}
+			],
+			"sid": 752544745381013
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Buildings",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Buildings - Generic",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Manager actions."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Hide",
+							"objectClass": "BuildingManagers",
+							"functionDescription": "Hide building UI.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [],
+							"sid": 208818668248626
+						},
+						{
+							"eventType": "comment",
+							"text": "Sell building."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Sell",
+							"objectClass": "Buildings",
+							"functionDescription": "Sell building.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 687025915987276,
+									"parameters": {
+										"value": "Buildings.ObjectTypeName <> \"Core\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 610511177137520,
+									"parameters": [
+										"\"Sell\"",
+										"\"SFX\"",
+										"-4",
+										"1"
+									]
+								},
+								{
+									"callFunction": "updateBank",
+									"sid": 244449698129853,
+									"parameters": [
+										"\"Copper\"",
+										"round(int(tokenat(Buildings.cost, 0, \" \")) / 2)"
+									]
+								},
+								{
+									"callFunction": "updateBank",
+									"sid": 891368804363895,
+									"parameters": [
+										"\"Iron\"",
+										"round(int(tokenat(Buildings.cost, 1, \" \")) / 2)"
+									]
+								},
+								{
+									"callFunction": "updateBank",
+									"sid": 671018123209925,
+									"parameters": [
+										"\"Tungsten\"",
+										"round(int(tokenat(Buildings.cost, 2, \" \")) / 2)"
+									]
+								},
+								{
+									"customAction": "Destroy Building",
+									"objectClass": "Buildings",
+									"sid": 414240800074777,
+									"parameters": [
+										true
+									]
+								}
+							],
+							"sid": 599590346927410
+						},
+						{
+							"eventType": "comment",
+							"text": "Repair building."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Repair",
+							"objectClass": "Buildings",
+							"functionDescription": "Repair building.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Buildings",
+									"sid": 881748928129378,
+									"parameters": {
+										"instance-variable": "hp",
+										"comparison": 2,
+										"value": "Self.maxHp"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 302479962838391,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "cost",
+									"type": "string",
+									"initialValue": "",
+									"comment": "Building cost.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 334540727269140
+								},
+								{
+									"eventType": "comment",
+									"text": "Get repair cost."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 826411406890738,
+											"parameters": {
+												"variable": "cost",
+												"value": "Functions.getActionCost(\"Repair\")"
+											}
+										}
+									],
+									"sid": 183900776879235
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player has enough resources, repair the building."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 195302925010646,
+											"parameters": {
+												"value": "Functions.checkEnoughResources(cost)"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 695423886471917,
+											"parameters": [
+												"\"Repair\"",
+												"\"SFX\"",
+												"-3",
+												"1"
+											]
+										},
+										{
+											"callFunction": "subtractResources",
+											"sid": 247673136404409,
+											"parameters": [
+												"cost"
+											]
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Buildings",
+											"sid": 524766853579906,
+											"parameters": {
+												"instance-variable": "hp",
+												"value": "Self.maxHp"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Buildings",
+											"sid": 559648102528273,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ScaleBuilding\"",
+												"property": "scale",
+												"end-x": "1.25",
+												"end-y": "1.25",
+												"time": "0.1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "yes",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "Buildings",
+											"sid": 491346283879516,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"FlashBuildingGreen\"",
+												"start-value": "100",
+												"end-value": "150",
+												"time": "0.1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "yes",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 305447900492929
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy building."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Destroy Building",
+							"objectClass": "Buildings",
+							"functionDescription": "Destroy building.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "sold",
+									"type": "boolean",
+									"initialValue": "false",
+									"comment": "Was this building sold?",
+									"sid": 308685293326667
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Buildings",
+									"sid": 411697171637367,
+									"parameters": {
+										"instance-variable": "destroyed"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Buildings",
+									"sid": 812980485481045,
+									"parameters": {
+										"instance-variable": "destroyed",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 762575136632857,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "bX",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Building X coordinate.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 369894786438739
+								},
+								{
+									"eventType": "variable",
+									"name": "bY",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Building Y coordinate.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 121164376937479
+								},
+								{
+									"eventType": "variable",
+									"name": "EXPLOSION_OFFSET",
+									"type": "number",
+									"initialValue": "96",
+									"comment": "Explosion position offset.",
+									"isStatic": false,
+									"isConstant": true,
+									"sid": 716916893269293
+								},
+								{
+									"eventType": "comment",
+									"text": "Make all the enemies currently attacking this building acquire another target."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 615950118882588,
+											"parameters": {
+												"object": "Enemy",
+												"expression": "Enemy.target",
+												"comparison": 0,
+												"value": "Buildings.UID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"customAction": "Change target",
+											"objectClass": "Enemy",
+											"sid": 809344895985557,
+											"parameters": [
+												"-1"
+											]
+										}
+									],
+									"sid": 683697861703852
+								},
+								{
+									"eventType": "comment",
+									"text": "Start build destruction animation."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 651482081542322,
+											"parameters": {
+												"variable": "bX",
+												"value": "Buildings.X"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 637619395544471,
+											"parameters": {
+												"variable": "bY",
+												"value": "Buildings.Y"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Buildings",
+											"sid": 604799597563305,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"DestroyBuilding\"",
+												"property": "scale",
+												"end-x": "0",
+												"end-y": "0",
+												"time": "0.25",
+												"ease": "easeinsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"callFunction": "fxExplosion",
+											"sid": 633101914515170,
+											"parameters": [
+												"bX",
+												"bY",
+												"sold ? \"None\" : \"Building\"",
+												"HexColor(\"#ffffff\")",
+												"1"
+											]
+										},
+										{
+											"callFunction": "fxExplosion",
+											"sid": 729375718207810,
+											"parameters": [
+												"bX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+												"bY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+												"sold ? \"None\" : \"Building\"",
+												"HexColor(\"#ffffff\")",
+												"1"
+											]
+										}
+									],
+									"sid": 540974490915915,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the building has end terminals, destroy the pipes immediately connected to them."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-children",
+													"objectClass": "Buildings",
+													"sid": 731934027475477,
+													"parameters": {
+														"child": "EndTerminals",
+														"which": "own"
+													}
+												},
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 166162706225684,
+													"parameters": {
+														"object": "Pipe",
+														"expression": "Pipe.to",
+														"comparison": 0,
+														"value": "EndTerminals.UID"
+													}
+												},
+												{
+													"id": "pick-by-unique-id",
+													"objectClass": "StartTerminals",
+													"sid": 297104060057556,
+													"parameters": {
+														"unique-id": "Pipe.from"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-boolean-instvar",
+													"objectClass": "StartTerminals",
+													"sid": 374454147830336,
+													"parameters": {
+														"instance-variable": "connected",
+														"value": "false"
+													}
+												},
+												{
+													"id": "destroy",
+													"objectClass": "Pipe",
+													"sid": 894502967431065
+												}
+											],
+											"sid": 395877825279751
+										},
+										{
+											"eventType": "comment",
+											"text": "If the building has start terminals, recursively destroy the connected pipeline."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-children",
+													"objectClass": "Buildings",
+													"sid": 914902869890409,
+													"parameters": {
+														"child": "StartTerminals",
+														"which": "own"
+													}
+												},
+												{
+													"id": "pick-by-comparison",
+													"objectClass": "System",
+													"sid": 438058415835099,
+													"parameters": {
+														"object": "Pipe",
+														"expression": "Pipe.from",
+														"comparison": 0,
+														"value": "StartTerminals.UID"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "pipeRecursiveUpdate",
+													"sid": 276791738369601,
+													"parameters": [
+														"pipe.UID",
+														"\"None\""
+													]
+												},
+												{
+													"callFunction": "pipeRecursiveDelete",
+													"sid": 676998436602459,
+													"parameters": [
+														"Pipe.UID"
+													]
+												}
+											],
+											"sid": 530562336441874
+										},
+										{
+											"eventType": "comment",
+											"text": "Destroy the building."
+										},
+										{
+											"eventType": "block",
+											"conditions": [],
+											"actions": [
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 213756982348258,
+													"parameters": {
+														"seconds": "0.05",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "fxExplosion",
+													"sid": 664253676735642,
+													"parameters": [
+														"bX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"bY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"sold ? \"None\" : \"Building\"",
+														"HexColor(\"#ffffff\")",
+														"1"
+													]
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 569025024914240,
+													"parameters": {
+														"seconds": "0.05",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "fxExplosion",
+													"sid": 918683816542680,
+													"parameters": [
+														"bX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"bY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"sold ? \"None\" : \"Building\"",
+														"HexColor(\"#ffffff\")",
+														"1"
+													]
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 110794729512368,
+													"parameters": {
+														"seconds": "0.05",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "fxExplosion",
+													"sid": 665097795643053,
+													"parameters": [
+														"bX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"bY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"sold ? \"None\" : \"Building\"",
+														"HexColor(\"#ffffff\")",
+														"1"
+													]
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 636277101856635,
+													"parameters": {
+														"seconds": "0.05",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "fxExplosion",
+													"sid": 529542304538872,
+													"parameters": [
+														"bX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"bY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"sold ? \"None\" : \"Building\"",
+														"HexColor(\"#ffffff\")",
+														"1"
+													]
+												},
+												{
+													"id": "wait",
+													"objectClass": "System",
+													"sid": 387986895340239,
+													"parameters": {
+														"seconds": "0.05",
+														"use-timescale": true
+													}
+												},
+												{
+													"callFunction": "fxExplosion",
+													"sid": 525243903101230,
+													"parameters": [
+														"bX + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"bY + random(-EXPLOSION_OFFSET, EXPLOSION_OFFSET)",
+														"sold ? \"None\" : \"Building\"",
+														"HexColor(\"#ffffff\")",
+														"1"
+													]
+												},
+												{
+													"id": "destroy",
+													"objectClass": "Buildings",
+													"sid": 495827616510246
+												}
+											],
+											"sid": 179662956028862
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Building actions."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Damage",
+							"objectClass": "Buildings",
+							"functionDescription": "Damage building.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "damage",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Damage delt.",
+									"sid": 866204556308274
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Buildings",
+									"sid": 548158730972826,
+									"parameters": {
+										"instance-variable": "hp",
+										"value": "max(Self.hp - damage, 0)"
+									}
+								}
+							],
+							"sid": 473287139332921,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Building was destroyed."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "Buildings",
+											"sid": 866767650225015,
+											"parameters": {
+												"instance-variable": "hp",
+												"comparison": 3,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 450987194542177,
+											"parameters": [
+												"\"Explosion0\"",
+												"\"SFX\"",
+												"-5",
+												"random(0.95, 1.05)"
+											]
+										},
+										{
+											"customAction": "Destroy Building",
+											"objectClass": "Buildings",
+											"sid": 465507307271890,
+											"parameters": [
+												false
+											]
+										}
+									],
+									"sid": 827959005582462,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the building was selected, close its menu."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-eventvar",
+													"objectClass": "System",
+													"sid": 601605092003743,
+													"parameters": {
+														"variable": "selectedBuilding",
+														"comparison": 0,
+														"value": "Buildings.UID"
+													}
+												}
+											],
+											"actions": [
+												{
+													"customAction": "Hide",
+													"objectClass": "BuildingManagers",
+													"sid": 234195935447002
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 260058556759197,
+													"parameters": {
+														"variable": "selectedBuilding",
+														"value": "-1"
+													}
+												}
+											],
+											"sid": 199872076909691
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Building was damaged."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 891046985677907
+										}
+									],
+									"actions": [
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 591760981493563,
+											"parameters": [
+												"\"Hit\"",
+												"\"SFX\"",
+												"-4",
+												"random(0.95, 1.15)"
+											]
+										},
+										{
+											"id": "tween-value",
+											"objectClass": "Buildings",
+											"sid": 660403158584579,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"FlashBuilding\"",
+												"start-value": "100",
+												"end-value": "150",
+												"time": "0.075",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "yes",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 142770139139628
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Flash building."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "Buildings",
+									"sid": 352745631613861,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FlashBuilding\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-effect-parameter",
+									"objectClass": "Buildings",
+									"sid": 177145830205455,
+									"parameters": {
+										"effect": "\"AdjustHSL\"",
+										"parameter-index": "2",
+										"value": "Self.Tween.Value(\"FlashBuilding\")"
+									}
+								}
+							],
+							"sid": 168243133620112,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Flash decorations."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Buildings",
+											"sid": 391307734955279,
+											"parameters": {
+												"child": "TurretCannon",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-effect-parameter",
+											"objectClass": "TurretCannon",
+											"sid": 509268664330935,
+											"parameters": {
+												"effect": "\"AdjustHSL\"",
+												"parameter-index": "2",
+												"value": "Buildings.Tween.Value(\"FlashBuilding\")"
+											}
+										}
+									],
+									"sid": 127222786350572
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Buildings",
+											"sid": 340628285785900,
+											"parameters": {
+												"child": "CoreGlobe",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-effect-parameter",
+											"objectClass": "CoreGlobe",
+											"sid": 826792638260497,
+											"parameters": {
+												"effect": "\"AdjustHSL\"",
+												"parameter-index": "2",
+												"value": "Buildings.Tween.Value(\"FlashBuilding\")"
+											}
+										}
+									],
+									"sid": 923347865870413
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Flash building + green tint."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "Buildings",
+									"sid": 437589636475792,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FlashBuildingGreen\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-effect-parameter",
+									"objectClass": "Buildings",
+									"sid": 188517187216743,
+									"parameters": {
+										"effect": "\"AdjustHSL\"",
+										"parameter-index": "2",
+										"value": "Self.Tween.Value(\"FlashBuildingGreen\")"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "Buildings",
+									"sid": 927961046129835,
+									"parameters": {
+										"color": "rgbEx255(\n    255 - Self.Tween.Progress(\"FlashBuildingGreen\") * 255,\n    255,\n    255 - Self.Tween.Progress(\"FlashBuildingGreen\") * 255\n)"
+									}
+								}
+							],
+							"sid": 110365722518041,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Flash decorations + green tint."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Buildings",
+											"sid": 542455150878618,
+											"parameters": {
+												"child": "TurretCannon",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-effect-parameter",
+											"objectClass": "TurretCannon",
+											"sid": 962579758512096,
+											"parameters": {
+												"effect": "\"AdjustHSL\"",
+												"parameter-index": "2",
+												"value": "Buildings.Tween.Value(\"FlashBuildingGreen\")"
+											}
+										},
+										{
+											"id": "set-default-color",
+											"objectClass": "TurretCannon",
+											"sid": 271466450655892,
+											"parameters": {
+												"color": "rgbEx255(\n    255 - Buildings.Tween.Progress(\"FlashBuildingGreen\") * 255,\n    255,\n    255 - Buildings.Tween.Progress(\"FlashBuildingGreen\") * 255\n)"
+											}
+										}
+									],
+									"sid": 803274548190075
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Buildings",
+											"sid": 139670903443127,
+											"parameters": {
+												"child": "CoreGlobe",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-effect-parameter",
+											"objectClass": "CoreGlobe",
+											"sid": 339227154902307,
+											"parameters": {
+												"effect": "\"AdjustHSL\"",
+												"parameter-index": "2",
+												"value": "Buildings.Tween.Value(\"FlashBuildingGreen\")"
+											}
+										},
+										{
+											"id": "set-default-color",
+											"objectClass": "CoreGlobe",
+											"sid": 516333876172257,
+											"parameters": {
+												"color": "rgbEx255(\n    255 - Buildings.Tween.Progress(\"FlashBuildingGreen\") * 255,\n    255,\n    255 - Buildings.Tween.Progress(\"FlashBuildingGreen\") * 255\n)"
+											}
+										}
+									],
+									"sid": 120512805274038
+								}
+							]
+						}
+					],
+					"sid": 983079093313049
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Buildings - Core",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Shoot a small projectile."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Shoot",
+							"objectClass": "CoreGlobe",
+							"functionDescription": "Shoot a small projectile.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Play sound effect."
+								},
+								{
+									"callFunction": "playSFX",
+									"sid": 768514419795901,
+									"parameters": [
+										"\"ShootSmall\"",
+										"\"SFX\"",
+										"-6",
+										"random(0.95, 1.15)"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Create projectile."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 409526439886251,
+									"parameters": {
+										"object-to-create": "GlobeProjectile",
+										"layer": "\"Projectiles\"",
+										"x": "CoreGlobe.X",
+										"y": "CoreGlobe.Y",
+										"create-hierarchy": true,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-angle-of-motion",
+									"objectClass": "GlobeProjectile",
+									"sid": 806010266184676,
+									"behaviorType": "Bullet",
+									"parameters": {
+										"angle": "angle(CoreGlobe.X, CoreGlobe.Y, Mouse.X, Mouse.Y)"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Create muzzle flash."
+								},
+								{
+									"callFunction": "fxMuzzleFlash",
+									"sid": 952900798183155,
+									"parameters": [
+										"CoreGlobe.X",
+										"CoreGlobe.Y",
+										"\"Globe\"",
+										"0",
+										"HexColor(\"#0ef1ff\")"
+									]
+								},
+								{
+									"type": "comment",
+									"text": "Start cooldown timer."
+								},
+								{
+									"id": "start-timer",
+									"objectClass": "CoreGlobe",
+									"sid": 237849349774672,
+									"behaviorType": "Timer",
+									"parameters": {
+										"duration": "0.2",
+										"type": "once",
+										"tag": "\"Cooldown\""
+									}
+								}
+							],
+							"sid": 265816953004776
+						},
+						{
+							"eventType": "comment",
+							"text": "Destroy projectiles that exit the layout."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 291919332323260,
+									"parameters": {
+										"object": "GlobeProjectile"
+									}
+								},
+								{
+									"id": "is-outside-layout",
+									"objectClass": "GlobeProjectile",
+									"sid": 367480011157179
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "GlobeProjectile",
+									"sid": 124225637157490
+								}
+							],
+							"sid": 660464109583403
+						},
+						{
+							"eventType": "comment",
+							"text": "When all cores are destroyed, it's game over."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-destroyed",
+									"objectClass": "Core",
+									"sid": 557768271671158
+								}
+							],
+							"actions": [],
+							"sid": 931399540683633,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 338300323792480,
+											"parameters": {
+												"value": "(Core.Count - 1) <= 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "displayEndScreen",
+											"sid": 998219217334987,
+											"parameters": [
+												false
+											]
+										}
+									],
+									"sid": 376080335430660
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Show core UI."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Show",
+							"objectClass": "UIM_Core",
+							"functionDescription": "Show core UI.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "buildingUID",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Selected building UID.",
+									"sid": 823612661412017
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Change selected building."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 541141493407298,
+									"parameters": {
+										"variable": "selectedBuilding",
+										"value": "buildingUID"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show and update silo UI."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UIM_Core",
+									"sid": 958782611800111,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowCoreUI\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "BMGN_FADE_TIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Switch action mode."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 326876595670245,
+									"parameters": {
+										"seconds": "0",
+										"use-timescale": true
+									}
+								},
+								{
+									"callFunction": "switchActionMode",
+									"sid": 393379812625656,
+									"parameters": [
+										"\"BuildingCoreSolar\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								}
+							],
+							"sid": 524972349846775
+						},
+						{
+							"eventType": "comment",
+							"text": "Hide core UI."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Hide",
+							"objectClass": "UIM_Core",
+							"functionDescription": "Hide core UI.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "compare-opacity",
+									"objectClass": "UIM_Core",
+									"sid": 300362976056748,
+									"parameters": {
+										"comparison": 4,
+										"opacity": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "switchActionMode",
+									"sid": 144015434454371,
+									"parameters": [
+										"actionMode = \"Sell\" ? \"Sell\" : \"ClosingUI\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UIM_Core",
+									"sid": 280954811004103,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideCoreUI\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "BMGN_FADE_TIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 188523868796213
+								},
+								{
+									"id": "set-position",
+									"objectClass": "UIM_Core",
+									"sid": 401220877323290,
+									"parameters": {
+										"x": "-100000",
+										"y": "-100000"
+									}
+								},
+								{
+									"callFunction": "switchActionMode",
+									"sid": 717536900254058,
+									"parameters": [
+										"actionMode = \"Sell\" ? \"Sell\" : \"Drill\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								}
+							],
+							"sid": 869531143538096
+						},
+						{
+							"eventType": "comment",
+							"text": "Update core HP bar."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-opacity",
+									"objectClass": "UIM_Core",
+									"sid": 644583437158736,
+									"parameters": {
+										"comparison": 4,
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 455038380306006,
+									"parameters": {
+										"object": "UI_ProgressBar",
+										"expression": "UI_ProgressBar.TagAt(0)",
+										"comparison": 0,
+										"value": "\"CoreHP\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 121418671354287,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Core",
+											"sid": 546098909042130,
+											"parameters": {
+												"unique-id": "selectedBuilding"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 679318051542714,
+											"parameters": {
+												"width": "lerp(Self.Width, (Core.hp / Core.maxHp) * Self.maxLen, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 891691507715060
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 925607009852126
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 817967705546374,
+											"parameters": {
+												"width": "lerp(Self.Width, 0, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 339473793360684
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Make core globes float on top of the core."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 933693868537206,
+									"parameters": {
+										"object": "CoreGlobe"
+									}
+								},
+								{
+									"id": "pick-parent",
+									"objectClass": "CoreGlobe",
+									"sid": 401349224124461,
+									"parameters": {
+										"parent": "Core",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "CoreGlobe",
+									"sid": 930683156060061,
+									"parameters": {
+										"x": "Core.X + cos(Core.Angle) * (160 + Self.Sine.Value)",
+										"y": "Core.Y + sin(Core.Angle) * (160 + Self.Sine.Value)"
+									}
+								}
+							],
+							"sid": 508709209974956
+						}
+					],
+					"sid": 720546231845222
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Buildings - Solar",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Show solar UI."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Show",
+							"objectClass": "UIM_Solar",
+							"functionDescription": "Show solar UI.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "buildingUID",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Selected building UID.",
+									"sid": 478242424640203
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Change selected building."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 661873390327674,
+									"parameters": {
+										"variable": "selectedBuilding",
+										"value": "buildingUID"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show and update silo UI."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UIM_Solar",
+									"sid": 765793471041235,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowSolarUI\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "BMGN_FADE_TIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Switch action mode."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 929463952208043,
+									"parameters": {
+										"seconds": "0",
+										"use-timescale": true
+									}
+								},
+								{
+									"callFunction": "switchActionMode",
+									"sid": 591610165187482,
+									"parameters": [
+										"\"BuildingMenuSolar\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								}
+							],
+							"sid": 802116779633809
+						},
+						{
+							"eventType": "comment",
+							"text": "Hide solar UI."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Hide",
+							"objectClass": "UIM_Solar",
+							"functionDescription": "Hide solar UI.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "compare-opacity",
+									"objectClass": "UIM_Solar",
+									"sid": 106901094184815,
+									"parameters": {
+										"comparison": 4,
+										"opacity": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "switchActionMode",
+									"sid": 582137034113568,
+									"parameters": [
+										"actionMode = \"Sell\" ? \"Sell\" : \"ClosingUI\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UIM_Solar",
+									"sid": 548802877731759,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideSolarUI\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "BMGN_FADE_TIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 500668959380484
+								},
+								{
+									"id": "set-position",
+									"objectClass": "UIM_Solar",
+									"sid": 905779020875327,
+									"parameters": {
+										"x": "-100000",
+										"y": "-100000"
+									}
+								},
+								{
+									"callFunction": "switchActionMode",
+									"sid": 131722615683452,
+									"parameters": [
+										"actionMode = \"Sell\" ? \"Sell\" : \"Drill\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								}
+							],
+							"sid": 472820601672580
+						},
+						{
+							"eventType": "comment",
+							"text": "Update solar panel progress bars."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Solar",
+									"sid": 121216294009181,
+									"parameters": {
+										"unique-id": "selectedBuilding"
+									}
+								},
+								{
+									"id": "compare-opacity",
+									"objectClass": "UIM_Solar",
+									"sid": 579668475567126,
+									"parameters": {
+										"comparison": 4,
+										"opacity": "0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 344600816012004,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 599448570693363,
+											"parameters": {
+												"object": "UI_ProgressBar",
+												"expression": "UI_ProgressBar.TagAt(0)",
+												"comparison": 0,
+												"value": "\"SolarHP\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 160299380170271,
+											"parameters": {
+												"width": "lerp(Self.Width, (Solar.hp / Solar.maxHp) * Self.maxLen, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 731561655891351
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 415055104524676,
+											"parameters": {
+												"object": "UI_ProgressBar",
+												"expression": "UI_ProgressBar.TagAt(0)",
+												"comparison": 0,
+												"value": "\"SolarIrradiance\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 429987936818171,
+											"parameters": {
+												"width": "lerp(Self.Width, Solar.irradiance * Self.maxLen, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 207950890918900
+								}
+							]
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 912388877412258
+								}
+							],
+							"actions": [],
+							"sid": 190158590269676,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 869281278769777,
+											"parameters": {
+												"object": "UI_ProgressBar",
+												"expression": "UI_ProgressBar.TagAt(0)",
+												"comparison": 0,
+												"value": "\"SolarHP\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 841252227551016,
+											"parameters": {
+												"width": "lerp(Self.Width, 0, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 803965866537067
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 568193269055263,
+											"parameters": {
+												"object": "UI_ProgressBar",
+												"expression": "UI_ProgressBar.TagAt(0)",
+												"comparison": 0,
+												"value": "\"SolarIrradiance\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 671931839142387,
+											"parameters": {
+												"width": "lerp(Self.Width, 0, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 587071457615599
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Update solar irradiance."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-x-seconds",
+									"objectClass": "System",
+									"sid": 203999314731369,
+									"parameters": {
+										"interval-seconds": "0.1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 535817192129222,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "sunAngle",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Angle of the sun.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 922926434774015
+								},
+								{
+									"eventType": "comment",
+									"text": "Since the sun rotates with the other stars, it's possible to obtain its angle by using the stars drawing canvas' angle."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 373351939032106,
+											"parameters": {
+												"variable": "sunAngle",
+												"value": "DCStars.Angle + 45"
+											}
+										}
+									],
+									"sid": 239225552406402
+								},
+								{
+									"eventType": "comment",
+									"text": "Get the normalized solar irradiance. The closer the sun's angle is to the solar panel's angle, the closer the irradiance is to 1."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 218164334750121,
+											"parameters": {
+												"object": "Solar"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Solar",
+											"sid": 274668240038613,
+											"parameters": {
+												"instance-variable": "irradiance",
+												"value": "(MAX_IRRADIANCE_ANGLE - min(abs(anglediff(Self.Angle, sunAngle)), MAX_IRRADIANCE_ANGLE)) / MAX_IRRADIANCE_ANGLE"
+											}
+										}
+									],
+									"sid": 379823160738520,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "While there is some irradiance, keep the energy output alive. Otherwise, turn it off."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Solar",
+													"sid": 860827821975732,
+													"parameters": {
+														"instance-variable": "irradiance",
+														"comparison": 4,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 523228359454577,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "SourceTerminal",
+															"sid": 552529579535696,
+															"parameters": {
+																"instance-variable": "resource",
+																"comparison": 0,
+																"value": "\"None\""
+															}
+														},
+														{
+															"id": "pick-children",
+															"objectClass": "Solar",
+															"sid": 387706263648768,
+															"parameters": {
+																"child": "SourceTerminal",
+																"which": "own"
+															}
+														},
+														{
+															"id": "pick-children",
+															"objectClass": "SourceTerminal",
+															"sid": 164302366592360,
+															"parameters": {
+																"child": "TerminalDeco",
+																"which": "own"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-instvar-value",
+															"objectClass": "SourceTerminal",
+															"sid": 794060790157415,
+															"parameters": {
+																"instance-variable": "resource",
+																"value": "\"Solar\""
+															}
+														},
+														{
+															"id": "set-animation",
+															"objectClass": "TerminalDeco",
+															"sid": 381759330682339,
+															"parameters": {
+																"animation": "\"Solar\"",
+																"from": "beginning"
+															}
+														}
+													],
+													"sid": 534205888903987,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-by-comparison",
+																	"objectClass": "System",
+																	"sid": 984639441156524,
+																	"parameters": {
+																		"object": "Pipe",
+																		"expression": "Pipe.from",
+																		"comparison": 0,
+																		"value": "SourceTerminal.UID"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"callFunction": "pipeRecursiveUpdate",
+																	"sid": 965251123814320,
+																	"parameters": [
+																		"Pipe.UID",
+																		"\"Solar\""
+																	]
+																}
+															],
+															"sid": 137189456183323
+														}
+													]
+												}
+											]
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 991252857202949
+												}
+											],
+											"actions": [],
+											"sid": 408262512593454,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "SourceTerminal",
+															"sid": 559763309768583,
+															"parameters": {
+																"instance-variable": "resource",
+																"comparison": 0,
+																"value": "\"Solar\""
+															}
+														},
+														{
+															"id": "pick-children",
+															"objectClass": "Solar",
+															"sid": 960247510633046,
+															"parameters": {
+																"child": "SourceTerminal",
+																"which": "own"
+															}
+														},
+														{
+															"id": "pick-children",
+															"objectClass": "SourceTerminal",
+															"sid": 117462108170969,
+															"parameters": {
+																"child": "TerminalDeco",
+																"which": "own"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-instvar-value",
+															"objectClass": "SourceTerminal",
+															"sid": 573902502848315,
+															"parameters": {
+																"instance-variable": "resource",
+																"value": "\"None\""
+															}
+														},
+														{
+															"id": "set-animation",
+															"objectClass": "TerminalDeco",
+															"sid": 235530693822066,
+															"parameters": {
+																"animation": "\"None\"",
+																"from": "beginning"
+															}
+														}
+													],
+													"sid": 699021076215497,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "pick-by-comparison",
+																	"objectClass": "System",
+																	"sid": 992337230428699,
+																	"parameters": {
+																		"object": "Pipe",
+																		"expression": "Pipe.from",
+																		"comparison": 0,
+																		"value": "SourceTerminal.UID"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"callFunction": "pipeRecursiveUpdate",
+																	"sid": 348390894262636,
+																	"parameters": [
+																		"Pipe.UID",
+																		"\"None\""
+																	]
+																}
+															],
+															"sid": 278043402371269
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					],
+					"sid": 384440237604205
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Buildings - Turret",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update turret state."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Update",
+							"objectClass": "Turret",
+							"functionDescription": "Update turret state.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Turret",
+									"sid": 730715100338118,
+									"parameters": {
+										"child": "TurretCannon",
+										"which": "own"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "Turret",
+									"sid": 233564964108276,
+									"parameters": {
+										"child": "TurretDecoLight",
+										"which": "own"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "TurretCannon",
+									"sid": 354444540228641,
+									"parameters": {
+										"child": "TurretCannonDeco",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 141311217762753,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Ammo."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Turret",
+											"sid": 824742899181055,
+											"parameters": {
+												"child": "AmmoTerminal",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 703126204830718,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "AmmoTerminal",
+													"sid": 727112593473736,
+													"parameters": {
+														"instance-variable": "resource",
+														"comparison": 0,
+														"value": "\"Copper\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "TurretCannon",
+													"sid": 960908713444172,
+													"parameters": {
+														"instance-variable": "power",
+														"value": "JsonTurrets.Get(\"ammoTypeDamage.\" & AmmoTerminal.resource)"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretCannonDeco",
+													"sid": 129096534636636,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(\"Copper\"))"
+													}
+												}
+											],
+											"sid": 416885326795236
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 407622068053435
+												},
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "AmmoTerminal",
+													"sid": 100288595931925,
+													"parameters": {
+														"instance-variable": "resource",
+														"comparison": 0,
+														"value": "\"Iron\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "TurretCannon",
+													"sid": 147416933619033,
+													"parameters": {
+														"instance-variable": "power",
+														"value": "JsonTurrets.Get(\"ammoTypeDamage.\" & AmmoTerminal.resource)"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretCannonDeco",
+													"sid": 624301489149107,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(\"Iron\"))"
+													}
+												}
+											],
+											"sid": 125799155666446
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 946604498799336
+												},
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "AmmoTerminal",
+													"sid": 727861753784487,
+													"parameters": {
+														"instance-variable": "resource",
+														"comparison": 0,
+														"value": "\"Tungsten\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "TurretCannon",
+													"sid": 389372693980660,
+													"parameters": {
+														"instance-variable": "power",
+														"value": "JsonTurrets.Get(\"ammoTypeDamage.\" & AmmoTerminal.resource)"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretCannonDeco",
+													"sid": 869576472869429,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(\"Tungsten\"))"
+													}
+												}
+											],
+											"sid": 917227742883251
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 433097991634390
+												},
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "AmmoTerminal",
+													"sid": 892401462718407,
+													"parameters": {
+														"instance-variable": "resource",
+														"comparison": 0,
+														"value": "\"Uranium\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "TurretCannon",
+													"sid": 172639081353469,
+													"parameters": {
+														"instance-variable": "power",
+														"value": "JsonTurrets.Get(\"ammoTypeDamage.\" & AmmoTerminal.resource)"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretCannonDeco",
+													"sid": 900326747058699,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(\"Uranium\"))"
+													}
+												}
+											],
+											"sid": 932642613218605
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 995896949986645
+												},
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "AmmoTerminal",
+													"sid": 362581375226603,
+													"parameters": {
+														"instance-variable": "resource",
+														"comparison": 0,
+														"value": "\"Plutonium\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "TurretCannon",
+													"sid": 439262242819117,
+													"parameters": {
+														"instance-variable": "power",
+														"value": "JsonTurrets.Get(\"ammoTypeDamage.\" & AmmoTerminal.resource)"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretCannonDeco",
+													"sid": 472479171681566,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(\"Plutonium\"))"
+													}
+												}
+											],
+											"sid": 410801519833497
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 106257287595422
+												}
+											],
+											"actions": [
+												{
+													"id": "set-instvar-value",
+													"objectClass": "TurretCannon",
+													"sid": 454559156535707,
+													"parameters": {
+														"instance-variable": "power",
+														"value": "0"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretCannonDeco",
+													"sid": 689296670890379,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(\"None\"))"
+													}
+												}
+											],
+											"sid": 623480385459332
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Energy."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Turret",
+											"sid": 696871554505812,
+											"parameters": {
+												"child": "EnergyTerminal",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 393231807535365,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "EnergyTerminal",
+													"sid": 662337498943566,
+													"parameters": {
+														"instance-variable": "resource",
+														"comparison": 0,
+														"value": "\"Coal\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-rate-of-fire",
+													"objectClass": "TurretCannon",
+													"sid": 410732253826963,
+													"behaviorType": "Turret",
+													"parameters": {
+														"rate-of-fire": "JsonTurrets.Get(\"energyRateOfFire.\" & EnergyTerminal.resource)"
+													}
+												},
+												{
+													"id": "set-rotate-speed",
+													"objectClass": "TurretCannon",
+													"sid": 796843887968699,
+													"behaviorType": "Turret",
+													"parameters": {
+														"rotate-speed": "TURRET_ROT"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretDecoLight",
+													"sid": 388951546992689,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(EnergyTerminal.resource))"
+													}
+												}
+											],
+											"sid": 173456550356499
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 586693564171907
+												},
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "EnergyTerminal",
+													"sid": 125272220769790,
+													"parameters": {
+														"instance-variable": "resource",
+														"comparison": 0,
+														"value": "\"Solar\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-rate-of-fire",
+													"objectClass": "TurretCannon",
+													"sid": 446672040733931,
+													"behaviorType": "Turret",
+													"parameters": {
+														"rate-of-fire": "JsonTurrets.Get(\"energyRateOfFire.\" & EnergyTerminal.resource)"
+													}
+												},
+												{
+													"id": "set-rotate-speed",
+													"objectClass": "TurretCannon",
+													"sid": 615749198731935,
+													"behaviorType": "Turret",
+													"parameters": {
+														"rotate-speed": "TURRET_ROT"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretDecoLight",
+													"sid": 989341391422341,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(EnergyTerminal.resource))"
+													}
+												}
+											],
+											"sid": 943223349764682
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 187725615038831
+												},
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "EnergyTerminal",
+													"sid": 999862350337390,
+													"parameters": {
+														"instance-variable": "resource",
+														"comparison": 0,
+														"value": "\"Uranium\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-rate-of-fire",
+													"objectClass": "TurretCannon",
+													"sid": 327543244686560,
+													"behaviorType": "Turret",
+													"parameters": {
+														"rate-of-fire": "JsonTurrets.Get(\"energyRateOfFire.\" & EnergyTerminal.resource)"
+													}
+												},
+												{
+													"id": "set-rotate-speed",
+													"objectClass": "TurretCannon",
+													"sid": 884168720389970,
+													"behaviorType": "Turret",
+													"parameters": {
+														"rotate-speed": "TURRET_ROT"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretDecoLight",
+													"sid": 782794447869741,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(EnergyTerminal.resource))"
+													}
+												}
+											],
+											"sid": 189831568212476
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 847606204433920
+												},
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "EnergyTerminal",
+													"sid": 736176193678760,
+													"parameters": {
+														"instance-variable": "resource",
+														"comparison": 0,
+														"value": "\"Plutonium\""
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-rate-of-fire",
+													"objectClass": "TurretCannon",
+													"sid": 939722382906975,
+													"behaviorType": "Turret",
+													"parameters": {
+														"rate-of-fire": "JsonTurrets.Get(\"energyRateOfFire.\" & EnergyTerminal.resource)"
+													}
+												},
+												{
+													"id": "set-rotate-speed",
+													"objectClass": "TurretCannon",
+													"sid": 440011995114278,
+													"behaviorType": "Turret",
+													"parameters": {
+														"rotate-speed": "TURRET_ROT"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretDecoLight",
+													"sid": 896302340997752,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(EnergyTerminal.resource))"
+													}
+												}
+											],
+											"sid": 522610778173206
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 719919500795092
+												}
+											],
+											"actions": [
+												{
+													"id": "set-rate-of-fire",
+													"objectClass": "TurretCannon",
+													"sid": 872830228963087,
+													"behaviorType": "Turret",
+													"parameters": {
+														"rate-of-fire": "Infinity"
+													}
+												},
+												{
+													"id": "set-rotate-speed",
+													"objectClass": "TurretCannon",
+													"sid": 367056914420826,
+													"behaviorType": "Turret",
+													"parameters": {
+														"rotate-speed": "0"
+													}
+												},
+												{
+													"id": "set-default-color",
+													"objectClass": "TurretDecoLight",
+													"sid": 317746758221082,
+													"parameters": {
+														"color": "HexColor(DictResColors.Get(\"None\"))"
+													}
+												}
+											],
+											"sid": 160936043318499
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Show turret UI."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Show",
+							"objectClass": "UIM_Turret",
+							"functionDescription": "Show turret UI.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "buildingUID",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Selected building UID.",
+									"sid": 514505163488887
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Change selected building."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 542097483766098,
+									"parameters": {
+										"variable": "selectedBuilding",
+										"value": "buildingUID"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show and update silo UI."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UIM_Turret",
+									"sid": 729789633412353,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowTurretUI\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "BMGN_FADE_TIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Switch action mode."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 735275070536317,
+									"parameters": {
+										"seconds": "0",
+										"use-timescale": true
+									}
+								},
+								{
+									"callFunction": "switchActionMode",
+									"sid": 678278629646951,
+									"parameters": [
+										"\"BuildingMenuTurret\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								}
+							],
+							"sid": 730692130339857
+						},
+						{
+							"eventType": "comment",
+							"text": "Hide turret UI."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Hide",
+							"objectClass": "UIM_Turret",
+							"functionDescription": "Hide turret UI.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "compare-opacity",
+									"objectClass": "UIM_Turret",
+									"sid": 335351666407466,
+									"parameters": {
+										"comparison": 4,
+										"opacity": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "switchActionMode",
+									"sid": 254876337801328,
+									"parameters": [
+										"actionMode = \"Sell\" ? \"Sell\" : \"ClosingUI\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UIM_Turret",
+									"sid": 437813880270705,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideTurretUI\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "BMGN_FADE_TIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 425344624925486
+								},
+								{
+									"id": "set-position",
+									"objectClass": "UIM_Turret",
+									"sid": 650238954653283,
+									"parameters": {
+										"x": "-100000",
+										"y": "-100000"
+									}
+								},
+								{
+									"callFunction": "switchActionMode",
+									"sid": 490289981668685,
+									"parameters": [
+										"actionMode = \"Sell\" ? \"Sell\" : \"Drill\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								}
+							],
+							"sid": 131275848343728
+						},
+						{
+							"eventType": "comment",
+							"text": "Update turret progress bars."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Turret",
+									"sid": 562597282986732,
+									"parameters": {
+										"unique-id": "selectedBuilding"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "Turret",
+									"sid": 156451229969041,
+									"parameters": {
+										"child": "TurretCannon",
+										"which": "own"
+									}
+								},
+								{
+									"id": "compare-opacity",
+									"objectClass": "UIM_Turret",
+									"sid": 678320533697052,
+									"parameters": {
+										"comparison": 4,
+										"opacity": "0"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 646351373399429,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 166997377441404,
+											"parameters": {
+												"object": "UI_ProgressBar",
+												"expression": "UI_ProgressBar.TagAt(0)",
+												"comparison": 0,
+												"value": "\"TurretHP\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 982897473552536,
+											"parameters": {
+												"width": "lerp(Self.Width, (Turret.hp / Turret.maxHp) * Self.maxLen, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 526421524978844
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 185442542970223,
+											"parameters": {
+												"object": "UI_ProgressBar",
+												"expression": "UI_ProgressBar.TagAt(0)",
+												"comparison": 0,
+												"value": "\"TurretSpeed\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 725584780728873,
+											"parameters": {
+												"width": "lerp(Self.Width, (TurretCannon.Turret.RateOfFire / TurretCannon.maxRate) * Self.maxLen, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 400674761888298
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 488053972311470,
+											"parameters": {
+												"object": "UI_ProgressBar",
+												"expression": "UI_ProgressBar.TagAt(0)",
+												"comparison": 0,
+												"value": "\"TurretPower\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 757062060516397,
+											"parameters": {
+												"width": "lerp(Self.Width, (TurretCannon.power / TurretCannon.maxPower) * Self.maxLen, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 916367817690880
+								}
+							]
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 577313450412619
+								}
+							],
+							"actions": [],
+							"sid": 154792906587361,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 251784778248138,
+											"parameters": {
+												"object": "UI_ProgressBar",
+												"expression": "UI_ProgressBar.TagAt(0)",
+												"comparison": 0,
+												"value": "\"TurretHP\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 881193653001223,
+											"parameters": {
+												"width": "lerp(Self.Width, 0, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 263993528985808
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 105180510474756,
+											"parameters": {
+												"object": "UI_ProgressBar",
+												"expression": "UI_ProgressBar.TagAt(0)",
+												"comparison": 0,
+												"value": "\"TurretSpeed\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 661175587945270,
+											"parameters": {
+												"width": "lerp(Self.Width, 0, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 867090702997384
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 911598649240781,
+											"parameters": {
+												"object": "UI_ProgressBar",
+												"expression": "UI_ProgressBar.TagAt(0)",
+												"comparison": 0,
+												"value": "\"TurretPower\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 886617971024211,
+											"parameters": {
+												"width": "lerp(Self.Width, 0, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 284848796563858
+								}
+							]
+						}
+					],
+					"sid": 251252234357837
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Buildings - Silo",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Update resource being sent through the ammo terminal."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Update ammo",
+							"objectClass": "Silo",
+							"functionDescription": "Update resource being sent through the ammo terminal.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Silo",
+									"sid": 397341695417454,
+									"parameters": {
+										"child": "SourceTerminal",
+										"which": "own"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "SourceTerminal",
+									"sid": 583912906771690,
+									"parameters": {
+										"child": "TerminalDeco",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 117884357561761,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Silo can only supply ammo if it's powered."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Silo",
+											"sid": 600428115419561,
+											"parameters": {
+												"instance-variable": "powered"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 602343893721182,
+											"parameters": {
+												"value": "Functions.checkBank(Silo.resource) > 0"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "SourceTerminal",
+											"sid": 608995022780658,
+											"parameters": {
+												"instance-variable": "resource",
+												"value": "Silo.resource"
+											}
+										},
+										{
+											"customAction": "Update",
+											"objectClass": "UIM_Silo",
+											"sid": 414469114003993
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "TerminalDeco",
+											"sid": 957864222009032,
+											"parameters": {
+												"animation": "Silo.resource",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 499408673100615
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 766898029509715
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "SourceTerminal",
+											"sid": 304613800744348,
+											"parameters": {
+												"instance-variable": "resource",
+												"value": "\"None\""
+											}
+										},
+										{
+											"customAction": "Update",
+											"objectClass": "UIM_Silo",
+											"sid": 344320742223718
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "TerminalDeco",
+											"sid": 867655421867692,
+											"parameters": {
+												"animation": "\"None\"",
+												"from": "beginning"
+											}
+										}
+									],
+									"sid": 505706458790202
+								},
+								{
+									"eventType": "comment",
+									"text": "Update pipes."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 784667694722110,
+											"parameters": {
+												"object": "Pipe",
+												"expression": "Pipe.from",
+												"comparison": 0,
+												"value": "SourceTerminal.UID"
+											}
+										}
+									],
+									"actions": [
+										{
+											"callFunction": "pipeRecursiveUpdate",
+											"sid": 740275105264104,
+											"parameters": [
+												"Pipe.UID",
+												"SourceTerminal.resource"
+											]
+										}
+									],
+									"sid": 300757922656031
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Update silo state."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Update",
+							"objectClass": "Silo",
+							"functionDescription": "Update silo state.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "Silo",
+									"sid": 231142714896024,
+									"parameters": {
+										"child": "EnergyTerminal",
+										"which": "own"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "Silo",
+									"sid": 203068823204778,
+									"parameters": {
+										"child": "SiloDeco",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 106670918786301,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "EnergyTerminal",
+											"sid": 608765207845664,
+											"parameters": {
+												"instance-variable": "resource",
+												"comparison": 0,
+												"value": "\"Solar\""
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "EnergyTerminal",
+											"sid": 402238353881540,
+											"parameters": {
+												"instance-variable": "resource",
+												"comparison": 0,
+												"value": "\"Coal\""
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "EnergyTerminal",
+											"sid": 834930209105809,
+											"parameters": {
+												"instance-variable": "resource",
+												"comparison": 0,
+												"value": "\"Uranium\""
+											}
+										},
+										{
+											"id": "compare-instance-variable",
+											"objectClass": "EnergyTerminal",
+											"sid": 599513487755953,
+											"parameters": {
+												"instance-variable": "resource",
+												"comparison": 0,
+												"value": "\"Plutonium\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Silo",
+											"sid": 962058477151753,
+											"parameters": {
+												"instance-variable": "powered",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-default-color",
+											"objectClass": "SiloDeco",
+											"sid": 440693385925014,
+											"parameters": {
+												"color": "HexColor(DictResColors.Get(EnergyTerminal.resource))"
+											}
+										}
+									],
+									"sid": 519482974026351,
+									"isOrBlock": true
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 186737516525588
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Silo",
+											"sid": 274453930352720,
+											"parameters": {
+												"instance-variable": "powered",
+												"value": "false"
+											}
+										},
+										{
+											"id": "set-default-color",
+											"objectClass": "SiloDeco",
+											"sid": 487980884395964,
+											"parameters": {
+												"color": "HexColor(DictResColors.Get(\"None\"))"
+											}
+										}
+									],
+									"sid": 890667708440593
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"customAction": "Update ammo",
+											"objectClass": "Silo",
+											"sid": 571872801192749
+										}
+									],
+									"sid": 909477918735202
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Show silo UI."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Show",
+							"objectClass": "UIM_Silo",
+							"functionDescription": "Show silo UI.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "buildingUID",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Selected building UID.",
+									"sid": 529840457347930
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Change selected building."
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 433700915065449,
+									"parameters": {
+										"variable": "selectedBuilding",
+										"value": "buildingUID"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show and update silo UI."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UIM_Silo",
+									"sid": 385463360842317,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowSiloUI\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "BMGN_FADE_TIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"customAction": "Update",
+									"objectClass": "UIM_Silo",
+									"sid": 621966477402988
+								},
+								{
+									"type": "comment",
+									"text": "Switch action mode."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 959521930693275,
+									"parameters": {
+										"seconds": "0",
+										"use-timescale": true
+									}
+								},
+								{
+									"callFunction": "switchActionMode",
+									"sid": 463989269759030,
+									"parameters": [
+										"\"BuildingMenuSilo\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								}
+							],
+							"sid": 695824847308590
+						},
+						{
+							"eventType": "comment",
+							"text": "Hide silo UI."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Hide",
+							"objectClass": "UIM_Silo",
+							"functionDescription": "Hide silo UI.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "compare-opacity",
+									"objectClass": "UIM_Silo",
+									"sid": 136255841862153,
+									"parameters": {
+										"comparison": 4,
+										"opacity": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "switchActionMode",
+									"sid": 996190863691233,
+									"parameters": [
+										"actionMode = \"Sell\" ? \"Sell\" : \"ClosingUI\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "UIM_Silo",
+									"sid": 538543509338650,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideSiloUI\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "BMGN_FADE_TIME",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 188979365973930
+								},
+								{
+									"id": "set-position",
+									"objectClass": "UIM_Silo",
+									"sid": 213661866037012,
+									"parameters": {
+										"x": "-100000",
+										"y": "-100000"
+									}
+								},
+								{
+									"callFunction": "switchActionMode",
+									"sid": 686039880786798,
+									"parameters": [
+										"actionMode = \"Sell\" ? \"Sell\" : \"Drill\"",
+										"CurrentEventSheetName",
+										"CurrentEventNumber"
+									]
+								}
+							],
+							"sid": 407721637892183
+						},
+						{
+							"eventType": "comment",
+							"text": "Update silo UI."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Update",
+							"objectClass": "UIM_Silo",
+							"functionDescription": "Update silo UI.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Silo",
+									"sid": 405575760301175,
+									"parameters": {
+										"unique-id": "selectedBuilding"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "Silo",
+									"sid": 527765241752117,
+									"parameters": {
+										"child": "SourceTerminal",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 131495827908780,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 684642035970900,
+											"parameters": {
+												"object": "UI_SiloButton"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation-frame",
+											"objectClass": "UI_SiloButton",
+											"sid": 193571949158057,
+											"parameters": {
+												"frame-number": "Self.AnimationName = Silo.resource"
+											}
+										}
+									],
+									"sid": 147934416583992,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-value",
+													"objectClass": "DictBank",
+													"sid": 548974751401841,
+													"parameters": {
+														"key": "UI_SiloButton.AnimationName",
+														"comparison": 4,
+														"value": "0"
+													}
+												},
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "Silo",
+													"sid": 534972234978154,
+													"parameters": {
+														"instance-variable": "powered"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-effect-parameter",
+													"objectClass": "UI_SiloButton",
+													"sid": 169285346011083,
+													"parameters": {
+														"effect": "\"AdjustHSL\"",
+														"parameter-index": "1",
+														"value": "100"
+													}
+												}
+											],
+											"sid": 867188376492488
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 791720709844671
+												}
+											],
+											"actions": [
+												{
+													"id": "set-effect-parameter",
+													"objectClass": "UI_SiloButton",
+													"sid": 634842614786718,
+													"parameters": {
+														"effect": "\"AdjustHSL\"",
+														"parameter-index": "1",
+														"value": "0"
+													}
+												}
+											],
+											"sid": 265802606058105
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Switch ammo type."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Switch ammo",
+							"objectClass": "UIM_Silo",
+							"functionDescription": "Switch ammo type.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "ammo",
+									"type": "string",
+									"initialValue": "None",
+									"comment": "Switch to this ammo type.",
+									"sid": 715947097538001
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Silo",
+									"sid": 857027198818547,
+									"parameters": {
+										"unique-id": "selectedBuilding"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "Silo",
+									"sid": 457924890780965,
+									"parameters": {
+										"child": "SourceTerminal",
+										"which": "own"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Silo",
+									"sid": 804655589686977,
+									"parameters": {
+										"instance-variable": "powered"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "SourceTerminal",
+									"sid": 549042772933629,
+									"parameters": {
+										"child": "TerminalDeco",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Silo",
+									"sid": 896818884551412,
+									"parameters": {
+										"instance-variable": "resource",
+										"value": "ammo"
+									}
+								},
+								{
+									"customAction": "Update ammo",
+									"objectClass": "Silo",
+									"sid": 937230293467580
+								}
+							],
+							"sid": 794571918359871
+						},
+						{
+							"eventType": "comment",
+							"text": "Update silo HP bar."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-opacity",
+									"objectClass": "UIM_Silo",
+									"sid": 554652867735523,
+									"parameters": {
+										"comparison": 4,
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 677725463927331,
+									"parameters": {
+										"object": "UI_ProgressBar",
+										"expression": "UI_ProgressBar.TagAt(0)",
+										"comparison": 0,
+										"value": "\"SiloHP\""
+									}
+								}
+							],
+							"actions": [],
+							"sid": 326840197794713,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-unique-id",
+											"objectClass": "Silo",
+											"sid": 140658545958923,
+											"parameters": {
+												"unique-id": "selectedBuilding"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 264759437257148,
+											"parameters": {
+												"width": "lerp(Self.Width, (Silo.hp / Silo.maxHp) * Self.maxLen, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 625621335031572
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 344290378943940
+										}
+									],
+									"actions": [
+										{
+											"id": "set-width",
+											"objectClass": "UI_ProgressBar",
+											"sid": 342920424895547,
+											"parameters": {
+												"width": "lerp(Self.Width, 0, PB_UPDATE * dt)"
+											}
+										}
+									],
+									"sid": 208661913986688
+								}
+							]
+						}
+					],
+					"sid": 747548446565212
+				}
+			],
+			"sid": 861623068052128
+		}
+	],
+	"sid": 384241760180087
+}

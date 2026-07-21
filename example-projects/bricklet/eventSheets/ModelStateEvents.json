@@ -1,0 +1,1005 @@
+{
+	"name": "ModelStateEvents",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "New Model",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Create a new model."
+				},
+				{
+					"functionName": "NewModel",
+					"functionDescription": "Create a new model.",
+					"functionCategory": "New Model",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Erase history."
+						},
+						{
+							"id": "set-size",
+							"objectClass": "ArrHistory",
+							"sid": 174489625829447,
+							"parameters": {
+								"width": "7",
+								"height": "0",
+								"depth": "1"
+							}
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 769150236602639,
+							"parameters": {
+								"variable": "historyPos",
+								"value": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Destroy existing bricks."
+						},
+						{
+							"id": "destroy",
+							"objectClass": "Brick",
+							"sid": 740453831663096
+						},
+						{
+							"type": "comment",
+							"text": "Hide cursor."
+						},
+						{
+							"id": "set-visible",
+							"objectClass": "CursorBase",
+							"sid": 228675602404244,
+							"parameters": {
+								"visibility": "invisible"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Reset placement height."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 419643428219725,
+							"parameters": {
+								"variable": "placementHeight",
+								"value": "Grid.Z"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Reset selected brick."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 161810988784100,
+							"parameters": {
+								"variable": "selectedBrick",
+								"value": "-1"
+							}
+						}
+					],
+					"sid": 955990033079407
+				}
+			],
+			"sid": 272194036549809
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Load Model",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Load model from a CSV file."
+				},
+				{
+					"functionName": "LoadModel",
+					"functionDescription": "Load model from a CSV file.",
+					"functionCategory": "File Operations",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Clear screen."
+						},
+						{
+							"callFunction": "NewModel",
+							"sid": 377492344753204
+						},
+						{
+							"type": "comment",
+							"text": "Load from CSV file."
+						},
+						{
+							"id": "parse-csv",
+							"objectClass": "CSV",
+							"sid": 452240578211337,
+							"parameters": {
+								"csv": "FileSystem.FileText",
+								"delimiter": "\",\"",
+								"array": "ArrModel",
+								"data-type": "auto"
+							}
+						}
+					],
+					"sid": 781579919535143,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Spawn loaded bricks."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 337371784102585,
+									"parameters": {
+										"count": "ArrModel.Height"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "spawnBrick",
+									"sid": 342102090245588,
+									"parameters": [
+										"ArrModel.At(0, loopindex)",
+										"ArrModel.At(1, loopindex)",
+										"ArrModel.At(2, loopindex)",
+										"ArrModel.At(3, loopindex)",
+										"ArrModel.At(4, loopindex)",
+										"HexColor(ArrModel.At(5, loopindex))",
+										false,
+										true
+									]
+								}
+							],
+							"sid": 789844882728565
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Load the model."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-picker-complete",
+							"objectClass": "FileSystem",
+							"sid": 633661090566632,
+							"parameters": {
+								"picker-tag": "\"LoadModel\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "read-text-file",
+							"objectClass": "FileSystem",
+							"sid": 647173255366935,
+							"parameters": {
+								"picker-tag": "\"LoadModel\"",
+								"folder-path": "\"\"",
+								"file-tag": "\"\""
+							}
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 626645915911569
+						},
+						{
+							"callFunction": "LoadModel",
+							"sid": 843827125033905
+						}
+					],
+					"sid": 348726344213213
+				}
+			],
+			"sid": 942071582135500
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Load Example Model",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Load example model."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-completed",
+							"objectClass": "AJAX",
+							"sid": 265304075398214,
+							"parameters": {
+								"tag": "\"ExampleModel\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Clear screen."
+						},
+						{
+							"callFunction": "NewModel",
+							"sid": 467692092401700
+						},
+						{
+							"type": "comment",
+							"text": "Load from CSV file."
+						},
+						{
+							"id": "parse-csv",
+							"objectClass": "CSV",
+							"sid": 397043266804983,
+							"parameters": {
+								"csv": "AJAX.LastData",
+								"delimiter": "\",\"",
+								"array": "ArrModel",
+								"data-type": "auto"
+							}
+						}
+					],
+					"sid": 209114806173838,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Spawn loaded bricks."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 233689081240959,
+									"parameters": {
+										"count": "ArrModel.Height"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "spawnBrick",
+									"sid": 315714268006695,
+									"parameters": [
+										"ArrModel.At(0, loopindex)",
+										"ArrModel.At(1, loopindex)",
+										"ArrModel.At(2, loopindex)",
+										"ArrModel.At(3, loopindex)",
+										"ArrModel.At(4, loopindex)",
+										"HexColor(ArrModel.At(5, loopindex))",
+										false,
+										true
+									]
+								}
+							],
+							"sid": 485573004444965
+						}
+					]
+				}
+			],
+			"sid": 309062940965889
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Save Model",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Save model as a CSV file."
+				},
+				{
+					"functionName": "SaveModel",
+					"functionDescription": "Save model as a CSV file.",
+					"functionCategory": "File Operations",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 716916593256043,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Count non-selected bricks to set the size of the array."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Brick",
+									"sid": 289566088683738,
+									"parameters": {
+										"unique-id": "selectedBrick"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"id": "set-size",
+									"objectClass": "ArrModel",
+									"sid": 960795493160685,
+									"parameters": {
+										"width": "6",
+										"height": "Brick.PickedCount",
+										"depth": "1"
+									}
+								}
+							],
+							"sid": 714666093814304
+						},
+						{
+							"eventType": "comment",
+							"text": "Fill array with brick information."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Brick",
+									"sid": 912295423099258,
+									"parameters": {
+										"unique-id": "selectedBrick"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "for-each-ordered",
+									"objectClass": "System",
+									"sid": 109085901290288,
+									"parameters": {
+										"object": "Brick",
+										"expression": "Brick.Z",
+										"order": "ascending"
+									}
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "Brick",
+									"sid": 584824604877069,
+									"parameters": {
+										"child": "BrickModel",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-at-xy",
+									"objectClass": "ArrModel",
+									"sid": 339003801842105,
+									"parameters": {
+										"x": "0",
+										"y": "loopindex",
+										"value": "Brick.TemplateName"
+									}
+								},
+								{
+									"id": "set-at-xy",
+									"objectClass": "ArrModel",
+									"sid": 194426222531884,
+									"parameters": {
+										"x": "1",
+										"y": "loopindex",
+										"value": "Brick.X"
+									}
+								},
+								{
+									"id": "set-at-xy",
+									"objectClass": "ArrModel",
+									"sid": 842302943137919,
+									"parameters": {
+										"x": "2",
+										"y": "loopindex",
+										"value": "Brick.Y"
+									}
+								},
+								{
+									"id": "set-at-xy",
+									"objectClass": "ArrModel",
+									"sid": 103796889548618,
+									"parameters": {
+										"x": "3",
+										"y": "loopindex",
+										"value": "Brick.Z"
+									}
+								},
+								{
+									"id": "set-at-xy",
+									"objectClass": "ArrModel",
+									"sid": 127788007476357,
+									"parameters": {
+										"x": "4",
+										"y": "loopindex",
+										"value": "Brick.Angle"
+									}
+								},
+								{
+									"id": "set-at-xy",
+									"objectClass": "ArrModel",
+									"sid": 443806538851832,
+									"parameters": {
+										"x": "5",
+										"y": "loopindex",
+										"value": "ColorToHexString(BrickModel.ColorValue)"
+									}
+								}
+							],
+							"sid": 176114797448999
+						},
+						{
+							"eventType": "comment",
+							"text": "Save array as CSV file."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "generate-csv",
+									"objectClass": "CSV",
+									"sid": 142998420045767,
+									"parameters": {
+										"array": "ArrModel",
+										"delimiter": "\",\""
+									}
+								},
+								{
+									"id": "write-text-file",
+									"objectClass": "FileSystem",
+									"sid": 155997511863595,
+									"parameters": {
+										"picker-tag": "\"SaveModel\"",
+										"folder-path": "\"\"",
+										"file-tag": "\"\"",
+										"text": "CSV.GeneratedCSV",
+										"mode": "overwrite"
+									}
+								}
+							],
+							"sid": 646957778506196
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Save the model."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-picker-complete",
+							"objectClass": "FileSystem",
+							"sid": 592752438179699,
+							"parameters": {
+								"picker-tag": "\"SaveModel\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"callFunction": "SaveModel",
+							"sid": 365336326262340
+						}
+					],
+					"sid": 608405140397521
+				}
+			],
+			"sid": 216004442787787
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "History",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Record a new state."
+				},
+				{
+					"functionName": "record",
+					"functionDescription": "Record a new state.",
+					"functionCategory": "History",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "brickUID",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Brick UID.",
+							"sid": 964675710758340
+						},
+						{
+							"name": "deletion",
+							"type": "boolean",
+							"initialValue": "false",
+							"comment": "Was the change a deletion?",
+							"sid": 335442358820170
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "pick-by-unique-id",
+							"objectClass": "Brick",
+							"sid": 260077401578956,
+							"parameters": {
+								"unique-id": "brickUID"
+							}
+						},
+						{
+							"id": "pick-children",
+							"objectClass": "Brick",
+							"sid": 313442581813032,
+							"parameters": {
+								"child": "BrickModel",
+								"which": "own"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Change history size to erase invalid redos, and to store new values."
+						},
+						{
+							"id": "set-size",
+							"objectClass": "ArrHistory",
+							"sid": 338309220180423,
+							"parameters": {
+								"width": "7",
+								"height": "historyPos + 1",
+								"depth": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Store current state."
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "ArrHistory",
+							"sid": 121998660561091,
+							"parameters": {
+								"x": "0",
+								"y": "historyPos",
+								"value": "Brick.TemplateName"
+							}
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "ArrHistory",
+							"sid": 803816609923459,
+							"parameters": {
+								"x": "1",
+								"y": "historyPos",
+								"value": "Brick.X"
+							}
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "ArrHistory",
+							"sid": 734345300239435,
+							"parameters": {
+								"x": "2",
+								"y": "historyPos",
+								"value": "Brick.Y"
+							}
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "ArrHistory",
+							"sid": 705050560489960,
+							"parameters": {
+								"x": "3",
+								"y": "historyPos",
+								"value": "Brick.Z"
+							}
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "ArrHistory",
+							"sid": 495046212453175,
+							"parameters": {
+								"x": "4",
+								"y": "historyPos",
+								"value": "Brick.Angle"
+							}
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "ArrHistory",
+							"sid": 379166357855743,
+							"parameters": {
+								"x": "5",
+								"y": "historyPos",
+								"value": "BrickModel.ColorValue"
+							}
+						},
+						{
+							"id": "set-at-xy",
+							"objectClass": "ArrHistory",
+							"sid": 333202260278583,
+							"parameters": {
+								"x": "6",
+								"y": "historyPos",
+								"value": "deletion"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Increase history position by 1."
+						},
+						{
+							"id": "add-to-eventvar",
+							"objectClass": "System",
+							"sid": 321483047699507,
+							"parameters": {
+								"variable": "historyPos",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 334302198020704
+				},
+				{
+					"eventType": "comment",
+					"text": "Undo last change."
+				},
+				{
+					"functionName": "undo",
+					"functionDescription": "Undo last change.",
+					"functionCategory": "History",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 520606864919850,
+							"parameters": {
+								"variable": "historyPos",
+								"comparison": 4,
+								"value": "0"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Decrement history position by 1."
+						},
+						{
+							"id": "subtract-from-eventvar",
+							"objectClass": "System",
+							"sid": 413845166463617,
+							"parameters": {
+								"variable": "historyPos",
+								"value": "1"
+							}
+						}
+					],
+					"sid": 249691731581989,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Undo creation of a brick."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-at-xy",
+									"objectClass": "ArrHistory",
+									"sid": 470565248519726,
+									"parameters": {
+										"x": "6",
+										"y": "historyPos",
+										"comparison": 0,
+										"value": "0"
+									}
+								},
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Brick",
+									"sid": 800702485746898,
+									"parameters": {
+										"unique-id": "selectedBrick"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 288672001313418,
+									"parameters": {
+										"object": "Brick",
+										"expression": "Brick.X",
+										"comparison": 0,
+										"value": "ArrHistory.At(1, historyPos)"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 350064802711936,
+									"parameters": {
+										"object": "Brick",
+										"expression": "Brick.Y",
+										"comparison": 0,
+										"value": "ArrHistory.At(2, historyPos)"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 290381731844529,
+									"parameters": {
+										"object": "Brick",
+										"expression": "Brick.Z",
+										"comparison": 0,
+										"value": "ArrHistory.At(3, historyPos)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Brick",
+									"sid": 603994241333183
+								}
+							],
+							"sid": 929536062951299
+						},
+						{
+							"eventType": "comment",
+							"text": "Undo deletion of a brick."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-at-xy",
+									"objectClass": "ArrHistory",
+									"sid": 355815812615750,
+									"parameters": {
+										"x": "6",
+										"y": "historyPos",
+										"comparison": 0,
+										"value": "1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "spawnBrick",
+									"sid": 721578888137028,
+									"parameters": [
+										"ArrHistory.At(0, historyPos)",
+										"ArrHistory.At(1, historyPos)",
+										"ArrHistory.At(2, historyPos)",
+										"ArrHistory.At(3, historyPos)",
+										"ArrHistory.At(4, historyPos)",
+										"ArrHistory.At(5, historyPos)",
+										false,
+										false
+									]
+								}
+							],
+							"sid": 564558583888361
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Redo last undone change."
+				},
+				{
+					"functionName": "redo",
+					"functionDescription": "Redo last undone change.",
+					"functionCategory": "History",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [
+						{
+							"id": "compare-eventvar",
+							"objectClass": "System",
+							"sid": 401025701200453,
+							"parameters": {
+								"variable": "historyPos",
+								"comparison": 2,
+								"value": "ArrHistory.Height"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 175313910579714,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Redo creation of a brick."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-at-xy",
+									"objectClass": "ArrHistory",
+									"sid": 966085326961617,
+									"parameters": {
+										"x": "6",
+										"y": "historyPos",
+										"comparison": 0,
+										"value": "0"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "spawnBrick",
+									"sid": 748972601059658,
+									"parameters": [
+										"ArrHistory.At(0, historyPos)",
+										"ArrHistory.At(1, historyPos)",
+										"ArrHistory.At(2, historyPos)",
+										"ArrHistory.At(3, historyPos)",
+										"ArrHistory.At(4, historyPos)",
+										"ArrHistory.At(5, historyPos)",
+										false,
+										false
+									]
+								}
+							],
+							"sid": 129874499670975
+						},
+						{
+							"eventType": "comment",
+							"text": "Redo deletion of a brick."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-at-xy",
+									"objectClass": "ArrHistory",
+									"sid": 610547881960896,
+									"parameters": {
+										"x": "6",
+										"y": "historyPos",
+										"comparison": 0,
+										"value": "1"
+									}
+								},
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Brick",
+									"sid": 585161916781076,
+									"parameters": {
+										"unique-id": "selectedBrick"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 633495679998195,
+									"parameters": {
+										"object": "Brick",
+										"expression": "Brick.X",
+										"comparison": 0,
+										"value": "ArrHistory.At(1, historyPos)"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 744110445234967,
+									"parameters": {
+										"object": "Brick",
+										"expression": "Brick.Y",
+										"comparison": 0,
+										"value": "ArrHistory.At(2, historyPos)"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 391070846915410,
+									"parameters": {
+										"object": "Brick",
+										"expression": "Brick.Z",
+										"comparison": 0,
+										"value": "ArrHistory.At(3, historyPos)"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "Brick",
+									"sid": 859846243267760
+								}
+							],
+							"sid": 295741460002660
+						},
+						{
+							"eventType": "comment",
+							"text": "Increase history position by 1."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 463496103156912,
+									"parameters": {
+										"variable": "historyPos",
+										"value": "1"
+									}
+								}
+							],
+							"sid": 694880708672593
+						}
+					]
+				}
+			],
+			"sid": 365299784825032
+		}
+	],
+	"sid": 370891043899515
+}

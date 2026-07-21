@@ -111,8 +111,8 @@ function setupGame() {
 
 	// Initial camera position
 	camera.lookAtPosition(
-		cameraPosition.x, cameraPosition.y, cameraPosition.zElevation,
-		centerPosition.x, centerPosition.y, centerPosition.zElevation,
+		cameraPosition.x, cameraPosition.y, cameraPosition.z,
+		centerPosition.x, centerPosition.y, centerPosition.z,
 		0, 0, 1
 	);
 	
@@ -153,25 +153,25 @@ function createFirstPlatform() {
 
 	// Create and position the platform
 	const p = platform.createInstance(1, pspwn[n].x, pspwn[n].y);
-	p.zElevation = pspwn[n].zElevation;
+	p.z = pspwn[n].z;
 	p.width = PLATSIZE;
 	p.height = PLATSIZE;
 	
 	// Position player on top of the platform
 	player = playerInterface.createInstance(1, p.x, p.y);
-	player.zElevation = p.zElevation + player.zHeight/2 - p.zHeight;
+	player.z = p.z + player.zHeight/2 - p.zHeight;
 	
 	// Create player sprite and set it as a child of player
 	playerSpr = playerSprInterface.createInstance(1, p.x, p.y);
-	playerSpr.zElevation = p.zElevation + playerSpr.zHeight/2 - p.zHeight;
+	playerSpr.z = p.z + playerSpr.zHeight/2 - p.zHeight;
 	player.addChild(
 		playerSpr,
-		{transformX: true, transformY: true, transformZElevation: true}
+		{transformX: true, transformY: true, transformZ: true}
 	);
 
 	// Create player shadow and set it as a child of player
 	playerSdw = playerSdwInterface.createInstance(1, p.x, p.y);
-	playerSdw.zElevation = p.zElevation + playerSdw.zHeight/2 - p.zHeight;
+	playerSdw.z = p.z + playerSdw.zHeight/2 - p.zHeight;
 	player.addChild(playerSdw, {transformX: true, transformY: true});
 	
 	// Setup platform spawn timer
@@ -221,7 +221,7 @@ function createPlatform() {
 	
 	// Create and position the platform
 	const p = platform.createInstance(1, pspwn[n].x, pspwn[n].y);
-	p.zElevation = pspwn[n].zElevation;
+	p.z = pspwn[n].z;
 	
 	// If the platform spawns in front of the camera, make it transparent
 	if (p.y > 144 && p.x == 144) {
@@ -258,8 +258,8 @@ function ascendStuff(runtime) {
 	textureWall.imageOffsetY += ascentSpeed * 60 * runtime.dt;
 	
 	for (const p of platform.getAllInstances()) {
-		p.zElevation -= ascentSpeed * 60 * runtime.dt;
-		if (p.zElevation < -16) {
+		p.z -= ascentSpeed * 60 * runtime.dt;
+		if (p.z < -16) {
 			p.destroy();
 		}
 	}
@@ -273,46 +273,46 @@ function playerCollision(runtime) {
 	player.instVars.grounded = false;
 	
 	// Place player's shadow on the lava
-	playerSdw.zElevation = 0;
+	playerSdw.z = 0;
 	
 	for (const p of platform.getAllInstances()) {
 		
 		// Height where the player is above the platform
-		const aboveTopHeight = p.zElevation + player.zHeight/2 - p.zHeight;
+		const aboveTopHeight = p.z + player.zHeight/2 - p.zHeight;
 		// Height where the player is below the platform
-		const aboveBottomHeight = p.zElevation - player.zHeight + p.zHeight;
+		const aboveBottomHeight = p.z - player.zHeight + p.zHeight;
 		// Speeds below this mean the player is falling
 		const belowAscentSpeed = -ascentSpeed * 60 * runtime.dt;
 		
 		// Place player's shadow on the platform
-		if (player.testOverlap(p) && player.zElevation > aboveTopHeight) {
-			playerSdw.zElevation = p.zElevation + p.zHeight + 1;
+		if (player.testOverlap(p) && player.z > aboveTopHeight) {
+			playerSdw.z = p.z + p.zHeight + 1;
 		}
 		
 		// If the player is above the platform, stay on top of it
 		if (
 			player.testOverlap(p) &&
-			player.zElevation > aboveTopHeight &&
-			player.zElevation < aboveTopHeight + 8 &&
+			player.z > aboveTopHeight &&
+			player.z < aboveTopHeight + 8 &&
 			player.instVars.zSpeed < belowAscentSpeed
 		) {
-			player.zElevation =  p.zElevation + p.zHeight + 1;
+			player.z =  p.z + p.zHeight + 1;
 			player.instVars.zSpeed = belowAscentSpeed;
 			player.instVars.grounded = true;
 		
 		// If the player is below the platform, they will hit their head
 		} else if (
 			player.testOverlap(p) &&
-			player.zElevation < aboveBottomHeight &&
-			player.zElevation > aboveBottomHeight - 8
+			player.z < aboveBottomHeight &&
+			player.z > aboveBottomHeight - 8
 		) {
 			player.instVars.zSpeed = -2;
 		
 		// If the player is beside the platform, collide laterally with it
 		} else if (
 			!player.testOverlap(p) &&
-			player.zElevation < aboveTopHeight &&
-			player.zElevation > aboveBottomHeight
+			player.z < aboveTopHeight &&
+			player.z > aboveBottomHeight
 		) {
 			p.behaviors.Solid.isEnabled = true;
 		
@@ -322,8 +322,8 @@ function playerCollision(runtime) {
 		}
 	}
 
-	// Update player's Z Elevation
-	player.zElevation += player.instVars.zSpeed * 60 * runtime.dt;
+	// Update player's Z
+	player.z += player.instVars.zSpeed * 60 * runtime.dt;
 }
 
 function setPlayerAnimation() {
@@ -356,7 +356,7 @@ function setPlayerAnimation() {
 function checkPlayerDeath(runtime) {
 	// Check if the player is having a hot bath
 	
-	if (player.zElevation < 0 && !playerDead) {
+	if (player.z < 0 && !playerDead) {
 		// Create flames animation
 		playerDead = true;
 		flames.x = player.x;
@@ -366,7 +366,7 @@ function checkPlayerDeath(runtime) {
 	
 		// Stop player
 		playerDead = true;
-		player.zElevation = 0;
+		player.z = 0;
 		player.instVars.zSpeed = 0;
 		
 		// Stop platforms
@@ -406,8 +406,8 @@ function setCamera() {
 		);
 		zrot = lerp(
 			camera.getLookPosition()[2],
-			centerPosition.zElevation + (
-				player.zElevation - centerPosition.zElevation
+			centerPosition.z + (
+				player.z - centerPosition.z
 			)/6,
 			0.1
 		)
@@ -421,14 +421,14 @@ function setCamera() {
 		);	
 		zrot = lerp(
 			camera.getLookPosition()[2],
-			textScore.zElevation,
+			textScore.z,
 			0.05
 		)
 	}
 	
 	// Apply the new parameters for lookAtPosition
 	camera.lookAtPosition(
-		cameraPosition.x, cameraPosition.y, cameraPosition.zElevation,
+		cameraPosition.x, cameraPosition.y, cameraPosition.z,
 		xrot, centerPosition.y, zrot,
 		0, 0, 1
 	);

@@ -1,0 +1,1495 @@
+{
+	"name": "MapGenEvents",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Background settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "NUM_STARS",
+			"type": "number",
+			"initialValue": "200",
+			"comment": "Number of background stars.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 837674634609124
+		},
+		{
+			"eventType": "comment",
+			"text": "Tile settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "TILE_SIZE",
+			"type": "number",
+			"initialValue": "64",
+			"comment": "Tile size.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 229324861133631
+		},
+		{
+			"eventType": "variable",
+			"name": "TILE_REGION_OFFSET",
+			"type": "number",
+			"initialValue": "256",
+			"comment": "Diameter of the planet - Diameter of the tile region.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 351947895476374
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Map Generation",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Generate a single ore patch and return the amount generated."
+				},
+				{
+					"functionName": "genSingleOrePatch",
+					"functionDescription": "Generate a single ore patch and return the amount generated.",
+					"functionCategory": "Map Generation",
+					"functionReturnType": "number",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "ore",
+							"type": "string",
+							"initialValue": "Iron",
+							"comment": "Type of ore to generate.",
+							"sid": 531462612879908
+						},
+						{
+							"name": "x",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Starting X position.",
+							"sid": 543277498290723
+						},
+						{
+							"name": "y",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Starting Y position.",
+							"sid": 241957310714248
+						},
+						{
+							"name": "amt",
+							"type": "number",
+							"initialValue": "1",
+							"comment": "Amount of ores to be generated.",
+							"sid": 200865859514288
+						},
+						{
+							"name": "maxDistFromCenter",
+							"type": "number",
+							"initialValue": "1000",
+							"comment": "Maximum permitted distance from the center.",
+							"sid": 738518737355235
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 760680805303731,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "nextX",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "X coordinate of the next tile to transform.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 407738728601489
+						},
+						{
+							"eventType": "variable",
+							"name": "nextY",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Y coordinate of the next tile to transform.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 423811303023568
+						},
+						{
+							"eventType": "variable",
+							"name": "placed",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Number of ores placed.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 729505224965818
+						},
+						{
+							"eventType": "comment",
+							"text": "Transform the first tile."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-by-evaluate",
+									"objectClass": "System",
+									"sid": 409411412782363,
+									"parameters": {
+										"object": "Tile",
+										"expression": "Tile.X = x & Tile.Y = y"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation",
+									"objectClass": "Tile",
+									"sid": 261137905020348,
+									"parameters": {
+										"animation": "Tile.deep ? \"Deep\" & ore : ore",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Tile",
+									"sid": 751188418410650,
+									"parameters": {
+										"instance-variable": "type",
+										"value": "ore"
+									}
+								},
+								{
+									"id": "set-animation-frame",
+									"objectClass": "Tile",
+									"sid": 797295503243307,
+									"parameters": {
+										"frame-number": "moonType"
+									}
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 846865140152329,
+									"parameters": {
+										"variable": "placed",
+										"value": "1"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 865851835916002,
+									"parameters": {
+										"variable": "nextX",
+										"value": "x"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 186185252420620,
+									"parameters": {
+										"variable": "nextY",
+										"value": "y"
+									}
+								}
+							],
+							"sid": 404893820659703
+						},
+						{
+							"eventType": "comment",
+							"text": "Transform the remaining tiles."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "while",
+									"objectClass": "System",
+									"sid": 843545407912118
+								},
+								{
+									"id": "compare-eventvar",
+									"objectClass": "System",
+									"sid": 635519248874011,
+									"parameters": {
+										"variable": "placed",
+										"comparison": 2,
+										"value": "amt"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 797287113497075,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Pick neighboring tiles to place the rest of the ores."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 987589753819842,
+											"parameters": {
+												"object": "Tile",
+												"expression": "Tile.type = \"Soil\""
+											}
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 726333866228643,
+											"parameters": {
+												"object": "Tile",
+												"expression": "distance(Tile.X, Tile.Y, Moon.X, Moon.Y) < maxDistFromCenter"
+											}
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 825991589953519,
+											"parameters": {
+												"object": "Tile",
+												"expression": "distance(Tile.X, Tile.Y, nextX, nextY) <= TILE_SIZE * 1.5"
+											}
+										},
+										{
+											"id": "pick-random-instance",
+											"objectClass": "System",
+											"sid": 996960168911787,
+											"parameters": {
+												"object": "Tile"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "Tile",
+											"sid": 918891751874765,
+											"parameters": {
+												"animation": "Tile.deep ? \"Deep\" & ore : ore",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Tile",
+											"sid": 793432357617563,
+											"parameters": {
+												"instance-variable": "type",
+												"value": "ore"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Tile",
+											"sid": 234082198765180,
+											"parameters": {
+												"frame-number": "moonType"
+											}
+										},
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 854417265196278,
+											"parameters": {
+												"variable": "placed",
+												"value": "1"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 336905754059077,
+											"parameters": {
+												"variable": "nextX",
+												"value": "Tile.X"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 655643754213114,
+											"parameters": {
+												"variable": "nextY",
+												"value": "Tile.Y"
+											}
+										}
+									],
+									"sid": 231467015626006
+								},
+								{
+									"eventType": "comment",
+									"text": "If a neighboring place cannot be found, fallback to a random position."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 415744036677760
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 139657408868635,
+											"parameters": {
+												"object": "Tile",
+												"expression": "Tile.type = \"Soil\""
+											}
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 197552594421004,
+											"parameters": {
+												"object": "Tile",
+												"expression": "distance(Tile.X, Tile.Y, Moon.X, Moon.Y) < maxDistFromCenter"
+											}
+										},
+										{
+											"id": "pick-random-instance",
+											"objectClass": "System",
+											"sid": 486685722336443,
+											"parameters": {
+												"object": "Tile"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "Tile",
+											"sid": 154295190114623,
+											"parameters": {
+												"animation": "Tile.deep ? \"Deep\" & ore : ore",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Tile",
+											"sid": 733910637011728,
+											"parameters": {
+												"instance-variable": "type",
+												"value": "ore"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Tile",
+											"sid": 571430745004680,
+											"parameters": {
+												"frame-number": "moonType"
+											}
+										},
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 468788915347773,
+											"parameters": {
+												"variable": "placed",
+												"value": "1"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 107538582123980,
+											"parameters": {
+												"variable": "nextX",
+												"value": "Tile.X"
+											}
+										},
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 175252097058984,
+											"parameters": {
+												"variable": "nextY",
+												"value": "Tile.Y"
+											}
+										}
+									],
+									"sid": 654966502178261
+								},
+								{
+									"eventType": "comment",
+									"text": "If nothing works, just break the loop."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 612353789646341
+										}
+									],
+									"actions": [
+										{
+											"id": "stop-loop",
+											"objectClass": "System",
+											"sid": 664829461162284
+										}
+									],
+									"sid": 350661301529655
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Return."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 611583223686852,
+									"parameters": {
+										"value": "placed"
+									}
+								}
+							],
+							"sid": 569586800444382
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Generate ore patches."
+				},
+				{
+					"functionName": "genOrePatches",
+					"functionDescription": "Generate ore patches.",
+					"functionCategory": "Map Generation",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "copperRatio",
+							"type": "number",
+							"initialValue": "0.05",
+							"comment": "How likely a tile is to be copper?",
+							"sid": 317696685917517
+						},
+						{
+							"name": "ironRatio",
+							"type": "number",
+							"initialValue": "0.05",
+							"comment": "How likely a tile is to be iron?",
+							"sid": 577919295214782
+						},
+						{
+							"name": "tungstenRatio",
+							"type": "number",
+							"initialValue": "0.05",
+							"comment": "How likely a tile is to be tungsten?",
+							"sid": 523010497885024
+						},
+						{
+							"name": "coalRatio",
+							"type": "number",
+							"initialValue": "0.05",
+							"comment": "How likely a tile is to be coal?",
+							"sid": 160118467594484
+						},
+						{
+							"name": "uraniumRatio",
+							"type": "number",
+							"initialValue": "0.05",
+							"comment": "How likely a tile is to be uranium?",
+							"sid": 737820294984701
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"id": "clear",
+							"objectClass": "DictOresGen",
+							"sid": 864716934125166
+						},
+						{
+							"id": "add-key",
+							"objectClass": "DictOresGen",
+							"sid": 710401535866602,
+							"parameters": {
+								"key": "\"Copper\"",
+								"value": "max(round(Tile.Count * copperRatio), 1)"
+							}
+						},
+						{
+							"id": "add-key",
+							"objectClass": "DictOresGen",
+							"sid": 235560516010235,
+							"parameters": {
+								"key": "\"Iron\"",
+								"value": "max(round(Tile.Count * ironRatio), 1)"
+							}
+						},
+						{
+							"id": "add-key",
+							"objectClass": "DictOresGen",
+							"sid": 606341647319104,
+							"parameters": {
+								"key": "\"Tungsten\"",
+								"value": "max(round(Tile.Count * tungstenRatio), 1)"
+							}
+						},
+						{
+							"id": "add-key",
+							"objectClass": "DictOresGen",
+							"sid": 531006719747937,
+							"parameters": {
+								"key": "\"Coal\"",
+								"value": "max(round(Tile.Count * coalRatio), 1)"
+							}
+						},
+						{
+							"id": "add-key",
+							"objectClass": "DictOresGen",
+							"sid": 821619698511613,
+							"parameters": {
+								"key": "\"Uranium\"",
+								"value": "max(round(Tile.Count * uraniumRatio), 1)"
+							}
+						}
+					],
+					"sid": 506105192643229,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "ORE_ORDER",
+							"type": "string",
+							"initialValue": "Uranium Tungsten Iron Coal Copper",
+							"comment": "Ores should be spawned in this order to ensure rare ores are actually generated.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 176454320210521
+						},
+						{
+							"eventType": "variable",
+							"name": "currOre",
+							"type": "string",
+							"initialValue": "",
+							"comment": "Current ore.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 452295063308581
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 772799593002918,
+									"parameters": {
+										"count": "tokencount(ORE_ORDER, \" \")"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 152726990049724,
+									"parameters": {
+										"variable": "currOre",
+										"value": "tokenat(ORE_ORDER, loopindex, \" \")"
+									}
+								}
+							],
+							"sid": 498232149232719,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "while",
+											"objectClass": "System",
+											"sid": 976648427842663
+										},
+										{
+											"id": "compare-value",
+											"objectClass": "DictOresGen",
+											"sid": 499400701432933,
+											"parameters": {
+												"key": "currOre",
+												"comparison": 4,
+												"value": "0"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 224748143133071,
+									"children": [
+										{
+											"eventType": "variable",
+											"name": "nOres",
+											"type": "number",
+											"initialValue": "0",
+											"comment": "Number of ores to place.",
+											"isStatic": false,
+											"isConstant": false,
+											"sid": 158894820278290
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 107880316358001,
+													"parameters": {
+														"object": "Tile",
+														"expression": "Tile.type = \"Soil\""
+													}
+												},
+												{
+													"id": "pick-random-instance",
+													"objectClass": "System",
+													"sid": 559937048586722,
+													"parameters": {
+														"object": "Tile"
+													}
+												},
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 206330757126655,
+													"parameters": {
+														"object": "Tile",
+														"expression": "distance(Tile.X, Tile.Y, Moon.X, Moon.Y) > tileRegionRadius * JsonOres.Get(currOre & \".radius.min\")"
+													}
+												},
+												{
+													"id": "pick-by-evaluate",
+													"objectClass": "System",
+													"sid": 695620617707001,
+													"parameters": {
+														"object": "Tile",
+														"expression": "distance(Tile.X, Tile.Y, Moon.X, Moon.Y) < tileRegionRadius * JsonOres.Get(currOre & \".radius.max\")"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 984304384230072,
+													"parameters": {
+														"variable": "nOres",
+														"value": "min(\n    int(random(\n        JsonOres.Get(currOre & \".batch.min\"), JsonOres.Get(currOre & \".batch.max\")\n    )), DictOresGen.Get(currOre)\n)"
+													}
+												},
+												{
+													"id": "set-key",
+													"objectClass": "DictOresGen",
+													"sid": 806930011544632,
+													"parameters": {
+														"key": "currOre",
+														"value": "DictOresGen.Get(currOre) - Functions.genSingleOrePatch(\n    currOre,\n    Tile.X,\n    Tile.Y,\n    nOres,\n    tileRegionRadius * JsonOres.Get(currOre & \".radius.max\")\n)"
+													}
+												}
+											],
+											"sid": 738242609156895
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Generate background stars."
+				},
+				{
+					"functionName": "genBackgroundStars",
+					"functionDescription": "Generate background stars.",
+					"functionCategory": "Map Generation",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 652582401412073,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "starSize",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Star size.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 626529849391145
+						},
+						{
+							"eventType": "comment",
+							"text": "Pick a random star radius, then paint the star onto the drawing canvas."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 867836473426680,
+									"parameters": {
+										"count": "NUM_STARS"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 652611583544332,
+									"parameters": {
+										"variable": "starSize",
+										"value": "choose(3, 3, 3, 5, 5, 5, 8)"
+									}
+								},
+								{
+									"id": "fill-ellipse",
+									"objectClass": "DCStars",
+									"sid": 625119591174197,
+									"parameters": {
+										"x": "random(DCStars.Width)",
+										"y": "random(DCStars.Height)",
+										"radius-x": "starSize",
+										"radius-y": "starSize",
+										"color": "rgbEx255(255, 255, 255)",
+										"edge": "smooth"
+									}
+								}
+							],
+							"sid": 722148373499165
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Generate moon tiles."
+				},
+				{
+					"functionName": "genMoonTiles",
+					"functionDescription": "Generate moon tiles.",
+					"functionCategory": "Map Generation",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "deepSoilRatio",
+							"type": "number",
+							"initialValue": "0.33",
+							"comment": "Ratio of radius from the center of the moon that will be generated as deepsoil.",
+							"sid": 546766450804072
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 906133360616489,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "x",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 842596627053066
+						},
+						{
+							"eventType": "variable",
+							"name": "y",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 964347498959395
+						},
+						{
+							"eventType": "comment",
+							"text": "Set starting position."
+						},
+						{
+							"eventType": "block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 543084531935889,
+									"parameters": {
+										"variable": "x",
+										"value": "-tileRegionRadius"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 187518318843982,
+									"parameters": {
+										"variable": "y",
+										"value": "-tileRegionRadius"
+									}
+								}
+							],
+							"sid": 195520440556945
+						},
+						{
+							"eventType": "comment",
+							"text": "Place blocks until the whole moon is filled."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "while",
+									"objectClass": "System",
+									"sid": 106438577706172
+								}
+							],
+							"actions": [],
+							"sid": 779031410491936,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Check if the current position is inside the tile region."
+								},
+								{
+									"eventType": "variable",
+									"name": "c",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 947271381338087
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 142347630779557,
+											"parameters": {
+												"value": "(x^2 + y^2) < (tileRegionRadius^2) * deepSoilRatio"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 759994054401529,
+											"parameters": {
+												"object-to-create": "Tile",
+												"layer": "\"TileObjects\"",
+												"x": "x + Moon.X",
+												"y": "y + Moon.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Tile",
+											"sid": 312159842730760,
+											"parameters": {
+												"instance-variable": "type",
+												"value": "\"Soil\""
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Tile",
+											"sid": 645961593016473,
+											"parameters": {
+												"instance-variable": "deep",
+												"value": "true"
+											}
+										},
+										{
+											"id": "set-animation",
+											"objectClass": "Tile",
+											"sid": 489865152437569,
+											"parameters": {
+												"animation": "\"DeepSoil\"",
+												"from": "beginning"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Tile",
+											"sid": 241041891618824,
+											"parameters": {
+												"angle": "choose(0, 90, 180, 270)"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Tile",
+											"sid": 375660146890402,
+											"parameters": {
+												"frame-number": "moonType"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Moon",
+											"sid": 477892298522381,
+											"parameters": {
+												"child": "Tile",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-z-elevation": false,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": true,
+												"transform-o": false,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										}
+									],
+									"sid": 847178949592143
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 318969002296521
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 207021279278571,
+											"parameters": {
+												"value": "(x^2 + y^2) < tileRegionRadius^2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "create-object",
+											"objectClass": "System",
+											"sid": 958659661603158,
+											"parameters": {
+												"object-to-create": "Tile",
+												"layer": "\"TileObjects\"",
+												"x": "x + Moon.X",
+												"y": "y + Moon.Y",
+												"create-hierarchy": false,
+												"template-name": "\"\""
+											}
+										},
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Tile",
+											"sid": 872087482950506,
+											"parameters": {
+												"instance-variable": "type",
+												"value": "\"Soil\""
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "Tile",
+											"sid": 850705608893397,
+											"parameters": {
+												"instance-variable": "deep",
+												"value": "false"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "Tile",
+											"sid": 691580971621731,
+											"parameters": {
+												"angle": "choose(0, 90, 180, 270)"
+											}
+										},
+										{
+											"id": "set-animation-frame",
+											"objectClass": "Tile",
+											"sid": 945808039835997,
+											"parameters": {
+												"frame-number": "moonType"
+											}
+										},
+										{
+											"id": "add-child",
+											"objectClass": "Moon",
+											"sid": 199055400597586,
+											"parameters": {
+												"child": "Tile",
+												"transform-x": true,
+												"transform-y": true,
+												"transform-z-elevation": false,
+												"transform-w": false,
+												"transform-h": false,
+												"transform-a": true,
+												"transform-o": false,
+												"transform-visibility": false,
+												"destroy-with-parent": true
+											}
+										}
+									],
+									"sid": 528508345706043
+								},
+								{
+									"eventType": "comment",
+									"text": "Increment X."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 795752087257821,
+											"parameters": {
+												"variable": "x",
+												"comparison": 2,
+												"value": "tileRegionRadius * 2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 212539430945674,
+											"parameters": {
+												"variable": "x",
+												"value": "TILE_SIZE"
+											}
+										}
+									],
+									"sid": 300981982234255
+								},
+								{
+									"eventType": "comment",
+									"text": "When X reaches the maximum value, reset it and increment Y."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 320169402509705
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 429158849476102,
+											"parameters": {
+												"variable": "y",
+												"comparison": 2,
+												"value": "tileRegionRadius * 2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 843432181219330,
+											"parameters": {
+												"variable": "x",
+												"value": "-tileRegionRadius"
+											}
+										},
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 890760759160647,
+											"parameters": {
+												"variable": "y",
+												"value": "TILE_SIZE"
+											}
+										}
+									],
+									"sid": 462606918710892
+								},
+								{
+									"eventType": "comment",
+									"text": "If both X and Y reached the maximum value, stop the loop."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 506792088813632
+										}
+									],
+									"actions": [
+										{
+											"id": "stop-loop",
+											"objectClass": "System",
+											"sid": 272182589770406
+										}
+									],
+									"sid": 422859142029741
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Generate player cores."
+				},
+				{
+					"functionName": "genCores",
+					"functionDescription": "Generate player cores.",
+					"functionCategory": "Map Generation",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": false,
+					"functionParameters": [
+						{
+							"name": "nCores",
+							"type": "number",
+							"initialValue": "3",
+							"comment": "Number of cores to spawn.",
+							"sid": 436783226265282
+						},
+						{
+							"name": "angleOffset",
+							"type": "number",
+							"initialValue": "30",
+							"comment": "Add this offset to spawning angles.",
+							"sid": 123353643760518
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [],
+					"sid": 246816187771890,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "coreAngle",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Angle of the core.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 646354271616062
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "repeat",
+									"objectClass": "System",
+									"sid": 581191523715106,
+									"parameters": {
+										"count": "nCores"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 426297946060389,
+									"parameters": {
+										"variable": "coreAngle",
+										"value": "loopindex * 360/nCores + angleOffset"
+									}
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 591335752966914,
+									"parameters": {
+										"object-to-create": "Core",
+										"layer": "\"Buildings\"",
+										"x": "Moon.X + cos(coreAngle) * moonRadius",
+										"y": "Moon.Y + sin(coreAngle) * moonRadius",
+										"create-hierarchy": true,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "Core",
+									"sid": 961533781639729,
+									"parameters": {
+										"angle": "coreAngle"
+									}
+								}
+							],
+							"sid": 770990089912817
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Generate the moon."
+				},
+				{
+					"functionName": "genMoon",
+					"functionDescription": "Generate the moon.",
+					"functionCategory": "Map Generation",
+					"functionReturnType": "none",
+					"functionCopyPicked": false,
+					"functionIsAsync": true,
+					"functionParameters": [
+						{
+							"name": "moonDiameter",
+							"type": "number",
+							"initialValue": "2000",
+							"comment": "Moon diameter.",
+							"sid": 251063124723964
+						},
+						{
+							"name": "moonTypeParam",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Type of the moon.",
+							"sid": 447717269588776
+						},
+						{
+							"name": "copperRatio",
+							"type": "number",
+							"initialValue": "0.045",
+							"comment": "Ratio of tiles that should become copper.",
+							"sid": 397245500577217
+						},
+						{
+							"name": "ironRatio",
+							"type": "number",
+							"initialValue": "0.02",
+							"comment": "Ratio of tiles that should become iron.",
+							"sid": 870913080278856
+						},
+						{
+							"name": "tungstenRatio",
+							"type": "number",
+							"initialValue": "0.009",
+							"comment": "Ratio of tiles that should become tungsten.",
+							"sid": 564035369755549
+						},
+						{
+							"name": "coalRatio",
+							"type": "number",
+							"initialValue": "0.02",
+							"comment": "Ratio of tiles that should become coal.",
+							"sid": 789161670721986
+						},
+						{
+							"name": "uraniumRatio",
+							"type": "number",
+							"initialValue": "0.004",
+							"comment": "Ratio of tiles that should become uranium.",
+							"sid": 739084784917166
+						},
+						{
+							"name": "nCores",
+							"type": "number",
+							"initialValue": "3",
+							"comment": "Number of cores to spawn.",
+							"sid": 822199427003362
+						},
+						{
+							"name": "aOffCores",
+							"type": "number",
+							"initialValue": "30",
+							"comment": "Add this offset to core spawning angles.",
+							"sid": 696059709600128
+						}
+					],
+					"eventType": "function-block",
+					"conditions": [],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Set moon radius."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 208943413444246,
+							"parameters": {
+								"variable": "moonRadius",
+								"value": "moonDiameter / 2"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set moon type."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 606797282789479,
+							"parameters": {
+								"variable": "moonType",
+								"value": "moonTypeParam"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Create moon."
+						},
+						{
+							"id": "create-object",
+							"objectClass": "System",
+							"sid": 196352321629903,
+							"parameters": {
+								"object-to-create": "Moon",
+								"layer": "\"Moon\"",
+								"x": "LayoutWidth/2",
+								"y": "LayoutHeight/2",
+								"create-hierarchy": false,
+								"template-name": "\"\""
+							}
+						},
+						{
+							"id": "set-size",
+							"objectClass": "Moon",
+							"sid": 393166826887484,
+							"parameters": {
+								"width": "moonDiameter",
+								"height": "moonDiameter"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Moon",
+							"sid": 571584448237227,
+							"parameters": {
+								"frame-number": "moonType"
+							}
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Moon",
+							"sid": 773840462534797,
+							"parameters": {
+								"frame-number": "moonType"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Setup tile region."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 629509117021881,
+							"parameters": {
+								"variable": "tileRegionRadius",
+								"value": "(Moon.Width - TILE_REGION_OFFSET)/2"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Generate tiles."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 268793568132551,
+							"parameters": {
+								"seconds": "0",
+								"use-timescale": true
+							}
+						},
+						{
+							"callFunction": "genMoonTiles",
+							"sid": 275582324679409,
+							"parameters": [
+								"0.33"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Generate ore patches."
+						},
+						{
+							"id": "wait",
+							"objectClass": "System",
+							"sid": 723570109878299,
+							"parameters": {
+								"seconds": "0",
+								"use-timescale": true
+							}
+						},
+						{
+							"callFunction": "genOrePatches",
+							"sid": 388341727638092,
+							"parameters": [
+								"copperRatio",
+								"ironRatio",
+								"tungstenRatio",
+								"coalRatio",
+								"uraniumRatio"
+							]
+						},
+						{
+							"type": "comment",
+							"text": "Generate cores."
+						},
+						{
+							"id": "set-eventvar-value",
+							"objectClass": "System",
+							"sid": 711106868539543,
+							"parameters": {
+								"variable": "numOfCores",
+								"value": "nCores"
+							}
+						},
+						{
+							"callFunction": "genCores",
+							"sid": 786451941620893,
+							"parameters": [
+								"nCores",
+								"aOffCores"
+							]
+						}
+					],
+					"sid": 817197055738130
+				}
+			],
+			"sid": 421906301538423
+		}
+	],
+	"sid": 499327238241855
+}

@@ -48,7 +48,17 @@ export async function SaveHiScore(runtime, score)
 		// New score is higher: save it to storage
 		AddMessage("New high score: " + score);
 		hiScore = score;
-		await runtime.storage.setItem("hiscore", score);
+
+		// Note that setItem() can reject, e.g. if the user ran out of storage space.
+		// Use a try-catch block to handle any error, log it to the console, and show an error message.
+		try {
+			await runtime.storage.setItem("hiscore", score);
+		}
+		catch (err)
+		{
+			console.error("Error writing to storage: ", err);
+			AddMessage(`Error writing to storage`);
+		}
 	}
 	else
 	{
