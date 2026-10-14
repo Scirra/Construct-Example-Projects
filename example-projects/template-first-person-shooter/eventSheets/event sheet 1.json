@@ -3,7 +3,7 @@
 	"events": [
 		{
 			"eventType": "comment",
-			"text": "This is a demo of a basic first-person shooter (FPS) type game.\n[b]Controls:[/b] use arrow keys to move, and spacebar to shoot tomatoes.\n\n[h3]How it works[/h3]\nThe game is basically a 2D shooter, but uses the 3D camera object to give it a first-person perspective. You can see it in a 2D perspective if you toggle the '3D camera' group to be disabled and the '2D camera' group to be enabled. The piggies use a Bullet behavior so they move around and bounce off solids, and the player can shoot tomatoes at them.\n\nThe piggies, tomatoes and puff when piggies disappear are all a kind of \"billboard\", i.e. 2D sprites shown in 3D. To get this appearance in Construct, they are actually 3D shapes that only show their right face. (Since objects moving at 0 degrees move right, this means it only shows the face in its forwards moving direction.) Note the back face is shown in the editor to make it easier to select them, but the back face is hidden on startup. The objects are then always angled towards the player, so they always appear flat against the camera.\n\nNote an important detail is all the \"billboard\" objects are placed on their own layer named \"Billboards\", and the layer [b]Draw order[/b] is set to [b]Camera distance[/b]. This is to make sure transparency works correctly. A normal 2D drawing order could mean the transparent areas of nearby billboards obscure far away ones. The [i]Camera distance[/i] draw order means the billboards furthest away from the camera are drawn first, and nearest drawn last, ensuring everything appears correctly."
+			"text": "This is a demo of a basic first-person shooter (FPS) type game.\n[b]Controls:[/b] use arrow keys to move, and spacebar to shoot tomatoes.\n\n[h3]How it works[/h3]\nThe game is basically a 2D shooter, but uses the 3D camera object to give it a first-person perspective. You can see it in a 2D perspective if you toggle the '2D camera' group to be enabled. The piggies use a Bullet behavior so they move around and bounce off solids, and the player can shoot tomatoes at them.\n\nThe piggies, tomatoes and puff when piggies disappear are all a kind of 'billboard', i.e. 2D sprites shown in 3D. To get this appearance in Construct, they use 3D rotation to make them stand upright relative to the floor, and then rotate them to face the camera so they always appear flat against the view. Collisions are managed with a separate collision sprite to have better control of the collision shape, and that shape also moves around - the billboard is attached as a child and acts solely as a visual representation of the object.\n\nNote an important detail is all the 'billboard' objects are placed on their own layer named \"Billboards\", and the layer [b]Draw order[/b] is set to [b]Camera distance[/b]. This is to make sure transparency works correctly. A normal 2D drawing order could mean the transparent areas of nearby billboards obscure far away ones. The [i]Camera distance[/i] draw order means the billboards furthest away from the camera are drawn first, and nearest drawn last, ensuring everything appears correctly."
 		},
 		{
 			"eventType": "group",
@@ -12,32 +12,6 @@
 			"description": "Enable this group to see the game from a first-person perspective.",
 			"isActiveOnStart": true,
 			"children": [
-				{
-					"eventType": "comment",
-					"text": "The piggy object's back faces are visible in the editor only to make them easier to select. We only want to see the right faces in first-person mode, so hide the back faces on startup."
-				},
-				{
-					"eventType": "block",
-					"conditions": [
-						{
-							"id": "on-start-of-layout",
-							"objectClass": "System",
-							"sid": 612285574173979
-						}
-					],
-					"actions": [
-						{
-							"id": "set-face-visible",
-							"objectClass": "PiggyBillboard",
-							"sid": 580064563725053,
-							"parameters": {
-								"face": "back",
-								"visible": false
-							}
-						}
-					],
-					"sid": 932610097702570
-				},
 				{
 					"eventType": "comment",
 					"text": "Always set a 3D camera parallel to the layout with the position and angle of the Player sprite."
@@ -78,7 +52,7 @@
 			"children": [
 				{
 					"eventType": "comment",
-					"text": "In 2D mode, just scroll to the player normally. Also set all the billboards to show their back faces instead of their right faces, to make it clearer what is going on."
+					"text": "In 2D mode, restore a 2D camera view and then just scroll to the player normally. Also set the normally invisible collision shapes to be visible so the way the movement and collisions work in the game is more obvious."
 				},
 				{
 					"eventType": "block",
@@ -91,6 +65,11 @@
 					],
 					"actions": [
 						{
+							"id": "restore-2d-camera",
+							"objectClass": "3DCamera",
+							"sid": 442144337968500
+						},
+						{
 							"id": "scroll-to-object",
 							"objectClass": "System",
 							"sid": 542018711127131,
@@ -99,57 +78,19 @@
 							}
 						},
 						{
-							"id": "set-face-visible",
-							"objectClass": "PiggyBillboard",
-							"sid": 722209423778193,
+							"id": "set-visible",
+							"objectClass": "TomatoCollision",
+							"sid": 908814564390928,
 							"parameters": {
-								"face": "back",
-								"visible": true
+								"visibility": "visible"
 							}
 						},
 						{
-							"id": "set-face-visible",
-							"objectClass": "PiggyBillboard",
-							"sid": 653518519041022,
+							"id": "set-visible",
+							"objectClass": "PiggyCollision",
+							"sid": 991856590086025,
 							"parameters": {
-								"face": "right",
-								"visible": false
-							}
-						},
-						{
-							"id": "set-face-visible",
-							"objectClass": "Tomato",
-							"sid": 702689999348591,
-							"parameters": {
-								"face": "back",
-								"visible": true
-							}
-						},
-						{
-							"id": "set-face-visible",
-							"objectClass": "Tomato",
-							"sid": 135557873500326,
-							"parameters": {
-								"face": "right",
-								"visible": false
-							}
-						},
-						{
-							"id": "set-face-visible",
-							"objectClass": "PuffBillboard",
-							"sid": 297662660197486,
-							"parameters": {
-								"face": "back",
-								"visible": true
-							}
-						},
-						{
-							"id": "set-face-visible",
-							"objectClass": "PuffBillboard",
-							"sid": 346647608106950,
-							"parameters": {
-								"face": "right",
-								"visible": false
+								"visibility": "visible"
 							}
 						}
 					],
@@ -168,7 +109,7 @@
 			"children": [
 				{
 					"eventType": "comment",
-					"text": "Always make the piggy objects look towards the player, for a billboard style appearance."
+					"text": "Always make the piggy objects look towards the player, for a billboard style appearance. Note that they use 3D rotation to stand up on the Y axis, and then 2D rotation to orient towards the camera."
 				},
 				{
 					"eventType": "block",
@@ -183,7 +124,7 @@
 						{
 							"id": "set-angle-toward-position",
 							"objectClass": "PiggyBillboard",
-							"sid": 564598956419341,
+							"sid": 129685978114392,
 							"parameters": {
 								"x": "Player.X",
 								"y": "Player.Y"
@@ -194,7 +135,7 @@
 				},
 				{
 					"eventType": "comment",
-					"text": "Shoot tomatoes when pressing spacebar. Note the tomato is also a 3D shape using just the right face for a billboard style appearance. It is also Z elevated slightly so it comes out just below the player's viewpoint."
+					"text": "Shoot tomatoes when pressing spacebar. Note the tomato has both a collision sprite for 2D movement and collision detection, and a billboard sprite attached for 3D display. The billboard is also slightly elevated on the Z axis so it comes out just below the player's viewpoint."
 				},
 				{
 					"eventType": "block",
@@ -212,22 +153,23 @@
 						{
 							"id": "spawn-another-object",
 							"objectClass": "Player",
-							"sid": 530889818370181,
+							"sid": 856410434781129,
 							"parameters": {
-								"object": "Tomato",
+								"object": "TomatoCollision",
 								"layer": "\"Billboards\"",
 								"image-point": "1",
-								"create-hierarchy": false
+								"create-hierarchy": true,
+								"template-name": "\"\""
 							}
 						},
 						{
 							"type": "comment",
-							"text": "Adjust the tomato angle by a small random amount so they spread out a little rather than form a perfectly straight line."
+							"text": "Adjust the tomato movement angle by a small random amount so they spread out a little rather than form a perfectly straight line."
 						},
 						{
 							"id": "rotate-clockwise",
-							"objectClass": "Tomato",
-							"sid": 513258463215917,
+							"objectClass": "TomatoCollision",
+							"sid": 260436324381625,
 							"parameters": {
 								"degrees": "random(-1, 1)"
 							}
@@ -237,15 +179,15 @@
 				},
 				{
 					"eventType": "comment",
-					"text": "When a tomato collides with the scenery, destroy it. Note we only want tomatoes to collide with 3D shapes on the ground - they should ignore ones raised up with Z elevation, so you can still shoot tomatoes through the archway. Therefore also check that the 3D shape it collided with has a Z elevation of 0."
+					"text": "When a tomato collides with the scenery, destroy it. Note we only want tomatoes to collide with 3D shapes on the ground - they should ignore ones raised up with Z elevation, so you can still shoot tomatoes through the archway. Therefore also check that the 3D shape it collided with has a Z elevation of 0. Note the tomato billboard is in a hierarchy with the collision sprite and will automatically be destroyed as well."
 				},
 				{
 					"eventType": "block",
 					"conditions": [
 						{
 							"id": "on-collision-with-another-object",
-							"objectClass": "Tomato",
-							"sid": 195625571078721,
+							"objectClass": "TomatoCollision",
+							"sid": 254970686322447,
 							"parameters": {
 								"object": "3DShape"
 							}
@@ -264,68 +206,91 @@
 					"actions": [
 						{
 							"id": "destroy",
-							"objectClass": "Tomato",
-							"sid": 794118440864310
+							"objectClass": "TomatoCollision",
+							"sid": 850873516358760
 						}
 					],
 					"sid": 230223098345747
 				},
 				{
 					"eventType": "comment",
-					"text": "When a tomato collides with a piggy, add to its hitcount, make it flash, and destroy the tomato."
+					"text": "When a tomato collides with a piggy (using the collision sprites), add to its hitcount, make it flash, and destroy the tomato."
 				},
 				{
 					"eventType": "block",
 					"conditions": [
 						{
 							"id": "on-collision-with-another-object",
-							"objectClass": "Tomato",
-							"sid": 353616374339340,
+							"objectClass": "TomatoCollision",
+							"sid": 380628411706400,
 							"parameters": {
-								"object": "PiggyBillboard"
+								"object": "PiggyCollision"
 							}
 						}
 					],
 					"actions": [
 						{
 							"id": "add-to-instvar",
-							"objectClass": "PiggyBillboard",
-							"sid": 964783261048000,
+							"objectClass": "PiggyCollision",
+							"sid": 794035419919212,
 							"parameters": {
 								"instance-variable": "HitCount",
 								"value": "1"
 							}
 						},
 						{
-							"id": "flash",
-							"objectClass": "PiggyBillboard",
-							"sid": 791812377781330,
-							"behaviorType": "Flash",
-							"parameters": {
-								"on-time": "0.05",
-								"off-time": "0.05",
-								"duration": "0.4"
-							}
-						},
-						{
 							"id": "destroy",
-							"objectClass": "Tomato",
-							"sid": 488563244776270
+							"objectClass": "TomatoCollision",
+							"sid": 254165342214496
 						}
 					],
-					"sid": 589471865026417
+					"sid": 589471865026417,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "The piggy billboard is a separate sprite attached as a child of the collision sprite, so pick the right one using a sub-event."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "pick-children",
+									"objectClass": "PiggyCollision",
+									"sid": 515264428925787,
+									"parameters": {
+										"child": "PiggyBillboard",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "flash",
+									"objectClass": "PiggyBillboard",
+									"sid": 617807956620061,
+									"behaviorType": "Flash",
+									"parameters": {
+										"on-time": "0.05",
+										"off-time": "0.05",
+										"duration": "0.4"
+									}
+								}
+							],
+							"sid": 703579667987709
+						}
+					]
 				},
 				{
 					"eventType": "comment",
-					"text": "If a piggy gets hit by a tomato 5 times, destroy it and create a \"puff\" billboard in its place as a disappearing animation (the \"puff\" object has the Fade behavior so it fades out)."
+					"text": "If a piggy gets hit by a tomato 5 times, destroy it and create a \"puff\" billboard in its place; as a disappearing animation, tween the opacity to 0 so it fades out."
 				},
 				{
 					"eventType": "block",
 					"conditions": [
 						{
 							"id": "compare-instance-variable",
-							"objectClass": "PiggyBillboard",
-							"sid": 962712083526216,
+							"objectClass": "PiggyCollision",
+							"sid": 534695537004910,
 							"parameters": {
 								"instance-variable": "HitCount",
 								"comparison": 5,
@@ -337,27 +302,46 @@
 						{
 							"id": "create-object",
 							"objectClass": "System",
-							"sid": 147589082007140,
+							"sid": 394936622930768,
 							"parameters": {
 								"object-to-create": "PuffBillboard",
 								"layer": "\"Billboards\"",
-								"x": "PiggyBillboard.X",
-								"y": "PiggyBillboard.Y",
-								"create-hierarchy": false
+								"x": "PiggyCollision.X",
+								"y": "PiggyCollision.Y",
+								"create-hierarchy": false,
+								"template-name": "\"\""
 							}
 						},
 						{
-							"id": "set-angle",
+							"id": "set-angle-toward-position",
 							"objectClass": "PuffBillboard",
-							"sid": 658256368332496,
+							"sid": 643812487463383,
 							"parameters": {
-								"angle": "PiggyBillboard.Angle"
+								"x": "Player.X",
+								"y": "Player.Y"
+							}
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "PuffBillboard",
+							"sid": 946168713854077,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "1",
+								"ease": "default",
+								"destroy-on-complete": "yes",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
 							}
 						},
 						{
 							"id": "destroy",
-							"objectClass": "PiggyBillboard",
-							"sid": 990243159931533
+							"objectClass": "PiggyCollision",
+							"sid": 101114083749031
 						}
 					],
 					"sid": 418485216908289

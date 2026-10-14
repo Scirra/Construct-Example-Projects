@@ -1,0 +1,568 @@
+{
+	"name": "GameUIEvents",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Game UI",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Game UI - Mana Pool",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "MP_ANIMATION_SPEED",
+							"type": "number",
+							"initialValue": "20",
+							"comment": "Mana bar animation speed.",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 838878656095292
+						},
+						{
+							"eventType": "comment",
+							"text": "Update mana bar."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 560526395942584
+								}
+							],
+							"actions": [
+								{
+									"id": "set-width",
+									"objectClass": "PartyMP",
+									"sid": 273877679744859,
+									"parameters": {
+										"width": "clamp(lerp(Self.Width, Self.maxWidth * Self.MP / Self.maxMP, MP_ANIMATION_SPEED * dt), 0, Self.maxWidth)"
+									}
+								}
+							],
+							"sid": 352268868775373
+						}
+					],
+					"sid": 357453875036359
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Game UI - Skills",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Skills - Core",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Disable skill icon."
+								},
+								{
+									"aceType": "action",
+									"aceName": "Disable",
+									"objectClass": "SkillIcon",
+									"functionDescription": "Disable skill icon.",
+									"functionCategory": "",
+									"functionReturnType": "none",
+									"functionCopyPicked": false,
+									"functionIsAsync": false,
+									"functionParameters": [],
+									"eventType": "custom-ace-block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "tween-value",
+											"objectClass": "SkillIcon",
+											"sid": 335182049330832,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SkillSaturation\"",
+												"start-value": "100",
+												"end-value": "0",
+												"time": "0.5",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "SkillIcon",
+											"sid": 775701608688170,
+											"parameters": {
+												"instance-variable": "enabled",
+												"value": "false"
+											}
+										}
+									],
+									"sid": 728999752906722
+								}
+							],
+							"sid": 271183067644449
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Skills - Effects",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-playing",
+											"objectClass": "SkillIcon",
+											"sid": 659677626467995,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"SkillSaturation\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-effect-parameter",
+											"objectClass": "SkillIcon",
+											"sid": 686418844046016,
+											"parameters": {
+												"effect": "\"AdjustHSL\"",
+												"parameter-index": "1",
+												"value": "Self.Tween.Value(\"SkillSaturation\")"
+											}
+										}
+									],
+									"sid": 176326575282361
+								}
+							],
+							"sid": 120324948224008
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Skills - Click",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "SKILL_ACTIVATE_SCALE",
+									"type": "number",
+									"initialValue": "0.85",
+									"comment": "When the player clicks a skill icon, it will increase its size up to this scale, then reset back to its original scale.",
+									"isStatic": false,
+									"isConstant": true,
+									"sid": 122125784322296
+								},
+								{
+									"eventType": "variable",
+									"name": "SKILL_MP_MULTIPLIER",
+									"type": "number",
+									"initialValue": "10",
+									"comment": "Multiply skill icon's mana consumption by this value.",
+									"isStatic": false,
+									"isConstant": true,
+									"sid": 338994627068668
+								},
+								{
+									"eventType": "comment",
+									"text": "Skills can only be used while input focus is on the game."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 959486883733467,
+											"parameters": {
+												"variable": "inputFocus",
+												"comparison": 0,
+												"value": "\"game\""
+											}
+										}
+									],
+									"actions": [],
+									"sid": 476119924654892,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Mouse activation."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-object-clicked",
+													"objectClass": "Mouse",
+													"sid": 438491147838406,
+													"parameters": {
+														"mouse-button": "left",
+														"click-type": "clicked",
+														"object-clicked": "SkillIcon"
+													}
+												},
+												{
+													"id": "is-any-playing",
+													"objectClass": "SkillIcon",
+													"sid": 475483997110955,
+													"behaviorType": "Tween",
+													"isInverted": true
+												},
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "SkillIcon",
+													"sid": 224295210510516,
+													"parameters": {
+														"instance-variable": "enabled"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-two-properties",
+													"objectClass": "SkillIcon",
+													"sid": 303574350661531,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"ScaleSkillIcon\"",
+														"property": "scale",
+														"end-x": "SKILL_ACTIVATE_SCALE",
+														"end-y": "SKILL_ACTIVATE_SCALE",
+														"time": "0.05",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "no",
+														"loop": "no",
+														"ping-pong": "yes",
+														"repeat-count": "1"
+													}
+												},
+												{
+													"callFunction": "triggerSkill",
+													"sid": 243993604109523,
+													"parameters": [
+														"SkillIcon.skill",
+														"SkillIcon.class",
+														"SkillIcon.mana * SKILL_MP_MULTIPLIER"
+													]
+												}
+											],
+											"sid": 839439698694669
+										},
+										{
+											"eventType": "comment",
+											"text": "Keyboard activation."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "on-any-key-pressed",
+													"objectClass": "Keyboard",
+													"sid": 604523159775973
+												}
+											],
+											"actions": [],
+											"sid": 886647573204232,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "pick-by-comparison",
+															"objectClass": "System",
+															"sid": 740479787501566,
+															"parameters": {
+																"object": "SkillIcon",
+																"expression": "SkillIcon.hotkey",
+																"comparison": 0,
+																"value": "str(Keyboard.LastKeyCode - 48)"
+															}
+														},
+														{
+															"id": "is-any-playing",
+															"objectClass": "SkillIcon",
+															"sid": 284717547396203,
+															"behaviorType": "Tween",
+															"isInverted": true
+														},
+														{
+															"id": "is-boolean-instance-variable-set",
+															"objectClass": "SkillIcon",
+															"sid": 994589025136166,
+															"parameters": {
+																"instance-variable": "enabled"
+															}
+														}
+													],
+													"actions": [],
+													"sid": 567883618339432,
+													"children": [
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "key-is-down",
+																	"objectClass": "Keyboard",
+																	"sid": 195378050529993,
+																	"parameters": {
+																		"key": 16
+																	}
+																},
+																{
+																	"id": "is-boolean-instance-variable-set",
+																	"objectClass": "SkillIcon",
+																	"sid": 583863976047917,
+																	"parameters": {
+																		"instance-variable": "shift"
+																	}
+																}
+															],
+															"actions": [
+																{
+																	"id": "tween-two-properties",
+																	"objectClass": "SkillIcon",
+																	"sid": 546026086600666,
+																	"behaviorType": "Tween",
+																	"parameters": {
+																		"tags": "\"ScaleSkillIcon\"",
+																		"property": "scale",
+																		"end-x": "SKILL_ACTIVATE_SCALE",
+																		"end-y": "SKILL_ACTIVATE_SCALE",
+																		"time": "0.05",
+																		"ease": "easeinoutsine",
+																		"destroy-on-complete": "no",
+																		"loop": "no",
+																		"ping-pong": "yes",
+																		"repeat-count": "1"
+																	}
+																},
+																{
+																	"callFunction": "triggerSkill",
+																	"sid": 532193598335279,
+																	"parameters": [
+																		"SkillIcon.skill",
+																		"SkillIcon.class",
+																		"SkillIcon.mana * SKILL_MP_MULTIPLIER"
+																	]
+																}
+															],
+															"sid": 689160245228886
+														},
+														{
+															"eventType": "block",
+															"conditions": [
+																{
+																	"id": "else",
+																	"objectClass": "System",
+																	"sid": 574440635060752
+																},
+																{
+																	"id": "is-boolean-instance-variable-set",
+																	"objectClass": "SkillIcon",
+																	"sid": 610764592904656,
+																	"parameters": {
+																		"instance-variable": "shift"
+																	},
+																	"isInverted": true
+																}
+															],
+															"actions": [
+																{
+																	"id": "tween-two-properties",
+																	"objectClass": "SkillIcon",
+																	"sid": 530751335539167,
+																	"behaviorType": "Tween",
+																	"parameters": {
+																		"tags": "\"ScaleSkillIcon\"",
+																		"property": "scale",
+																		"end-x": "SKILL_ACTIVATE_SCALE",
+																		"end-y": "SKILL_ACTIVATE_SCALE",
+																		"time": "0.05",
+																		"ease": "easeinoutsine",
+																		"destroy-on-complete": "no",
+																		"loop": "no",
+																		"ping-pong": "yes",
+																		"repeat-count": "1"
+																	}
+																},
+																{
+																	"callFunction": "triggerSkill",
+																	"sid": 646694032354618,
+																	"parameters": [
+																		"SkillIcon.skill",
+																		"SkillIcon.class",
+																		"SkillIcon.mana * SKILL_MP_MULTIPLIER"
+																	]
+																}
+															],
+															"sid": 708845080219766
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							],
+							"sid": 340458015185050
+						},
+						{
+							"eventType": "group",
+							"disabled": false,
+							"title": "Skills - Hover",
+							"description": "",
+							"isActiveOnStart": true,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Reset skill bar."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-effect-parameter",
+											"objectClass": "SkillIcon",
+											"sid": 292555380938478,
+											"parameters": {
+												"effect": "\"AdjustHSL\"",
+												"parameter-index": "2",
+												"value": "100"
+											}
+										}
+									],
+									"sid": 454515363117434
+								},
+								{
+									"eventType": "comment",
+									"text": "Show skill information."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "cursor-is-over-object",
+											"objectClass": "Mouse",
+											"sid": 154151055490312,
+											"parameters": {
+												"object": "SkillIcon"
+											}
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 132311556999208,
+											"parameters": {
+												"variable": "inputFocus",
+												"comparison": 0,
+												"value": "\"game\""
+											}
+										},
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "SkillIcon",
+											"sid": 147741080526884,
+											"parameters": {
+												"instance-variable": "enabled"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-effect-parameter",
+											"objectClass": "SkillIcon",
+											"sid": 731409130892024,
+											"parameters": {
+												"effect": "\"AdjustHSL\"",
+												"parameter-index": "2",
+												"value": "110"
+											}
+										},
+										{
+											"id": "set-text",
+											"objectClass": "TextDescription",
+											"sid": 130165033303099,
+											"parameters": {
+												"text": "\"[color=#eb8b0c][outlineBack=#000000][lineThickness=2]\" & SkillIcon.name\n& \"[/color]\" & newline \n& SkillIcon.decription"
+											}
+										}
+									],
+									"sid": 218185884824388
+								},
+								{
+									"eventType": "comment",
+									"text": "If the player is not hovering a skill icon, nor a tower, remove the description."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "cursor-is-over-object",
+											"objectClass": "Mouse",
+											"sid": 601108965743041,
+											"parameters": {
+												"object": "SkillIcon"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "cursor-is-over-object",
+											"objectClass": "Mouse",
+											"sid": 107730631380143,
+											"parameters": {
+												"object": "Tower_Orb"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "cursor-is-over-object",
+											"objectClass": "Mouse",
+											"sid": 404043979734327,
+											"parameters": {
+												"object": "TowerModel"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-text",
+											"objectClass": "TextDescription",
+											"sid": 361631983789107,
+											"parameters": {
+												"text": "\"\""
+											}
+										}
+									],
+									"sid": 753868802795595
+								}
+							],
+							"sid": 733145496445115
+						}
+					],
+					"sid": 555682434039917
+				}
+			],
+			"sid": 878274252835855
+		}
+	],
+	"sid": 994240844625490
+}

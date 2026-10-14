@@ -1,0 +1,1007 @@
+{
+	"name": "CartEvents",
+	"events": [
+		{
+			"eventType": "variable",
+			"name": "CART_ENERGY_RATE",
+			"type": "number",
+			"initialValue": "4",
+			"comment": "Speed at which energy from the cart is consumed or increased.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 361076976352672
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Cart",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Cart - Setup",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Setup cart."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Setup",
+							"objectClass": "Cart",
+							"functionDescription": "Setup cart.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [
+								{
+									"name": "level",
+									"type": "number",
+									"initialValue": "1",
+									"comment": "Path to follow.",
+									"sid": 196418500440912
+								}
+							],
+							"eventType": "custom-ace-block",
+							"conditions": [],
+							"actions": [
+								{
+									"id": "play",
+									"objectClass": "Audio",
+									"sid": 530203446782919,
+									"parameters": {
+										"audio-file": {
+											"path": "cart"
+										},
+										"loop": "looping",
+										"volume": "-Infinity",
+										"stereo-pan": "0",
+										"tag-optional": "\"Cart\""
+									}
+								},
+								{
+									"id": "move-along-timeline-by-name",
+									"objectClass": "Cart",
+									"sid": 551178215716778,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"timeline": "\"Level\" & level",
+										"track": "\"\"",
+										"mode": "direct"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Move the cart a little forward."
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "Cart",
+									"sid": 974904995996028,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"speed": "Self.MoveTo.MaxSpeed"
+									}
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 819666862465374,
+									"parameters": {
+										"seconds": "0.5",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "set-speed",
+									"objectClass": "Cart",
+									"sid": 569183992340704,
+									"behaviorType": "MoveTo",
+									"parameters": {
+										"speed": "0"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Make it interactable."
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Cart",
+									"sid": 630319408730428,
+									"parameters": {
+										"instance-variable": "interactable",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 701868403602688
+						}
+					],
+					"sid": 574815516918493
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Cart - Effects",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Flash cart."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-playing",
+									"objectClass": "CartModel",
+									"sid": 913476008070457,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FlashCart\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-effect-parameter",
+									"objectClass": "CartModel",
+									"sid": 974301024647184,
+									"parameters": {
+										"effect": "\"AdjustHSL\"",
+										"parameter-index": "2",
+										"value": "Self.Tween.Value(\"FlashCart\")"
+									}
+								}
+							],
+							"sid": 186830286500240
+						},
+						{
+							"eventType": "comment",
+							"text": "Crystal light emission."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 113080430874184
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 742129286941071,
+									"parameters": {
+										"object": "FX_RadialLight",
+										"expression": "FX_RadialLight.TagAt(0)",
+										"comparison": 0,
+										"value": "\"CartCrystal\""
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-position",
+									"objectClass": "FX_RadialLight",
+									"sid": 799948512324510,
+									"parameters": {
+										"x": "3DCamera.LayerToCanvasX(\"Entities\", CartModel.X, CartModel.Y, Crystal.Z + 64) / (PlatformInfo.CanvasCssWidth / OriginalViewportWidth)",
+										"y": "3DCamera.LayerToCanvasY(\"Entities\", CartModel.X, CartModel.Y, Crystal.Z + 64) / (PlatformInfo.CanvasCssHeight / OriginalViewportHeight)"
+									}
+								}
+							],
+							"sid": 543475556141680
+						}
+					],
+					"sid": 892544911714397
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Cart - Movement",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Move cart along the path."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 872751191009569
+								}
+							],
+							"actions": [],
+							"sid": 276363808807318,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Fix potential NaN angle issue."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-number-nan",
+											"objectClass": "System",
+											"sid": 566445311952546,
+											"parameters": {
+												"number": "Cart.Angle"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-angle",
+											"objectClass": "Cart",
+											"sid": 864336823705535,
+											"parameters": {
+												"angle": "Cart.startAngle"
+											}
+										}
+									],
+									"sid": 410017141631116
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 383883936567035
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Cart",
+											"sid": 571168659688668,
+											"parameters": {
+												"instance-variable": "startAngle",
+												"value": "Self.Angle"
+											}
+										}
+									],
+									"sid": 358319396015567
+								},
+								{
+									"eventType": "comment",
+									"text": "Smoothly rotate cart's physical objects."
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-angle",
+											"objectClass": "CartModel",
+											"sid": 222182759329066,
+											"parameters": {
+												"angle": "anglelerp(Self.Angle, Cart.Angle, 7 * dt)"
+											}
+										},
+										{
+											"id": "set-angle",
+											"objectClass": "CartShadow",
+											"sid": 984769776170015,
+											"parameters": {
+												"angle": "anglelerp(Self.Angle, Cart.Angle, 7 * dt)"
+											}
+										}
+									],
+									"sid": 707462509674331
+								}
+							]
+						}
+					],
+					"sid": 159171255626044
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Cart - Link",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "LINK_MAX_DIST",
+							"type": "number",
+							"initialValue": "416",
+							"comment": "Maximum distance between a character and the cart for a link between them.",
+							"isStatic": false,
+							"isConstant": true,
+							"sid": 464765225341861
+						},
+						{
+							"eventType": "comment",
+							"text": "Link with nearby characters. Cart movement speed and energy gain increases with the number of linked characters."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Cart",
+									"sid": 673859184834300,
+									"parameters": {
+										"instance-variable": "interactable"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Cart",
+									"sid": 217207718502370,
+									"parameters": {
+										"instance-variable": "power",
+										"value": "0"
+									}
+								}
+							],
+							"sid": 396981252143146,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "linkFromX",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 265401134533172
+								},
+								{
+									"eventType": "variable",
+									"name": "linkFromY",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 582056144515471
+								},
+								{
+									"eventType": "variable",
+									"name": "linkToX",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 399155061521165
+								},
+								{
+									"eventType": "variable",
+									"name": "linkToY",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 128257287737391
+								},
+								{
+									"eventType": "variable",
+									"name": "distanceFromTo",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Distance between (fromX, fromY) and (toX, toY)",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 809085248516310
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 113082574551546,
+											"parameters": {
+												"object": "Char"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "Char",
+											"sid": 997770634109541,
+											"parameters": {
+												"child": "CartLinkTB",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 465967262362329,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Character is alive."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-boolean-instance-variable-set",
+													"objectClass": "Char",
+													"sid": 693715171796707,
+													"parameters": {
+														"instance-variable": "alive"
+													}
+												},
+												{
+													"id": "compare-boolean-eventvar",
+													"objectClass": "System",
+													"sid": 668698654748332,
+													"parameters": {
+														"variable": "gameOver"
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 649370111854886,
+													"parameters": {
+														"variable": "linkFromX",
+														"value": "3DCamera.LayerToCanvasX(\"Entities\", Crystal.X, Crystal.Y, Crystal.Z + 64)/(PlatformInfo.CanvasCssWidth/OriginalViewportWidth)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 614740819019484,
+													"parameters": {
+														"variable": "linkFromY",
+														"value": "3DCamera.LayerToCanvasY(\"Entities\", Crystal.X, Crystal.Y, Crystal.Z + 64)/(PlatformInfo.CanvasCssHeight/OriginalViewportHeight)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 614244154210353,
+													"parameters": {
+														"variable": "linkToX",
+														"value": "3DCamera.LayerToCanvasX(\"Entities\", Char.X, Char.Y, Char.Z + 64)/(PlatformInfo.CanvasCssWidth/OriginalViewportWidth)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 530248484726557,
+													"parameters": {
+														"variable": "linkToY",
+														"value": "3DCamera.LayerToCanvasY(\"Entities\", Char.X, Char.Y, Char.Z + 64)/(PlatformInfo.CanvasCssHeight/OriginalViewportHeight)"
+													}
+												},
+												{
+													"id": "set-eventvar-value",
+													"objectClass": "System",
+													"sid": 600578068847842,
+													"parameters": {
+														"variable": "distanceFromTo",
+														"value": "distance(linkFromX, linkFromY, linkToX, linkToY)"
+													}
+												},
+												{
+													"id": "set-position",
+													"objectClass": "CartLinkTB",
+													"sid": 224029427876423,
+													"parameters": {
+														"x": "linkFromX",
+														"y": "linkFromY"
+													}
+												},
+												{
+													"id": "set-angle",
+													"objectClass": "CartLinkTB",
+													"sid": 431704099272316,
+													"parameters": {
+														"angle": "angle(linkFromX, linkFromY, linkToX, linkToY)"
+													}
+												}
+											],
+											"sid": 434156200365118,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Character is within the radius to power the cart."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 866399093767302,
+															"parameters": {
+																"value": "distance(Char.X, Char.Y, Cart.X, Cart.Y) < LINK_MAX_DIST"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "add-to-instvar",
+															"objectClass": "Cart",
+															"sid": 750856584931679,
+															"parameters": {
+																"instance-variable": "power",
+																"value": "1"
+															}
+														},
+														{
+															"id": "set-width",
+															"objectClass": "CartLinkTB",
+															"sid": 507691742932682,
+															"parameters": {
+																"width": "distanceFromTo"
+															}
+														},
+														{
+															"id": "set-opacity",
+															"objectClass": "CartLinkTB",
+															"sid": 944922320875827,
+															"parameters": {
+																"opacity": "lerp(Self.Opacity, 100 * clamp(1 - distanceFromTo/LINK_MAX_DIST, 0, 1), 6 * dt)"
+															}
+														}
+													],
+													"sid": 841174799114293
+												},
+												{
+													"eventType": "comment",
+													"text": "Character is outside the radius."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 346191165222179
+														}
+													],
+													"actions": [
+														{
+															"id": "set-width",
+															"objectClass": "CartLinkTB",
+															"sid": 413318299436383,
+															"parameters": {
+																"width": "lerp(Self.Width, 0, 5 * dt)"
+															}
+														},
+														{
+															"id": "set-opacity",
+															"objectClass": "CartLinkTB",
+															"sid": 766600763772266,
+															"parameters": {
+																"opacity": "lerp(Self.Opacity, 0, 6 * dt)"
+															}
+														}
+													],
+													"sid": 586757189741997
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Character is dead: destroy link."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 946589500182149
+												},
+												{
+													"id": "is-playing",
+													"objectClass": "CartLinkTB",
+													"sid": 708364039001271,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"DestroyLink\""
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"id": "tween-one-property",
+													"objectClass": "CartLinkTB",
+													"sid": 513393987045865,
+													"behaviorType": "Tween",
+													"parameters": {
+														"tags": "\"DestroyLink\"",
+														"property": "offsetOpacity",
+														"end-value": "0",
+														"time": "0.25",
+														"ease": "easeinoutsine",
+														"destroy-on-complete": "yes",
+														"loop": "no",
+														"ping-pong": "no",
+														"repeat-count": "1"
+													}
+												}
+											],
+											"sid": 763524161512357
+										},
+										{
+											"eventType": "comment",
+											"text": "Play cart sound according to current power."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-value",
+													"objectClass": "DictProfile",
+													"sid": 735582346310471,
+													"parameters": {
+														"key": "\"Sound\"",
+														"comparison": 0,
+														"value": "1"
+													}
+												}
+											],
+											"actions": [],
+											"sid": 620542310885740,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "compare-instance-variable",
+															"objectClass": "Cart",
+															"sid": 521383951854850,
+															"parameters": {
+																"instance-variable": "power",
+																"comparison": 0,
+																"value": "0"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-volume",
+															"objectClass": "Audio",
+															"sid": 929337280943724,
+															"parameters": {
+																"tag": "\"Cart\"",
+																"db": "-Infinity"
+															}
+														}
+													],
+													"sid": 741619501328318
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 489165539877766
+														}
+													],
+													"actions": [
+														{
+															"id": "set-volume",
+															"objectClass": "Audio",
+															"sid": 828103461148136,
+															"parameters": {
+																"tag": "\"Cart\"",
+																"db": "Cart.power - 8"
+															}
+														}
+													],
+													"sid": 749706991985776
+												}
+											]
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 146298858558775
+												}
+											],
+											"actions": [
+												{
+													"id": "set-volume",
+													"objectClass": "Audio",
+													"sid": 178896116201625,
+													"parameters": {
+														"tag": "\"Cart\"",
+														"db": "-Infinity"
+													}
+												}
+											],
+											"sid": 277820070223291
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Update cart movement speed according to current power status."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 392803525612200,
+											"parameters": {
+												"object": "FX_RadialLight",
+												"expression": "FX_RadialLight.TagAt(0)",
+												"comparison": 0,
+												"value": "\"CartCrystal\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-opacity",
+											"objectClass": "FX_RadialLight",
+											"sid": 273304921906620,
+											"parameters": {
+												"opacity": "lerp(Self.Opacity, 47 + Cart.power * 7, 2 * dt)"
+											}
+										}
+									],
+									"sid": 549195925222048,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Cart will only move if it's not blocked by a gate."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-overlapping-at-offset",
+													"objectClass": "Cart",
+													"sid": 577494226094901,
+													"parameters": {
+														"object": "WallGateCollider",
+														"offset-x": "Self.X + cos(Self.Angle) * 32 - Cart.X",
+														"offset-y": "Self.Y + sin(Self.Angle) * 32 - Cart.Y"
+													},
+													"isInverted": true
+												},
+												{
+													"id": "is-overlapping-at-offset",
+													"objectClass": "Cart",
+													"sid": 928941182813395,
+													"parameters": {
+														"object": "Char",
+														"offset-x": "Self.X + cos(Self.Angle) * 32 - Cart.X",
+														"offset-y": "Self.Y + sin(Self.Angle) * 32 - Cart.Y"
+													},
+													"isInverted": true
+												}
+											],
+											"actions": [
+												{
+													"id": "set-max-speed",
+													"objectClass": "Cart",
+													"sid": 649740480674149,
+													"behaviorType": "MoveTo",
+													"parameters": {
+														"max-speed": "Self.power * 15"
+													}
+												},
+												{
+													"id": "set-transform",
+													"objectClass": "CartWheel",
+													"sid": 543601163379270,
+													"parameters": {
+														"x-transform": "Self.RotationX",
+														"y-transform": "(Self.RotationY + 80 * Cart.power * dt) % 360",
+														"z-transform": "Self.RotationZ",
+														"operation": "set",
+														"type": "rotation"
+													}
+												}
+											],
+											"sid": 389273361706378
+										},
+										{
+											"eventType": "comment",
+											"text": "Otherwise it stays still."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 941085969427956
+												}
+											],
+											"actions": [
+												{
+													"id": "set-max-speed",
+													"objectClass": "Cart",
+													"sid": 623070756510149,
+													"behaviorType": "MoveTo",
+													"parameters": {
+														"max-speed": "0"
+													}
+												}
+											],
+											"sid": 182745382051146
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "There must be at least 1 character at all times with the cart for it to not lose energy. 2 or more characters increase the energy over time."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-boolean-eventvar",
+											"objectClass": "System",
+											"sid": 867760936871672,
+											"parameters": {
+												"variable": "gameOver"
+											},
+											"isInverted": true
+										},
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 661979288446053,
+											"parameters": {
+												"variable": "inputFocus",
+												"comparison": 0,
+												"value": "\"game\""
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Cart",
+											"sid": 204098872369981,
+											"parameters": {
+												"instance-variable": "energy",
+												"value": "clamp(Self.energy + (Self.power - 1) * CART_ENERGY_RATE * dt, 0, Self.maxEnergy)"
+											}
+										},
+										{
+											"id": "set-width",
+											"objectClass": "CartEnergy",
+											"sid": 591248769609295,
+											"parameters": {
+												"width": "Self.maxWidth * (Cart.energy / Cart.maxEnergy)"
+											}
+										}
+									],
+									"sid": 917323514172634,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "If the cart runs out of energy, it's game over."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-instance-variable",
+													"objectClass": "Cart",
+													"sid": 918019323830932,
+													"parameters": {
+														"instance-variable": "energy",
+														"comparison": 3,
+														"value": "0"
+													}
+												}
+											],
+											"actions": [
+												{
+													"callFunction": "gameOver",
+													"sid": 866541164961611,
+													"parameters": [
+														false
+													]
+												}
+											],
+											"sid": 352823144391519
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Animate links."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 811358323084048
+								}
+							],
+							"actions": [
+								{
+									"id": "set-image-offset-x",
+									"objectClass": "CartLinkTB",
+									"sid": 332204420650653,
+									"parameters": {
+										"offset-x": "Self.ImageOffsetX - 125 * dt"
+									}
+								}
+							],
+							"sid": 921506123300180
+						}
+					],
+					"sid": 381169159964999
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Cart - Win Zone",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player beat the level."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "Cart",
+									"sid": 816833668047249,
+									"parameters": {
+										"object": "WinZone"
+									}
+								}
+							],
+							"actions": [
+								{
+									"callFunction": "gameOver",
+									"sid": 905866954363019,
+									"parameters": [
+										true
+									]
+								}
+							],
+							"sid": 592763338642901
+						}
+					],
+					"sid": 646802218282603
+				}
+			],
+			"sid": 460806938193532
+		}
+	],
+	"sid": 683252790169459
+}

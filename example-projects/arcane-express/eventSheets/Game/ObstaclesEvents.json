@@ -1,0 +1,315 @@
+{
+	"name": "ObstaclesEvents",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Obstacles",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Flash lever."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "LeverBase",
+							"sid": 542219563368835,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"FlashLever\""
+							}
+						},
+						{
+							"id": "pick-parent",
+							"objectClass": "LeverBase",
+							"sid": 746431049747713,
+							"parameters": {
+								"parent": "Lever",
+								"which": "own"
+							}
+						},
+						{
+							"id": "pick-children",
+							"objectClass": "Lever",
+							"sid": 582488351130954,
+							"parameters": {
+								"child": "LeverModel",
+								"which": "own"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "LeverBase",
+							"sid": 362464676177367,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "Self.Tween.Value(\"FlashLever\")"
+							}
+						},
+						{
+							"id": "set-effect-parameter",
+							"objectClass": "LeverModel",
+							"sid": 291423911777927,
+							"parameters": {
+								"effect": "\"AdjustHSL\"",
+								"parameter-index": "2",
+								"value": "LeverBase.Tween.Value(\"FlashLever\")"
+							}
+						}
+					],
+					"sid": 432599054635875
+				},
+				{
+					"eventType": "comment",
+					"text": "If a character gets close to a lever, open the corresponding gate."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 421018329467290,
+							"parameters": {
+								"object": "Lever"
+							}
+						},
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Lever",
+							"sid": 353725813310521,
+							"parameters": {
+								"instance-variable": "active"
+							},
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 410841921830089,
+					"children": [
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "for-each",
+									"objectClass": "System",
+									"sid": 320323499723497,
+									"parameters": {
+										"object": "Char"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Char",
+									"sid": 887778994178169,
+									"parameters": {
+										"instance-variable": "alive"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 999385347692411,
+									"parameters": {
+										"value": "distance(Lever.X, Lever.Y, Char.X, Char.Y) < 128"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Lever",
+									"sid": 386950032740287,
+									"parameters": {
+										"instance-variable": "active",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 222369293212163,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Rotate lever."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Lever",
+											"sid": 458565265027208,
+											"parameters": {
+												"child": "LeverModel",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "tween-value",
+											"objectClass": "LeverModel",
+											"sid": 517664641080560,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"RotateLever\"",
+												"start-value": "-30",
+												"end-value": "30",
+												"time": "1",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 326093620430229
+								},
+								{
+									"eventType": "comment",
+									"text": "Open gate."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-by-comparison",
+											"objectClass": "System",
+											"sid": 233040473200407,
+											"parameters": {
+												"object": "WallGate",
+												"expression": "WallGate.gateID",
+												"comparison": 0,
+												"value": "Lever.gateID"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "WallGate",
+											"sid": 123081215441682,
+											"parameters": {
+												"child": "WallGateCollider",
+												"which": "own"
+											}
+										},
+										{
+											"id": "pick-by-evaluate",
+											"objectClass": "System",
+											"sid": 325174597211924,
+											"parameters": {
+												"object": "WallGateCollider",
+												"expression": "WallGateCollider.dynamic"
+											}
+										},
+										{
+											"id": "pick-children",
+											"objectClass": "WallGate",
+											"sid": 843351729558355,
+											"parameters": {
+												"child": "Gate",
+												"which": "own"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-boolean-instvar",
+											"objectClass": "WallGate",
+											"sid": 547653656968981,
+											"parameters": {
+												"instance-variable": "open",
+												"value": "true"
+											}
+										},
+										{
+											"id": "destroy",
+											"objectClass": "WallGateCollider",
+											"sid": 260975552677978
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "Gate",
+											"sid": 954651346281139,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"OpenGate\"",
+												"property": "position",
+												"end-x": "Self.X - cos(Self.Angle - 90) * Self.Width * 0.9",
+												"end-y": "Self.Y - sin(Self.Angle - 90) * Self.Width * 0.9",
+												"time": "1.2",
+												"ease": "easeoutbounce",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"type": "comment",
+											"text": "Play sound effect."
+										},
+										{
+											"callFunction": "playSFX",
+											"sid": 988336175050665,
+											"parameters": [
+												"\"gate\"",
+												"\"SFX\"",
+												"0",
+												"1"
+											]
+										}
+									],
+									"sid": 857796887816880
+								}
+							]
+						}
+					]
+				},
+				{
+					"eventType": "comment",
+					"text": "Play lever rotation animation."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-playing",
+							"objectClass": "LeverModel",
+							"sid": 847218597417426,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"RotateLever\""
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "set-transform",
+							"objectClass": "LeverModel",
+							"sid": 927289202502429,
+							"parameters": {
+								"x-transform": "Self.RotationX",
+								"y-transform": "Self.Tween.Value(\"RotateLever\")",
+								"z-transform": "Self.RotationZ",
+								"operation": "set",
+								"type": "rotation"
+							}
+						}
+					],
+					"sid": 805578240503969
+				}
+			],
+			"sid": 405098555361734
+		}
+	],
+	"sid": 831188623902037
+}

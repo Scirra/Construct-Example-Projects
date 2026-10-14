@@ -1,0 +1,2658 @@
+{
+	"name": "Events",
+	"events": [
+		{
+			"eventType": "comment",
+			"text": "Made by Forsteri Studios\n\nWebsite: forsteristudios.com\nE-Mail: forsteristudios@gmail.com\nX: @forsteristudios"
+		},
+		{
+			"eventType": "comment",
+			"text": "Gameplay variables."
+		},
+		{
+			"eventType": "variable",
+			"name": "ready",
+			"type": "boolean",
+			"initialValue": "false",
+			"comment": "Is the game ready to play?",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 905651133315865
+		},
+		{
+			"eventType": "variable",
+			"name": "level",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Current level.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 303721771784618
+		},
+		{
+			"eventType": "variable",
+			"name": "randomHue",
+			"type": "number",
+			"initialValue": "0",
+			"comment": "Random Hue value.",
+			"isStatic": false,
+			"isConstant": false,
+			"sid": 414697981391677
+		},
+		{
+			"eventType": "comment",
+			"text": "Settings."
+		},
+		{
+			"eventType": "variable",
+			"name": "CAMERA_SPEED",
+			"type": "number",
+			"initialValue": "3",
+			"comment": "Camera speed.",
+			"isStatic": false,
+			"isConstant": true,
+			"sid": 109021458303489
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Setup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Game setup."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "on-start-of-layout",
+							"objectClass": "System",
+							"sid": 672907156667086
+						},
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 214956330974516,
+							"parameters": {
+								"object": "PlayerSpawn",
+								"expression": "PlayerSpawn.level",
+								"comparison": 0,
+								"value": "level"
+							}
+						}
+					],
+					"actions": [
+						{
+							"type": "comment",
+							"text": "Player and camera setup."
+						},
+						{
+							"id": "set-position-to-another-object",
+							"objectClass": "Player",
+							"sid": 929278404767313,
+							"parameters": {
+								"object": "PlayerSpawn",
+								"image-point-optional": "0"
+							}
+						},
+						{
+							"id": "set-instvar-value",
+							"objectClass": "Player",
+							"sid": 475791571348462,
+							"parameters": {
+								"instance-variable": "jumpPads",
+								"value": "PlayerSpawn.jumpPads"
+							}
+						},
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 867644167336281,
+							"parameters": {
+								"x": "clamp(Player.ImagePointX(\"Ray\"), CameraBounds.X + ViewportWidth(\"Level\")/2, CameraBounds.X + CameraBounds.Width - ViewportWidth(\"Level\")/2)",
+								"y": "clamp(Player.ImagePointY(\"Ray\"), CameraBounds.Y + ViewportHeight(\"Level\")/2, CameraBounds.Y + CameraBounds.Height - ViewportHeight(\"Level\")/2)"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Spikes setup."
+						},
+						{
+							"id": "set-animation-frame",
+							"objectClass": "Spike",
+							"sid": 464654121361548,
+							"parameters": {
+								"frame-number": "int(random(Self.AnimationFrameCount))"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Background setup."
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "BackgroundLevel1",
+							"sid": 823213087063358,
+							"parameters": {
+								"opacity": "(level = 0) * 100"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "BackgroundLevel2",
+							"sid": 497247646350309,
+							"parameters": {
+								"opacity": "(level = 1) * 100"
+							}
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "BackgroundLevel3",
+							"sid": 809688954472120,
+							"parameters": {
+								"opacity": "(level = 2) * 100"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Hide tutorial texts."
+						},
+						{
+							"id": "set-opacity",
+							"objectClass": "TextTutorial",
+							"sid": 567245205865196,
+							"parameters": {
+								"opacity": "0"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set line of sight obstacles."
+						},
+						{
+							"id": "add-obstacle",
+							"objectClass": "Player",
+							"sid": 640402065315597,
+							"behaviorType": "LineOfSight",
+							"parameters": {
+								"obstacle": "TiledCollider"
+							}
+						},
+						{
+							"id": "add-obstacle",
+							"objectClass": "Player",
+							"sid": 176720315186734,
+							"behaviorType": "LineOfSight",
+							"parameters": {
+								"obstacle": "TriangleCollider"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Set physics stepping mode."
+						},
+						{
+							"id": "set-stepping-mode",
+							"objectClass": "Player",
+							"sid": 794891136780449,
+							"behaviorType": "Physics",
+							"parameters": {
+								"mode": "fixed"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Fade the game in."
+						},
+						{
+							"id": "tween-one-property",
+							"objectClass": "Fader",
+							"sid": 372824502548940,
+							"behaviorType": "Tween",
+							"parameters": {
+								"tags": "\"HideFader\"",
+								"property": "offsetOpacity",
+								"end-value": "0",
+								"time": "0.5",
+								"ease": "easeinoutsine",
+								"destroy-on-complete": "no",
+								"loop": "no",
+								"ping-pong": "no",
+								"repeat-count": "1"
+							}
+						},
+						{
+							"type": "comment",
+							"text": "Game is ready to play."
+						},
+						{
+							"id": "wait-for-previous-actions",
+							"objectClass": "System",
+							"sid": 369378138476662
+						},
+						{
+							"id": "set-boolean-eventvar",
+							"objectClass": "System",
+							"sid": 271504422081112,
+							"parameters": {
+								"variable": "ready",
+								"value": "true"
+							}
+						}
+					],
+					"sid": 898558581789805
+				}
+			],
+			"sid": 378084947734779
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Tutorial",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Show/Hide tutorial text boxes depending on whether the player is overlapping them."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 481261037843556,
+							"parameters": {
+								"object": "TextTutorial"
+							}
+						},
+						{
+							"id": "is-any-playing",
+							"objectClass": "TextTutorial",
+							"sid": 540627264762195,
+							"behaviorType": "Tween",
+							"isInverted": true
+						}
+					],
+					"actions": [],
+					"sid": 863683264249859,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Show text."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Player",
+									"sid": 906477089470518,
+									"parameters": {
+										"object": "TextTutorial"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextTutorial",
+									"sid": 794720363544513,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowText\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 204617389253905,
+							"isOrBlock": true
+						},
+						{
+							"eventType": "comment",
+							"text": "Hide text."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 704951676439011
+								}
+							],
+							"actions": [
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextTutorial",
+									"sid": 225325650452979,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideText\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.1",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 510210724163190
+						}
+					]
+				}
+			],
+			"sid": 984341282645998
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Camera",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "comment",
+					"text": "Camera follows the player smoothly."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "is-boolean-instance-variable-set",
+							"objectClass": "Player",
+							"sid": 162621302137336,
+							"parameters": {
+								"instance-variable": "dead"
+							},
+							"isInverted": true
+						},
+						{
+							"id": "pick-by-comparison",
+							"objectClass": "System",
+							"sid": 381420037954380,
+							"parameters": {
+								"object": "CameraBounds",
+								"expression": "CameraBounds.level",
+								"comparison": 0,
+								"value": "level"
+							}
+						}
+					],
+					"actions": [
+						{
+							"id": "scroll-to-position",
+							"objectClass": "System",
+							"sid": 414053105498195,
+							"parameters": {
+								"x": "clamp(lerp(scrollx, Player.ImagePointX(\"Ray\"), CAMERA_SPEED * dt), CameraBounds.X + ViewportWidth(\"Level\")/2, CameraBounds.X + CameraBounds.Width - ViewportWidth(\"Level\")/2)",
+								"y": "clamp(lerp(scrolly, Player.ImagePointY(\"Ray\"), CAMERA_SPEED * dt), CameraBounds.Y + ViewportHeight(\"Level\")/2, CameraBounds.Y + CameraBounds.Height - ViewportHeight(\"Level\")/2)"
+							}
+						}
+					],
+					"sid": 728774683341201
+				},
+				{
+					"eventType": "comment",
+					"text": "Fader follows the camera."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "every-tick",
+							"objectClass": "System",
+							"sid": 750675046462781
+						}
+					],
+					"actions": [
+						{
+							"id": "set-position",
+							"objectClass": "Fader",
+							"sid": 489824752851225,
+							"parameters": {
+								"x": "scrollx",
+								"y": "scrolly"
+							}
+						},
+						{
+							"id": "move-to-top",
+							"objectClass": "Fader",
+							"sid": 685742481840287
+						}
+					],
+					"sid": 657747679553070
+				}
+			],
+			"sid": 116662653312657
+		},
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Player",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Win Zone",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "By reaching the win zone, the player beats the level and advance to the next one."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "Player",
+									"sid": 480118489127733,
+									"parameters": {
+										"object": "WinZone"
+									}
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 630290837313206,
+									"parameters": {
+										"object": "PlayerSpawn",
+										"expression": "PlayerSpawn.level",
+										"comparison": 0,
+										"value": "level + 1"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Player",
+									"sid": 129267765293857,
+									"parameters": {
+										"instance-variable": "dead"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 751811034399238,
+									"parameters": {
+										"variable": "ready"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "destroy",
+									"objectClass": "WinZone",
+									"sid": 271490676954185
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 683897699230650,
+									"parameters": {
+										"variable": "ready",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-velocity",
+									"objectClass": "Player",
+									"sid": 537442786079584,
+									"behaviorType": "Physics",
+									"parameters": {
+										"x-component": "0",
+										"y-component": "Self.Physics.VelocityY"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play victory animation."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerSprite",
+									"sid": 990780906304771,
+									"parameters": {
+										"animation": "\"Win\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade the game out."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 326328584720437,
+									"parameters": {
+										"seconds": "3.0",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 614896019098103,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 719699115874431
+								},
+								{
+									"type": "comment",
+									"text": "Go to the next level."
+								},
+								{
+									"id": "add-to-eventvar",
+									"objectClass": "System",
+									"sid": 919821688108463,
+									"parameters": {
+										"variable": "level",
+										"value": "1"
+									}
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "Player",
+									"sid": 574531039763767,
+									"behaviorType": "Physics",
+									"parameters": {
+										"mode": "enabled"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "JumpPad",
+									"sid": 111614260759551
+								},
+								{
+									"id": "set-velocity",
+									"objectClass": "Player",
+									"sid": 427423998932409,
+									"behaviorType": "Physics",
+									"parameters": {
+										"x-component": "0",
+										"y-component": "0"
+									}
+								},
+								{
+									"id": "teleport",
+									"objectClass": "Player",
+									"sid": 918859796523530,
+									"behaviorType": "Physics",
+									"parameters": {
+										"x": "PlayerSpawn.X",
+										"y": "PlayerSpawn.Y"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 331067058923303,
+									"parameters": {
+										"instance-variable": "jumpPads",
+										"value": "PlayerSpawn.jumpPads"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 227972380695991,
+									"parameters": {
+										"instance-variable": "dead",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-mirrored",
+									"objectClass": "Player",
+									"sid": 565867216598802,
+									"parameters": {
+										"state": "not-mirrored"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerSprite",
+									"sid": 334756538557130,
+									"parameters": {
+										"animation": "\"Idle\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "scroll-to-position",
+									"objectClass": "System",
+									"sid": 793053836139750,
+									"parameters": {
+										"x": "clamp(Player.ImagePointX(\"Ray\"), CameraBounds.X + ViewportWidth(\"Level\")/2, CameraBounds.X + CameraBounds.Width - ViewportWidth(\"Level\")/2)",
+										"y": "clamp(Player.ImagePointY(\"Ray\"), CameraBounds.Y + ViewportHeight(\"Level\")/2, CameraBounds.Y + CameraBounds.Height - ViewportHeight(\"Level\")/2)"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "TextTutorial",
+									"sid": 311465600101953,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "TextRemaining",
+									"sid": 632469658874100
+								},
+								{
+									"type": "comment",
+									"text": " Show/Hide backgrounds accordingly."
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "BackgroundLevel1",
+									"sid": 472850170959345,
+									"parameters": {
+										"opacity": "(level = 0) * 100"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "BackgroundLevel2",
+									"sid": 408061607346195,
+									"parameters": {
+										"opacity": "(level = 1) * 100"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "BackgroundLevel3",
+									"sid": 661411367504472,
+									"parameters": {
+										"opacity": "(level = 2) * 100"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade the game in."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 502680351542791,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 526410508278448
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 550519313546229,
+									"parameters": {
+										"variable": "ready",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 198963716660348
+						},
+						{
+							"eventType": "comment",
+							"text": "Loop beating heart frames of the win animation."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-animation-frame-changed",
+									"objectClass": "PlayerSprite",
+									"sid": 978368293423136
+								},
+								{
+									"id": "is-animation-playing",
+									"objectClass": "PlayerSprite",
+									"sid": 214718229563088,
+									"parameters": {
+										"animation": "\"Win\""
+									}
+								},
+								{
+									"id": "compare-animation-frame",
+									"objectClass": "PlayerSprite",
+									"sid": 314586266607948,
+									"parameters": {
+										"comparison": 0,
+										"number": "10"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-animation-frame",
+									"objectClass": "PlayerSprite",
+									"sid": 519820970618492,
+									"parameters": {
+										"frame-number": "8"
+									}
+								}
+							],
+							"sid": 431692208009678
+						}
+					],
+					"sid": 308117861936031
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Reset",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Restart the level."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-key-pressed",
+									"objectClass": "Keyboard",
+									"sid": 173782773334742,
+									"parameters": {
+										"key": 82
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 506043241118788,
+									"parameters": {
+										"variable": "ready"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Player",
+									"sid": 965586749042398,
+									"parameters": {
+										"instance-variable": "dead"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 146503212214781,
+									"parameters": {
+										"object": "PlayerSpawn",
+										"expression": "PlayerSpawn.level",
+										"comparison": 0,
+										"value": "level"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 230264811943662,
+									"parameters": {
+										"variable": "ready",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade the game out."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 333183738630019,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 717757045495736
+								},
+								{
+									"type": "comment",
+									"text": "Restart level."
+								},
+								{
+									"id": "destroy",
+									"objectClass": "JumpPad",
+									"sid": 107819339026286
+								},
+								{
+									"id": "set-velocity",
+									"objectClass": "Player",
+									"sid": 805430248836564,
+									"behaviorType": "Physics",
+									"parameters": {
+										"x-component": "0",
+										"y-component": "0"
+									}
+								},
+								{
+									"id": "teleport",
+									"objectClass": "Player",
+									"sid": 965054730577114,
+									"behaviorType": "Physics",
+									"parameters": {
+										"x": "PlayerSpawn.X",
+										"y": "PlayerSpawn.Y"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 616815682116222,
+									"parameters": {
+										"instance-variable": "jumpPads",
+										"value": "PlayerSpawn.jumpPads"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 509835216015174,
+									"parameters": {
+										"instance-variable": "dead",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-mirrored",
+									"objectClass": "Player",
+									"sid": 667287091637830,
+									"parameters": {
+										"state": "not-mirrored"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerSprite",
+									"sid": 945513896143483,
+									"parameters": {
+										"animation": "\"Idle\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "scroll-to-position",
+									"objectClass": "System",
+									"sid": 742996947219128,
+									"parameters": {
+										"x": "clamp(Player.ImagePointX(\"Ray\"), CameraBounds.X + ViewportWidth(\"Level\")/2, CameraBounds.X + CameraBounds.Width - ViewportWidth(\"Level\")/2)",
+										"y": "clamp(Player.ImagePointY(\"Ray\"), CameraBounds.Y + ViewportHeight(\"Level\")/2, CameraBounds.Y + CameraBounds.Height - ViewportHeight(\"Level\")/2)"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "TextTutorial",
+									"sid": 745839154849524,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "TextRemaining",
+									"sid": 736473901386256
+								},
+								{
+									"type": "comment",
+									"text": "Fade the game in."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 203610758028399,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 910355599734341
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 770958705377006,
+									"parameters": {
+										"variable": "ready",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 737542941328301
+						}
+					],
+					"sid": 736654252801526
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Death",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player has died."
+						},
+						{
+							"aceType": "action",
+							"aceName": "Die",
+							"objectClass": "Player",
+							"functionDescription": "Player has died.",
+							"functionCategory": "",
+							"functionReturnType": "none",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "custom-ace-block",
+							"conditions": [
+								{
+									"id": "pick-by-comparison",
+									"objectClass": "System",
+									"sid": 250848873817029,
+									"parameters": {
+										"object": "PlayerSpawn",
+										"expression": "PlayerSpawn.level",
+										"comparison": 0,
+										"value": "level"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 377301000858515,
+									"parameters": {
+										"variable": "ready",
+										"value": "false"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Set the player state."
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 518185042881286,
+									"parameters": {
+										"instance-variable": "dead",
+										"value": "true"
+									}
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "Player",
+									"sid": 500023665841874,
+									"behaviorType": "Physics",
+									"parameters": {
+										"mode": "disabled"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Play death animation."
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerSprite",
+									"sid": 994858143617020,
+									"parameters": {
+										"animation": "\"Death\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Player",
+									"sid": 879387131617499,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveUp\"",
+										"property": "offsetY",
+										"end-value": "Self.Y - 32",
+										"time": "0.33",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 262269507759865
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Player",
+									"sid": 224367311352378,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveUp\"",
+										"property": "offsetY",
+										"end-value": "Self.Y + 384",
+										"time": "1",
+										"ease": "easeinsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Fade the game out."
+								},
+								{
+									"id": "wait",
+									"objectClass": "System",
+									"sid": 319269497402797,
+									"parameters": {
+										"seconds": "2.0",
+										"use-timescale": true
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 563906022484534,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"ShowFader\"",
+										"property": "offsetOpacity",
+										"end-value": "100",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 902035443790455
+								},
+								{
+									"type": "comment",
+									"text": "Restart level."
+								},
+								{
+									"id": "set-enabled",
+									"objectClass": "Player",
+									"sid": 864184281677468,
+									"behaviorType": "Physics",
+									"parameters": {
+										"mode": "enabled"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "JumpPad",
+									"sid": 145624833318825
+								},
+								{
+									"id": "set-velocity",
+									"objectClass": "Player",
+									"sid": 321182584772081,
+									"behaviorType": "Physics",
+									"parameters": {
+										"x-component": "0",
+										"y-component": "0"
+									}
+								},
+								{
+									"id": "teleport",
+									"objectClass": "Player",
+									"sid": 617844194099844,
+									"behaviorType": "Physics",
+									"parameters": {
+										"x": "PlayerSpawn.X",
+										"y": "PlayerSpawn.Y"
+									}
+								},
+								{
+									"id": "set-instvar-value",
+									"objectClass": "Player",
+									"sid": 478007151396727,
+									"parameters": {
+										"instance-variable": "jumpPads",
+										"value": "PlayerSpawn.jumpPads"
+									}
+								},
+								{
+									"id": "set-boolean-instvar",
+									"objectClass": "Player",
+									"sid": 676442140093589,
+									"parameters": {
+										"instance-variable": "dead",
+										"value": "false"
+									}
+								},
+								{
+									"id": "set-mirrored",
+									"objectClass": "Player",
+									"sid": 703123901862648,
+									"parameters": {
+										"state": "not-mirrored"
+									}
+								},
+								{
+									"id": "set-animation",
+									"objectClass": "PlayerSprite",
+									"sid": 350372023100846,
+									"parameters": {
+										"animation": "\"Idle\"",
+										"from": "beginning"
+									}
+								},
+								{
+									"id": "scroll-to-position",
+									"objectClass": "System",
+									"sid": 695067789562499,
+									"parameters": {
+										"x": "clamp(Player.ImagePointX(\"Ray\"), CameraBounds.X + ViewportWidth(\"Level\")/2, CameraBounds.X + CameraBounds.Width - ViewportWidth(\"Level\")/2)",
+										"y": "clamp(Player.ImagePointY(\"Ray\"), CameraBounds.Y + ViewportHeight(\"Level\")/2, CameraBounds.Y + CameraBounds.Height - ViewportHeight(\"Level\")/2)"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "TextTutorial",
+									"sid": 202276319238847,
+									"parameters": {
+										"opacity": "0"
+									}
+								},
+								{
+									"id": "destroy",
+									"objectClass": "TextRemaining",
+									"sid": 116352849368675
+								},
+								{
+									"type": "comment",
+									"text": "Fade the game in."
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "Fader",
+									"sid": 645069218642784,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"HideFader\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "0.5",
+										"ease": "easeinoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "wait-for-previous-actions",
+									"objectClass": "System",
+									"sid": 487282233994811
+								},
+								{
+									"id": "set-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 518896127383160,
+									"parameters": {
+										"variable": "ready",
+										"value": "true"
+									}
+								}
+							],
+							"sid": 571312861009360
+						},
+						{
+							"eventType": "comment",
+							"text": "Player dies upon colliding with a spike."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-collision-with-another-object",
+									"objectClass": "Player",
+									"sid": 243757419235826,
+									"parameters": {
+										"object": "Spike"
+									}
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 925553538338889,
+									"parameters": {
+										"variable": "ready"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Player",
+									"sid": 624731998229716,
+									"parameters": {
+										"instance-variable": "dead"
+									},
+									"isInverted": true
+								}
+							],
+							"actions": [
+								{
+									"customAction": "Die",
+									"objectClass": "Player",
+									"sid": 181487740439281
+								}
+							],
+							"sid": 421453359519144
+						}
+					],
+					"sid": 685907066309309
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Jump Pad",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Returns if the player can place a jump pad at the current position."
+						},
+						{
+							"functionName": "canPlace",
+							"functionDescription": "Returns if the player can place a jump pad at the current position.",
+							"functionCategory": "",
+							"functionReturnType": "number",
+							"functionCopyPicked": false,
+							"functionIsAsync": false,
+							"functionParameters": [],
+							"eventType": "function-block",
+							"conditions": [
+								{
+									"id": "is-on-screen",
+									"objectClass": "JumpPadPrototype",
+									"sid": 474059641470571
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "JumpPadPrototype",
+									"sid": 548137138164042,
+									"parameters": {
+										"object": "JumpPad"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "JumpPadPrototype",
+									"sid": 113741290709358,
+									"parameters": {
+										"object": "Spike"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "JumpPadPrototype",
+									"sid": 580183143894550,
+									"parameters": {
+										"object": "Mechaella"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "JumpPadPrototype",
+									"sid": 450172255092588,
+									"parameters": {
+										"object": "NoJumpPadZone"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "pick-children",
+									"objectClass": "JumpPadPrototype",
+									"sid": 753061931499305,
+									"parameters": {
+										"child": "JumpPadOuterLimit",
+										"which": "own"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-function-return-value",
+									"objectClass": "Functions",
+									"sid": 497048889309334,
+									"parameters": {
+										"value": "0"
+									}
+								}
+							],
+							"sid": 779399874125487,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "validOuterLimits",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Number of outer limits colliding with the terrain.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 251554665728701
+								},
+								{
+									"eventType": "comment",
+									"text": "Check outer limits overlapping the terrain."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 399902043436550,
+											"parameters": {
+												"object": "JumpPadOuterLimit"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 155830330154352,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-overlapping-another-object",
+													"objectClass": "JumpPadOuterLimit",
+													"sid": 999638213072231,
+													"parameters": {
+														"object": "TriangleCollider"
+													}
+												},
+												{
+													"id": "is-overlapping-another-object",
+													"objectClass": "JumpPadOuterLimit",
+													"sid": 886980104550374,
+													"parameters": {
+														"object": "TiledCollider"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "add-to-eventvar",
+													"objectClass": "System",
+													"sid": 534162329127209,
+													"parameters": {
+														"variable": "validOuterLimits",
+														"value": "1"
+													}
+												}
+											],
+											"sid": 919817966924610,
+											"isOrBlock": true
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Both outer limits must be overlapping the terrain."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-eventvar",
+											"objectClass": "System",
+											"sid": 273448144036982,
+											"parameters": {
+												"variable": "validOuterLimits",
+												"comparison": 0,
+												"value": "2"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-function-return-value",
+											"objectClass": "Functions",
+											"sid": 408365384729861,
+											"parameters": {
+												"value": "1"
+											}
+										}
+									],
+									"sid": 118048607534920
+								},
+								{
+									"eventType": "comment",
+									"text": "Finally, if any of the inner limits overlap the terrain, it's an invalid position."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 164585276804787,
+											"parameters": {
+												"object": "JumpPadInnerLimit"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 923020730179307,
+									"children": [
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "is-overlapping-another-object",
+													"objectClass": "JumpPadInnerLimit",
+													"sid": 209208541966168,
+													"parameters": {
+														"object": "TriangleCollider"
+													}
+												},
+												{
+													"id": "is-overlapping-another-object",
+													"objectClass": "JumpPadInnerLimit",
+													"sid": 243276465046134,
+													"parameters": {
+														"object": "TiledCollider"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-function-return-value",
+													"objectClass": "Functions",
+													"sid": 766270372339888,
+													"parameters": {
+														"value": "0"
+													}
+												}
+											],
+											"sid": 678765260640432,
+											"isOrBlock": true
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Start casting rays."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "mouse-button-is-down",
+									"objectClass": "Mouse",
+									"sid": 922946699134235,
+									"parameters": {
+										"mouse-button": "left"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Player",
+									"sid": 974667819351829,
+									"parameters": {
+										"instance-variable": "jumpPads",
+										"comparison": 4,
+										"value": "0"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Player",
+									"sid": 372589205637851,
+									"parameters": {
+										"instance-variable": "dead"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 260295769582054,
+									"parameters": {
+										"variable": "ready"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Show raycast marker."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "RayMarker",
+									"sid": 252354790746727,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "set-image-offset-x",
+									"objectClass": "RayMarker",
+									"sid": 657776331365437,
+									"parameters": {
+										"offset-x": "Self.ImageOffsetX + 20 * dt"
+									}
+								},
+								{
+									"id": "move-to-top",
+									"objectClass": "RayMarker",
+									"sid": 156183795810004
+								},
+								{
+									"type": "comment",
+									"text": "Show jump pad prototype."
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "JumpPadPrototype",
+									"sid": 770549939598731,
+									"parameters": {
+										"visibility": "visible"
+									}
+								},
+								{
+									"id": "move-to-top",
+									"objectClass": "JumpPadPrototype",
+									"sid": 810865955850720
+								},
+								{
+									"id": "move-to-top",
+									"objectClass": "PlayerSprite",
+									"sid": 187856378928142
+								}
+							],
+							"sid": 554224829499007,
+							"children": [
+								{
+									"eventType": "variable",
+									"name": "raycastAngle",
+									"type": "number",
+									"initialValue": "0",
+									"comment": "Angle of the ray being casted.",
+									"isStatic": false,
+									"isConstant": false,
+									"sid": 119529854930116
+								},
+								{
+									"eventType": "block",
+									"conditions": [],
+									"actions": [
+										{
+											"id": "set-eventvar-value",
+											"objectClass": "System",
+											"sid": 951383198309438,
+											"parameters": {
+												"variable": "raycastAngle",
+												"value": "angle(Player.ImagePointX(\"Ray\"), Player.ImagePointY(\"Ray\"), Mouse.X, Mouse.Y)"
+											}
+										},
+										{
+											"id": "cast-ray",
+											"objectClass": "Player",
+											"sid": 281336537732476,
+											"behaviorType": "LineOfSight",
+											"parameters": {
+												"from-x": "Self.ImagePointX(\"Ray\")",
+												"from-y": "Self.ImagePointY(\"Ray\")",
+												"to-x": "Self.X + cos(raycastAngle) * Self.LineOfSight.Range",
+												"to-y": "Self.Y + sin(raycastAngle) * Self.LineOfSight.Range",
+												"use-collision-cells": true
+											}
+										}
+									],
+									"sid": 241168314762737
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Stop casting rays."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 503373744962999
+								}
+							],
+							"actions": [
+								{
+									"id": "set-visible",
+									"objectClass": "RayMarker",
+									"sid": 507679098455706,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								},
+								{
+									"id": "set-visible",
+									"objectClass": "JumpPadPrototype",
+									"sid": 444095257264695,
+									"parameters": {
+										"visibility": "invisible"
+									}
+								}
+							],
+							"sid": 638385081182274
+						},
+						{
+							"eventType": "comment",
+							"text": "Create jump pad."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "on-button-released",
+									"objectClass": "Mouse",
+									"sid": 627537794577758,
+									"parameters": {
+										"mouse-button": "left"
+									}
+								},
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Player",
+									"sid": 728784082612238,
+									"parameters": {
+										"instance-variable": "jumpPads",
+										"comparison": 4,
+										"value": "0"
+									}
+								},
+								{
+									"id": "evaluate-expression",
+									"objectClass": "System",
+									"sid": 670527189739910,
+									"parameters": {
+										"value": "Functions.canPlace"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Player",
+									"sid": 102931375460828,
+									"parameters": {
+										"instance-variable": "dead"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 847664136640391,
+									"parameters": {
+										"variable": "ready"
+									}
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Create the pad."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 658610547784730,
+									"parameters": {
+										"object-to-create": "JumpPad",
+										"layer": "\"Level\"",
+										"x": "Player.LineOfSight.HitX",
+										"y": "Player.LineOfSight.HitY",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "JumpPad",
+									"sid": 649041412367060,
+									"parameters": {
+										"angle": "Player.LineOfSight.NormalAngle + 90"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Subtract from the player's stock."
+								},
+								{
+									"id": "subtract-from-instvar",
+									"objectClass": "Player",
+									"sid": 809262068919691,
+									"parameters": {
+										"instance-variable": "jumpPads",
+										"value": "1"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Show \"# remaining\" text."
+								},
+								{
+									"id": "create-object",
+									"objectClass": "System",
+									"sid": 257030366401199,
+									"parameters": {
+										"object-to-create": "TextRemaining",
+										"layer": "\"Level\"",
+										"x": "Player.X",
+										"y": "Player.Y - Player.Height",
+										"create-hierarchy": false,
+										"template-name": "\"\""
+									}
+								},
+								{
+									"id": "set-text",
+									"objectClass": "TextRemaining",
+									"sid": 308400351423954,
+									"parameters": {
+										"text": "replace(Self.Text, \"###\", str(Player.jumpPads))"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextRemaining",
+									"sid": 305917974021844,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"MoveUp\"",
+										"property": "offsetY",
+										"end-value": "Self.Y - 16",
+										"time": "2",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "no",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								},
+								{
+									"id": "tween-one-property",
+									"objectClass": "TextRemaining",
+									"sid": 639939353438134,
+									"behaviorType": "Tween",
+									"parameters": {
+										"tags": "\"FadeOutAndDestroy\"",
+										"property": "offsetOpacity",
+										"end-value": "0",
+										"time": "2",
+										"ease": "easeoutsine",
+										"destroy-on-complete": "yes",
+										"loop": "no",
+										"ping-pong": "no",
+										"repeat-count": "1"
+									}
+								}
+							],
+							"sid": 103127666355802
+						},
+						{
+							"eventType": "comment",
+							"text": "Show ray marker."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "ray-intersected",
+									"objectClass": "Player",
+									"sid": 449710834292848,
+									"behaviorType": "LineOfSight"
+								}
+							],
+							"actions": [
+								{
+									"type": "comment",
+									"text": "Update raycast marker."
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "RayMarker",
+									"sid": 708958276048734,
+									"parameters": {
+										"angle": "angle(Player.ImagePointX(\"Ray\"), Player.ImagePointY(\"Ray\"), Player.LineOfSight.HitX, Player.LineOfSight.HitY)"
+									}
+								},
+								{
+									"id": "set-position",
+									"objectClass": "RayMarker",
+									"sid": 462317747750039,
+									"parameters": {
+										"x": "Player.ImagePointX(\"Ray\")",
+										"y": "Player.ImagePointY(\"Ray\")"
+									}
+								},
+								{
+									"id": "set-width",
+									"objectClass": "RayMarker",
+									"sid": 498136500293152,
+									"parameters": {
+										"width": "Player.LineOfSight.HitDistance"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "RayMarker",
+									"sid": 647780054978976,
+									"parameters": {
+										"color": "Functions.canPlace ? HexColor(\"#ffffff\") : HexColor(\"#abf592\")"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "RayMarker",
+									"sid": 147471333710249,
+									"parameters": {
+										"opacity": "Functions.canPlace ? 100 : 25"
+									}
+								},
+								{
+									"type": "comment",
+									"text": "Update jump pad prototype."
+								},
+								{
+									"id": "set-position",
+									"objectClass": "JumpPadPrototype",
+									"sid": 424044023785273,
+									"parameters": {
+										"x": "Player.LineOfSight.HitX",
+										"y": "Player.LineOfSight.HitY"
+									}
+								},
+								{
+									"id": "set-angle",
+									"objectClass": "JumpPadPrototype",
+									"sid": 937072636113073,
+									"parameters": {
+										"angle": "Player.LineOfSight.NormalAngle + 90"
+									}
+								},
+								{
+									"id": "set-default-color",
+									"objectClass": "JumpPadPrototype",
+									"sid": 556697193886622,
+									"parameters": {
+										"color": "Functions.canPlace ? HexColor(\"#ffffff\") : HexColor(\"#abf592\")"
+									}
+								},
+								{
+									"id": "set-opacity",
+									"objectClass": "JumpPadPrototype",
+									"sid": 768103811877228,
+									"parameters": {
+										"opacity": "Functions.canPlace ? 100 : 25"
+									}
+								}
+							],
+							"sid": 608801644413477
+						},
+						{
+							"eventType": "comment",
+							"text": "Make the player jump."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-overlapping-another-object",
+									"objectClass": "Player",
+									"sid": 290576638928545,
+									"parameters": {
+										"object": "JumpPad"
+									}
+								},
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Player",
+									"sid": 537113853236939,
+									"parameters": {
+										"instance-variable": "dead"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 812055302493880,
+									"parameters": {
+										"variable": "ready"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-velocity",
+									"objectClass": "Player",
+									"sid": 148958272121745,
+									"behaviorType": "Physics",
+									"parameters": {
+										"x-component": "Self.Physics.VelocityX",
+										"y-component": "0"
+									}
+								},
+								{
+									"id": "apply-force-at-angle",
+									"objectClass": "Player",
+									"sid": 742229654333809,
+									"behaviorType": "Physics",
+									"parameters": {
+										"force": "JumpPad.strength",
+										"angle": "JumpPad.Angle - 90",
+										"image-point": "0"
+									}
+								},
+								{
+									"id": "set-eventvar-value",
+									"objectClass": "System",
+									"sid": 356744289959022,
+									"parameters": {
+										"variable": "randomHue",
+										"value": "(randomHue + random(10, 90)) % 100"
+									}
+								},
+								{
+									"id": "set-layout-effect-parameter",
+									"objectClass": "System",
+									"sid": 458076730662852,
+									"parameters": {
+										"effect": "\"AdjustHSL\"",
+										"parameter-index": "0",
+										"value": "randomHue"
+									}
+								}
+							],
+							"sid": 776522404059373
+						}
+					],
+					"sid": 775874598675704
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Movement",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "variable",
+							"name": "moveAxis",
+							"type": "number",
+							"initialValue": "0",
+							"comment": "Movement input axis",
+							"isStatic": false,
+							"isConstant": false,
+							"sid": 238807773093964
+						},
+						{
+							"eventType": "comment",
+							"text": "Player must be alive and physics must be enabled for inputs to be processed."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Player",
+									"sid": 829422104323151,
+									"parameters": {
+										"instance-variable": "dead"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 936559603621961,
+									"parameters": {
+										"variable": "ready"
+									}
+								},
+								{
+									"id": "is-enabled",
+									"objectClass": "Player",
+									"sid": 274237813210313,
+									"behaviorType": "Physics"
+								}
+							],
+							"actions": [],
+							"sid": 715985057671514,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Movement controls."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 920340835403060,
+											"parameters": {
+												"key": 65
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "subtract-from-eventvar",
+											"objectClass": "System",
+											"sid": 920920843938692,
+											"parameters": {
+												"variable": "moveAxis",
+												"value": "1"
+											}
+										}
+									],
+									"sid": 724157357606214
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "key-is-down",
+											"objectClass": "Keyboard",
+											"sid": 346649010765744,
+											"parameters": {
+												"key": 68
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "add-to-eventvar",
+											"objectClass": "System",
+											"sid": 298141278928760,
+											"parameters": {
+												"variable": "moveAxis",
+												"value": "1"
+											}
+										}
+									],
+									"sid": 784771751622583
+								},
+								{
+									"eventType": "comment",
+									"text": "Apply horizontal forces to move the character."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-velocity",
+											"objectClass": "Player",
+											"sid": 335482415850549,
+											"behaviorType": "Physics",
+											"parameters": {
+												"which": "y-velocity",
+												"comparison": 3,
+												"value": "25"
+											}
+										},
+										{
+											"id": "compare-velocity",
+											"objectClass": "Player",
+											"sid": 325788273683675,
+											"behaviorType": "Physics",
+											"parameters": {
+												"which": "y-velocity",
+												"comparison": 5,
+												"value": "-25"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "apply-force-at-angle",
+											"objectClass": "Player",
+											"sid": 964620786482296,
+											"behaviorType": "Physics",
+											"parameters": {
+												"force": "moveAxis",
+												"angle": "0",
+												"image-point": "0"
+											}
+										}
+									],
+									"sid": 743136823798744
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 961293089564467
+										}
+									],
+									"actions": [
+										{
+											"id": "apply-force-at-angle",
+											"objectClass": "Player",
+											"sid": 516308258990819,
+											"behaviorType": "Physics",
+											"parameters": {
+												"force": "moveAxis * 0.4",
+												"angle": "0",
+												"image-point": "0"
+											}
+										}
+									],
+									"sid": 783705375435948
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Limit player velocity."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "every-tick",
+									"objectClass": "System",
+									"sid": 790510264520761
+								}
+							],
+							"actions": [
+								{
+									"id": "set-velocity",
+									"objectClass": "Player",
+									"sid": 270518025566971,
+									"behaviorType": "Physics",
+									"parameters": {
+										"x-component": "clamp(Self.Physics.VelocityX, -Self.maxVelocityX, Self.maxVelocityX)",
+										"y-component": "clamp(Self.Physics.VelocityY, -Self.maxVelocityY, Self.maxVelocityY)"
+									}
+								}
+							],
+							"sid": 136623129479683
+						}
+					],
+					"sid": 765506989224139
+				},
+				{
+					"eventType": "group",
+					"disabled": false,
+					"title": "Animations",
+					"description": "",
+					"isActiveOnStart": true,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Player must be alive and physics must be enabled for animations to be processed."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "is-boolean-instance-variable-set",
+									"objectClass": "Player",
+									"sid": 201524561944142,
+									"parameters": {
+										"instance-variable": "dead"
+									},
+									"isInverted": true
+								},
+								{
+									"id": "compare-boolean-eventvar",
+									"objectClass": "System",
+									"sid": 194799755610839,
+									"parameters": {
+										"variable": "ready"
+									}
+								},
+								{
+									"id": "is-enabled",
+									"objectClass": "Player",
+									"sid": 921151405948673,
+									"behaviorType": "Physics"
+								}
+							],
+							"actions": [],
+							"sid": 641327300504386,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Player is jumping up."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "compare-velocity",
+											"objectClass": "Player",
+											"sid": 247630040085199,
+											"behaviorType": "Physics",
+											"parameters": {
+												"which": "y-velocity",
+												"comparison": 4,
+												"value": "0.1"
+											}
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "PlayerGroundDetector",
+											"sid": 370357778988594,
+											"parameters": {
+												"object": "TriangleCollider"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerSprite",
+											"sid": 223266142225781,
+											"parameters": {
+												"animation": "\"Jump\"",
+												"from": "current-frame"
+											}
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Player",
+											"sid": 482026202224744,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.1",
+												"type": "once",
+												"tag": "\"AirTime\""
+											}
+										}
+									],
+									"sid": 779908860696463
+								},
+								{
+									"eventType": "comment",
+									"text": "Player is falling down."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 314876806704589
+										},
+										{
+											"id": "compare-velocity",
+											"objectClass": "Player",
+											"sid": 152632865691397,
+											"behaviorType": "Physics",
+											"parameters": {
+												"which": "y-velocity",
+												"comparison": 2,
+												"value": "-0.1"
+											}
+										},
+										{
+											"id": "is-overlapping-another-object",
+											"objectClass": "PlayerGroundDetector",
+											"sid": 895963147983411,
+											"parameters": {
+												"object": "TriangleCollider"
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [
+										{
+											"id": "set-animation",
+											"objectClass": "PlayerSprite",
+											"sid": 299252389757487,
+											"parameters": {
+												"animation": "\"Fall\"",
+												"from": "current-frame"
+											}
+										},
+										{
+											"id": "start-timer",
+											"objectClass": "Player",
+											"sid": 264143101327553,
+											"behaviorType": "Timer",
+											"parameters": {
+												"duration": "0.1",
+												"type": "once",
+												"tag": "\"AirTime\""
+											}
+										}
+									],
+									"sid": 917252033529834
+								},
+								{
+									"eventType": "comment",
+									"text": "Player is on the floor."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 652618221216414
+										},
+										{
+											"id": "is-timer-running",
+											"objectClass": "Player",
+											"sid": 633671833404073,
+											"behaviorType": "Timer",
+											"parameters": {
+												"tag": "\"AirTime\""
+											},
+											"isInverted": true
+										}
+									],
+									"actions": [],
+									"sid": 241507471385104,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Player is moving to the left."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "compare-velocity",
+													"objectClass": "Player",
+													"sid": 510189218006748,
+													"behaviorType": "Physics",
+													"parameters": {
+														"which": "x-velocity",
+														"comparison": 2,
+														"value": "-0.1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation",
+													"objectClass": "PlayerSprite",
+													"sid": 791018074048475,
+													"parameters": {
+														"animation": "\"Walk\"",
+														"from": "beginning"
+													}
+												}
+											],
+											"sid": 394962271895250
+										},
+										{
+											"eventType": "comment",
+											"text": "Player is moving to the right."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 223884062986634
+												},
+												{
+													"id": "compare-velocity",
+													"objectClass": "Player",
+													"sid": 834314653157025,
+													"behaviorType": "Physics",
+													"parameters": {
+														"which": "x-velocity",
+														"comparison": 4,
+														"value": "0.1"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "set-animation",
+													"objectClass": "PlayerSprite",
+													"sid": 167151410550080,
+													"parameters": {
+														"animation": "\"Walk\"",
+														"from": "beginning"
+													}
+												}
+											],
+											"sid": 262977920430306
+										},
+										{
+											"eventType": "comment",
+											"text": "Player is standing still."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 185364429841239
+												}
+											],
+											"actions": [],
+											"sid": 322575709692147,
+											"children": [
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "is-overlapping-at-offset",
+															"objectClass": "PlayerGroundDetector",
+															"sid": 969414198306815,
+															"parameters": {
+																"object": "Platform",
+																"offset-x": "0",
+																"offset-y": "1"
+															}
+														}
+													],
+													"actions": [
+														{
+															"id": "set-animation",
+															"objectClass": "PlayerSprite",
+															"sid": 446203223558773,
+															"parameters": {
+																"animation": "\"Walk\"",
+																"from": "beginning"
+															}
+														}
+													],
+													"sid": 470191871347813
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 747833504391105
+														}
+													],
+													"actions": [
+														{
+															"id": "set-animation",
+															"objectClass": "PlayerSprite",
+															"sid": 211134988136887,
+															"parameters": {
+																"animation": "\"Idle\"",
+																"from": "beginning"
+															}
+														}
+													],
+													"sid": 502092470173449
+												}
+											]
+										}
+									]
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Mirror the player, when X velocity is negative."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-velocity",
+									"objectClass": "Player",
+									"sid": 179752573212792,
+									"behaviorType": "Physics",
+									"parameters": {
+										"which": "x-velocity",
+										"comparison": 2,
+										"value": "-0.1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-mirrored",
+									"objectClass": "Player",
+									"sid": 755218352881326,
+									"parameters": {
+										"state": "mirrored"
+									}
+								}
+							],
+							"sid": 652991235377920
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-velocity",
+									"objectClass": "Player",
+									"sid": 211889514519366,
+									"behaviorType": "Physics",
+									"parameters": {
+										"which": "x-velocity",
+										"comparison": 4,
+										"value": "0.1"
+									}
+								}
+							],
+							"actions": [
+								{
+									"id": "set-mirrored",
+									"objectClass": "Player",
+									"sid": 768450548605239,
+									"parameters": {
+										"state": "not-mirrored"
+									}
+								}
+							],
+							"sid": 488620395256154
+						}
+					],
+					"sid": 128523778893307
+				}
+			],
+			"sid": 519046638282970
+		}
+	],
+	"sid": 929295191522617
+}

@@ -1,0 +1,440 @@
+{
+	"name": "PickupsEvents",
+	"events": [
+		{
+			"eventType": "group",
+			"disabled": false,
+			"title": "Pickup",
+			"description": "",
+			"isActiveOnStart": true,
+			"children": [
+				{
+					"eventType": "variable",
+					"name": "PICKUP_RANGE",
+					"type": "number",
+					"initialValue": "128",
+					"comment": "Minimum distance from which characters can pick items up.",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 833291484602587
+				},
+				{
+					"eventType": "variable",
+					"name": "PICKUP_SPEED",
+					"type": "number",
+					"initialValue": "400",
+					"comment": "Speed at which pickups move to the character that got them",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 624760264447774
+				},
+				{
+					"eventType": "variable",
+					"name": "PICKUP_SHRINK",
+					"type": "number",
+					"initialValue": "0.2",
+					"comment": "Time taken (seconds) for an item to fully scale down after being picked up.",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 412063758381212
+				},
+				{
+					"eventType": "variable",
+					"name": "PICKUP_HEALTH_BONUS",
+					"type": "number",
+					"initialValue": "100",
+					"comment": "Heal amount given by an HP pickup.",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 581283527785385
+				},
+				{
+					"eventType": "variable",
+					"name": "PICKUP_MANA_BONUS",
+					"type": "number",
+					"initialValue": "90",
+					"comment": "Mana points given by an MP pickup.",
+					"isStatic": false,
+					"isConstant": true,
+					"sid": 621396772367506
+				},
+				{
+					"eventType": "comment",
+					"text": "Process pickup."
+				},
+				{
+					"eventType": "block",
+					"conditions": [
+						{
+							"id": "for-each",
+							"objectClass": "System",
+							"sid": 996622268152389,
+							"parameters": {
+								"object": "Pickup"
+							}
+						}
+					],
+					"actions": [],
+					"sid": 835960375114955,
+					"children": [
+						{
+							"eventType": "comment",
+							"text": "Item hasn't been picked up yet."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "compare-instance-variable",
+									"objectClass": "Pickup",
+									"sid": 554153623351502,
+									"parameters": {
+										"instance-variable": "pickedByUID",
+										"comparison": 0,
+										"value": "-1"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 894496922272209,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Check if any of the characters is close enough to pick it up."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "pick-children",
+											"objectClass": "Pickup",
+											"sid": 177386588392250,
+											"parameters": {
+												"child": "PickupShadow",
+												"which": "own"
+											}
+										},
+										{
+											"id": "for-each",
+											"objectClass": "System",
+											"sid": 771297570303446,
+											"parameters": {
+												"object": "Char"
+											}
+										},
+										{
+											"id": "evaluate-expression",
+											"objectClass": "System",
+											"sid": 919511429260439,
+											"parameters": {
+												"value": "distance(Pickup.X, Pickup.Y, Char.X, Char.Y) < PICKUP_RANGE"
+											}
+										}
+									],
+									"actions": [
+										{
+											"id": "set-instvar-value",
+											"objectClass": "Pickup",
+											"sid": 534716182422256,
+											"parameters": {
+												"instance-variable": "pickedByUID",
+												"value": "Char.UID"
+											}
+										},
+										{
+											"id": "tween-three-properties",
+											"objectClass": "Pickup",
+											"sid": 379738699921761,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ReducePickupSize\"",
+												"property": "size3",
+												"end-x": "0.01",
+												"end-y": "0.01",
+												"end-z": "0.01",
+												"time": "PICKUP_SHRINK",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "set-active",
+											"objectClass": "PickupShadow",
+											"sid": 515720157405778,
+											"behaviorType": "Sine",
+											"parameters": {
+												"state": "inactive"
+											}
+										},
+										{
+											"id": "tween-one-property",
+											"objectClass": "PickupShadow",
+											"sid": 125613561041164,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ReduceShadowOpacity\"",
+												"property": "offsetOpacity",
+												"end-value": "0",
+												"time": "0.25",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										},
+										{
+											"id": "tween-two-properties",
+											"objectClass": "PickupShadow",
+											"sid": 221096544481833,
+											"behaviorType": "Tween",
+											"parameters": {
+												"tags": "\"ReduceShadowSize\"",
+												"property": "size",
+												"end-x": "0.01",
+												"end-y": "0.01",
+												"time": "PICKUP_SHRINK",
+												"ease": "easeinoutsine",
+												"destroy-on-complete": "no",
+												"loop": "no",
+												"ping-pong": "no",
+												"repeat-count": "1"
+											}
+										}
+									],
+									"sid": 324539738779041
+								}
+							]
+						},
+						{
+							"eventType": "comment",
+							"text": "Item has been picked up."
+						},
+						{
+							"eventType": "block",
+							"conditions": [
+								{
+									"id": "else",
+									"objectClass": "System",
+									"sid": 189637077004341
+								},
+								{
+									"id": "pick-by-unique-id",
+									"objectClass": "Char",
+									"sid": 831103737121962,
+									"parameters": {
+										"unique-id": "Pickup.pickedByUID"
+									}
+								}
+							],
+							"actions": [],
+							"sid": 232118054362652,
+							"children": [
+								{
+									"eventType": "comment",
+									"text": "Character is still alive."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "is-boolean-instance-variable-set",
+											"objectClass": "Char",
+											"sid": 718803910144958,
+											"parameters": {
+												"instance-variable": "alive"
+											}
+										}
+									],
+									"actions": [],
+									"sid": 793230928604624,
+									"children": [
+										{
+											"eventType": "comment",
+											"text": "Item is close enough to be destroyed."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "evaluate-expression",
+													"objectClass": "System",
+													"sid": 268285835992447,
+													"parameters": {
+														"value": "distance(Pickup.X, Pickup.Y, Char.X, Char.Y) <  4"
+													}
+												}
+											],
+											"actions": [
+												{
+													"id": "destroy",
+													"objectClass": "Pickup",
+													"sid": 854189221941337
+												},
+												{
+													"type": "comment",
+													"text": "Play sound effect."
+												},
+												{
+													"callFunction": "playSFX",
+													"sid": 194649639908285,
+													"parameters": [
+														"\"pickup\"",
+														"\"SFX\"",
+														"0",
+														"1"
+													]
+												}
+											],
+											"sid": 545979771497314,
+											"children": [
+												{
+													"eventType": "comment",
+													"text": "Health pickup effect."
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 249520207297320,
+															"parameters": {
+																"value": "Pickup.TemplateName = \"HP\""
+															}
+														}
+													],
+													"actions": [
+														{
+															"customAction": "Heal",
+															"objectClass": "Char",
+															"sid": 921392821065337,
+															"parameters": [
+																"PICKUP_HEALTH_BONUS"
+															]
+														}
+													],
+													"sid": 808193099326084
+												},
+												{
+													"eventType": "block",
+													"conditions": [
+														{
+															"id": "else",
+															"objectClass": "System",
+															"sid": 606578271393608
+														},
+														{
+															"id": "evaluate-expression",
+															"objectClass": "System",
+															"sid": 646219056948389,
+															"parameters": {
+																"value": "Pickup.TemplateName = \"MP\""
+															}
+														}
+													],
+													"actions": [
+														{
+															"customAction": "Add MP",
+															"objectClass": "PartyMP",
+															"sid": 650933295226725,
+															"parameters": [
+																"PICKUP_MANA_BONUS",
+																"Char.UID"
+															]
+														}
+													],
+													"sid": 410165658292651
+												}
+											]
+										},
+										{
+											"eventType": "comment",
+											"text": "Item needs to move closer to the character."
+										},
+										{
+											"eventType": "block",
+											"conditions": [
+												{
+													"id": "else",
+													"objectClass": "System",
+													"sid": 621380139540239
+												}
+											],
+											"actions": [],
+											"sid": 706871988665513,
+											"children": [
+												{
+													"eventType": "variable",
+													"name": "angleToTarget",
+													"type": "number",
+													"initialValue": "0",
+													"comment": "Angle to the character that picked this item up.",
+													"isStatic": false,
+													"isConstant": false,
+													"sid": 904072725470907
+												},
+												{
+													"eventType": "block",
+													"conditions": [],
+													"actions": [
+														{
+															"id": "set-eventvar-value",
+															"objectClass": "System",
+															"sid": 462755170585215,
+															"parameters": {
+																"variable": "angleToTarget",
+																"value": "angle(Pickup.X, Pickup.Y, Char.X, Char.Y)"
+															}
+														},
+														{
+															"id": "set-position",
+															"objectClass": "Pickup",
+															"sid": 888478430922785,
+															"parameters": {
+																"x": "Self.X + cos(angleToTarget) * PICKUP_SPEED * dt",
+																"y": "Self.Y + sin(angleToTarget) * PICKUP_SPEED * dt"
+															}
+														}
+													],
+													"sid": 496544981169182
+												}
+											]
+										}
+									]
+								},
+								{
+									"eventType": "comment",
+									"text": "Character died before the item reached them."
+								},
+								{
+									"eventType": "block",
+									"conditions": [
+										{
+											"id": "else",
+											"objectClass": "System",
+											"sid": 505763829600419
+										}
+									],
+									"actions": [
+										{
+											"id": "destroy",
+											"objectClass": "Pickup",
+											"sid": 658743650071184
+										}
+									],
+									"sid": 305347276977181
+								}
+							]
+						}
+					]
+				}
+			],
+			"sid": 100168815830990
+		}
+	],
+	"sid": 479468091217248
+}
